@@ -1,36 +1,116 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <li>{% block title %}Posts Dashboard{% endblock %}</li>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('mtp.create') }}">New</a>
-  {% endif %}
+{% block meta %}
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    {% block title %}
+    <title>MTP | Web App</title>
+    {% endblock %}
+
 {% endblock %}
 
+
+{% block header %}
+<h1 class="mt-4">Posts Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        {% if g.user %}
+        <li>
+            <a class="btn btn-primary" href="{{ url_for('mtp.create') }}">New Post</a>
+        </li>
+        {% endif %}
+    </ol>
+{% endblock %}
+
+
+{% block cards %}
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-primary text-white mb-4">
+            <div class="card-body">Primary Card</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" href="#">View Details</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-warning text-white mb-4">
+            <div class="card-body">Warning Card</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" href="#">View Details</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">Success Card</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" href="#">View Details</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-danger text-white mb-4">
+            <div class="card-body">Error message Card</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                {% for message in get_flashed_messages() %}
+                    <a class="small text-white stretched-link" href="#">{{ message }}</a>
+                {% endfor %}
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
 {% block content %}
-      <thead>
-        <tr>
-            <th>Title</th>
-            <th>Body</th>
-            <th>About</th>
-            <th>Options</th>
-        </tr>
-      </thead>
-  {% for post in posts %}
-      <tbody class="post">
-        <tr>
-          <th>{{ post['title'] }}</th>
-          <th class="body">{{ post['body'] }}</th>
-          <th class="about">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</th>
-          {% if g.user['id'] == post['author_id'] %}
-          <th>
-           <a class="action" href="{{ url_for('mtp.update', id=post['id']) }}">Edit</a>
-          </th>
-          {% endif %}
-        </tr>
-      </tbody>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        Post DataTable
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Body</th>
+                    <th>About</th>
+                    <th>Options</th>
+                </tr>
+              </thead>
+          {% for post in posts %}
+              <tbody class="post">
+                <tr>
+                  <th>{{ post['title'] }}</th>
+                  <th class="body">{{ post['body'] }}</th>
+                  <th class="about">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</th>
+                  {% if g.user['id'] == post['author_id'] %}
+                  <th>
+                      <a class="action" href="{{ url_for('mtp.update', id=post['id']) }}">Edit</a>
+                  </th>
+                  {% else %}
+                  <th>
+                      <span><a class="action" href="{{ url_for('auth.login') }}">Log in</a> to edit posts.</span>
+                  </th>
+                  {% endif %}
+                </tr>
+              </tbody>
+                {% if not loop.last %}
+                    <hr>
+                {% endif %}
+            {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
