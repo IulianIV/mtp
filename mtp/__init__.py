@@ -4,6 +4,7 @@ from flask import Flask
 from . import db
 from . import auth
 from . import mtp
+from . import budget
 
 
 def create_app(test_config=None):
@@ -28,6 +29,7 @@ def create_app(test_config=None):
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(mtp.bp)
+    app.register_blueprint(budget.bp)
     app.add_url_rule('/', endpoint='index')
 
     return app
