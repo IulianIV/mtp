@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    {% block title %}
+    <title>MTP | Web App</title>
+    {% endblock %}
+
+{% endblock %}
+
+{% block header %}
+<h1 class="mt-4">Posts Dashboard</h1>
+<!--
+    <ol class="breadcrumb mb-4">
+        {% if g.user %}
+        <li>
+            <a class="btn btn-primary" href="{{ url_for('mtp.create') }}">New Post</a>
+        </li>
+        {% endif %}
+    </ol>
+-->
+{% endblock %}
+
+{% block cards %}
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-primary text-white mb-4">
+            <div class="card-body">Primary Card</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" href="#">View Details</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-warning text-white mb-4">
+            <div class="card-body">Warning Card</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" href="#">View Details</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">Success Card</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" href="#">View Details</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-danger text-white mb-4">
+            <div class="card-body">Error message Card</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                {% for message in get_flashed_messages() %}
+                    <a class="small text-white stretched-link" href="#">{{ message }}</a>
+                {% endfor %}
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="layoutBudgetIndex">
+            <div id="layoutBudgetIndex_content">
+                <main>
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-bdgt-1">
+                                <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Budget Entry</h3></div>
+                                    <div class="card-body">
+                                      <form method="post">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="font-weight= bold;">
+                                                            <label for="date" >Date</label>
+                                                        </th>
+                                                        <th>
+                                                            <label for="revenue">Revenue</label>
+                                                        </th>
+                                                        <th>
+                                                            <label for="source">Source</label>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th>
+                                                            <input class="form-control py-4" name="date" id="date" value="{{ request.form['date'] }}" placeholder="Ex.: 15-01-2021"/>
+                                                        </th>
+                                                        <th>
+                                                            <input class="form-control py-4" name="revenue" id="revenue" value="{{ request.form['revenue'] }}" placeholder="Ex.: 1000"/>
+                                                        </th>
+                                                        <th>
+                                                            <input class="form-control py-4" name="source" id="source" value="{{ request.form['source'] }}" placeholder="Ex.: Salary"/>
+                                                        </th>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                          <input type="submit" value="Save" class="btn btn-primary">
+                                          <a class="btn btn-secondary" href="{{ url_for('budget.summary') }}">Cancel</a>
+                                      </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                  </div>
+                </main>
+            </div>
+</div>
+{% endblock %}
