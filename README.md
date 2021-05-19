@@ -7,3 +7,4 @@ MTP is a web app that contains several trackers.
 
 Each app will have a `mtp/<app-name>` path followed by several views. Example:
 `mtp/budget/summary/html`
+
