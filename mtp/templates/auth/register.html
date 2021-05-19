@@ -1,15 +1,40 @@
-{% extends 'base.html' %}
+{% extends 'auth_base.html' %}
 
-{% block header %}
-  <h1>{% block title %}Register{% endblock %}</h1>
+{% block head %}
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<meta name="description" content="" />
+<meta name="author" content="" />
+<title>{% block title %}Register{% endblock %}</title>
 {% endblock %}
 
-{% block content %}
-  <form method="post">
-    <label for="username">Username</label>
-    <input name="username" id="username" required>
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" required>
-    <input type="submit" value="Register">
-  </form>
+{% block form_content %}
+<div class="card-header"><h3 class="text-center font-weight-light my-4">Create Account</h3></div>
+<div class="card-body">
+    <form method="post">
+        <div class="form-group">
+            <label class="small mb-1" for="username">Username</label>
+            <input class="form-control py-4" name="username" id="username" type="text"  placeholder="Enter username" required/>
+        </div>
+        <div class="form-row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="small mb-1" for="password">Password</label>
+                    <input class="form-control py-4" name="password" id="password" type="password" placeholder="Enter password" required/>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="small mb-1" for="inputConfirmPassword">Confirm Password</label>
+                    <input class="form-control py-4" id="inputConfirmPassword" type="password" placeholder="Confirm password" />
+                </div>
+            </div>
+        </div>
+        <input class="btn btn-primary" type="submit" />
+    </form>
+</div>
+<div class="card-footer text-center">
+    <div class="small"><a href="{{ url_for('auth.login') }}">Have an account? Go to login</a></div>
+</div>
 {% endblock %}
