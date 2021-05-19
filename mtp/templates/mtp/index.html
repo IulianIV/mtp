@@ -19,7 +19,10 @@
     <ol class="breadcrumb mb-4">
         {% if g.user %}
         <li>
-            <a class="btn btn-primary" href="{{ url_for('mtp.create') }}">New Post</a>
+            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('mtp.create') }}">New Post</a>
+        </li>
+        <li>
+            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.summary') }}">Budgeting App</a>
         </li>
         {% endif %}
     </ol>
@@ -90,9 +93,9 @@
           {% for post in posts %}
               <tbody class="post">
                 <tr>
-                  <th>{{ post['title'] }}</th>
-                  <th class="body">{{ post['body'] }}</th>
-                  <th class="about">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</th>
+                  <th class="small mb-1">{{ post['title'] }}</th>
+                  <th class="small mb-1">{{ post['body'] }}</th>
+                  <th class="small mb-1">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</th>
                   {% if g.user['id'] == post['author_id'] %}
                   <th>
                       <a class="action" href="{{ url_for('mtp.update', id=post['id']) }}">Edit</a>

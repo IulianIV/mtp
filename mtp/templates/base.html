@@ -99,8 +99,10 @@
                             </a>
                             <div class="collapse" id="collapseBudget" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="#">Summary</a>
-                                    <a class="nav-link" href="#">Other views to be added...</a>
+                                    <a class="nav-link" href="{{ url_for('budget.summary') }}">Summary</a>
+                                    <a class="nav-link" href="{{ url_for('budget.add_revenue_entry') }}">Revenue</a>
+                                    <a class="nav-link" href="{{ url_for('budget.add_savings_entry') }}">Savings</a>
+                                    <a class="nav-link" href="{{ url_for('budget.add_expense_entry') }}">Expense</a>
                                 </nav>
                             </div>
                             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOthers" aria-expanded="false" aria-controls="collapseOthers">
@@ -116,11 +118,11 @@
                             </div>
 
                             <div class="sb-sidenav-menu-heading">Addons</div>
-                            <a class="nav-link" href="charts.html">
+                            <a class="nav-link" href="{{ url_for('static', filename='charts.html') }}">
                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                                 Charts
                             </a>
-                            <a class="nav-link" href="tables.html">
+                            <a class="nav-link" href="{{ url_for('static', filename='tables.html') }}">
                                 <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                                 Tables
                             </a>
