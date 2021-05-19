@@ -6,31 +6,37 @@ from werkzeug.exceptions import abort
 from mtp.auth import login_required
 from mtp.db import get_db
 
-bp = Blueprint('budget', __name__)
+bp = Blueprint('budget', __name__, url_prefix='/budget')
 
 
-@bp.route('/budget')
-@login_required
-def index():
-    return render_template('budget/index.html')
-    pass
+# @bp.route('/budget/index')
+# @login_required
+# def index():
+#     return render_template('budget/index.html')
+#     pass
 
 
-@bp.route('/budget/summary')
+@bp.route('/')
 @login_required
 def summary():
-    return render_template('budget/summary.html')
-    pass
+    db = get_db()
+    entries = db.execute(
+        'SELECT id, expense_date, expense_item, expense_value, expense_item_category, expense_source'
+        ' FROM budget_expense'
+        ' ORDER BY expense_date ASC'
+    ).fetchall()
+
+    return render_template('budget/summary.html', entries=entries)
 
 
-@bp.route('/budget/new-expense-entry', methods=('GET', 'POST'))
+@bp.route('/new-expense-entry', methods=('GET', 'POST'))
 @login_required
 def add_expense_entry():
     if request.method == 'POST':
         date = request.form['date']
         item = request.form['item']
         value = request.form['value']
-        item_category = request.form['value']
+        item_category = request.form['category']
         source = request.form['source']
         db = get_db()
         error = None
@@ -52,13 +58,13 @@ def add_expense_entry():
                 'VALUES (?, ?, ?, ?, ?)', (date, item, value, item_category, source)
             )
             db.commit()
-            return redirect('budget/summary.html')
+            return redirect(url_for('budget.summary'))
 
         flash(error)
     return render_template('budget/expense.html')
 
 
-@bp.route('/budget/new-revenue-entry', methods=('GET', 'POST'))
+@bp.route('/new-revenue-entry', methods=('GET', 'POST'))
 @login_required
 def add_revenue_entry():
     if request.method == 'POST':
@@ -80,19 +86,19 @@ def add_revenue_entry():
                 'VALUES (?, ?, ?)', (date, revenue, source)
             )
             db.commit()
-            return redirect('budget/summary.html')
+            return redirect(url_for('budget.summary'))
 
         flash(error)
 
     return render_template('budget/revenue.html')
 
 
-@bp.route('/budget/new-savings-entry', methods=('GET', 'POST'))
+@bp.route('/new-savings-entry', methods=('GET', 'POST'))
 @login_required
 def add_savings_entry():
     if request.method == 'POST':
         date = request.form['date']
-        value = request.form['date']
+        value = request.form['value']
         source = request.form['source']
         reason = request.form['reason']
         action = request.form['action']
@@ -116,7 +122,7 @@ def add_savings_entry():
                 (date, value, source, reason, action)
             )
             db.commit()
-            return redirect('budget/summary.html')
+            return redirect(url_for('budget.summary'))
 
         flash(error)
 
