@@ -15,14 +15,20 @@
 
 
 {% block header %}
-<h1 class="mt-4">Posts Dashboard</h1>
+<h1 class="mt-4">Budget Dashboard</h1>
     <ol class="breadcrumb mb-4">
         {% if g.user %}
         <li>
-            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('mtp.create') }}">New Post</a>
+            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('mtp.index') }}">Blog</a>
         </li>
         <li>
-            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.summary') }}">Budgeting App</a>
+            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.add_expense_entry') }}">Add New Expense</a>
+        </li>
+        <li>
+            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
+        </li>
+        <li>
+            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
         </li>
         {% endif %}
     </ol>
@@ -77,7 +83,7 @@
 <div class="card mb-4">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
-        Post DataTable
+        Expense Summary
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -92,7 +98,7 @@
                     <th>Expense Source</th>
                 </tr>
               </thead>
-          {% for entry in entries %}
+          {% for entry in expense_entries %}
               <tbody class="post">
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
@@ -103,13 +109,75 @@
                     <th class="small mb-1">{{ entry['expense_source'] }}</th>
                 </tr>
               </tbody>
-                {% if not loop.last %}
-                    <hr>
-                {% endif %}
             {% endfor %}
             </table>
         </div>
     </div>
 </div>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        Revenue Summary
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable2" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Revenue Date</th>
+                    <th>Revenue Value</th>
+                    <th>Revenue Source</th>
+                </tr>
+              </thead>
+          {% for entry in revenue_entries %}
+              <tbody class="post">
+                <tr>
+                    <th class="small mb-1">{{ entry['id'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_date'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_value'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_source'] }}</th>
+                </tr>
+              </tbody>
+            {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        Savings Summary
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable3" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Savings Date</th>
+                    <th>Savings Value</th>
+                    <th>Savings Source</th>
+                    <th>Savings Reason</th>
+                    <th>Savings Action</th>
+                </tr>
+              </thead>
+          {% for entry in savings_entries %}
+              <tbody class="post">
+                <tr>
+                    <th class="small mb-1">{{ entry['id'] }}</th>
+                    <th class="small mb-1">{{ entry['savings_date'] }}</th>
+                    <th class="small mb-1">{{ entry['savings_value'] }}</th>
+                    <th class="small mb-1">{{ entry['savings_source'] }}</th>
+                    <th class="small mb-1">{{ entry['savings_reason'] }}</th>
+                    <th class="small mb-1">{{ entry['savings_action'] }}</th>
+                </tr>
+              </tbody>
+            {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
 
 {% endblock %}
