@@ -14,7 +14,7 @@
             {% else %}
                 <a class="navbar-brand" href="{{ url_for('index')}}">MTP Web App</a>
             {% endif %}
-            <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
             <!-- Navbar Search-->
             <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
                 <div class="input-group">
@@ -61,12 +61,12 @@
                             <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
                                     {% if not g.user %}
-                                                <a class="nav-link collapsed" href="{{ url_for('auth.login') }}" data-toggle="collapse" data-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">Login</a>
-                                                <a class="nav-link collapsed" href="{{ url_for('auth.register') }}" data-toggle="collapse" data-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">Register</a>
+                                                <a class="nav-link collapsed" href="{{ url_for('auth.login') }}" data-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">Login</a>
+                                                <a class="nav-link collapsed" href="{{ url_for('auth.register') }}" data-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">Register</a>
                                                 <a class="nav-link collapsed" href="#">Forgot Password</a>
-                                            {% else %}
-                                                <a class="nav-link collapsed" href="{{ url_for('auth.logout') }}" data-toggle="collapse" data-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">Logout</a>
-                                            {% endif %}
+                                    {% else %}
+                                                <a class="nav-link collapsed" href="{{ url_for('auth.logout') }}" data-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">Logout</a>
+                                    {% endif %}
                                     {% if g.user %}
                                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError">
                                         Error
@@ -81,17 +81,7 @@
                                     </div>
                                 </nav>
                             </div>
-                            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
-                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                                Layouts
-                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                            </a>
-                            <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
-                                <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="{{ url_for('static', filename='layout-static.html') }}">Static Navigation</a>
-                                    <a class="nav-link" href="{{ url_for('static', filename='layout-sidenav-light.html') }}">Light Sidenav</a>
-                                </nav>
-                            </div>
+
                             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBudget" aria-expanded="false" aria-controls="collapseBudget">
                                 <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
                                 Budget
@@ -99,10 +89,21 @@
                             </a>
                             <div class="collapse" id="collapseBudget" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="{{ url_for('budget.summary') }}">Summary</a>
-                                    <a class="nav-link" href="{{ url_for('budget.add_revenue_entry') }}">Revenue</a>
-                                    <a class="nav-link" href="{{ url_for('budget.add_savings_entry') }}">Savings</a>
-                                    <a class="nav-link" href="{{ url_for('budget.add_expense_entry') }}">Expense</a>
+                                    <a class="nav-link" href="{{ url_for('budget.summary') }}">See Summary</a>
+                                    <a class="nav-link" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
+                                    <a class="nav-link" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
+                                    <a class="nav-link" href="{{ url_for('budget.add_expense_entry') }}">Add Expense</a>
+                                </nav>
+                            </div>
+                            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
+                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                                Other views to be added
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="#">Summary</a>
+                                    <a class="nav-link" href="#">Other views to be added...</a>
                                 </nav>
                             </div>
                             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOthers" aria-expanded="false" aria-controls="collapseOthers">
