@@ -4,6 +4,13 @@ DROP TABLE IF EXISTS budget_expense;
 DROP TABLE IF EXISTS budget_revenue;
 DROP TABLE IF EXISTS budget_savings;
 DROP TABLE IF EXISTS budget_utilities;
+DROP TABLE IF EXISTS validation;
+DROP TABLE IF EXISTS validation_items;
+DROP TABLE IF EXISTS validation_categories;
+DROP TABLE IF EXISTS validation_sources;
+DROP TABLE IF EXISTS validation_savings_accounts;
+DROP TABLE IF EXISTS avalidation_savings_action_types;
+DROP TABLE IF EXISTS validation_savings_reason;
 --DROP TABLE IF EXISTS collections_ledger;
 --DROP TABLE IF EXISTS collections_media;
 --DROP TABLE IF EXISTS health_biometrics;
@@ -59,6 +66,37 @@ CREATE TABLE budget_utilities(
     utilities_sattelite_value INTEGER NOT NULL,
     utilities_maintenance_value INTEGER NOT NULL,
     utilities_info TEXT
+);
+
+CREATE TABLE validation_items(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    items TEXT NOT NULL
+);
+
+CREATE TABLE validation_categories(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    categories TEXT NOT NULL
+
+);
+
+CREATE TABLE validation_sources(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sources TEXT NOT NULL
+);
+
+CREATE TABLE validation_savings_accounts(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    savings_accounts TEXT NOT NULL
+);
+
+CREATE TABLE validation_savings_action_types(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    savings_action_types TEXT NOT NULL
+);
+
+CREATE TABLE validation_savings_reason(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    savings_reason TEXT NOT NULL
 );
 
 --CREATE TABLE collections_ledger(
