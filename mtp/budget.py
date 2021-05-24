@@ -10,64 +10,128 @@ from mtp.db import get_db, close_db
 bp = Blueprint('budget', __name__, url_prefix='/budget')
 
 
+# TODO create view and update for the dropdown list validation. A 'values' sheet if you will.
+# TODO Try to reduce number of templates by using base templates
+# TODO Customize or remove redundant cards for each separate view.
+
 # @bp.route('/budget/index')
 # @login_required
 # def index():
 #     return render_template('budget/index.html')
 #     pass
 
+# TODO add standard graphs and view similar to the one in sheets to summary view
+
+# Class object for handling multiple SQL queries, might be useful in cases where above code does not work
+
+class BudgetDbConnector:
+    def __init__(self):
+        self.db = get_db()
+
+    @property
+    def expense_entries(self):
+        return self.db.execute(
+            'SELECT id, expense_date, expense_item, expense_value, expense_item_category, expense_source'
+            ' FROM budget_expense '
+            'ORDER BY expense_date ASC'
+        )
+
+    @property
+    def revenue_entries(self):
+        return self.db.execute(
+            'SELECT id, revenue_date, revenue_value, revenue_source'
+            ' FROM budget_revenue '
+            'ORDER BY revenue_date ASC'
+        )
+
+    @property
+    def savings_entries(self):
+        return self.db.execute(
+            'SELECT id, savings_date,savings_value, savings_source, savings_reason, savings_action'
+            ' FROM budget_savings '
+            'ORDER BY savings_date ASC'
+        )
+
+    @property
+    def validation_items(self):
+        return self.db.execute(
+            'SELECT items'
+            ' FROM validation_items'
+        )
+
+    @property
+    def validation_categories(self):
+        return self.db.execute(
+            'SELECT categories'
+            ' FROM validation_categories'
+        )
+
+    @property
+    def validation_savings_accounts(self):
+        return self.db.execute(
+            'SELECT savings_accounts'
+            ' FROM validation_savings_accounts'
+        )
+
+    @property
+    def validation_sources(self):
+        return self.db.execute(
+            'SELECT sources'
+            ' FROM validation_sources'
+        )
+
+    @property
+    def validation_savings_action_types(self):
+        return self.db.execute(
+            'SELECT savings_action_types'
+            ' FROM validation_savings_action_types'
+        )
+
+    @property
+    def validation_savings_reason(self):
+        return self.db.execute(
+            'SELECT savings_reason'
+            ' FROM validation_savings_reason'
+        )
+
+
 @bp.route('/')
 @login_required
 def summary():
-    db = get_db()
 
-    expense_entries = db.execute(
-        'SELECT id, expense_date, expense_item, expense_value, expense_item_category, expense_source'
-        ' FROM budget_expense '
-        'ORDER BY expense_date ASC'
-    ).fetchall()
-
-    revenue_entries = db.execute(
-        'SELECT id, revenue_date, revenue_value, revenue_source'
-        ' FROM budget_revenue '
-        'ORDER BY revenue_date ASC'
-    ).fetchall()
-
-    savings_entries = db.execute(
-        'SELECT id, savings_date,savings_value, savings_source, savings_reason, savings_action'
-        ' FROM budget_savings '
-        'ORDER BY savings_date ASC'
-    ).fetchall()
-
-    # Class object for handling multiple SQL queries, might be useful in cases where above code does not work
-
-    # class BudgetDbConnector:
-    #     def __init__(self):
-    #         self.db = get_db()
+    # db = get_db()
+    # # expense_entries = db.execute(
+    # #     'SELECT id, expense_date, expense_item, expense_value, expense_item_category, expense_source'
+    # #     ' FROM budget_expense '
+    # #     'ORDER BY expense_date ASC'
+    # # ).fetchall()
     #
-    #     @property
-    #     def expense_entries(self):
-    #         return self.db.execute(
-    #             'SELECT id, expense_date, expense_item, expense_value, expense_item_category, expense_source'
-    #             ' FROM budget_expense '
-    #             'ORDER BY expense_date ASC')
+    # revenue_entries = db.execute(
+    #     'SELECT id, revenue_date, revenue_value, revenue_source'
+    #     ' FROM budget_revenue '
+    #     'ORDER BY revenue_date ASC'
+    # ).fetchall()
     #
-    #     @property
-    #     def revenue_entries(self):
-    #         return self.db.execute(
-    #             'SELECT id, revenue_date, revenue_value, revenue_source'
-    #             ' FROM budget_revenue '
-    #             'ORDER BY revenue_date ASC')
-    #
-    #     @property
-    #     def savings_entries(self):
-    #         return self.db.execute(
-    #             'SELECT id, savings_date,savings_value, savings_source, savings_reason, savings_action'
-    #             ' FROM budget_savings '
-    #             'ORDER BY savings_date ASC')
+    # savings_entries = db.execute(
+    #     'SELECT id, savings_date,savings_value, savings_source, savings_reason, savings_action'
+    #     ' FROM budget_savings '
+    #     'ORDER BY savings_date ASC'
+    # ).fetchall()
 
-    return render_template('budget/summary.html', expense_entries=expense_entries, revenue_entries=revenue_entries,
-                           savings_entries=savings_entries)
+    return render_template('budget/summary.html', _object=BudgetDbConnector())
+
+
+"""
+Form catcher that adds entries to `budget_expense` database 
+
+"""
+
+
+# TODO add validation for fields
+# TODO fill database with validated test values
+# TODO datetime selector for 'date'
+# TODO dropdown list with validated values for 'item', 'category', 'source'
+
 
 @bp.route('/new-expense-entry', methods=('GET', 'POST'))
 @login_required
@@ -104,6 +168,12 @@ def add_expense_entry():
     return render_template('budget/expense.html')
 
 
+"""
+Form catcher that adds entries to `budget_revenue` database 
+
+"""
+
+
 @bp.route('/new-revenue-entry', methods=('GET', 'POST'))
 @login_required
 def add_revenue_entry():
@@ -131,6 +201,12 @@ def add_revenue_entry():
         flash(error)
 
     return render_template('budget/revenue.html')
+
+
+"""
+Form catcher that adds entries to `budget_savings` database 
+
+"""
 
 
 @bp.route('/new-savings-entry', methods=('GET', 'POST'))
@@ -169,11 +245,119 @@ def add_savings_entry():
     return render_template('budget/savings.html')
 
 
+@bp.route('/validation', methods=('GET', 'POST'))
+@login_required
+def validation():
+    db = get_db()
+
+    #
+    # validation_items = db.execute(
+    #     'SELECT items'
+    #     ' FROM validation_items'
+    # ).fetchall()
+    #
+    # validation_categories = db.execute(
+    #     'SELECT categories'
+    #     ' FROM validation_categories'
+    # ).fetchall()
+    #
+    # validation_savings_accounts = db.execute(
+    #     'SELECT savings_accounts'
+    #     ' FROM validation_savings_accounts'
+    # ).fetchall()
+    #
+    # validation_sources = db.execute(
+    #     'SELECT sources'
+    #     ' FROM validation_sources'
+    # ).fetchall()
+    #
+    # validation_savings_action_types = db.execute(
+    #     'SELECT savings_action_types'
+    #     ' FROM validation_savings_action_types'
+    # ).fetchall()
+    #
+    # validation_savings_reason = db.execute(
+    #     'SELECT savings_reason'
+    #     ' FROM validation_savings_reason'
+    # ).fetchall()
+
+    if request.method == 'POST':
+        items = request.form['items']
+        categories = request.form['categories']
+        source = request.form['sources']
+        accounts = request.form['accounts']
+        actions = request.form['actions']
+        reasons = request.form['reason']
+
+        error = None
+
+        if not items:
+            error = 'An item must be added'  # TODO get the new values form submission right.
+        elif not categories:
+            error = 'Item category must be set.'
+        elif not source:
+            error = 'Source is required'
+        elif not reasons:
+            error = 'Reason for transaction'
+        elif not actions:
+            error = 'Action is required'
+        elif not accounts:
+            error = 'An account must be chosen'
+        elif error is None:
+            db.execute(
+                'INSERT INTO validation_items (items)'
+                ' VALUES (?)',
+                (items,)
+            )
+            db.commit()
+
+            db.execute(
+                'INSERT INTO validation_categories (categories) VALUES (?)',
+                (categories,)
+            )
+            db.commit()
+
+            db.execute(
+                'INSERT INTO validation_sources (sources)'
+                ' VALUES (?)',
+                (source,)
+            )
+            db.commit()
+
+            db.execute(
+                'INSERT INTO validation_savings_accounts'
+                ' (savings_accounts) VALUES (?)',
+                (accounts,)
+            )
+            db.commit()
+
+            db.execute(
+                'INSERT INTO validation_savings_action_types (savings_action_types) VALUES (?)',
+                (actions,)
+            )
+            db.commit()
+
+            db.execute(
+                'INSERT INTO validation_savings_reason (savings_reason) VALUES (?)',
+                (reasons,)
+            )
+            db.commit()
+
+            return redirect(url_for('budget.validation'))
+
+        flash(error)
+
+    return render_template('budget/validation.html', _object=BudgetDbConnector())
+
+
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
 def update_entry():
     return render_template('budget/update.html')
     pass
+
+
+# TODO view similar to the one already exemplified in sheets
 
 
 @login_required
@@ -183,11 +367,17 @@ def statistics():
     pass
 
 
+# TODO view similar to the one already exemplified in sheets
+
+
 @bp.route('/report')
 @login_required
 def report():
     return render_template('budget/report.html')
     pass
+
+
+# TODO a query view that has query filters and can show lists of expenses, savings or revenue
 
 
 @bp.route('/lookup')
