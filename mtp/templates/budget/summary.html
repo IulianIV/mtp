@@ -30,6 +30,9 @@
         <li>
             <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
         </li>
+        <li>
+            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.validation') }}">See Validation</a>
+        </li>
         {% endif %}
     </ol>
 {% endblock %}
@@ -98,7 +101,7 @@
                     <th>Expense Source</th>
                 </tr>
               </thead>
-          {% for entry in expense_entries %}
+          {% for entry in _object.expense_entries %}
               <tbody class="post">
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
@@ -130,7 +133,7 @@
                     <th>Revenue Source</th>
                 </tr>
               </thead>
-          {% for entry in revenue_entries %}
+          {% for entry in _object.revenue_entries %}
               <tbody class="post">
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
@@ -162,7 +165,7 @@
                     <th>Savings Action</th>
                 </tr>
               </thead>
-          {% for entry in savings_entries %}
+          {% for entry in _object.savings_entries %}
               <tbody class="post">
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
