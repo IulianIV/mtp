@@ -10,6 +10,14 @@ from mtp.db import get_db
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
+"""
+Form catcher that adds entries to `user` database 
+
+"""
+# TODO add validation for fields
+# TODO fill database with validated test values
+
+
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
@@ -38,6 +46,13 @@ def register():
         flash(error)
 
     return render_template('auth/register.html')
+
+
+"""
+Login handling for 'user' database
+
+"""
+# TODO add validation for fields
 
 
 @bp.route('/login', methods=('GET', 'POST'))
@@ -93,3 +108,5 @@ def login_required(view):
         return view(**kwargs)
 
     return wrapped_view
+
+# TODO Create a 'forgot password' view
