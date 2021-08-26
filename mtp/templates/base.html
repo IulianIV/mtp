@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        {% block meta %} <!-- TODO Create meta generator for each views -->
+        {% block meta %}
         {% endblock %}
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
         <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
@@ -28,7 +28,7 @@
             {% if g.user=='admin' %}
                     <a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a>
                     {% endif %}
-            <ul class="navbar-nav ml-auto ml-md-0"> <!-- TODO reduce the height of the navbar -->
+            <ul class="navbar-nav ml-auto ml-md-0">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="userDropdown" href="#!" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                 </li>
@@ -52,7 +52,7 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 Dashboard
                             </a>
-                            <div class="sb-sidenav-menu-heading">Interface</div> <!-- TODO reduce the width of the 'sidenav menu' -->
+                            <div class="sb-sidenav-menu-heading">Interface</div>
                             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
                                 <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
                                 Authentication
@@ -159,7 +159,7 @@
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid">
                         <div class="d-flex align-items-center justify-content-between small">
-                            <div class="text-muted">Copyright &copy; Iulian Ichim 2021</div> <!-- TODO add automatic yearly updates -->
+                            <div class="text-muted">Copyright &copy; Iulian Ichim 2021</div>
                             <div>
                                 <a href="#">Privacy Policy</a>
                                 &middot;

@@ -80,6 +80,7 @@
                                     <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Budget Entry</h3></div>
                                     <div class="card-body">
                                       <form method="post">
+<!-- a form.csrf token was inserted here -->
                                         <div class="table-responsive">
                                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                                 <thead>
@@ -107,17 +108,32 @@
                                                             <input class="form-control py-4" name="date" id="date" value="{{ request.form['date'] }}" placeholder="Ex.: 15-01-2021"/>
                                                         </th>
                                                         <th>
-                                                            <input class="form-control py-4" name="item" id="item" value="{{ request.form['item'] }}" placeholder="Ex.: Cumparaturi"/>
+                                                            <select class="form-select py-1" aria-label="Default select example" name="item" id="item" >
+                                                                {% for item in _object.validation_items %}
+                                                                <option value="{{ request.form['item'] }}">{{ item['items'] }}</option>
+                                                                {% endfor %}
+                                                            </select>
                                                         </th>
                                                         <th>
                                                             <input class="form-control py-4" name="value" id="value" value="{{ request.form['value'] }}" placeholder="Ex.: 15.25"/>
                                                         </th>
                                                         <th>
-                                                            <input class="form-control py-4" name="category" id="category" value="{{ request.form['category'] }}" placeholder="Ex.: Necessities"/>
+                                                            <select class="form-select py-1" aria-label="Default select example" name="category" id="category" >
+                                                                {% for item in _object.validation_categories %}
+                                                                <option value="{{ request.form['category'] }}}">{{ item['categories'] }}</option>
+                                                                {% endfor %}
+                                                            </select>
                                                         </th>
                                                         <th>
-                                                            <input class="form-control py-4" name="source" id="source" value="{{ request.form['source'] }}" placeholder="Ex.: Salary"/>
+                                                            <select class="form-select py-1" aria-label="Default select example" name="source" id="source" >
+                                                                {% for item in _object.validation_sources %}
+                                                                <option value="{{ request.form['source'] }}">{{ item['sources'] }}</option>
+                                                                {% endfor %}
+                                                            </select>
                                                         </th>
+                                                        <!--<th>
+                                                            <input class="form-control py-4" name="source" id="source" value="{{ request.form['source'] }}" placeholder="Ex.: Salary"/>
+                                                        </th>-->
                                                     </tr>
                                                 </tbody>
                                             </table>

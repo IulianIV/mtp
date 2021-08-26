@@ -104,7 +104,11 @@
                                                             <input class="form-control py-4" name="revenue" id="revenue" value="{{ request.form['revenue'] }}" placeholder="Ex.: 1000"/>
                                                         </th>
                                                         <th>
-                                                            <input class="form-control py-4" name="source" id="source" value="{{ request.form['source'] }}" placeholder="Ex.: Salary"/>
+                                                            <select class="form-select" aria-label="Default select example" name="source" id="source" >
+                                                                {% for item in _object.validation_sources %}
+                                                                <option value="{{ request.form['source'] }}">{{ item['sources'] }}</option>
+                                                                {% endfor %}
+                                                            </select>
                                                         </th>
                                                     </tr>
                                                 </tbody>
