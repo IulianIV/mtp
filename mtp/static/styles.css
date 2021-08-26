@@ -2912,7 +2912,7 @@ fieldset:disabled a.btn {
 }
 
 .btn-sm, .btn-group-sm > .btn {
-  padding: 0.25rem 6.5rem;
+  padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
   line-height: 1.5;
   border-radius: 0.2rem;
@@ -10172,7 +10172,7 @@ body {
   z-index: 1039;
 }
 .sb-topnav .navbar-brand {
-  width: 225px;
+  /* width: 320px; */
   padding-left: 1rem;
   padding-right: 1rem;
   margin: 0;
