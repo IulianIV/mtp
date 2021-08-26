@@ -14,8 +14,6 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 Form catcher that adds entries to `user` database 
 
 """
-# TODO add validation for fields
-# TODO fill database with validated test values
 
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -52,7 +50,6 @@ def register():
 Login handling for 'user' database
 
 """
-# TODO add validation for fields
 
 
 @bp.route('/login', methods=('GET', 'POST'))
@@ -109,4 +106,3 @@ def login_required(view):
 
     return wrapped_view
 
-# TODO Create a 'forgot password' view

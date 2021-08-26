@@ -73,8 +73,6 @@ def get_post(id, check_author=True):
 Form catcher that adds entries to `post` database 
 
 """
-# TODO add validation for fields
-# TODO fill database with validated test values
 
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))

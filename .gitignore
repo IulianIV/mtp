@@ -144,3 +144,4 @@ hello.py
 *.pyc
 tests/
 instance/
+.idea/

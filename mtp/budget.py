@@ -7,12 +7,12 @@ from werkzeug.exceptions import abort
 from mtp.auth import login_required
 from mtp.db import get_db, close_db
 
+from flask_wtf import FlaskForm
+from wtforms import StringField, DateField, IntegerField
+from wtforms.validators import DataRequired
+
+
 bp = Blueprint('budget', __name__, url_prefix='/budget')
-
-
-# TODO create view and update for the dropdown list validation. A 'values' sheet if you will.
-# TODO Try to reduce number of templates by using base templates
-# TODO Customize or remove redundant cards for each separate view.
 
 # @bp.route('/budget/index')
 # @login_required
@@ -20,7 +20,6 @@ bp = Blueprint('budget', __name__, url_prefix='/budget')
 #     return render_template('budget/index.html')
 #     pass
 
-# TODO add standard graphs and view similar to the one in sheets to summary view
 
 # Class object for handling multiple SQL queries, might be useful in cases where above code does not work
 
@@ -55,7 +54,7 @@ class BudgetDbConnector:
     @property
     def validation_items(self):
         return self.db.execute(
-            'SELECT items'
+            'SELECT id,items'
             ' FROM validation_items'
         )
 
@@ -69,28 +68,28 @@ class BudgetDbConnector:
     @property
     def validation_savings_accounts(self):
         return self.db.execute(
-            'SELECT savings_accounts'
+            'SELECT id,savings_accounts'
             ' FROM validation_savings_accounts'
         )
 
     @property
     def validation_sources(self):
         return self.db.execute(
-            'SELECT sources'
+            'SELECT id,sources'
             ' FROM validation_sources'
         )
 
     @property
     def validation_savings_action_types(self):
         return self.db.execute(
-            'SELECT savings_action_types'
+            'SELECT id,savings_action_types'
             ' FROM validation_savings_action_types'
         )
 
     @property
     def validation_savings_reason(self):
         return self.db.execute(
-            'SELECT savings_reason'
+            'SELECT id,savings_reason'
             ' FROM validation_savings_reason'
         )
 
@@ -127,12 +126,6 @@ Form catcher that adds entries to `budget_expense` database
 """
 
 
-# TODO add validation for fields
-# TODO fill database with validated test values
-# TODO datetime selector for 'date'
-# TODO dropdown list with validated values for 'item', 'category', 'source'
-
-
 @bp.route('/new-expense-entry', methods=('GET', 'POST'))
 @login_required
 def add_expense_entry():
@@ -165,13 +158,20 @@ def add_expense_entry():
             return redirect(url_for('budget.add_expense_entry'))
 
         flash(error)
-    return render_template('budget/expense.html')
+    return render_template('budget/expense.html', _object=BudgetDbConnector())
 
 
 """
 Form catcher that adds entries to `budget_revenue` database 
 
 """
+
+
+class RevenueForm(FlaskForm):
+    pass
+    # date = DateField('date', validators=DataRequired())
+    # revenue = IntegerField('revenue', validators=DataRequired())
+    # source = StringField('source', validators=DataRequired())
 
 
 @bp.route('/new-revenue-entry', methods=('GET', 'POST'))
@@ -189,7 +189,7 @@ def add_revenue_entry():
         elif not revenue:
             error = 'Revenue is required'
         elif not source:
-            error = 'Source if required'
+            error = 'Source is required'
         elif error is None:
             db.execute(
                 'INSERT INTO budget_revenue (revenue_date, revenue_value, revenue_source)'
@@ -200,7 +200,7 @@ def add_revenue_entry():
 
         flash(error)
 
-    return render_template('budget/revenue.html')
+    return render_template('budget/revenue.html', _object=BudgetDbConnector())
 
 
 """
@@ -242,7 +242,7 @@ def add_savings_entry():
 
         flash(error)
 
-    return render_template('budget/savings.html')
+    return render_template('budget/savings.html', _object=BudgetDbConnector())
 
 
 @bp.route('/validation', methods=('GET', 'POST'))
@@ -282,7 +282,7 @@ def validation():
     # ).fetchall()
 
     if request.method == 'POST':
-        items = request.form['items']
+        items = request.form['items']  # fixme for some reason the POST form label throws a <bound method MultiDict.items of ImmutableMultiDict([])>
         categories = request.form['categories']
         source = request.form['sources']
         accounts = request.form['accounts']
@@ -292,7 +292,7 @@ def validation():
         error = None
 
         if not items:
-            error = 'An item must be added'  # TODO get the new values form submission right.
+            error = 'An item must be added'
         elif not categories:
             error = 'Item category must be set.'
         elif not source:
@@ -304,16 +304,22 @@ def validation():
         elif not accounts:
             error = 'An account must be chosen'
         elif error is None:
+
+            # betterme check the commits from 26.08.2021
+            #   because of the <bound method MultiDict.items of ImmutableMultiDict([])> error
+            #   I tried first indexing new categories then setting into the validation_items
+            #   the items itself + its category to respect db constraints.
+            #   did not work.
             db.execute(
-                'INSERT INTO validation_items (items)'
-                ' VALUES (?)',
-                (items,)
+                'INSERT INTO validation_categories (categories) VALUES (?)',
+                (categories,)
             )
             db.commit()
 
             db.execute(
-                'INSERT INTO validation_categories (categories) VALUES (?)',
-                (categories,)
+                'INSERT INTO validation_items (items,category)'
+                ' VALUES (?,?)',
+                (items, categories)
             )
             db.commit()
 
@@ -357,9 +363,6 @@ def update_entry():
     pass
 
 
-# TODO view similar to the one already exemplified in sheets
-
-
 @login_required
 @bp.route('/statistics')
 def statistics():
@@ -367,17 +370,11 @@ def statistics():
     pass
 
 
-# TODO view similar to the one already exemplified in sheets
-
-
 @bp.route('/report')
 @login_required
 def report():
     return render_template('budget/report.html')
     pass
-
-
-# TODO a query view that has query filters and can show lists of expenses, savings or revenue
 
 
 @bp.route('/lookup')
