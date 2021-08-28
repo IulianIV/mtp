@@ -1,14 +1,17 @@
 from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for
+    Blueprint, flash, redirect, render_template, request, url_for, Flask
 )
+
+from wtforms.fields import SubmitField, TextField, SelectField
 
 from mtp.auth import login_required
 from mtp.db import get_db
 
 from flask_wtf import FlaskForm
 
-
 bp = Blueprint('budget', __name__, url_prefix='/budget')
+app = Flask(__name__)
+
 
 # @bp.route('/budget/index')
 # @login_required
@@ -90,10 +93,42 @@ class BudgetDbConnector:
         )
 
 
+class AddValidationItems(FlaskForm):
+    item_value = TextField()
+    # fixme RuntimeError: Working outside of application context.
+    category_values = [category for category in BudgetDbConnector().validation_items]
+    category_value = SelectField(choices=category_values)
+    submit_items = SubmitField()
+
+
+class AddValidationCategory(FlaskForm):
+    category_value = TextField()
+    submit_category = SubmitField()
+
+
+class AddValidationSources(FlaskForm):
+    source_value = TextField()
+    submit_source = SubmitField()
+
+
+class AddValidationAccounts(FlaskForm):
+    account_value = TextField()
+    submit_account = SubmitField()
+
+
+class AddValidationActions(FlaskForm):
+    action_value = TextField()
+    submit_action = SubmitField()
+
+
+class AddValidationReason(FlaskForm):
+    reason_value = TextField()
+    submit_reason = SubmitField()
+
+
 @bp.route('/')
 @login_required
 def summary():
-
     # db = get_db()
     # # expense_entries = db.execute(
     # #     'SELECT id, expense_date, expense_item, expense_value, expense_item_category, expense_source'
@@ -244,62 +279,37 @@ def add_savings_entry():
 @bp.route('/validation', methods=('GET', 'POST'))
 @login_required
 def validation():
+
     db = get_db()
 
-    #
-    # validation_items = db.execute(
-    #     'SELECT items'
-    #     ' FROM validation_items'
-    # ).fetchall()
-    #
-    # validation_categories = db.execute(
-    #     'SELECT categories'
-    #     ' FROM validation_categories'
-    # ).fetchall()
-    #
-    # validation_savings_accounts = db.execute(
-    #     'SELECT savings_accounts'
-    #     ' FROM validation_savings_accounts'
-    # ).fetchall()
-    #
-    # validation_sources = db.execute(
-    #     'SELECT sources'
-    #     ' FROM validation_sources'
-    # ).fetchall()
-    #
-    # validation_savings_action_types = db.execute(
-    #     'SELECT savings_action_types'
-    #     ' FROM validation_savings_action_types'
-    # ).fetchall()
-    #
-    # validation_savings_reason = db.execute(
-    #     'SELECT savings_reason'
-    #     ' FROM validation_savings_reason'
-    # ).fetchall()
+    items_form = AddValidationItems()
+    categories_form = AddValidationCategory()
+    sources_form = AddValidationSources()
+    accounts_form = AddValidationAccounts()
+    actions_form = AddValidationActions()
+    reasons_form = AddValidationReason()
 
     if request.method == 'POST':
-        categories = request.form['categories']
-        items = request.form['items']
-        source = request.form['sources']
-        accounts = request.form['accounts']
-        actions = request.form['actions']
-        reasons = request.form['reason']
 
-        error = None
+        if items_form.is_submitted() and items_form.submit_items.data:
+            item = items_form.item_value.data
+            category = items_form.category_value.data
 
-        if not items:
-            error = 'An item must be added'
-        elif not categories:
-            error = 'Item category must be set.'
-        elif not source:
-            error = 'Source is required'
-        elif not reasons:
-            error = 'Reason for transaction'
-        elif not actions:
-            error = 'Action is required'
-        elif not accounts:
-            error = 'An account must be chosen'
-        elif error is None:
+            try:
+                db.execute(
+                    'INSERT INTO validation_items (items,category)'
+                    ' VALUES (?,?)',
+                    (item, category)
+                )
+                db.commit()
+            except db.IntegrityError:
+                error = f'item with name {item} already exists.'
+                flash(error)
+
+            return redirect(url_for('budget.validation'))
+
+        if categories_form.is_submitted() and categories_form.submit_category.data:
+            categories = categories_form.category_value.data
 
             try:
                 db.execute(
@@ -311,27 +321,26 @@ def validation():
                 error = f'category with name {categories} already exists.'
                 flash(error)
 
-            try:
-                db.execute(
-                    'INSERT INTO validation_items (items,category)'
-                    ' VALUES (?,?)',
-                    (items, categories)
-                )
-                db.commit()
-            except db.IntegrityError:
-                error = f'item with name {items} already exists.'
-                flash(error)
+            return redirect(url_for('budget.validation'))
+
+        if sources_form.is_submitted() and sources_form.submit_source.data:
+            sources = sources_form.source_value.data
 
             try:
                 db.execute(
                     'INSERT INTO validation_sources (sources)'
                     ' VALUES (?)',
-                    (source,)
+                    (sources,)
                 )
                 db.commit()
             except db.IntegrityError:
-                error = f'source with value {source} already exists.'
+                error = f'source with value {sources} already exists.'
                 flash(error)
+
+            return redirect(url_for('budget.validation'))
+
+        if accounts_form.is_submitted() and accounts_form.submit_account.data:
+            accounts = accounts_form.account_value.data
 
             try:
                 db.execute(
@@ -344,6 +353,11 @@ def validation():
                 error = f'account with value {accounts} already exists.'
                 flash(error)
 
+            return redirect(url_for('budget.validation'))
+
+        if actions_form.is_submitted() and actions_form.submit_action.data:
+            actions = actions_form.action_value.data
+
             try:
                 db.execute(
                     'INSERT INTO validation_savings_action_types (savings_action_types) VALUES (?)',
@@ -353,6 +367,11 @@ def validation():
             except db.IntegrityError:
                 error = f'actions with value {actions} already exists.'
                 flash(error)
+
+            return redirect(url_for('budget.validation'))
+
+        if reasons_form.is_submitted() and reasons_form.submit_reason.data:
+            reasons = reasons_form.reason_value.data
 
             try:
                 db.execute(
@@ -366,9 +385,13 @@ def validation():
 
             return redirect(url_for('budget.validation'))
 
-        flash(error)
-
-    return render_template('budget/validation.html', _object=BudgetDbConnector())
+    return render_template('budget/validation.html', _object=BudgetDbConnector(),
+                           items_form=items_form,
+                           categories_form=categories_form,
+                           sources_form=sources_form,
+                           accounts_form=accounts_form,
+                           actions_form=actions_form,
+                           reasons_form=reasons_form)
 
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
