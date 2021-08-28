@@ -1,15 +1,11 @@
-import werkzeug.wsgi
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, redirect, render_template, request, url_for
 )
-from werkzeug.exceptions import abort
 
 from mtp.auth import login_required
-from mtp.db import get_db, close_db
+from mtp.db import get_db
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, DateField, IntegerField
-from wtforms.validators import DataRequired
 
 
 bp = Blueprint('budget', __name__, url_prefix='/budget')
@@ -282,8 +278,8 @@ def validation():
     # ).fetchall()
 
     if request.method == 'POST':
-        items = request.form['items']  # fixme for some reason the POST form label throws a <bound method MultiDict.items of ImmutableMultiDict([])>
         categories = request.form['categories']
+        items = request.form['items']
         source = request.form['sources']
         accounts = request.form['accounts']
         actions = request.form['actions']
@@ -305,49 +301,64 @@ def validation():
             error = 'An account must be chosen'
         elif error is None:
 
-            # betterme check the commits from 26.08.2021
-            #   because of the <bound method MultiDict.items of ImmutableMultiDict([])> error
-            #   I tried first indexing new categories then setting into the validation_items
-            #   the items itself + its category to respect db constraints.
-            #   did not work.
-            db.execute(
-                'INSERT INTO validation_categories (categories) VALUES (?)',
-                (categories,)
-            )
-            db.commit()
+            try:
+                db.execute(
+                    'INSERT INTO validation_categories (categories) VALUES (?)',
+                    (categories,)
+                )
+                db.commit()
+            except db.IntegrityError:
+                error = f'category with name {categories} already exists.'
+                flash(error)
 
-            db.execute(
-                'INSERT INTO validation_items (items,category)'
-                ' VALUES (?,?)',
-                (items, categories)
-            )
-            db.commit()
+            try:
+                db.execute(
+                    'INSERT INTO validation_items (items,category)'
+                    ' VALUES (?,?)',
+                    (items, categories)
+                )
+                db.commit()
+            except db.IntegrityError:
+                error = f'item with name {items} already exists.'
+                flash(error)
 
-            db.execute(
-                'INSERT INTO validation_sources (sources)'
-                ' VALUES (?)',
-                (source,)
-            )
-            db.commit()
+            try:
+                db.execute(
+                    'INSERT INTO validation_sources (sources)'
+                    ' VALUES (?)',
+                    (source,)
+                )
+                db.commit()
+            except db.IntegrityError:
+                error = f'source with value {source} already exists.'
+                flash(error)
 
-            db.execute(
-                'INSERT INTO validation_savings_accounts'
-                ' (savings_accounts) VALUES (?)',
-                (accounts,)
-            )
-            db.commit()
+            try:
+                db.execute(
+                    'INSERT INTO validation_savings_accounts'
+                    ' (savings_accounts) VALUES (?)',
+                    (accounts,)
+                )
+                db.commit()
+            except db.IntegrityError:
+                error = f'account with value {accounts} already exists.'
+                flash(error)
 
-            db.execute(
-                'INSERT INTO validation_savings_action_types (savings_action_types) VALUES (?)',
-                (actions,)
-            )
-            db.commit()
+            try:
+                db.execute(
+                    'INSERT INTO validation_savings_action_types (savings_action_types) VALUES (?)',
+                    (actions,)
+                )
+                db.commit()
 
-            db.execute(
-                'INSERT INTO validation_savings_reason (savings_reason) VALUES (?)',
-                (reasons,)
-            )
-            db.commit()
+                db.execute(
+                    'INSERT INTO validation_savings_reason (savings_reason) VALUES (?)',
+                    (reasons,)
+                )
+                db.commit()
+            except db.IntegrityError:
+                error = f'reasons with value {reasons} already exists.'
+                flash(error)
 
             return redirect(url_for('budget.validation'))
 
