@@ -170,12 +170,15 @@
                 <div class="row justify-content-center">
                     <div class="col-bdgt-1">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
-                            <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Validation
-                                Entry</h3></div>
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Item validation entry
+                                </h3>
+                            </div>
                             <div class="card-body">
                                 <form method="post">
                                     <div class="table-responsive">
-                                        <table class="table table-bordered" id="dataTable-2" width="100%"
+                                        <table class="table table-bordered" id="dataTable-1" width="100%"
                                                cellspacing="0">
                                             <thead>
                                             <tr>
@@ -185,47 +188,180 @@
                                                 <th>
                                                     <label for="categories">Categories</label>
                                                 </th>
-                                                <th>
-                                                    <label for="sources">Sources</label>
-                                                </th>
-                                                <th>
-                                                    <label for="accounts">Accounts</label>
-                                                </th>
-                                                <th>
-                                                    <label for="actions">Actions</label>
-                                                </th>
-                                                <th>
-                                                    <label for="reason">Reason</label>
-                                                </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
                                                 <th>
                                                     <input class="form-control py-4" name="items" id="items"
-                                                           value="{{ request.form['items'] }}"
+                                                           value="{{ request.form['items']['categories'] }}"
                                                            placeholder="Ex.: Books"/>
                                                 </th>
+                                                <th>
+                                                    <input class="form-control py-4" name="categories" id="categories-items"
+                                                           value="{{ request.form['categories'] }}"
+                                                           placeholder="Ex.: Shopping"/>
+                                                </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <input type="submit" value="Save" class="btn btn-primary">
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Category validation entry
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <form method="post">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable-2" width="100%"
+                                               cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th>
+                                                    <label for="categories">Categories</label>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
                                                 <th>
                                                     <input class="form-control py-4" name="categories" id="categories"
                                                            value="{{ request.form['categories'] }}"
                                                            placeholder="Ex.: Shopping"/>
                                                 </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <input type="submit" value="Save" class="btn btn-primary">
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Sources validation entry
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <form method="post">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable-3" width="100%"
+                                               cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th style="font-weight= bold;">
+                                                    <label for="items">Sources</label>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
                                                 <th>
                                                     <input class="form-control py-4" name="sources" id="sources"
                                                            value="{{ request.form['sources'] }}"
                                                            placeholder="Ex.: Savings EC"/>
                                                 </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <input type="submit" value="Save" class="btn btn-primary">
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Accounts validation entry
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <form method="post">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable-4" width="100%"
+                                               cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th style="font-weight= bold;">
+                                                    <label for="items">Accounts</label>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
                                                 <th>
                                                     <input class="form-control py-4" name="accounts" id="accounts"
                                                            value="{{ request.form['accounts'] }}"
                                                            placeholder="Ex.: EC"/>
                                                 </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <input type="submit" value="Save" class="btn btn-primary">
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Actions validation entry
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <form method="post">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable-5" width="100%"
+                                               cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th style="font-weight= bold;">
+                                                    <label for="items">Actions</label>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
                                                 <th>
                                                     <input class="form-control py-4" name="actions" id="actions"
                                                            value="{{ request.form['actions'] }}"
                                                            placeholder="Ex.: Deposit"/>
                                                 </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <input type="submit" value="Save" class="btn btn-primary">
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Reason validation entry
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <form method="post">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable-6" width="100%"
+                                               cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th style="font-weight= bold;">
+                                                    <label for="items">Reason</label>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
                                                 <th>
                                                     <input class="form-control py-4" name="reason" id="reason"
                                                            value="{{ request.form['reason'] }}"
@@ -236,7 +372,6 @@
                                         </table>
                                     </div>
                                     <input type="submit" value="Save" class="btn btn-primary">
-                                    <a class="btn btn-secondary" href="{{ url_for('budget.summary') }}">Cancel</a>
                                 </form>
                             </div>
                         </div>
