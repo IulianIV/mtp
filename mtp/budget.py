@@ -350,7 +350,11 @@ def validation():
                     (actions,)
                 )
                 db.commit()
+            except db.IntegrityError:
+                error = f'actions with value {actions} already exists.'
+                flash(error)
 
+            try:
                 db.execute(
                     'INSERT INTO validation_savings_reason (savings_reason) VALUES (?)',
                     (reasons,)
