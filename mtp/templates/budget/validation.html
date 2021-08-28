@@ -176,38 +176,36 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post">
+                                <form method="post" id="items-form">
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-1" width="100%"
                                                cellspacing="0">
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label for="items">Items</label>
+                                                    <label>Items</label>
                                                 </th>
                                                 <th>
-                                                    <label for="categories">Categories</label>
+                                                    <label>Categories</label>
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    <input class="form-control py-4" name="items" id="items"
-                                                           value="{{ request.form['items']['categories'] }}"
-                                                           placeholder="Ex.: Books"/>
+                                                    {{ items_form.item_value(form='items-form', class='form-control py-4', placeholder="Ex.: Books") }}
                                                 </th>
                                                 <th>
-                                                    <input class="form-control py-4" name="categories" id="categories-items"
-                                                           value="{{ request.form['categories'] }}"
-                                                           placeholder="Ex.: Shopping"/>
+                                                    {{ items_form.category_value(form='items-form', class='form-control py-4') }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    <input type="submit" value="Save" class="btn btn-primary">
+                                    {{ items_form.submit_items(form='items-form', class="btn btn-primary", value="Save") }}
                                 </form>
+
+
                             </div>
                         </div>
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
@@ -217,29 +215,27 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post">
+                                <form method="post" id="categories-form">
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-2" width="100%"
                                                cellspacing="0">
                                             <thead>
                                             <tr>
                                                 <th>
-                                                    <label for="categories">Categories</label>
+                                                    <label>Categories</label>
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    <input class="form-control py-4" name="categories" id="categories"
-                                                           value="{{ request.form['categories'] }}"
-                                                           placeholder="Ex.: Shopping"/>
+                                                    {{ categories_form.category_value(form='categories-form', class="form-control py-4", placeholder="Ex.: Shopping") }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    <input type="submit" value="Save" class="btn btn-primary">
+                                    {{ categories_form.submit_category(form='categories-form', value="Save", class="btn btn-primary") }}
                                 </form>
                             </div>
                         </div>
@@ -250,29 +246,27 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post">
+                                <form method="post" id="sources-form">
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-3" width="100%"
                                                cellspacing="0">
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label for="items">Sources</label>
+                                                    <label>Sources</label>
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    <input class="form-control py-4" name="sources" id="sources"
-                                                           value="{{ request.form['sources'] }}"
-                                                           placeholder="Ex.: Savings EC"/>
+                                                    {{ sources_form.source_value(form='sources-form', class="form-control py-4", placeholder="Ex.: Savings EC") }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    <input type="submit" value="Save" class="btn btn-primary">
+                                    {{ sources_form.submit_source(form='sources-form', value="Save", class="btn btn-primary") }}
                                 </form>
                             </div>
                         </div>
@@ -283,29 +277,27 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post">
+                                <form method="post" id="accounts-form">
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-4" width="100%"
                                                cellspacing="0">
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label for="items">Accounts</label>
+                                                    <label>Accounts</label>
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    <input class="form-control py-4" name="accounts" id="accounts"
-                                                           value="{{ request.form['accounts'] }}"
-                                                           placeholder="Ex.: EC"/>
+                                                    {{ accounts_form.account_value(form='accounts-form', class="form-control py-4", placeholder="Ex.: EC") }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    <input type="submit" value="Save" class="btn btn-primary">
+                                    {{ accounts_form.submit_account(form='accounts-form', value="Save", class="btn btn-primary") }}
                                 </form>
                             </div>
                         </div>
@@ -316,29 +308,27 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post">
+                                <form method="post" id="actions-form">
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-5" width="100%"
                                                cellspacing="0">
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label for="items">Actions</label>
+                                                    <label>Actions</label>
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    <input class="form-control py-4" name="actions" id="actions"
-                                                           value="{{ request.form['actions'] }}"
-                                                           placeholder="Ex.: Deposit"/>
+                                                    {{ actions_form.action_value(form='actions-form', class="form-control py-4", placeholder="Ex.: Deposit") }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    <input type="submit" value="Save" class="btn btn-primary">
+                                    {{ actions_form.submit_action(form='actions-form', value="Save", class="btn btn-primary") }}
                                 </form>
                             </div>
                         </div>
@@ -349,29 +339,27 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post">
+                                <form method="post" id="reasons-form">
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-6" width="100%"
                                                cellspacing="0">
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label for="items">Reason</label>
+                                                    <label>Reason</label>
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    <input class="form-control py-4" name="reason" id="reason"
-                                                           value="{{ request.form['reason'] }}"
-                                                           placeholder="Ex.: Charity"/>
+                                                    {{ reasons_form.reason_value(form='reasons-form', class="form-control py-4", placeholder="Ex.: Charity") }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    <input type="submit" value="Save" class="btn btn-primary">
+                                    {{ reasons_form.submit_reason(form='reasons-form', value="Save", class="btn btn-primary") }}
                                 </form>
                             </div>
                         </div>
