@@ -79,42 +79,38 @@
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
                                     <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Budget Entry</h3></div>
                                     <div class="card-body">
-                                      <form method="post">
+                                      <form method="post" id="revenue-form">
                                         <div class="table-responsive">
                                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                                 <thead>
                                                     <tr>
                                                         <th style="font-weight= bold;">
-                                                            <label for="date" >Date</label>
+                                                            <label>Date</label>
                                                         </th>
                                                         <th>
-                                                            <label for="revenue">Revenue</label>
+                                                            <label>Revenue</label>
                                                         </th>
                                                         <th>
-                                                            <label for="source">Source</label>
+                                                            <label>Source</label>
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
                                                         <th>
-                                                            <input class="form-control py-4" name="date" id="date" value="{{ request.form['date'] }}" placeholder="Ex.: 15-01-2021"/>
+                                                            {{ revenue_form.revenue_date(form='revenue-form', class='form-control py-4', placeholder="Ex.: 2021-01-15") }}
                                                         </th>
                                                         <th>
-                                                            <input class="form-control py-4" name="revenue" id="revenue" value="{{ request.form['revenue'] }}" placeholder="Ex.: 1000"/>
+                                                            {{ revenue_form.revenue_value(form='revenue-form', class='form-control py-4', placeholder="Ex.: 15.25") }}
                                                         </th>
                                                         <th>
-                                                            <select class="form-select" aria-label="Default select example" name="source" id="source" >
-                                                                {% for item in _object.query_validation_sources %}
-                                                                <option value="{{ request.form['source'] }}">{{ item['sources'] }}</option>
-                                                                {% endfor %}
-                                                            </select>
+                                                            {{ revenue_form.revenue_source(form='revenue-form', class='form-select py-1') }}
                                                         </th>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
-                                          <input type="submit" value="Save" class="btn btn-primary">
+                                          {{ revenue_form.submit_revenue(form='revenue-form', value="Save", class="btn btn-primary") }}
                                           <a class="btn btn-secondary" href="{{ url_for('budget.summary') }}">Cancel</a>
                                       </form>
                                     </div>

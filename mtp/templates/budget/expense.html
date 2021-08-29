@@ -79,66 +79,51 @@
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
                                     <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Budget Entry</h3></div>
                                     <div class="card-body">
-                                      <form method="post">
+                                      <form method="post" id="expense-form">
 <!-- a form.csrf token was inserted here -->
                                         <div class="table-responsive">
                                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                                 <thead>
                                                     <tr>
                                                         <th style="font-weight= bold;">
-                                                            <label for="date" >Date</label>
+                                                            <label>Date</label>
                                                         </th>
                                                         <th>
-                                                            <label for="item">Item</label>
+                                                            <label>Item</label>
                                                         </th>
                                                         <th>
-                                                            <label for="value">Value</label>
+                                                            <label>Value</label>
                                                         </th>
                                                         <th>
-                                                            <label for="category">Category</label>
+                                                            <label>Category</label>
                                                         </th>
                                                         <th>
-                                                            <label for="source">Source</label>
+                                                            <label>Source</label>
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
                                                         <th>
-                                                            <input class="form-control py-4" name="date" id="date" value="{{ request.form['date'] }}" placeholder="Ex.: 15-01-2021"/>
+                                                            {{ expense_form.expense_date(form='expense-form', class='form-control py-4', placeholder="Ex.: 2021-01-15") }}
                                                         </th>
                                                         <th>
-                                                            <select class="form-select py-1" aria-label="Default select example" name="item" id="item" >
-                                                                {% for item in _object.query_validation_items %}
-                                                                <option value="{{ request.form['item'] }}">{{ item['items'] }}</option>
-                                                                {% endfor %}
-                                                            </select>
+                                                            {{ expense_form.expense_item(form='expense-form', class='form-select py-1', placeholder="Ex.: Books") }}
                                                         </th>
                                                         <th>
-                                                            <input class="form-control py-4" name="value" id="value" value="{{ request.form['value'] }}" placeholder="Ex.: 15.25"/>
+                                                            {{ expense_form.expense_value(form='expense-form', class='form-control py-4', placeholder="Ex.: 15.25") }}
                                                         </th>
                                                         <th>
-                                                            <select class="form-select py-1" aria-label="Default select example" name="category" id="category" >
-                                                                {% for item in _object.query_validation_categories %}
-                                                                <option value="{{ request.form['category'] }}}">{{ item['categories'] }}</option>
-                                                                {% endfor %}
-                                                            </select>
+                                                            {{ expense_form.expense_category(form='expense-form', class='form-select py-1') }}
                                                         </th>
                                                         <th>
-                                                            <select class="form-select py-1" aria-label="Default select example" name="source" id="source" >
-                                                                {% for item in _object.query_validation_sources %}
-                                                                <option value="{{ request.form['source'] }}">{{ item['sources'] }}</option>
-                                                                {% endfor %}
-                                                            </select>
+                                                            {{ expense_form.expense_source(form='expense-form', class='form-select py-1') }}
                                                         </th>
-                                                        <!--<th>
-                                                            <input class="form-control py-4" name="source" id="source" value="{{ request.form['source'] }}" placeholder="Ex.: Salary"/>
-                                                        </th>-->
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
-                                          <input type="submit" value="Save" class="btn btn-primary">
+                                          {{ expense_form.submit_expense(form='expense-form', value="Save", class="btn btn-primary") }}
                                           <a class="btn btn-secondary" href="{{ url_for('budget.summary') }}">Cancel</a>
                                       </form>
                                     </div>

@@ -59,64 +59,52 @@
                         <div class="row justify-content-center">
                             <div class="col-bdgt-1">
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
-                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Budget Entry</h3></div>
+                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Savings Entry</h3></div>
                                     <div class="card-body">
-                                      <form method="post">
+                                      <form method="post" id="savings-form">
                                         <div class="table-responsive">
                                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                                 <thead>
                                                     <tr>
                                                         <th style="font-weight= bold;">
-                                                            <label for="date" >Date</label>
+                                                            <label>Date</label>
                                                         </th>
                                                         <th>
-                                                            <label for="value">Value</label>
+                                                            <label>Value</label>
                                                         </th>
                                                         <th>
-                                                            <label for="source">Source</label>
+                                                            <label>Source</label>
                                                         </th>
                                                         <th>
-                                                            <label for="reason">Reason</label>
+                                                            <label>Reason</label>
                                                         </th>
                                                         <th>
-                                                            <label for="action">Action</label>
+                                                            <label>Action</label>
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
                                                         <th>
-                                                            <input class="form-control py-4" name="date" id="date" value="{{ request.form['date'] }}" placeholder="Ex.: 15-01-2021"/>
+                                                            {{ savings_form.savings_date(form='savings-form', class='form-control py-4', placeholder="Ex.: 2021-01-15") }}
                                                         </th>
                                                         <th>
-                                                            <input class="form-control py-4" name="value" id="value" value="{{ request.form['value'] }}" placeholder="Ex.: 1000"/>
+                                                            {{ savings_form.savings_value(form='savings-form', class='form-control py-4', placeholder="Ex.: 500") }}
                                                         </th>
                                                         <th>
-                                                            <select class="form-select py-1" aria-label="Default select example" name="source" id="source" >
-                                                                {% for item in _object.query_validation_sources %}
-                                                                <option value="{{ request.form['source'] }}">{{ item['sources'] }}</option>
-                                                                {% endfor %}
-                                                            </select>
+                                                            {{ savings_form.savings_source(form='savings-form', class='form-select py-1') }}
                                                         </th>
                                                         <th>
-                                                            <select class="form-select py-1" aria-label="Default select example" name="reason" id="reason" >
-                                                                {% for item in _object.query_validation_savings_reason %}
-                                                                <option value="{{ request.form['reason'] }}">{{ item['savings_reason'] }}</option>
-                                                                {% endfor %}
-                                                            </select>
+                                                            {{ savings_form.savings_reason(form='savings-form', class='form-select py-1') }}
                                                         </th>
                                                         <th>
-                                                            <select class="form-select py-1" aria-label="Default select example" name="action" id="action" >
-                                                                {% for item in _object.query_validation_savings_action_types %}
-                                                                <option value="{{ request.form['action'] }}">{{ item['savings_action_types'] }}</option>
-                                                                {% endfor %}
-                                                            </select>
+                                                            {{ savings_form.savings_action(form='savings-form', class='form-select py-1') }}
                                                         </th>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
-                                          <input type="submit" value="Save" class="btn btn-primary">
+                                          {{ savings_form.submit_savings(form='savings-form', value="Save", class="btn btn-primary") }}
                                           <a class="btn btn-secondary" href="{{ url_for('budget.summary') }}">Cancel</a>
                                       </form>
                                     </div>
