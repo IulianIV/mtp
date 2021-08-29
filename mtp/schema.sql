@@ -18,7 +18,7 @@
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
-    password TEST NOT NULL
+    password TEXT NOT NULL
 );
 
 CREATE TABLE post (
@@ -41,14 +41,14 @@ CREATE TABLE budget_expense (
     FOREIGN KEY (expense_source) REFERENCES budget_savings (savings_source)
 );
 
-CREATE TABLE budget_revenue(
+CREATE TABLE budget_revenue (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     revenue_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     revenue_value REAL NOT NULL,
     revenue_source TEXT NOT NULL
 );
 
-CREATE TABLE budget_savings(
+CREATE TABLE budget_savings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     savings_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     savings_value REAL NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE budget_savings(
     savings_action TEXT NOT NULL
 );
 
-CREATE TABLE budget_utilities(
+CREATE TABLE budget_utilities (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     utilities_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     utilities_rent_value INTEGER NOT NULL,
@@ -67,33 +67,34 @@ CREATE TABLE budget_utilities(
     utilities_info TEXT
 );
 
-CREATE TABLE validation_items(
+CREATE TABLE validation_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     items TEXT NOT NULL UNIQUE,
     category TEXT NOT NULL,
-    FOREIGN KEY (category) REFERENCES validation_categories (categories)
+    FOREIGN KEY (category) REFERENCES query_validation_categories (categories)
 );
 --
-CREATE TABLE validation_categories(
-        categories TEXT PRIMARY KEY NOT NULL UNIQUE
+CREATE TABLE validation_categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        categories TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE validation_sources(
+CREATE TABLE validation_sources (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     sources TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE validation_savings_accounts(
+CREATE TABLE validation_savings_accounts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     savings_accounts TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE validation_savings_action_types(
+CREATE TABLE validation_savings_action_types (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     savings_action_types TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE validation_savings_reason(
+CREATE TABLE validation_savings_reason (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     savings_reason TEXT NOT NULL UNIQUE
 );
