@@ -4,7 +4,7 @@ from flask import (
 from flask_wtf import FlaskForm
 from mtp.auth import login_required
 from mtp.db import get_db
-from wtforms.fields import SubmitField, TextField, SelectField
+from wtforms.fields import SubmitField, TextField, SelectField, DateField, IntegerField
 
 
 bp = Blueprint('budget', __name__, url_prefix='/budget')
@@ -88,6 +88,26 @@ class BudgetDbConnector:
             ' FROM validation_savings_reason'
         )
 
+    def insert_expense(self, date, item, value, item_category, source):
+        return self.db.execute(
+            'INSERT INTO budget_expense (expense_date, expense_item, '
+            'expense_value, expense_item_category, expense_source)'
+            'VALUES (?, ?, ?, ?, ?)', (date, item, value, item_category, source)
+        )
+
+    def insert_revenue(self, date, revenue, source):
+        return self.db.execute(
+                'INSERT INTO budget_revenue (revenue_date, revenue_value, revenue_source)'
+                'VALUES (?, ?, ?)', (date, revenue, source)
+            )
+
+    def insert_savings(self, date, value, source, reason, action):
+        return self.db.execute(
+                'INSERT INTO budget_savings (savings_date, savings_value, savings_source,'
+                'savings_reason, savings_action) VALUES (?, ?, ?, ?, ?)',
+                (date, value, source, reason, action)
+            )
+
     def insert_validation_items(self, item, category):
         return self.db.execute(
                      'INSERT INTO validation_items (items,category)'
@@ -126,6 +146,31 @@ class BudgetDbConnector:
                     'INSERT INTO validation_savings_reason (savings_reason) VALUES (?)',
                     (reasons,)
         )
+
+
+class AddExpenseEntry(FlaskForm):
+    expense_date = DateField()
+    expense_item = SelectField()
+    expense_value = IntegerField()
+    expense_category = SelectField()
+    expense_source = SelectField()
+    submit_expense = SubmitField()
+
+
+class AddRevenueEntry(FlaskForm):
+    revenue_date = DateField()
+    revenue_value = IntegerField()
+    revenue_source = SelectField()
+    submit_revenue = SubmitField()
+
+
+class AddSavingsEntry(FlaskForm):
+    savings_date = DateField()
+    savings_value = IntegerField()
+    savings_source = SelectField()
+    savings_reason = SelectField()
+    savings_action = SelectField()
+    submit_savings = SubmitField()
 
 
 class AddValidationItems(FlaskForm):
@@ -184,129 +229,111 @@ def summary():
     return render_template('budget/summary.html', _object=BudgetDbConnector())
 
 
-"""
-Form catcher that adds entries to `budget_expense` database 
-
-"""
+# TODO introduce validation within wtforms or some other way to catch possible errors
 
 
 @bp.route('/new-expense-entry', methods=('GET', 'POST'))
 @login_required
 def add_expense_entry():
-    if request.method == 'POST':
-        date = request.form['date']
-        item = request.form['item']
-        value = request.form['value']
-        item_category = request.form['category']
-        source = request.form['source']
-        db = get_db()
-        error = None
 
-        if not date:
-            error = 'Date is required.'
-        elif not item:
-            error = 'Item is required'
-        elif not value:
-            error = 'Value is required'
-        elif not item_category:
-            error = 'Item Category is required'
-        elif not source:
-            error = 'Source is required'
-        elif error is None:
-            db.execute(
-                'INSERT INTO budget_expense (expense_date, expense_item, '
-                'expense_value, expense_item_category, expense_source)'
-                'VALUES (?, ?, ?, ?, ?)', (date, item, value, item_category, source)
-            )
+    db = get_db()
+    budget_connect = BudgetDbConnector()
+    expense_form = AddExpenseEntry()
+
+    # fixme sqlite3.IntegrityError: NOT NULL constraint failed: budget_expense.expense_date
+
+    items = budget_connect.query_validation_items
+    items_set = [x['items'] for x in items]
+    expense_form.expense_item.choices = items_set
+
+    item_categories = budget_connect.query_validation_categories
+    item_categories_set = [x['categories'] for x in item_categories]
+    expense_form.expense_category.choices = item_categories_set
+
+    sources = budget_connect.query_validation_sources
+    sources_set = [x['sources'] for x in sources]
+    expense_form.expense_source.choices = sources_set
+
+    if request.method == 'POST':
+
+        if expense_form.is_submitted() and expense_form.submit_expense.data:
+
+            date = expense_form.expense_date.data
+            item = expense_form.expense_item.data
+            value = expense_form.expense_value.data
+            item_category = expense_form.expense_category.data
+            source = expense_form.expense_source.data
+
+            budget_connect.insert_expense(date, item, value, item_category, source)
             db.commit()
+
             return redirect(url_for('budget.add_expense_entry'))
 
-        flash(error)
-    return render_template('budget/expense.html', _object=BudgetDbConnector())
-
-
-"""
-Form catcher that adds entries to `budget_revenue` database 
-
-"""
-
-
-class RevenueForm(FlaskForm):
-    pass
-    # date = DateField('date', validators=DataRequired())
-    # revenue = IntegerField('revenue', validators=DataRequired())
-    # source = StringField('source', validators=DataRequired())
+    return render_template('budget/expense.html', expense_form=expense_form)
 
 
 @bp.route('/new-revenue-entry', methods=('GET', 'POST'))
 @login_required
 def add_revenue_entry():
-    if request.method == 'POST':
-        date = request.form['date']
-        revenue = request.form['revenue']
-        source = request.form['source']
-        db = get_db()
-        error = None
 
-        if not date:
-            error = 'Date is required'
-        elif not revenue:
-            error = 'Revenue is required'
-        elif not source:
-            error = 'Source is required'
-        elif error is None:
-            db.execute(
-                'INSERT INTO budget_revenue (revenue_date, revenue_value, revenue_source)'
-                'VALUES (?, ?, ?)', (date, revenue, source)
-            )
+    db = get_db()
+    budget_connect = BudgetDbConnector()
+    revenue_form = AddRevenueEntry()
+
+    sources = budget_connect.query_validation_sources
+    sources_set = [x['sources'] for x in sources]
+    revenue_form.revenue_source.choices = sources_set
+
+    if request.method == 'POST':
+
+        if revenue_form.is_submitted() and revenue_form.submit_revenue.data:
+
+            date = revenue_form.revenue_date.data
+            revenue = revenue_form.revenue_value.data
+            source = revenue_form.revenue_source.data
+
+            budget_connect.insert_revenue(date, revenue, source)
             db.commit()
+
             return redirect(url_for('budget.add_revenue_entry'))
 
-        flash(error)
-
-    return render_template('budget/revenue.html', _object=BudgetDbConnector())
-
-
-"""
-Form catcher that adds entries to `budget_savings` database 
-
-"""
+    return render_template('budget/revenue.html', revenue_form=revenue_form)
 
 
 @bp.route('/new-savings-entry', methods=('GET', 'POST'))
 @login_required
 def add_savings_entry():
-    if request.method == 'POST':
-        date = request.form['date']
-        value = request.form['value']
-        source = request.form['source']
-        reason = request.form['reason']
-        action = request.form['action']
-        db = get_db()
-        error = None
 
-        if not date:
-            error = 'Date is required'
-        elif not value:
-            error = '"Value" is required'
-        elif not source:
-            error = 'Source is required'
-        elif not reason:
-            error = 'Reason is required'
-        elif not action:
-            error = 'Action is required'
-        elif error is None:
-            db.execute(
-                'INSERT INTO budget_savings (savings_date, savings_value, savings_source,'
-                'savings_reason, savings_action) VALUES (?, ?, ?, ?, ?)',
-                (date, value, source, reason, action)
-            )
+    db = get_db()
+    savings_form = AddSavingsEntry()
+    budget_connect = BudgetDbConnector()
+
+    sources = budget_connect.query_validation_sources
+    sources_set = [x['sources'] for x in sources]
+    savings_form.savings_source.choices = sources_set
+
+    reasons = budget_connect.query_validation_savings_reason
+    reasons_set = [x['savings_reason'] for x in reasons]
+    savings_form.savings_reason.choices = reasons_set
+
+    actions = budget_connect.query_validation_savings_action_types
+    action_set = [x['savings_action_types'] for x in actions]
+    savings_form.savings_action.choices = action_set
+
+    if request.method == 'POST':
+
+        date = savings_form.savings_date.data
+        value = savings_form.savings_value.data
+        source = savings_form.savings_source.data
+        reason = savings_form.savings_reason.data
+        action = savings_form.savings_action.data
+
+        if savings_form.is_submitted() and savings_form.submit_savings.data:
+            budget_connect.insert_savings(date, value, source, reason, action)
             db.commit()
             return redirect(url_for('budget.add_savings_entry'))
 
-        flash(error)
-
-    return render_template('budget/savings.html', _object=BudgetDbConnector())
+    return render_template('budget/savings.html', savings_form=savings_form)
 
 
 @bp.route('/validation', methods=('GET', 'POST'))
@@ -324,11 +351,12 @@ def validation():
     reasons_form = AddValidationReason()
 
     categories = budget_connect.query_validation_categories
-    category_set = [(x['categories'], x['categories']) for x in categories]
+    category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
     # better-me the SelectField item allocation in the database works. But, the selected option
     #   is not actually visible when selected.
+    # TODO add Green Card confirmation when a valid database addition has been successful
 
     if request.method == 'POST':
 
