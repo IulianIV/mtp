@@ -1,17 +1,13 @@
 from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for, Flask
+    Blueprint, flash, redirect, render_template, request, url_for,
 )
-
-from wtforms.fields import SubmitField, TextField, SelectField
-
+from flask_wtf import FlaskForm
 from mtp.auth import login_required
 from mtp.db import get_db
+from wtforms.fields import SubmitField, TextField, SelectField
 
-from flask_wtf import FlaskForm
 
 bp = Blueprint('budget', __name__, url_prefix='/budget')
-app = Flask(__name__)
-
 
 # @bp.route('/budget/index')
 # @login_required
@@ -27,7 +23,7 @@ class BudgetDbConnector:
         self.db = get_db()
 
     @property
-    def expense_entries(self):
+    def query_expense_entries(self):
         return self.db.execute(
             'SELECT id, expense_date, expense_item, expense_value, expense_item_category, expense_source'
             ' FROM budget_expense '
@@ -35,7 +31,7 @@ class BudgetDbConnector:
         )
 
     @property
-    def revenue_entries(self):
+    def query_revenue_entries(self):
         return self.db.execute(
             'SELECT id, revenue_date, revenue_value, revenue_source'
             ' FROM budget_revenue '
@@ -43,7 +39,7 @@ class BudgetDbConnector:
         )
 
     @property
-    def savings_entries(self):
+    def query_savings_entries(self):
         return self.db.execute(
             'SELECT id, savings_date,savings_value, savings_source, savings_reason, savings_action'
             ' FROM budget_savings '
@@ -51,53 +47,90 @@ class BudgetDbConnector:
         )
 
     @property
-    def validation_items(self):
+    def query_validation_items(self):
         return self.db.execute(
             'SELECT id,items'
             ' FROM validation_items'
         )
 
     @property
-    def validation_categories(self):
+    def query_validation_categories(self):
         return self.db.execute(
-            'SELECT categories'
+            'SELECT id,categories'
             ' FROM validation_categories'
         )
 
     @property
-    def validation_savings_accounts(self):
+    def query_validation_savings_accounts(self):
         return self.db.execute(
             'SELECT id,savings_accounts'
             ' FROM validation_savings_accounts'
         )
 
     @property
-    def validation_sources(self):
+    def query_validation_sources(self):
         return self.db.execute(
             'SELECT id,sources'
             ' FROM validation_sources'
         )
 
     @property
-    def validation_savings_action_types(self):
+    def query_validation_savings_action_types(self):
         return self.db.execute(
             'SELECT id,savings_action_types'
             ' FROM validation_savings_action_types'
         )
 
     @property
-    def validation_savings_reason(self):
+    def query_validation_savings_reason(self):
         return self.db.execute(
             'SELECT id,savings_reason'
             ' FROM validation_savings_reason'
         )
 
+    def insert_validation_items(self, item, category):
+        return self.db.execute(
+                     'INSERT INTO validation_items (items,category)'
+                     ' VALUES (?,?)',
+                     (item, category)
+                 )
+
+    def insert_validation_categories(self, categories):
+        return self.db.execute(
+            'INSERT INTO validation_categories (categories) VALUES (?)',
+            (categories,)
+        )
+
+    def insert_validation_sources(self, sources):
+        return self.db.execute(
+                    'INSERT INTO validation_sources (sources)'
+                    ' VALUES (?)',
+                    (sources,)
+        )
+
+    def insert_validation_accounts(self, accounts):
+        return self.db.execute(
+                    'INSERT INTO validation_savings_accounts'
+                    ' (savings_accounts) VALUES (?)',
+                    (accounts,)
+        )
+
+    def insert_validation_actions(self, actions):
+        return self.db.execute(
+                    'INSERT INTO validation_savings_action_types (savings_action_types) VALUES (?)',
+                    (actions,)
+        )
+
+    def insert_validation_reasons(self, reasons):
+        return self.db.execute(
+                    'INSERT INTO validation_savings_reason (savings_reason) VALUES (?)',
+                    (reasons,)
+        )
+
 
 class AddValidationItems(FlaskForm):
+    category_value = SelectField('Transportation', coerce=str)
     item_value = TextField()
-    # fixme RuntimeError: Working outside of application context.
-    category_values = [category for category in BudgetDbConnector().validation_items]
-    category_value = SelectField(choices=category_values)
     submit_items = SubmitField()
 
 
@@ -130,19 +163,19 @@ class AddValidationReason(FlaskForm):
 @login_required
 def summary():
     # db = get_db()
-    # # expense_entries = db.execute(
+    # # query_expense_entries = db.execute(
     # #     'SELECT id, expense_date, expense_item, expense_value, expense_item_category, expense_source'
     # #     ' FROM budget_expense '
     # #     'ORDER BY expense_date ASC'
     # # ).fetchall()
     #
-    # revenue_entries = db.execute(
+    # query_revenue_entries = db.execute(
     #     'SELECT id, revenue_date, revenue_value, revenue_source'
     #     ' FROM budget_revenue '
     #     'ORDER BY revenue_date ASC'
     # ).fetchall()
     #
-    # savings_entries = db.execute(
+    # query_savings_entries = db.execute(
     #     'SELECT id, savings_date,savings_value, savings_source, savings_reason, savings_action'
     #     ' FROM budget_savings '
     #     'ORDER BY savings_date ASC'
@@ -281,6 +314,7 @@ def add_savings_entry():
 def validation():
 
     db = get_db()
+    budget_connect = BudgetDbConnector()
 
     items_form = AddValidationItems()
     categories_form = AddValidationCategory()
@@ -289,18 +323,22 @@ def validation():
     actions_form = AddValidationActions()
     reasons_form = AddValidationReason()
 
+    categories = budget_connect.query_validation_categories
+    category_set = [(x['categories'], x['categories']) for x in categories]
+    items_form.category_value.choices = category_set
+
+    # better-me the SelectField item allocation in the database works. But, the selected option
+    #   is not actually visible when selected.
+
     if request.method == 'POST':
 
         if items_form.is_submitted() and items_form.submit_items.data:
+
             item = items_form.item_value.data
             category = items_form.category_value.data
 
             try:
-                db.execute(
-                    'INSERT INTO validation_items (items,category)'
-                    ' VALUES (?,?)',
-                    (item, category)
-                )
+                budget_connect.insert_validation_items(item, category)
                 db.commit()
             except db.IntegrityError:
                 error = f'item with name {item} already exists.'
@@ -312,10 +350,7 @@ def validation():
             categories = categories_form.category_value.data
 
             try:
-                db.execute(
-                    'INSERT INTO validation_categories (categories) VALUES (?)',
-                    (categories,)
-                )
+                budget_connect.insert_validation_categories(categories)
                 db.commit()
             except db.IntegrityError:
                 error = f'category with name {categories} already exists.'
@@ -327,11 +362,7 @@ def validation():
             sources = sources_form.source_value.data
 
             try:
-                db.execute(
-                    'INSERT INTO validation_sources (sources)'
-                    ' VALUES (?)',
-                    (sources,)
-                )
+                budget_connect.insert_validation_sources(sources)
                 db.commit()
             except db.IntegrityError:
                 error = f'source with value {sources} already exists.'
@@ -343,11 +374,7 @@ def validation():
             accounts = accounts_form.account_value.data
 
             try:
-                db.execute(
-                    'INSERT INTO validation_savings_accounts'
-                    ' (savings_accounts) VALUES (?)',
-                    (accounts,)
-                )
+                budget_connect.insert_validation_accounts(accounts)
                 db.commit()
             except db.IntegrityError:
                 error = f'account with value {accounts} already exists.'
@@ -359,10 +386,7 @@ def validation():
             actions = actions_form.action_value.data
 
             try:
-                db.execute(
-                    'INSERT INTO validation_savings_action_types (savings_action_types) VALUES (?)',
-                    (actions,)
-                )
+                budget_connect.insert_validation_actions(actions)
                 db.commit()
             except db.IntegrityError:
                 error = f'actions with value {actions} already exists.'
@@ -374,10 +398,7 @@ def validation():
             reasons = reasons_form.reason_value.data
 
             try:
-                db.execute(
-                    'INSERT INTO validation_savings_reason (savings_reason) VALUES (?)',
-                    (reasons,)
-                )
+                budget_connect.insert_validation_reasons(reasons)
                 db.commit()
             except db.IntegrityError:
                 error = f'reasons with value {reasons} already exists.'
@@ -385,7 +406,7 @@ def validation():
 
             return redirect(url_for('budget.validation'))
 
-    return render_template('budget/validation.html', _object=BudgetDbConnector(),
+    return render_template('budget/validation.html', _object=budget_connect,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
