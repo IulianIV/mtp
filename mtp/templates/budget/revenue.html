@@ -105,7 +105,7 @@
                                                         </th>
                                                         <th>
                                                             <select class="form-select" aria-label="Default select example" name="source" id="source" >
-                                                                {% for item in _object.validation_sources %}
+                                                                {% for item in _object.query_validation_sources %}
                                                                 <option value="{{ request.form['source'] }}">{{ item['sources'] }}</option>
                                                                 {% endfor %}
                                                             </select>

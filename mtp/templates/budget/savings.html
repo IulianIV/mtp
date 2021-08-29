@@ -93,21 +93,21 @@
                                                         </th>
                                                         <th>
                                                             <select class="form-select py-1" aria-label="Default select example" name="source" id="source" >
-                                                                {% for item in _object.validation_sources %}
+                                                                {% for item in _object.query_validation_sources %}
                                                                 <option value="{{ request.form['source'] }}">{{ item['sources'] }}</option>
                                                                 {% endfor %}
                                                             </select>
                                                         </th>
                                                         <th>
                                                             <select class="form-select py-1" aria-label="Default select example" name="reason" id="reason" >
-                                                                {% for item in _object.validation_savings_reason %}
+                                                                {% for item in _object.query_validation_savings_reason %}
                                                                 <option value="{{ request.form['reason'] }}">{{ item['savings_reason'] }}</option>
                                                                 {% endfor %}
                                                             </select>
                                                         </th>
                                                         <th>
                                                             <select class="form-select py-1" aria-label="Default select example" name="action" id="action" >
-                                                                {% for item in _object.validation_savings_action_types %}
+                                                                {% for item in _object.query_validation_savings_action_types %}
                                                                 <option value="{{ request.form['action'] }}">{{ item['savings_action_types'] }}</option>
                                                                 {% endfor %}
                                                             </select>

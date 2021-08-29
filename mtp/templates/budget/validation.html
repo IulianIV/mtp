@@ -104,7 +104,7 @@
                 <tr>
                     <td>
                         <select class="form-select py-1">
-                            {% for item in _object.validation_items %}
+                            {% for item in _object.query_validation_items %}
                             <option>
                                 {{ item['items'] }}
                             </option>
@@ -113,7 +113,7 @@
                     </td>
                     <td>
                         <select class="form-select py-1">
-                            {% for category in _object.validation_categories %}
+                            {% for category in _object.query_validation_categories %}
                             <option>
                                 {{ category['categories'] }}
                             </option>
@@ -122,7 +122,7 @@
                     </td>
                     <td>
                         <select class="form-select py-1">
-                            {% for account in _object.validation_savings_accounts %}
+                            {% for account in _object.query_validation_savings_accounts %}
                             <option>
                                 {{ account['savings_accounts'] }}
                             </option>
@@ -131,7 +131,7 @@
                     </td>
                     <td>
                         <select class="form-select py-1">
-                            {% for source in _object.validation_sources %}
+                            {% for source in _object.query_validation_sources %}
                             <option>
                                 {{ source['sources'] }}
                             </option>
@@ -140,7 +140,7 @@
                     </td>
                     <td>
                         <select class="form-select py-1">
-                            {% for action in _object.validation_savings_action_types %}
+                            {% for action in _object.query_validation_savings_action_types %}
                             <option>
                                 {{ action['savings_action_types'] }}
                             </option>
@@ -150,7 +150,7 @@
                     </td>
                     <td>
                         <select class="form-select py-1">
-                            {% for reason in _object.validation_savings_reason %}
+                            {% for reason in _object.query_validation_savings_reason %}
                             <option>
                                 {{ reason['savings_reason'] }}
                             </option>
@@ -196,16 +196,14 @@
                                                     {{ items_form.item_value(form='items-form', class='form-control py-4', placeholder="Ex.: Books") }}
                                                 </th>
                                                 <th>
-                                                    {{ items_form.category_value(form='items-form', class='form-control py-4') }}
+                                                    {{ items_form.category_value(form='items-form', class='form-select py-4') }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    {{ items_form.submit_items(form='items-form', class="btn btn-primary", value="Save") }}
+                                    {{ items_form.submit_items(form='items-form', class="btn btn-primary") }}
                                 </form>
-
-
                             </div>
                         </div>
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
@@ -229,13 +227,15 @@
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    {{ categories_form.category_value(form='categories-form', class="form-control py-4", placeholder="Ex.: Shopping") }}
+                                                    {{ categories_form.category_value(form='categories-form',
+                                                    class="form-control py-4", placeholder="Ex.: Shopping") }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    {{ categories_form.submit_category(form='categories-form', value="Save", class="btn btn-primary") }}
+                                    {{ categories_form.submit_category(form='categories-form', value="Save", class="btn
+                                    btn-primary") }}
                                 </form>
                             </div>
                         </div>
@@ -260,13 +260,15 @@
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    {{ sources_form.source_value(form='sources-form', class="form-control py-4", placeholder="Ex.: Savings EC") }}
+                                                    {{ sources_form.source_value(form='sources-form',
+                                                    class="form-control py-4", placeholder="Ex.: Savings EC") }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    {{ sources_form.submit_source(form='sources-form', value="Save", class="btn btn-primary") }}
+                                    {{ sources_form.submit_source(form='sources-form', value="Save", class="btn
+                                    btn-primary") }}
                                 </form>
                             </div>
                         </div>
@@ -291,13 +293,15 @@
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    {{ accounts_form.account_value(form='accounts-form', class="form-control py-4", placeholder="Ex.: EC") }}
+                                                    {{ accounts_form.account_value(form='accounts-form',
+                                                    class="form-control py-4", placeholder="Ex.: EC") }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    {{ accounts_form.submit_account(form='accounts-form', value="Save", class="btn btn-primary") }}
+                                    {{ accounts_form.submit_account(form='accounts-form', value="Save", class="btn
+                                    btn-primary") }}
                                 </form>
                             </div>
                         </div>
@@ -322,13 +326,15 @@
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    {{ actions_form.action_value(form='actions-form', class="form-control py-4", placeholder="Ex.: Deposit") }}
+                                                    {{ actions_form.action_value(form='actions-form',
+                                                    class="form-control py-4", placeholder="Ex.: Deposit") }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    {{ actions_form.submit_action(form='actions-form', value="Save", class="btn btn-primary") }}
+                                    {{ actions_form.submit_action(form='actions-form', value="Save", class="btn
+                                    btn-primary") }}
                                 </form>
                             </div>
                         </div>
@@ -353,13 +359,15 @@
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    {{ reasons_form.reason_value(form='reasons-form', class="form-control py-4", placeholder="Ex.: Charity") }}
+                                                    {{ reasons_form.reason_value(form='reasons-form',
+                                                    class="form-control py-4", placeholder="Ex.: Charity") }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    {{ reasons_form.submit_reason(form='reasons-form', value="Save", class="btn btn-primary") }}
+                                    {{ reasons_form.submit_reason(form='reasons-form', value="Save", class="btn
+                                    btn-primary") }}
                                 </form>
                             </div>
                         </div>
