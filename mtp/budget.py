@@ -240,7 +240,9 @@ def add_expense_entry():
     budget_connect = BudgetDbConnector()
     expense_form = AddExpenseEntry()
 
-    # fixme sqlite3.IntegrityError: NOT NULL constraint failed: budget_expense.expense_date
+    # better-me 'sqlite3.IntegrityError: NOT NULL constraint failed: budget_expense.expense_date'
+    #   this error was actually thrown when you insert a dat that does not exist i.e: 2021-22-55.
+    #   At this point Form Validation is a must have.
 
     items = budget_connect.query_validation_items
     items_set = [x['items'] for x in items]
