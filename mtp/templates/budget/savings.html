@@ -92,10 +92,10 @@
                                                             {{ savings_form.savings_value(form='savings-form', class='form-control py-4', placeholder="Ex.: 500") }}
                                                         </th>
                                                         <th>
-                                                            {{ savings_form.savings_source(form='savings-form', class='form-select py-1') }}
+                                                            {{ savings_form.savings_source(form='savings-form', class='form-select py-4') }}
                                                         </th>
                                                         <th>
-                                                            {{ savings_form.savings_reason(form='savings-form', class='form-select py-1') }}
+                                                            {{ savings_form.savings_reason(form='savings-form', class='form-select py-4') }}
                                                         </th>
                                                         <th>
                                                             {{ savings_form.savings_action(form='savings-form', class='form-select py-1') }}
@@ -105,7 +105,7 @@
                                             </table>
                                         </div>
                                           {{ savings_form.submit_savings(form='savings-form', value="Save", class="btn btn-primary") }}
-                                          <a class="btn btn-secondary" href="{{ url_for('budget.summary') }}">Cancel</a>
+                                          <a class="btn btn-danger" href="{{ url_for('budget.summary') }}">Cancel</a>
                                       </form>
                                     </div>
                                 </div>

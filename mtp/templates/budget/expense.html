@@ -38,24 +38,6 @@
         </div>
     </div>
     <div class="col-xl-3 col-md-6">
-        <div class="card bg-warning text-white mb-4">
-            <div class="card-body">Warning Card</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-success text-white mb-4">
-            <div class="card-body">Success Card</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
         <div class="card bg-danger text-white mb-4">
             <div class="card-body">Error message Card</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
@@ -77,7 +59,7 @@
                         <div class="row justify-content-center">
                             <div class="col-bdgt-1">
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
-                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Budget Entry</h3></div>
+                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Expense Entry</h3></div>
                                     <div class="card-body">
                                       <form method="post" id="expense-form">
 <!-- a form.csrf token was inserted here -->
@@ -108,23 +90,23 @@
                                                             {{ expense_form.expense_date(form='expense-form', class='form-control py-4', placeholder="Ex.: 2021-01-15") }}
                                                         </th>
                                                         <th>
-                                                            {{ expense_form.expense_item(form='expense-form', class='form-select py-1', placeholder="Ex.: Books") }}
+                                                            {{ expense_form.expense_item(form='expense-form', class='form-select py-4', placeholder="Ex.: Books") }}
                                                         </th>
                                                         <th>
                                                             {{ expense_form.expense_value(form='expense-form', class='form-control py-4', placeholder="Ex.: 15.25") }}
                                                         </th>
                                                         <th>
-                                                            {{ expense_form.expense_category(form='expense-form', class='form-select py-1') }}
+                                                            {{ expense_form.expense_category(form='expense-form', class='form-select py-4') }}
                                                         </th>
                                                         <th>
-                                                            {{ expense_form.expense_source(form='expense-form', class='form-select py-1') }}
+                                                            {{ expense_form.expense_source(form='expense-form', class='form-select py-4') }}
                                                         </th>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
                                           {{ expense_form.submit_expense(form='expense-form', value="Save", class="btn btn-primary") }}
-                                          <a class="btn btn-secondary" href="{{ url_for('budget.summary') }}">Cancel</a>
+                                          <a class="btn btn-danger" href="{{ url_for('budget.summary') }}">Cancel</a>
                                       </form>
                                     </div>
                                 </div>

@@ -89,6 +89,14 @@ p {
   margin-bottom: 1rem;
 }
 
+div.custom-container { /* Custom Addition */
+
+    display: flex;
+    gap: .5rem;
+    height: 0px;
+
+}
+
 abbr[title],
 abbr[data-original-title] {
   text-decoration: underline;
@@ -576,6 +584,7 @@ pre code {
   flex-wrap: wrap;
   margin-right: -0.75rem;
   margin-left: -0.75rem;
+  justify-content: center; /* Custom addition. Noe here originally. */
 }
 
 .no-gutters {
@@ -4575,6 +4584,7 @@ input[type=button].btn-block {
   list-style: none;
   background-color: #e9ecef;
   border-radius: 0.25rem;
+  justify-content: center; /* Custom addition. Noe here originally. */
 }
 
 .breadcrumb-item + .breadcrumb-item {
@@ -7769,9 +7779,12 @@ button.bg-dark:focus {
   padding: 1.5rem !important;
 }
 
-.pt-4,
-.py-4 {
+.pt-4 {
   padding-top: 1.5rem !important;
+}
+
+.py-4 { /* Custom addition. was 1.5rem before */
+  padding-top: 0.25rem !important;
 }
 
 .pr-4,
@@ -7779,9 +7792,12 @@ button.bg-dark:focus {
   padding-right: 1.5rem !important;
 }
 
-.pb-4,
-.py-4 {
+.pb-4 {
   padding-bottom: 1.5rem !important;
+}
+
+.py-4 { /* Custom addition. was 1.5rem before */
+  padding-bottom: 0.25rem !important;
 }
 
 .pl-4,

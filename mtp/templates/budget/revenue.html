@@ -38,24 +38,6 @@
         </div>
     </div>
     <div class="col-xl-3 col-md-6">
-        <div class="card bg-warning text-white mb-4">
-            <div class="card-body">Warning Card</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-success text-white mb-4">
-            <div class="card-body">Success Card</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
         <div class="card bg-danger text-white mb-4">
             <div class="card-body">Error message Card</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
@@ -77,7 +59,7 @@
                         <div class="row justify-content-center">
                             <div class="col-bdgt-1">
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
-                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Budget Entry</h3></div>
+                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Revenue Entry</h3></div>
                                     <div class="card-body">
                                       <form method="post" id="revenue-form">
                                         <div class="table-responsive">
@@ -104,14 +86,14 @@
                                                             {{ revenue_form.revenue_value(form='revenue-form', class='form-control py-4', placeholder="Ex.: 15.25") }}
                                                         </th>
                                                         <th>
-                                                            {{ revenue_form.revenue_source(form='revenue-form', class='form-select py-1') }}
+                                                            {{ revenue_form.revenue_source(form='revenue-form', class='form-select py-4') }}
                                                         </th>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
                                           {{ revenue_form.submit_revenue(form='revenue-form', value="Save", class="btn btn-primary") }}
-                                          <a class="btn btn-secondary" href="{{ url_for('budget.summary') }}">Cancel</a>
+                                          <a class="btn btn-danger" href="{{ url_for('budget.summary') }}">Cancel</a>
                                       </form>
                                     </div>
                                 </div>
