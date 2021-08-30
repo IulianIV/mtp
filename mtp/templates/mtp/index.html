@@ -30,46 +30,46 @@
 
 
 {% block cards %}
-<div class="row">
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-primary text-white mb-4">
-            <div class="card-body">Primary Card</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-warning text-white mb-4">
-            <div class="card-body">Warning Card</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-success text-white mb-4">
-            <div class="card-body">Success Card</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-danger text-white mb-4">
-            <div class="card-body">Error message Card</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                {% for message in get_flashed_messages() %}
-                    <a class="small text-white stretched-link" href="#">{{ message }}</a>
-                {% endfor %}
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-            </div>
-        </div>
-    </div>
-</div>
+<!--<div class="row">-->
+<!--    <div class="col-xl-3 col-md-6">-->
+<!--        <div class="card bg-primary text-white mb-4">-->
+<!--            <div class="card-body">Primary Card</div>-->
+<!--            <div class="card-footer d-flex align-items-center justify-content-between">-->
+<!--                <a class="small text-white stretched-link" href="#">View Details</a>-->
+<!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <div class="col-xl-3 col-md-6">-->
+<!--        <div class="card bg-warning text-white mb-4">-->
+<!--            <div class="card-body">Warning Card</div>-->
+<!--            <div class="card-footer d-flex align-items-center justify-content-between">-->
+<!--                <a class="small text-white stretched-link" href="#">View Details</a>-->
+<!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <div class="col-xl-3 col-md-6">-->
+<!--        <div class="card bg-success text-white mb-4">-->
+<!--            <div class="card-body">Success Card</div>-->
+<!--            <div class="card-footer d-flex align-items-center justify-content-between">-->
+<!--                <a class="small text-white stretched-link" href="#">View Details</a>-->
+<!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <div class="col-xl-3 col-md-6">-->
+<!--        <div class="card bg-danger text-white mb-4">-->
+<!--            <div class="card-body">Error message Card</div>-->
+<!--            <div class="card-footer d-flex align-items-center justify-content-between">-->
+<!--                {% for message in get_flashed_messages() %}-->
+<!--                    <a class="small text-white stretched-link" href="#">{{ message }}</a>-->
+<!--                {% endfor %}-->
+<!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
 {% endblock %}
 
 
@@ -77,7 +77,7 @@
 <div class="card mb-4">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
-        Post DataTable
+        Posts
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -95,10 +95,14 @@
                 <tr>
                   <th class="small mb-1">{{ post['title'] }}</th>
                   <th class="small mb-1">{{ post['body'] }}</th>
-                  <th class="small mb-1">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</th>
+                  <th class="small mb-1">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d, %H:%M:%S') }}</th>
                   {% if g.user['id'] == post['author_id'] %}
                   <th>
-                      <a class="action" href="{{ url_for('mtp.update', id=post['id']) }}">Edit</a>
+                      <div class="custom-container">
+                          <a class="action" href="{{ url_for('mtp.update', post_id=post['id']) }}">Edit</a>
+                          <p>|</p>
+                          <a class="action" href="{{ url_for('mtp.delete', post_id=post['id']) }}">Delete</a>
+                      </div>
                   </th>
                   {% else %}
                   <th>

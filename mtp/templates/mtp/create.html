@@ -79,17 +79,20 @@
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
                                     <div class="card-header"><h3 class="text-center font-weight-light my-4">Create New Post</h3></div>
                                     <div class="card-body">
-                                      <form method="post">
+                                      <form method="post" id="post-form">
                                         <div class="form-group">
-                                          <label class="small mb-1" for="title">Title</label>
-                                          <input class="form-control py-4" name="title" id="title" value="{{ request.form['title'] }}"  placeholder="Enter post Title"/>
+                                          <label class="small mb-1">Title</label>
+                                            {{ post_form.post_title(form='post-form', class='form-control py-4') }}
+<!--                                          <input class="form-control py-4" name="title" id="title" value="{{ request.form['title'] }}"  placeholder="Enter post Title"/>-->
                                         </div>
                                         <div class="form-group">
-                                          <label for="body">Body</label>
-                                          <textarea class="form-control py-4" name="body" id="body" placeholder="Enter post content">{{ request.form['body'] }}</textarea>
-                                          <input type="submit" value="Save" class="btn btn-primary">
+                                          <label>Body</label>
+                                            {{ post_form.post_body(form='post-form', class='form-control py-4') }}
+<!--                                          <textarea class="form-control py-4" name="body" id="body" placeholder="Enter post content">{{ request.form['body'] }}</textarea>-->
                                         </div>
-                                        <a class="btn btn-secondary" href="{{ url_for('mtp.index') }}">Cancel</a>
+                                          {{ post_form.submit_post(form='post-form', class='btn btn-primary') }}
+<!--                                          <input type="submit" value="Save" class="btn btn-primary">-->
+                                        <a class="btn btn-danger" href="{{ url_for('mtp.index') }}">Cancel</a>
                                       </form>
                                     </div>
                                 </div>
