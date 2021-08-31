@@ -19,17 +19,32 @@
 <ol class="breadcrumb mb-4">
     {% if g.user %}
     <li>
-        <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('mtp.index') }}">Blog</a>
+        <a class="btn btn-primary btn-secondary" style="margin: 2px;" href="{{ url_for('mtp.index') }}">Blog</a>
     </li>
     <li>
-        <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.add_expense_entry') }}">Add New
+        <a class="btn btn-primary btn-primary" style="margin: 2px;" href="{{ url_for('budget.summary') }}">Summary</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#}">Reporting</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Statistics</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Lookup</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_expense_entry') }}">Add
+            New
             Expense</a>
     </li>
     <li>
-        <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_revenue_entry') }}">Add
+            Revenue</a>
     </li>
     <li>
-        <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_savings_entry') }}">Add
+            Savings</a>
     </li>
     {% endif %}
 </ol>
@@ -39,22 +54,22 @@
 {% block cards %}
 <div class="row">
     <div class="col-xl-3 col-md-6">
-        <div class="card bg-primary text-white mb-4">
-            <div class="card-body">Primary Card</div>
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">Table info</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                <a class="small text-white stretched-link" href="#"></a>
+                <!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
             </div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6">
         <div class="card bg-danger text-white mb-4">
-            <div class="card-body">Error message Card</div>
+            <div class="card-body">Error messages</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
                 {% for message in get_flashed_messages() %}
                 <a class="small text-white stretched-link" href="#">{{ message }}</a>
                 {% endfor %}
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                <!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
             </div>
         </div>
     </div>
@@ -149,8 +164,8 @@
     <div id="layoutBudgetIndex_content">
         <main>
             <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-bdgt-1">
+                <div class="row justify-content-center-valid">
+                    <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
                                 <h3 class="text-center font-weight-light my-4">
@@ -175,19 +190,24 @@
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    {{ items_form.item_value(form='items-form', class='form-control py-4', placeholder="Ex.: Books") }}
+                                                    {{ items_form.item_value(form='items-form', class='form-control
+                                                    py-4', placeholder="Ex.: Books") }}
                                                 </th>
                                                 <th>
-                                                    {{ items_form.category_value(form='items-form', class='form-select py-4') }}
+                                                    {{ items_form.category_value(form='items-form', class='form-select
+                                                    py-4') }}
                                                 </th>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    {{ items_form.submit_items(form='items-form', value="Save", class="btn btn-primary") }}
+                                    {{ items_form.submit_items(form='items-form', value="Save", class="btn btn-primary")
+                                    }}
                                 </form>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
                                 <h3 class="text-center font-weight-light my-4">
@@ -221,6 +241,8 @@
                                 </form>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
                                 <h3 class="text-center font-weight-light my-4">
@@ -254,6 +276,8 @@
                                 </form>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
                                 <h3 class="text-center font-weight-light my-4">
@@ -287,6 +311,8 @@
                                 </form>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
                                 <h3 class="text-center font-weight-light my-4">
@@ -320,6 +346,8 @@
                                 </form>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
                                 <h3 class="text-center font-weight-light my-4">
