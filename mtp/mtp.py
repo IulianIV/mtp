@@ -6,7 +6,7 @@ from flask_wtf import FlaskForm
 from wtforms.fields import TextField, TextAreaField, SubmitField
 
 from mtp.auth import login_required
-from mtp.db import get_db
+from mtp.db_manager.db import get_db
 
 bp = Blueprint('mtp', __name__)
 
