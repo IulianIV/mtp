@@ -3,7 +3,8 @@ from flask import (
 )
 from flask_wtf import FlaskForm
 from mtp.auth import login_required
-from mtp.db import get_db
+from mtp.db_manager.db import get_db
+from mtp.db_manager.db_table_actions import Query, Insert
 from wtforms.fields import SubmitField, TextField, SelectField, DateField, IntegerField
 
 
@@ -21,131 +22,80 @@ bp = Blueprint('budget', __name__, url_prefix='/budget')
 class BudgetDbConnector:
     def __init__(self):
         self.db = get_db()
+        self.db_queries = Query()
+        self.db_inserts = Insert()
 
     @property
     def query_expense_entries(self):
-        return self.db.execute(
-            'SELECT id, expense_date, expense_item, expense_value, expense_item_category, expense_source'
-            ' FROM budget_expense '
-            'ORDER BY expense_date ASC'
-        )
+
+        return self.db_queries.query_expense_entries()
 
     @property
     def query_revenue_entries(self):
-        return self.db.execute(
-            'SELECT id, revenue_date, revenue_value, revenue_source'
-            ' FROM budget_revenue '
-            'ORDER BY revenue_date ASC'
-        )
+
+        return self.db_queries.query_expense_entries()
 
     @property
     def query_savings_entries(self):
-        return self.db.execute(
-            'SELECT id, savings_date,savings_value, savings_source, savings_reason, savings_action'
-            ' FROM budget_savings '
-            'ORDER BY savings_date ASC'
-        )
+
+        return self.db_queries.query_savings_entries()
 
     @property
     def query_validation_items(self):
-        return self.db.execute(
-            'SELECT id,items'
-            ' FROM validation_items'
-        )
+
+        return self.db_queries.query_validation_items()
 
     @property
     def query_validation_categories(self):
-        return self.db.execute(
-            'SELECT id,categories'
-            ' FROM validation_categories'
-        )
+
+        return self.db_queries.query_validation_categories()
 
     @property
     def query_validation_savings_accounts(self):
-        return self.db.execute(
-            'SELECT id,savings_accounts'
-            ' FROM validation_savings_accounts'
-        )
+
+        return self.db_queries.query_validation_savings_accounts()
 
     @property
     def query_validation_sources(self):
-        return self.db.execute(
-            'SELECT id,sources'
-            ' FROM validation_sources'
-        )
+
+        return self.db_queries.query_validation_sources()
 
     @property
     def query_validation_savings_action_types(self):
-        return self.db.execute(
-            'SELECT id,savings_action_types'
-            ' FROM validation_savings_action_types'
-        )
+
+        return self.db_queries.query_validation_savings_action_types()
 
     @property
     def query_validation_savings_reason(self):
-        return self.db.execute(
-            'SELECT id,savings_reason'
-            ' FROM validation_savings_reason'
-        )
+
+        return self.db_queries.query_validation_savings_reason()
 
     def insert_expense(self, date, item, value, item_category, source):
-        return self.db.execute(
-            'INSERT INTO budget_expense (expense_date, expense_item, '
-            'expense_value, expense_item_category, expense_source)'
-            'VALUES (?, ?, ?, ?, ?)', (date, item, value, item_category, source)
-        )
+        return self.db_inserts.insert_expense(date, item, value, item_category, source)
 
     def insert_revenue(self, date, revenue, source):
-        return self.db.execute(
-                'INSERT INTO budget_revenue (revenue_date, revenue_value, revenue_source)'
-                'VALUES (?, ?, ?)', (date, revenue, source)
-            )
+        return self.db_inserts.insert_revenue(date, revenue, source)
 
     def insert_savings(self, date, value, source, reason, action):
-        return self.db.execute(
-                'INSERT INTO budget_savings (savings_date, savings_value, savings_source,'
-                'savings_reason, savings_action) VALUES (?, ?, ?, ?, ?)',
-                (date, value, source, reason, action)
-            )
+        return self.db_inserts.insert_savings(date, value, source, reason, action)
 
     def insert_validation_items(self, item, category):
-        return self.db.execute(
-                     'INSERT INTO validation_items (items,category)'
-                     ' VALUES (?,?)',
-                     (item, category)
-                 )
+        return self.db_inserts.insert_validation_items(item, category)
 
     def insert_validation_categories(self, categories):
-        return self.db.execute(
-            'INSERT INTO validation_categories (categories) VALUES (?)',
-            (categories,)
-        )
+        return self.db_inserts.insert_validation_categories(categories)
 
     def insert_validation_sources(self, sources):
-        return self.db.execute(
-                    'INSERT INTO validation_sources (sources)'
-                    ' VALUES (?)',
-                    (sources,)
-        )
+        return self.db_inserts.insert_validation_sources(sources)
 
     def insert_validation_accounts(self, accounts):
-        return self.db.execute(
-                    'INSERT INTO validation_savings_accounts'
-                    ' (savings_accounts) VALUES (?)',
-                    (accounts,)
-        )
+        return self.db_inserts.insert_validation_accounts(accounts)
 
     def insert_validation_actions(self, actions):
-        return self.db.execute(
-                    'INSERT INTO validation_savings_action_types (savings_action_types) VALUES (?)',
-                    (actions,)
-        )
+        return self.db_inserts.insert_validation_actions(actions)
 
     def insert_validation_reasons(self, reasons):
-        return self.db.execute(
-                    'INSERT INTO validation_savings_reason (savings_reason) VALUES (?)',
-                    (reasons,)
-        )
+        return self.db_inserts.insert_validation_reasons(reasons)
 
 
 class AddExpenseEntry(FlaskForm):
@@ -174,7 +124,7 @@ class AddSavingsEntry(FlaskForm):
 
 
 class AddValidationItems(FlaskForm):
-    category_value = SelectField('Transportation', coerce=str)
+    category_value = SelectField(coerce=str)
     item_value = TextField()
     submit_items = SubmitField()
 
@@ -271,7 +221,7 @@ def add_expense_entry():
 
             return redirect(url_for('budget.add_expense_entry'))
 
-    return render_template('budget/expense.html', expense_form=expense_form)
+    return render_template('budget/expense.html', expense_form=expense_form, _object=budget_connect)
 
 
 @bp.route('/new-revenue-entry', methods=('GET', 'POST'))
@@ -299,7 +249,7 @@ def add_revenue_entry():
 
             return redirect(url_for('budget.add_revenue_entry'))
 
-    return render_template('budget/revenue.html', revenue_form=revenue_form)
+    return render_template('budget/revenue.html', revenue_form=revenue_form, _object=budget_connect)
 
 
 @bp.route('/new-savings-entry', methods=('GET', 'POST'))
@@ -335,7 +285,7 @@ def add_savings_entry():
             db.commit()
             return redirect(url_for('budget.add_savings_entry'))
 
-    return render_template('budget/savings.html', savings_form=savings_form)
+    return render_template('budget/savings.html', savings_form=savings_form, _object=budget_connect)
 
 
 @bp.route('/validation', methods=('GET', 'POST'))
