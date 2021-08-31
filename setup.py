@@ -8,6 +8,8 @@ setup(
     zip_safe=False,
     install_requires=[
         'flask',
-        'wtforms'
+        'wtforms',
+        'click',
+        'pandas'
     ],
 )
