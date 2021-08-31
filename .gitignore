@@ -145,3 +145,4 @@ hello.py
 tests/
 instance/
 .idea/
+/mtp/static/favicon.ico
