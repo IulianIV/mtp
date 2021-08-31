@@ -19,19 +19,28 @@
     <ol class="breadcrumb mb-4">
         {% if g.user %}
         <li>
-            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('mtp.index') }}">Blog</a>
+            <a class="btn btn-primary btn-secondary" style="margin: 2px;" href="{{ url_for('mtp.index') }}">Blog</a>
         </li>
         <li>
-            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.add_expense_entry') }}">Add New Expense</a>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#}">Reporting</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Statistics</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Lookup</a>
+    </li>
+        <li>
+            <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_expense_entry') }}">Add New Expense</a>
         </li>
         <li>
-            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
+            <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
         </li>
         <li>
-            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
+            <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
         </li>
         <li>
-            <a class="btn btn-primary" style="margin: 2px;" href="{{ url_for('budget.validation') }}">See Validation</a>
+            <a class="btn btn-primary btn-primary" style="margin: 2px;" href="{{ url_for('budget.validation') }}">See Validation</a>
         </li>
         {% endif %}
     </ol>

@@ -29,22 +29,22 @@
 {% block cards %}
 <div class="row">
     <div class="col-xl-3 col-md-6">
-        <div class="card bg-primary text-white mb-4">
-            <div class="card-body">Primary Card</div>
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">Table info</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                <a class="small text-white stretched-link" href="#"></a>
+<!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
             </div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6">
         <div class="card bg-danger text-white mb-4">
-            <div class="card-body">Error message Card</div>
+            <div class="card-body">Error messages</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
                 {% for message in get_flashed_messages() %}
                     <a class="small text-white stretched-link" href="#">{{ message }}</a>
                 {% endfor %}
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+<!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
             </div>
         </div>
     </div>
@@ -102,5 +102,35 @@
                   </div>
                 </main>
             </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        Revenue Summary
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable2" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Revenue Date</th>
+                    <th>Revenue Value</th>
+                    <th>Revenue Source</th>
+                </tr>
+              </thead>
+          {% for entry in _object.query_revenue_entries %}
+              <tbody class="post">
+                <tr>
+                    <th class="small mb-1">{{ entry['id'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_date'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_value'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_source'] }}</th>
+                </tr>
+              </tbody>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}
