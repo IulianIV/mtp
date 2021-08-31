@@ -609,9 +609,15 @@ pre code {
   padding-left: 0.75rem;
 }
 
-.col-bdgt-1 {   /* Custom addition */
+.col-bdgt-1{   /* Custom addition */
   position: relative;
   width: 100%;
+  padding-right: 0.75rem;
+  padding-left: 0.75rem;
+}
+
+col-bdgt-1-valid {   /* Custom addition */
+  position: relative;
   padding-right: 0.75rem;
   padding-left: 0.75rem;
 }
@@ -6674,6 +6680,10 @@ button.bg-dark:focus {
   justify-content: center !important;
 }
 
+.justify-content-center-valid { /* Custom Addition */
+  justify-content: space-around !important;
+}
+
 .justify-content-between {
   justify-content: space-between !important;
 }
@@ -10069,7 +10079,7 @@ body {
 #layoutBudgetIndex { /* Custom addition */
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 50vh; /* Custom modified */
 }
 
 #layoutBudgetIndex #layoutBudgetIndexn_content {
