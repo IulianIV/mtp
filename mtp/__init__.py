@@ -1,17 +1,15 @@
 import os
 
 from flask import Flask
-from . import db
-from . import auth
-from . import mtp
-from . import budget
+from .db_manager import db
+from . import auth, budget, mtp
 
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(SECRET_KEY='dev', DATABASE=os.path.join(app.instance_path, 'mtp.sqlite'),)
 
+    app.config.from_mapping(SECRET_KEY='dev', DATABASE=os.path.join(app.instance_path, 'mtp.sqlite'),)
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)
