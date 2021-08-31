@@ -1,0 +1,4 @@
+CREATE TABLE validation_sources (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sources TEXT NOT NULL UNIQUE
+);
