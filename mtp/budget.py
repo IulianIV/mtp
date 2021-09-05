@@ -69,8 +69,13 @@ class BudgetDbConnector:
 
     @property
     def query_validation_savings_reason(self):
-
         return self.db_queries.query_validation_savings_reason()
+
+    def get_validation_item(self, item_value):
+        return self.db_queries.get_validation_item(item_value)
+
+    def get_validation_category(self, category_value):
+        return self.db_queries.get_validation_category(category_value)
 
     def insert_expense(self, date, item, value, item_category, source):
         return self.db_inserts.insert_expense(date, item, value, item_category, source)
@@ -114,7 +119,7 @@ class AddExpenseEntry(FlaskForm):
 
 class AddRevenueEntry(FlaskForm):
     revenue_date = DateField([InputRequired()])  # TODO Add DateTime validation
-    revenue_value = IntegerField([InputRequired(), Regexp('[0-9.]+')])
+    revenue_value = IntegerField([InputRequired(), Regexp(r'[0-9.]+')])
     revenue_source = SelectField([InputRequired()])
     submit_revenue = SubmitField()
 
@@ -140,7 +145,7 @@ class AddUtilitiesEntry(FlaskForm):
 
 class AddValidationItems(FlaskForm):
     category_value = SelectField(coerce=str)
-    item_value = TextField()
+    item_value = TextField([InputRequired(), Regexp(r'^([a-zA-Z ]+)$')])
     submit_items = SubmitField()
 
 
@@ -208,7 +213,7 @@ def add_expense_entry():
             item_category = expense_form.expense_category.data
             source = expense_form.expense_source.data
 
-            form_validated_message('All values validate!')
+            form_validated_message('All values validated!')
 
             budget_connect.insert_expense(date, item, value, item_category, source)
             db.commit()
@@ -239,14 +244,23 @@ def add_revenue_entry():
 
     if request.method == 'POST':
 
-        if revenue_form.is_submitted() and revenue_form.submit_revenue.data:
+        if revenue_form.is_submitted() and revenue_form.validate_on_submit():
 
             date = revenue_form.revenue_date.data
             revenue = revenue_form.revenue_value.data
             source = revenue_form.revenue_source.data
 
+            form_validated_message('All values validated!')
+
             budget_connect.insert_revenue(date, revenue, source)
             db.commit()
+
+            return redirect(url_for('budget.add_revenue_entry'))
+
+        elif not revenue_form.validate_on_submit():
+
+            if not revenue_form.revenue_date.data or not revenue_form.revenue_value.data:
+                form_error_message('Please provide a valid date and/or revenue value integer')
 
             return redirect(url_for('budget.add_revenue_entry'))
 
@@ -275,16 +289,25 @@ def add_savings_entry():
 
     if request.method == 'POST':
 
-        date = savings_form.savings_date.data
-        value = savings_form.savings_value.data
-        source = savings_form.savings_source.data
-        reason = savings_form.savings_reason.data
-        action = savings_form.savings_action.data
+        if savings_form.is_submitted() and savings_form.validate_on_submit():
 
-        if savings_form.is_submitted() and savings_form.submit_savings.data:
+            date = savings_form.savings_date.data
+            value = savings_form.savings_value.data
+            source = savings_form.savings_source.data
+            reason = savings_form.savings_reason.data
+            action = savings_form.savings_action.data
+
+            form_validated_message('All values validated!')
+
             budget_connect.insert_savings(date, value, source, reason, action)
             db.commit()
             return redirect(url_for('budget.add_savings_entry'))
+
+        elif not savings_form.validate_on_submit():
+
+            if not savings_form.savings_date.data or not savings_form.savings_value.data:
+                form_error_message('Please provide a valid date and/or savings value integer')
+        return redirect(url_for('budget.add_savings_entry'))
 
     return render_template('budget/savings.html', savings_form=savings_form, _object=budget_connect)
 
@@ -307,37 +330,149 @@ def validation():
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
+    return render_template('budget/validation.html', _object=budget_connect,
+                           items_form=items_form,
+                           categories_form=categories_form,
+                           sources_form=sources_form,
+                           accounts_form=accounts_form,
+                           actions_form=actions_form,
+                           reasons_form=reasons_form)
+
     # better-me the SelectField item allocation in the database works. But, the selected option
     #   is not actually visible when selected.
     # TODO add Green Card confirmation when a valid database addition has been successful
 
+
+@bp.route('/validation/items', methods=('GET', 'POST'))
+@login_required
+def validation_items():
+    db = get_db()
+    budget_connect = BudgetDbConnector()
+
+    items_form = AddValidationItems()
+    categories_form = AddValidationCategory()
+    sources_form = AddValidationSources()
+    accounts_form = AddValidationAccounts()
+    actions_form = AddValidationActions()
+    reasons_form = AddValidationReason()
+
+    categories = budget_connect.query_validation_categories
+    category_set = [(x['categories']) for x in categories]
+    items_form.category_value.choices = category_set
+
     if request.method == 'POST':
 
-        if items_form.is_submitted() and items_form.submit_items.data:
+        if items_form.is_submitted() and items_form.validate_on_submit():
 
             item = items_form.item_value.data
             category = items_form.category_value.data
 
-            try:
+            item_list = budget_connect.get_validation_item(item)
+
+            if item_list is not None and item in item_list:
+
+                form_error_message(f'The value you chose for item: "{item}" already exists')
+
+            elif item_list is None:
+
+                form_validated_message('Item value validated!')
                 budget_connect.insert_validation_items(item, category)
                 db.commit()
-            except db.IntegrityError:
-                error = f'item with name {item} already exists.'
-                flash(error)
+
+            # except db.IntegrityError:
+            #     error = f'item with name {item} already exists.'
+            #     flash(error)
 
             return redirect(url_for('budget.validation'))
 
-        if categories_form.is_submitted() and categories_form.submit_category.data:
+        # fixme currently not working. Validates item value whatever the value it has
+        #   even though a validation RegEx has been added.
+
+        elif not items_form.validate_on_submit():
+
+            if not items_form.item_value.data:
+                form_error_message('Please set a valid value for item.')
+
+            return redirect(url_for('budget.validation'))
+
+    return render_template('budget/validation.html', _object=budget_connect,
+                           items_form=items_form,
+                           categories_form=categories_form,
+                           sources_form=sources_form,
+                           accounts_form=accounts_form,
+                           actions_form=actions_form,
+                           reasons_form=reasons_form)
+
+
+@bp.route('/validation/category', methods=('GET', 'POST'))
+@login_required
+def validation_categories():
+    db = get_db()
+    budget_connect = BudgetDbConnector()
+
+    items_form = AddValidationItems()
+    categories_form = AddValidationCategory()
+    sources_form = AddValidationSources()
+    accounts_form = AddValidationAccounts()
+    actions_form = AddValidationActions()
+    reasons_form = AddValidationReason()
+
+    categories = budget_connect.query_validation_categories
+    category_set = [(x['categories']) for x in categories]
+    items_form.category_value.choices = category_set
+
+    if request.method == 'POST':
+
+        if categories_form.is_submitted() and categories_form.validate_on_submit():
             categories = categories_form.category_value.data
 
-            try:
+            category_list = budget_connect.get_validation_category(categories)
+
+            if category_list is not None and categories in category_list:
+
+                form_error_message(f'The value you chose for category: "{categories}" already exists')
+
+            elif category_list is None:
+                form_validated_message('Category value validated!')
                 budget_connect.insert_validation_categories(categories)
                 db.commit()
-            except db.IntegrityError:
-                error = f'category with name {categories} already exists.'
-                flash(error)
 
             return redirect(url_for('budget.validation'))
+
+        elif not categories_form.validate_on_submit():
+
+            if not categories_form.category_value.data:
+                form_error_message('Please set a valid value for category.')
+
+            return redirect(url_for('budget.validation'))
+
+    return render_template('budget/validation.html', _object=budget_connect,
+                           items_form=items_form,
+                           categories_form=categories_form,
+                           sources_form=sources_form,
+                           accounts_form=accounts_form,
+                           actions_form=actions_form,
+                           reasons_form=reasons_form)
+
+
+@bp.route('/validation/sources', methods=('GET', 'POST'))
+@login_required
+def validation_sources():
+    db = get_db()
+    budget_connect = BudgetDbConnector()
+
+    items_form = AddValidationItems()
+    categories_form = AddValidationCategory()
+    sources_form = AddValidationSources()
+    accounts_form = AddValidationAccounts()
+    actions_form = AddValidationActions()
+    reasons_form = AddValidationReason()
+
+    categories = budget_connect.query_validation_categories
+    category_set = [(x['categories']) for x in categories]
+    items_form.category_value.choices = category_set
+
+    if request.method == 'POST':
 
         if sources_form.is_submitted() and sources_form.submit_source.data:
             sources = sources_form.source_value.data
@@ -351,6 +486,34 @@ def validation():
 
             return redirect(url_for('budget.validation'))
 
+    return render_template('budget/validation.html', _object=budget_connect,
+                           items_form=items_form,
+                           categories_form=categories_form,
+                           sources_form=sources_form,
+                           accounts_form=accounts_form,
+                           actions_form=actions_form,
+                           reasons_form=reasons_form)
+
+
+@bp.route('/validation/accounts', methods=('GET', 'POST'))
+@login_required
+def validation_accounts():
+    db = get_db()
+    budget_connect = BudgetDbConnector()
+
+    items_form = AddValidationItems()
+    categories_form = AddValidationCategory()
+    sources_form = AddValidationSources()
+    accounts_form = AddValidationAccounts()
+    actions_form = AddValidationActions()
+    reasons_form = AddValidationReason()
+
+    categories = budget_connect.query_validation_categories
+    category_set = [(x['categories']) for x in categories]
+    items_form.category_value.choices = category_set
+
+    if request.method == 'POST':
+
         if accounts_form.is_submitted() and accounts_form.submit_account.data:
             accounts = accounts_form.account_value.data
 
@@ -363,6 +526,34 @@ def validation():
 
             return redirect(url_for('budget.validation'))
 
+    return render_template('budget/validation.html', _object=budget_connect,
+                           items_form=items_form,
+                           categories_form=categories_form,
+                           sources_form=sources_form,
+                           accounts_form=accounts_form,
+                           actions_form=actions_form,
+                           reasons_form=reasons_form)
+
+
+@bp.route('/validation/actions', methods=('GET', 'POST'))
+@login_required
+def validation_actions():
+    db = get_db()
+    budget_connect = BudgetDbConnector()
+
+    items_form = AddValidationItems()
+    categories_form = AddValidationCategory()
+    sources_form = AddValidationSources()
+    accounts_form = AddValidationAccounts()
+    actions_form = AddValidationActions()
+    reasons_form = AddValidationReason()
+
+    categories = budget_connect.query_validation_categories
+    category_set = [(x['categories']) for x in categories]
+    items_form.category_value.choices = category_set
+
+    if request.method == 'POST':
+
         if actions_form.is_submitted() and actions_form.submit_action.data:
             actions = actions_form.action_value.data
 
@@ -374,6 +565,34 @@ def validation():
                 flash(error)
 
             return redirect(url_for('budget.validation'))
+
+    return render_template('budget/validation.html', _object=budget_connect,
+                           items_form=items_form,
+                           categories_form=categories_form,
+                           sources_form=sources_form,
+                           accounts_form=accounts_form,
+                           actions_form=actions_form,
+                           reasons_form=reasons_form)
+
+
+@bp.route('/validation/reasons', methods=('GET', 'POST'))
+@login_required
+def validation_reasons():
+    db = get_db()
+    budget_connect = BudgetDbConnector()
+
+    items_form = AddValidationItems()
+    categories_form = AddValidationCategory()
+    sources_form = AddValidationSources()
+    accounts_form = AddValidationAccounts()
+    actions_form = AddValidationActions()
+    reasons_form = AddValidationReason()
+
+    categories = budget_connect.query_validation_categories
+    category_set = [(x['categories']) for x in categories]
+    items_form.category_value.choices = category_set
+
+    if request.method == 'POST':
 
         if reasons_form.is_submitted() and reasons_form.submit_reason.data:
             reasons = reasons_form.reason_value.data
