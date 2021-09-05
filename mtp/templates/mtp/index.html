@@ -22,7 +22,13 @@
             <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('mtp.create') }}">New Post</a>
         </li>
         <li>
-            <a class="btn btn-primary " style="margin: 2px;" href="{{ url_for('budget.summary') }}">Budgeting App</a>
+            <a class="btn btn-primary " style="margin: 2px;" href="{{ url_for('budget.summary') }}">Budget</a>
+        </li>
+        <li>
+            <a class="btn btn-light " style="margin: 2px;" href="{{ url_for('dataflow.importer') }}">Importer</a>
+        </li>
+        <li>
+            <a class="btn btn-light " style="margin: 2px;" href="{{ url_for('dataflow.exporter') }}">Exporter</a>
         </li>
         {% endif %}
     </ol>
