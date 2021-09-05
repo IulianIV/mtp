@@ -82,6 +82,7 @@
                                     </div>
                                     <div class="card-body">
                                       <form method="post" id="update-form">
+                                          {{ update_form.hidden_tag() }}
                                         <div class="form-group">
                                           <label class="small mb-1">Title</label>
                                             {{ update_form.update_title(form='update-form', class="form-control py-4", placeholder="Enter post Title", value=post['title']) }}

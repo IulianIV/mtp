@@ -1,18 +1,21 @@
 from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for,
+    Blueprint, flash, redirect, render_template, request, url_for
 )
 from flask_wtf import FlaskForm
 from mtp.auth import login_required
 from mtp.db_manager.db import get_db
 from mtp.db_manager.db_interrogations import Query, Insert
+from mtp.protection import CustomCSRF
 from wtforms.fields import SubmitField, TextField, SelectField, DateField, IntegerField, TextAreaField
 from wtforms.validators import InputRequired, Regexp
 
 
 bp = Blueprint('budget', __name__, url_prefix='/budget')
 
+custom_protection = CustomCSRF()
 
 # Class object for handling multiple SQL queries, might be useful in cases where above code does not work
+
 
 class BudgetDbConnector:
     def __init__(self):
@@ -101,12 +104,12 @@ class BudgetDbConnector:
 
 
 class AddExpenseEntry(FlaskForm):
-    expense_date = DateField()
-    expense_item = SelectField()
-    expense_value = IntegerField()
-    expense_category = SelectField()
-    expense_source = SelectField()
-    submit_expense = SubmitField()
+    expense_date = DateField([InputRequired()])
+    expense_item = SelectField([InputRequired()])
+    expense_value = IntegerField([InputRequired()])
+    expense_category = SelectField([InputRequired()])
+    expense_source = SelectField([InputRequired()])
+    submit_expense = SubmitField([InputRequired()])
 
 
 class AddRevenueEntry(FlaskForm):
@@ -201,7 +204,7 @@ def add_expense_entry():
 
     if request.method == 'POST':
 
-        if expense_form.is_submitted() and expense_form.submit_expense.data:
+        if expense_form.is_submitted() and expense_form.validate_on_submit():
 
             date = expense_form.expense_date.data
             item = expense_form.expense_item.data
@@ -212,6 +215,10 @@ def add_expense_entry():
             budget_connect.insert_expense(date, item, value, item_category, source)
             db.commit()
 
+            return redirect(url_for('budget.add_expense_entry'))
+        elif not expense_form.validate_on_submit():
+            error = expense_form.errors
+            flash(error)
             return redirect(url_for('budget.add_expense_entry'))
 
     return render_template('budget/expense.html', expense_form=expense_form, _object=budget_connect)
