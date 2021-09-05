@@ -5,7 +5,7 @@ from flask_wtf import FlaskForm
 from mtp.auth import login_required
 from mtp.db_manager.db import get_db
 from mtp.db_manager.db_interrogations import Query, Insert
-from mtp.protection import CustomCSRF
+from mtp.protection import CustomCSRF, form_validated_message, form_error_message
 from wtforms.fields import SubmitField, TextField, SelectField, DateField, IntegerField, TextAreaField
 from wtforms.validators import InputRequired, Regexp
 
@@ -186,10 +186,6 @@ def add_expense_entry():
     budget_connect = BudgetDbConnector()
     expense_form = AddExpenseEntry()
 
-    # better-me 'sqlite3.IntegrityError: NOT NULL constraint failed: budget_expense.expense_date'
-    #   this error was actually thrown when you insert a dat that does not exist i.e: 2021-22-55.
-    #   At this point Form Validation is a must have.
-
     items = budget_connect.query_validation_items
     items_set = [x['items'] for x in items]
     expense_form.expense_item.choices = items_set
@@ -212,13 +208,18 @@ def add_expense_entry():
             item_category = expense_form.expense_category.data
             source = expense_form.expense_source.data
 
+            form_validated_message('All values validate!')
+
             budget_connect.insert_expense(date, item, value, item_category, source)
             db.commit()
 
             return redirect(url_for('budget.add_expense_entry'))
+
         elif not expense_form.validate_on_submit():
-            error = expense_form.errors
-            flash(error)
+
+            if not expense_form.expense_date.data or not expense_form.expense_value.data:
+                form_error_message('Please provide a valid date and/or valid value integer number.')
+
             return redirect(url_for('budget.add_expense_entry'))
 
     return render_template('budget/expense.html', expense_form=expense_form, _object=budget_connect)
