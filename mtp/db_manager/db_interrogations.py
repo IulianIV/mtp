@@ -181,6 +181,38 @@ class Query:
             (category_value,)
         ).fetchone()
 
+    def get_validation_source(self, source_value):
+        return self.db.execute(
+            'SELECT sources'
+            ' FROM validation_sources'
+            ' WHERE sources = ?',
+            (source_value,)
+        ).fetchone()
+
+    def get_validation_account(self, account_value):
+        return self.db.execute(
+            'SELECT savings_accounts'
+            ' FROM validation_savings_accounts'
+            ' WHERE savings_accounts = ?',
+            (account_value,)
+        ).fetchone()
+
+    def get_validation_actions(self, action_value):
+        return self.db.execute(
+            'SELECT savings_action_types'
+            ' FROM validation_savings_action_types'
+            ' WHERE savings_action_types = ?',
+            (action_value,)
+        ).fetchone()
+
+    def get_validation_reason(self, reason_value):
+        return self.db.execute(
+            'SELECT savings_reason'
+            ' FROM validation_savings_reason'
+            ' WHERE savings_reason = ?',
+            (reason_value,)
+        ).fetchone()
+
 
 class Update:
 

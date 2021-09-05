@@ -67,8 +67,13 @@
         <div class="card bg-success text-white mb-4">
             <div class="card-body">Table info</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#"></a>
-                <!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+                {% with no_errors = get_flashed_messages(category_filter=["validated"]) %}
+                {% if no_errors %}
+                 {% for msg in no_errors %}
+                <p class="small text-white stretched-link">{{ msg }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
             </div>
         </div>
     </div>
@@ -76,10 +81,13 @@
         <div class="card bg-danger text-white mb-4">
             <div class="card-body">Error messages</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                {% for message in get_flashed_messages() %}
-                <a class="small text-white stretched-link" href="#">{{ message }}</a>
+                {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                {% if errors %}
+                {% for msg in errors %}
+                <p class="small text-white stretched-link">{{ msg }}</p>
                 {% endfor %}
-                <!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+                {% endif %}
+                {% endwith %}
             </div>
         </div>
     </div>
@@ -129,18 +137,18 @@
                     </td>
                     <td>
                         <select class="form-select py-1">
-                            {% for account in _object.query_validation_savings_accounts %}
+                            {% for source in _object.query_validation_sources %}
                             <option>
-                                {{ account['savings_accounts'] }}
+                                {{ source['sources'] }}
                             </option>
                             {% endfor %}
                         </select>
                     </td>
-                    <td>
+                     <td>
                         <select class="form-select py-1">
-                            {% for source in _object.query_validation_sources %}
+                            {% for account in _object.query_validation_savings_accounts %}
                             <option>
-                                {{ source['sources'] }}
+                                {{ account['savings_accounts'] }}
                             </option>
                             {% endfor %}
                         </select>
@@ -183,7 +191,8 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="items-form">
+                                <form method="post" id="items-form" action="{{ url_for('budget.validation_items') }}">
+                                    {{ categories_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-1" width="100%"
                                                cellspacing="0">
@@ -200,12 +209,10 @@
                                             <tbody>
                                             <tr>
                                                 <th>
-                                                    {{ items_form.item_value(form='items-form', class='form-control
-                                                    py-4', placeholder="Ex.: Books") }}
+                                                    {{ items_form.item_value(form='items-form', class='form-control py-4', placeholder="Ex.: Books") }}
                                                 </th>
                                                 <th>
-                                                    {{ items_form.category_value(form='items-form', class='form-select
-                                                    py-4') }}
+                                                    {{ items_form.category_value(form='items-form', class='form-select py-4') }}
                                                 </th>
                                             </tr>
                                             </tbody>
@@ -225,7 +232,7 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="categories-form">
+                                <form method="post" id="categories-form" action="{{ url_for('budget.validation_categories') }}">
                                     {{ categories_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-2" width="100%"
@@ -261,7 +268,7 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="sources-form">
+                                <form method="post" id="sources-form" action="{{ url_for('budget.validation_sources') }}">
                                     {{ sources_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-3" width="100%"
@@ -297,7 +304,7 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="accounts-form">
+                                <form method="post" id="accounts-form" action="{{ url_for('budget.validation_accounts') }}">
                                     {{ accounts_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-4" width="100%"
@@ -333,7 +340,7 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="actions-form">
+                                <form method="post" id="actions-form" action="{{ url_for('budget.validation_actions') }}">
                                     {{ actions_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-5" width="100%"
@@ -369,7 +376,7 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="reasons-form">
+                                <form method="post" id="reasons-form" action="{{ url_for('budget.validation_reasons') }}">
                                     {{ reasons_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-6" width="100%"

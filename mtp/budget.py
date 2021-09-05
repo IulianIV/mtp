@@ -25,17 +25,14 @@ class BudgetDbConnector:
 
     @property
     def query_expense_entries(self):
-
         return self.db_queries.query_expense_entries()
 
     @property
     def query_revenue_entries(self):
-
         return self.db_queries.query_revenue_entries()
 
     @property
     def query_savings_entries(self):
-
         return self.db_queries.query_savings_entries()
 
     @property
@@ -44,27 +41,22 @@ class BudgetDbConnector:
 
     @property
     def query_validation_items(self):
-
         return self.db_queries.query_validation_items()
 
     @property
     def query_validation_categories(self):
-
         return self.db_queries.query_validation_categories()
 
     @property
     def query_validation_savings_accounts(self):
-
         return self.db_queries.query_validation_savings_accounts()
 
     @property
     def query_validation_sources(self):
-
         return self.db_queries.query_validation_sources()
 
     @property
     def query_validation_savings_action_types(self):
-
         return self.db_queries.query_validation_savings_action_types()
 
     @property
@@ -76,6 +68,18 @@ class BudgetDbConnector:
 
     def get_validation_category(self, category_value):
         return self.db_queries.get_validation_category(category_value)
+
+    def get_validation_source(self, source_value):
+        return self.db_queries.get_validation_source(source_value)
+
+    def get_validation_account(self, account_value):
+        return self.db_queries.get_validation_account(account_value)
+
+    def get_validation_actions(self, action_value):
+        return self.db_queries.get_validation_actions(action_value)
+
+    def get_validation_reason(self, reason_value):
+        return self.db_queries.get_validation_reason(reason_value)
 
     def insert_expense(self, date, item, value, item_category, source):
         return self.db_inserts.insert_expense(date, item, value, item_category, source)
@@ -379,14 +383,12 @@ def validation_items():
                 budget_connect.insert_validation_items(item, category)
                 db.commit()
 
-            # except db.IntegrityError:
-            #     error = f'item with name {item} already exists.'
-            #     flash(error)
-
             return redirect(url_for('budget.validation'))
 
         # fixme currently not working. Validates item value whatever the value it has
         #   even though a validation RegEx has been added.
+        #   The Logic seems to be flawed. It looks for something that has not passed validation
+        #   then sees if it has values or not inside it.
 
         elif not items_form.validate_on_submit():
 
@@ -474,15 +476,26 @@ def validation_sources():
 
     if request.method == 'POST':
 
-        if sources_form.is_submitted() and sources_form.submit_source.data:
-            sources = sources_form.source_value.data
+        if sources_form.is_submitted() and sources_form.validate_on_submit():
 
-            try:
+            sources = sources_form.source_value.data
+            sources_list = budget_connect.get_validation_source(sources)
+
+            if sources_list is not None and sources in sources_list:
+
+                form_error_message(f'The value you chose for source: "{sources}" already exists')
+
+            elif sources_list is None:
+                form_validated_message('Source value validated!')
                 budget_connect.insert_validation_sources(sources)
                 db.commit()
-            except db.IntegrityError:
-                error = f'source with value {sources} already exists.'
-                flash(error)
+
+            return redirect(url_for('budget.validation'))
+
+        elif not sources_form.validate_on_submit():
+
+            if not sources_form.source_value.data:
+                form_error_message('Please set a valid value for sources.')
 
             return redirect(url_for('budget.validation'))
 
@@ -514,15 +527,26 @@ def validation_accounts():
 
     if request.method == 'POST':
 
-        if accounts_form.is_submitted() and accounts_form.submit_account.data:
+        if accounts_form.is_submitted() and accounts_form.validate_on_submit():
             accounts = accounts_form.account_value.data
 
-            try:
+            accounts_list = budget_connect.get_validation_account(accounts)
+
+            if accounts_list is not None and accounts in accounts_list:
+
+                form_error_message(f'The value you chose for account: "{accounts}" already exists')
+
+            elif accounts_list is None:
+                form_validated_message('Account value validated!')
                 budget_connect.insert_validation_accounts(accounts)
                 db.commit()
-            except db.IntegrityError:
-                error = f'account with value {accounts} already exists.'
-                flash(error)
+
+            return redirect(url_for('budget.validation'))
+
+        elif not accounts_form.validate_on_submit():
+
+            if not accounts_form.account_value.data:
+                form_error_message('Please set a valid value for account.')
 
             return redirect(url_for('budget.validation'))
 
@@ -554,15 +578,28 @@ def validation_actions():
 
     if request.method == 'POST':
 
-        if actions_form.is_submitted() and actions_form.submit_action.data:
+        if actions_form.is_submitted() and actions_form.validate_on_submit():
+
             actions = actions_form.action_value.data
 
-            try:
+            action_list = budget_connect.get_validation_actions(actions)
+
+            if action_list is not None and actions in action_list:
+
+                form_error_message(f'The value you chose for action: "{actions}" already exists')
+
+            elif action_list is None:
+
+                form_validated_message('Action value validated!')
                 budget_connect.insert_validation_actions(actions)
                 db.commit()
-            except db.IntegrityError:
-                error = f'actions with value {actions} already exists.'
-                flash(error)
+
+            return redirect(url_for('budget.validation'))
+
+        elif not actions_form.validate_on_submit():
+
+            if not actions_form.action_value.data:
+                form_error_message('Please set a valid value for action.')
 
             return redirect(url_for('budget.validation'))
 
@@ -595,14 +632,25 @@ def validation_reasons():
     if request.method == 'POST':
 
         if reasons_form.is_submitted() and reasons_form.submit_reason.data:
-            reasons = reasons_form.reason_value.data
 
-            try:
+            reasons = reasons_form.reason_value.data
+            reasons_list = budget_connect.get_validation_reason(reasons)
+
+            if reasons_list is not None and reasons in reasons_list:
+
+                form_error_message(f'The value you chose for reason: "{reasons}" already exists')
+
+            elif reasons_list is None:
+                form_validated_message('Reason value validated!')
                 budget_connect.insert_validation_reasons(reasons)
                 db.commit()
-            except db.IntegrityError:
-                error = f'reasons with value {reasons} already exists.'
-                flash(error)
+
+            return redirect(url_for('budget.validation'))
+
+        elif not reasons_form.validate_on_submit():
+
+            if not reasons_form.reason_value.data:
+                form_error_message('Please set a valid value for reason.')
 
             return redirect(url_for('budget.validation'))
 
