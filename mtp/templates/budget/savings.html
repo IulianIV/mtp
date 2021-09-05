@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
 {% block meta %}
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<meta name="description" content=""/>
+<meta name="author" content=""/>
 
-    {% block title %}
-    <title>MTP | Web App</title>
-    {% endblock %}
+{% block title %}
+<title>MTP | Web App</title>
+{% endblock %}
 
 {% endblock %}
 
@@ -32,8 +32,13 @@
         <div class="card bg-success text-white mb-4">
             <div class="card-body">Table info</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-<!--                <a class="small text-white stretched-link" href="#">All fields are mandatory</a>-->
-<!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+                {% with no_errors = get_flashed_messages(category_filter=["validated"]) %}
+                {% if no_errors %}
+                {% for msg in no_errors %}
+                <p class="small text-white stretched-link">{{ msg }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
             </div>
         </div>
     </div>
@@ -41,10 +46,13 @@
         <div class="card bg-danger text-white mb-4">
             <div class="card-body">Error messages</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                {% for message in get_flashed_messages() %}
-                    <a class="small text-white stretched-link">{{ message }}</a>
+                {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                {% if errors %}
+                {% for msg in errors %}
+                <p class="small text-white stretched-link">{{ msg }}</p>
                 {% endfor %}
-<!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+                {% endif %}
+                {% endwith %}
             </div>
         </div>
     </div>
@@ -53,68 +61,75 @@
 
 {% block content %}
 <div id="layoutBudgetIndex">
-            <div id="layoutBudgetIndex_content">
-                <main>
-                    <div class="container">
-                        <div class="row justify-content-center">
-                            <div class="col-bdgt-1">
-                                <div class="card shadow-lg border-0 rounded-lg mt-5">
-                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Savings Entry</h3></div>
-                                    <div class="card-body">
-                                      <form method="post" id="savings-form">
-                                          {{ savings_form.hidden_tag() }}
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="font-weight= bold;">
-                                                            <label>Date</label>
-                                                        </th>
-                                                        <th>
-                                                            <label>Value</label>
-                                                        </th>
-                                                        <th>
-                                                            <label>Source</label>
-                                                        </th>
-                                                        <th>
-                                                            <label>Reason</label>
-                                                        </th>
-                                                        <th>
-                                                            <label>Action</label>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <th>
-                                                            {{ savings_form.savings_date(form='savings-form', class='form-control py-4', placeholder="Ex.: 2021-01-15") }}
-                                                        </th>
-                                                        <th>
-                                                            {{ savings_form.savings_value(form='savings-form', class='form-control py-4', placeholder="Ex.: 500") }}
-                                                        </th>
-                                                        <th>
-                                                            {{ savings_form.savings_source(form='savings-form', class='form-select py-4') }}
-                                                        </th>
-                                                        <th>
-                                                            {{ savings_form.savings_reason(form='savings-form', class='form-select py-4') }}
-                                                        </th>
-                                                        <th>
-                                                            {{ savings_form.savings_action(form='savings-form', class='form-select py-1') }}
-                                                        </th>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                          {{ savings_form.submit_savings(form='savings-form', value="Save", class="btn btn-primary") }}
-                                          <a class="btn btn-danger" href="{{ url_for('budget.summary') }}">Cancel</a>
-                                      </form>
+    <div id="layoutBudgetIndex_content">
+        <main>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-bdgt-1">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Savings
+                                Entry</h3></div>
+                            <div class="card-body">
+                                <form method="post" id="savings-form">
+                                    {{ savings_form.hidden_tag() }}
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th style="font-weight= bold;">
+                                                    <label>Date</label>
+                                                </th>
+                                                <th>
+                                                    <label>Value</label>
+                                                </th>
+                                                <th>
+                                                    <label>Source</label>
+                                                </th>
+                                                <th>
+                                                    <label>Reason</label>
+                                                </th>
+                                                <th>
+                                                    <label>Action</label>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <th>
+                                                    {{ savings_form.savings_date(form='savings-form',
+                                                    class='form-control py-4', placeholder="Ex.: 2021-01-15") }}
+                                                </th>
+                                                <th>
+                                                    {{ savings_form.savings_value(form='savings-form',
+                                                    class='form-control py-4', placeholder="Ex.: 500") }}
+                                                </th>
+                                                <th>
+                                                    {{ savings_form.savings_source(form='savings-form',
+                                                    class='form-select py-4') }}
+                                                </th>
+                                                <th>
+                                                    {{ savings_form.savings_reason(form='savings-form',
+                                                    class='form-select py-4') }}
+                                                </th>
+                                                <th>
+                                                    {{ savings_form.savings_action(form='savings-form',
+                                                    class='form-select py-1') }}
+                                                </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                </div>
+                                    {{ savings_form.submit_savings(form='savings-form', value="Save", class="btn
+                                    btn-primary") }}
+                                    <a class="btn btn-danger" href="{{ url_for('budget.summary') }}">Cancel</a>
+                                </form>
                             </div>
                         </div>
-                  </div>
-                </main>
+                    </div>
+                </div>
             </div>
+        </main>
+    </div>
 </div>
 <div class="card mb-4">
     <div class="card-header">
@@ -124,7 +139,7 @@
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="dataTable3" width="100%" cellspacing="0">
-              <thead>
+                <thead>
                 <tr>
                     <th>id</th>
                     <th>Savings Date</th>
@@ -133,9 +148,9 @@
                     <th>Savings Reason</th>
                     <th>Savings Action</th>
                 </tr>
-              </thead>
-          {% for entry in _object.query_savings_entries %}
-              <tbody class="post">
+                </thead>
+                {% for entry in _object.query_savings_entries %}
+                <tbody class="post">
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
                     <th class="small mb-1">{{ entry['savings_date'] }}</th>
@@ -144,8 +159,8 @@
                     <th class="small mb-1">{{ entry['savings_reason'] }}</th>
                     <th class="small mb-1">{{ entry['savings_action'] }}</th>
                 </tr>
-              </tbody>
-            {% endfor %}
+                </tbody>
+                {% endfor %}
             </table>
         </div>
     </div>
