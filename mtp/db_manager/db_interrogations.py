@@ -26,6 +26,14 @@ class Insert:
                 (date, value, source, reason, action)
             )
 
+    def insert_utilities(self, date, rent, energy, satellite, maintenance, details):
+        return self.db.execute(
+            'INSERT INTO budget_utilities (utilities_date, utilities_rent_value, utilities_energy_value,'
+            'utilities_satellite_value, utilities_maintenance_value, utilities_info)',
+            'VALUES (?, ?, ?, ?, ?, ?)',
+            (date, rent, energy, satellite, maintenance, details)
+        )
+
     def insert_validation_items(self, item, category):
         return self.db.execute(
                      'INSERT INTO validation_items (items,category)'
@@ -97,6 +105,14 @@ class Query:
             'ORDER BY savings_date ASC'
         )
 
+    def query_utilities_entries(self):
+        return self.db.execute(
+            'SELECT id, utilities_date, utilities_rent_value, utilities_energy_value, utilities_satellite_value,'
+            'utilities_maintenance_value, utilities_info '
+            ' FROM budget_utilities '
+            'ORDER BY id ASC'
+        )
+
     def query_validation_items(self):
         return self.db.execute(
             'SELECT id,items'
@@ -126,4 +142,3 @@ class Query:
             'SELECT id,savings_action_types'
             ' FROM validation_savings_action_types'
         )
-
