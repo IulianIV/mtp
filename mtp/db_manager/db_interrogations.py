@@ -73,6 +73,13 @@ class Insert:
                     (reasons,)
         )
 
+    def insert_post(self, title, body, user_id):
+        return self.db.execute(
+            'INSERT INTO post (title, body, author_id)'
+            ' VALUES (?, ?, ?)',
+            (title, body, user_id)
+        )
+
 
 class Query:
 
@@ -142,3 +149,40 @@ class Query:
             'SELECT id,savings_action_types'
             ' FROM validation_savings_action_types'
         )
+
+    def query_blog_post(self, post_id):
+        return self.db.execute(
+            'SELECT p.id, title, body, created, author_id, username'
+            ' FROM post p JOIN user u ON p.author_id = u.id'
+            ' WHERE p.id = ?',
+            (post_id,)
+        ).fetchone()
+
+    def query_blog_posts(self):
+        return self.db.execute(
+            'SELECT p.id, title, body, created, author_id, username'
+            ' FROM post p JOIN user u ON p.author_id = u.id'
+            ' ORDER BY created DESC'
+        ).fetchall()
+
+
+class Update:
+
+    def __init__(self):
+        self.db = get_db()
+
+    def update_post(self, title, body, post_id):
+        return self.db.execute(
+                'UPDATE post SET title = ?, body = ?'
+                ' WHERE id = ?',
+                (title, body, post_id)
+            )
+
+
+class Delete:
+
+    def __init__(self):
+        self.db = get_db()
+
+    def delete_post(self, post_id):
+        return self.db.execute('DELETE FROM post WHERE id = ?', (post_id,))
