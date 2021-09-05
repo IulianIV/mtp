@@ -10,6 +10,7 @@ setup(
         'flask',
         'wtforms',
         'click',
-        'pandas'
+        'pandas',
+        'flask-dropzone'
     ],
 )
