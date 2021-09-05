@@ -20,7 +20,7 @@
                                 <div class="text-center mt-4">
                                     <img class="mb-4 img-error" src="{{ url_for('static', filename='error-404-monochrome.svg') }}" />
                                     <p class="lead">This requested URL was not found on this server.</p>
-                                    <a href="index.html">
+                                    <a href="{{ url_for('mtp.index') }}">
                                         <i class="fas fa-arrow-left mr-1"></i>
                                         Return to Dashboard
                                     </a>
