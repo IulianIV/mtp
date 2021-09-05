@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+<head>{{ dropzone.load_css }}</head>
+{% block meta %}
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<meta name="description" content=""/>
+<meta name="author" content=""/>
+
+{% block title %}
+<title>MTP | Web App</title>
+{% endblock %}
+
+{% endblock %}
+
+{% block header %}
+<h1 class="mt-4">Validation Dashboard</h1>
+<ol class="breadcrumb mb-4">
+    {% if g.user %}
+    <li>
+        <a class="btn btn-primary btn-secondary" style="margin: 2px;" href="{{ url_for('mtp.index') }}">Blog</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-primary" style="margin: 2px;" href="{{ url_for('budget.summary') }}">Budget</a>
+    </li>
+    {% endif %}
+</ol>
+{% endblock %}
+
+{% block cards %}
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">Table info</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" href="#"></a>
+                <!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-danger text-white mb-4">
+            <div class="card-body">Error messages</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                {% for message in get_flashed_messages() %}
+                <a class="small text-white stretched-link" href="#">{{ message }}</a>
+                {% endfor %}
+                <!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="layoutBudgetIndex">
+    <div id="layoutBudgetIndex_content">
+        <main>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-bdgt-1">
+                        <div class="form-group">
+                            {{ upload_form.uploaded_file(form='upload-form', class='custom-file-input', id='file') }}
+                            <label class="custom-file-label" for="file">Browse for file...</label>
+                        </div>
+                        {{ upload_form.submit_upload(form='upload-form', class='btn btn-primary', type='submit') }}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        Expense Summary
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable2" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Expense Date</th>
+                    <th>Expense Item</th>
+                    <th>Expense Value</th>
+                    <th>Expense Category</th>
+                    <th>Expense Source</th>
+                </tr>
+                </thead>
+                <tbody class="post">
+                <tr>
+                    <th class="small mb-1">Da</th>
+                    <th class="small mb-1">Da</th>
+                    <th class="small mb-1">Da</th>
+                    <th class="small mb-1">Da</th>
+                    <th class="small mb-1">Da</th>
+                    <th class="small mb-1">Da</th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
