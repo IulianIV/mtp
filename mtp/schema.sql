@@ -34,7 +34,7 @@ CREATE TABLE budget_expense (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     expense_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expense_item TEXT NOT NULL,
-    expense_value REAL NOT NULL,
+    expense_value NUMERIC NOT NULL,
     expense_item_category TEXT NOT NULL,
     expense_source TEXT NOT NULL,
     FOREIGN KEY (expense_source) REFERENCES budget_revenue (revenue_source),
@@ -44,14 +44,14 @@ CREATE TABLE budget_expense (
 CREATE TABLE budget_revenue (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     revenue_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    revenue_value REAL NOT NULL,
+    revenue_value NUMERIC NOT NULL,
     revenue_source TEXT NOT NULL
 );
 
 CREATE TABLE budget_savings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     savings_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    savings_value REAL NOT NULL,
+    savings_value NUMERIC NOT NULL,
     savings_source TEXT NOT NULL,
     savings_reason TEXT NOT NULL,
     savings_action TEXT NOT NULL
@@ -60,10 +60,10 @@ CREATE TABLE budget_savings (
 CREATE TABLE budget_utilities (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     utilities_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    utilities_rent_value INTEGER NOT NULL,
-    utilities_energy_value INTEGER NOT NULL,
-    utilities_sattelite_value INTEGER NOT NULL,
-    utilities_maintenance_value INTEGER NOT NULL,
+    utilities_rent_value NUMERIC NOT NULL,
+    utilities_energy_value NUMERIC NOT NULL,
+    utilities_satellite_value NUMERIC NOT NULL,
+    utilities_maintenance_value NUMERIC NOT NULL,
     utilities_info TEXT
 );
 
