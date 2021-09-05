@@ -2,12 +2,16 @@ import os
 
 from flask import Flask
 from .db_manager import db
-from . import auth, budget, mtp
+from . import auth, budget, mtp, dataflow
+from flask_dropzone import Dropzone
+
+dropzone = Dropzone()
 
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    dropzone.init_app(app)
 
     app.config.from_mapping(SECRET_KEY='dev', DATABASE=os.path.join(app.instance_path, 'mtp.sqlite'),)
     if test_config is None:
@@ -28,6 +32,7 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(mtp.bp)
     app.register_blueprint(budget.bp)
+    app.register_blueprint(dataflow.bp)
     app.add_url_rule('/', endpoint='index')
 
     return app
