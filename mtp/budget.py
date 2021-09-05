@@ -4,17 +4,12 @@ from flask import (
 from flask_wtf import FlaskForm
 from mtp.auth import login_required
 from mtp.db_manager.db import get_db
-from mtp.db_manager.db_table_actions import Query, Insert
-from wtforms.fields import SubmitField, TextField, SelectField, DateField, IntegerField
+from mtp.db_manager.db_interrogations import Query, Insert
+from wtforms.fields import SubmitField, TextField, SelectField, DateField, IntegerField, TextAreaField
+from wtforms.validators import InputRequired, Regexp
 
 
 bp = Blueprint('budget', __name__, url_prefix='/budget')
-
-# @bp.route('/budget/index')
-# @login_required
-# def index():
-#     return render_template('budget/index.html')
-#     pass
 
 
 # Class object for handling multiple SQL queries, might be useful in cases where above code does not work
@@ -33,12 +28,16 @@ class BudgetDbConnector:
     @property
     def query_revenue_entries(self):
 
-        return self.db_queries.query_expense_entries()
+        return self.db_queries.query_revenue_entries()
 
     @property
     def query_savings_entries(self):
 
         return self.db_queries.query_savings_entries()
+
+    @property
+    def query_utilities_entry(self):
+        return self.db_queries.query_utilities_entries()
 
     @property
     def query_validation_items(self):
@@ -79,6 +78,9 @@ class BudgetDbConnector:
     def insert_savings(self, date, value, source, reason, action):
         return self.db_inserts.insert_savings(date, value, source, reason, action)
 
+    def insert_utilities(self, date, rent, energy, satellite, maintenance, details):
+        return self.db_inserts.insert_utilities(date, rent, energy, satellite, maintenance, details)
+
     def insert_validation_items(self, item, category):
         return self.db_inserts.insert_validation_items(item, category)
 
@@ -108,9 +110,9 @@ class AddExpenseEntry(FlaskForm):
 
 
 class AddRevenueEntry(FlaskForm):
-    revenue_date = DateField()
-    revenue_value = IntegerField()
-    revenue_source = SelectField()
+    revenue_date = DateField([InputRequired()])  # TODO Add DateTime validation
+    revenue_value = IntegerField([InputRequired(), Regexp('[0-9.]+')])
+    revenue_source = SelectField([InputRequired()])
     submit_revenue = SubmitField()
 
 
@@ -121,6 +123,16 @@ class AddSavingsEntry(FlaskForm):
     savings_reason = SelectField()
     savings_action = SelectField()
     submit_savings = SubmitField()
+
+
+class AddUtilitiesEntry(FlaskForm):
+    utilities_date = DateField()
+    utilities_rent = IntegerField()
+    utilities_energy = IntegerField()
+    utilities_satellite = IntegerField()
+    utilities_maintenance = IntegerField()
+    utilities_details = TextAreaField()
+    submit_utilities = SubmitField()
 
 
 class AddValidationItems(FlaskForm):
@@ -157,25 +169,6 @@ class AddValidationReason(FlaskForm):
 @bp.route('/')
 @login_required
 def summary():
-    # db = get_db()
-    # # query_expense_entries = db.execute(
-    # #     'SELECT id, expense_date, expense_item, expense_value, expense_item_category, expense_source'
-    # #     ' FROM budget_expense '
-    # #     'ORDER BY expense_date ASC'
-    # # ).fetchall()
-    #
-    # query_revenue_entries = db.execute(
-    #     'SELECT id, revenue_date, revenue_value, revenue_source'
-    #     ' FROM budget_revenue '
-    #     'ORDER BY revenue_date ASC'
-    # ).fetchall()
-    #
-    # query_savings_entries = db.execute(
-    #     'SELECT id, savings_date,savings_value, savings_source, savings_reason, savings_action'
-    #     ' FROM budget_savings '
-    #     'ORDER BY savings_date ASC'
-    # ).fetchall()
-
     return render_template('budget/summary.html', _object=BudgetDbConnector())
 
 
@@ -393,6 +386,32 @@ def validation():
                            accounts_form=accounts_form,
                            actions_form=actions_form,
                            reasons_form=reasons_form)
+
+
+@bp.route('/add_utilities_entry', methods=('GET', 'POST'))
+@login_required
+def add_utilities_entry():
+
+    db = get_db()
+    budget_connect = BudgetDbConnector()
+    utilities_form = AddUtilitiesEntry()
+
+    if request.method == 'POST':
+        if utilities_form.is_submitted() and utilities_form.submit_utilities.data:
+
+            date = utilities_form.utilities_date.data
+            rent = utilities_form.utilities_rent.data
+            energy = utilities_form.utilities_energy.data
+            satellite = utilities_form.utilities_satellite.data
+            maintenance = utilities_form.utilities_maintenance.data
+            details = utilities_form.utilities_details.data
+
+            budget_connect.insert_utilities(date, rent, energy, satellite, maintenance, details)
+            db.commit()
+
+            return redirect(url_for('budget.add_utilities_entry'))
+
+    return render_template('budget/utilities.html', _object=budget_connect, utilities_form=utilities_form)
 
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
