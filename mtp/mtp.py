@@ -5,12 +5,14 @@ from werkzeug.exceptions import abort
 from flask_wtf import FlaskForm
 from wtforms.fields import TextField, TextAreaField, SubmitField
 
+from mtp.protection import CustomCSRF
 from mtp.auth import login_required
 from mtp.db_manager.db import get_db
 from mtp.db_manager.db_interrogations import Query, Insert, Update, Delete
 
 bp = Blueprint('mtp', __name__)
 
+custom_protection = CustomCSRF()
 
 class BlogDbConnector:
     def __init__(self):
