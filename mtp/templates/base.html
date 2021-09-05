@@ -69,7 +69,19 @@
                             </div>
                         </nav>
                     </div>
-
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts"
+                       aria-expanded="false" aria-controls="collapseLayouts">
+                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                        Micro-blog
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne"
+                         data-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="{{ url_for('mtp.index') }}">Homepage</a>
+                            <a class="nav-link" href="{{ url_for('mtp.create') }}">Create post</a>
+                        </nav>
+                    </div>
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBudget"
                        aria-expanded="false" aria-controls="collapseBudget">
                         <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
@@ -86,33 +98,21 @@
                             <a class="nav-link" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
                             <a class="nav-link" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
                             <a class="nav-link" href="{{ url_for('budget.add_expense_entry') }}">Add Expense</a>
-                            <a class="nav-link" href="{{ url_for('budget.validation') }}">Summary</a>
-                        </nav>
-                    </div>
-                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts"
-                       aria-expanded="false" aria-controls="collapseLayouts">
-                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                        Other views to be added
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne"
-                         data-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="#">Summary</a>
-                            <a class="nav-link" href="#">Other views to be added...</a>
+                            <a class="nav-link" href="{{ url_for('budget.add_utilities_entry') }}">Add Utilities</a>
+                            <a class="nav-link" href="{{ url_for('budget.validation') }}">Validation</a>
                         </nav>
                     </div>
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOthers"
                        aria-expanded="false" aria-controls="collapseOthers">
                         <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                        Other views to be added
+                        Dataflow
                         <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                     </a>
                     <div class="collapse" id="collapseOthers" aria-labelledby="headingOne"
                          data-parent="#sidenavAccordion">
                         <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="#">Summary</a>
-                            <a class="nav-link" href="#">Other views to be added...</a>
+                            <a class="nav-link" href="{{ url_for('dataflow.importer') }}">Import data</a>
+                            <a class="nav-link" href="{{ url_for('dataflow.exporter') }}">Export data</a>
                         </nav>
                     </div>
                     {% endif %}
