@@ -165,6 +165,22 @@ class Query:
             ' ORDER BY created DESC'
         ).fetchall()
 
+    def get_validation_item(self, item_value):
+        return self.db.execute(
+            'SELECT items'
+            ' FROM validation_items'
+            ' WHERE items = ?',
+            (item_value,)
+        ).fetchone()
+
+    def get_validation_category(self, category_value):
+        return self.db.execute(
+            'SELECT categories'
+            ' FROM validation_categories'
+            ' WHERE categories = ?',
+            (category_value,)
+        ).fetchone()
+
 
 class Update:
 
