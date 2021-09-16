@@ -29,7 +29,7 @@ class Insert:
     def insert_utilities(self, date, rent, energy, satellite, maintenance, details):
         return self.db.execute(
             'INSERT INTO budget_utilities (utilities_date, utilities_rent_value, utilities_energy_value,'
-            'utilities_satellite_value, utilities_maintenance_value, utilities_info)',
+            'utilities_satellite_value, utilities_maintenance_value, utilities_info)'
             'VALUES (?, ?, ?, ?, ?, ?)',
             (date, rent, energy, satellite, maintenance, details)
         )
@@ -188,6 +188,15 @@ class Query:
             ' WHERE sources = ?',
             (source_value,)
         ).fetchone()
+
+    def get_expense_count(self):
+        return self.db.execute('SELECT count(*) FROM budget_expense').fetchone()
+
+    def get_revenue_count(self):
+        return self.db.execute('SELECT count(*) FROM budget_revenue').fetchone()
+
+    def get_savings_count(self):
+        return self.db.execute('SELECT count(*) FROM budget_savings').fetchone()
 
     def get_validation_account(self, account_value):
         return self.db.execute(
