@@ -32,8 +32,13 @@
         <div class="card bg-success text-white mb-4">
             <div class="card-body">Table info</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#"></a>
-                <!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+                {% with no_errors = get_flashed_messages(category_filter=["validated"]) %}
+                {% if no_errors %}
+                {% for msg in no_errors %}
+                <p class="small text-white stretched-link"> {{ msg }} </p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
             </div>
         </div>
     </div>
@@ -41,10 +46,13 @@
         <div class="card bg-danger text-white mb-4">
             <div class="card-body">Error messages</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                {% for message in get_flashed_messages() %}
-                <a class="small text-white stretched-link" href="#">{{ message }}</a>
+                {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                {% if errors %}
+                {% for msg in errors %}
+                <p class="small text-white stretched-link">{{ msg }}</p>
                 {% endfor %}
-                <!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+                {% endif %}
+                {% endwith %}
             </div>
         </div>
     </div>
@@ -62,7 +70,7 @@
                             <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Utilities
                                 Entry</h3></div>
                             <div class="card-body">
-                                <form method="post" id="revenue-form">
+                                <form method="post" id="utilities-form">
                                     {{ utilities_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
@@ -112,7 +120,8 @@
                                                 </th>
                                                 <th>
                                                     {{ utilities_form.utilities_details(form='utilities-form',
-                                                    class='form-control py-4', placeholder="Ex.: For the month of June") }}
+                                                    class='form-control py-4', placeholder="Ex.: For the month of June")
+                                                    }}
                                                 </th>
                                             </tr>
                                             </tbody>

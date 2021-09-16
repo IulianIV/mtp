@@ -64,19 +64,12 @@
 <div class="row">
     <div class="col-xl-3 col-md-6">
         <div class="card bg-primary text-white mb-4">
-            <div class="card-body">Primary Card</div>
+            <div class="card-body">Table Summary</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-warning text-white mb-4">
-            <div class="card-body">Warning Card</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                <p class="small text-white stretched-link">
+                    <strong>{{ table_counts.get('expense_count') }} Expense entries</strong><br />
+                    <strong>{{ table_counts.get('revenue_count') }} Revenue entries</strong><br />
+                    <strong>{{ table_counts.get('savings_count') }} Savings entries</strong></p>
             </div>
         </div>
     </div>
@@ -84,8 +77,15 @@
         <div class="card bg-success text-white mb-4">
             <div class="card-body">Success Card</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                <p class="small text-white stretched-link">View Details</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-warning text-white mb-4">
+            <div class="card-body">Warning Card</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <p class="small text-white stretched-link">View Details</p>
             </div>
         </div>
     </div>
@@ -93,10 +93,15 @@
         <div class="card bg-danger text-white mb-4">
             <div class="card-body">Error message Card</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                {% for message in get_flashed_messages() %}
-                <a class="small text-white stretched-link" href="#">{{ message }}</a>
+                {% with errors = get_flashed_messages() %}
+                {% if errors %}
+                {% for error in errors %}
+                <p class="small text-white stretched-link">{{ error }}</p>
                 {% endfor %}
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                {% else %}
+                <p class="small text-white stretched-link">View Details</p>
+                {% endif %}
+                {% endwith %}
             </div>
         </div>
     </div>
@@ -108,7 +113,7 @@
 <div class="card mb-4">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
-        Expense Summary
+        Expense - {{ table_counts.get('expense_count') }} entries
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -142,7 +147,7 @@
 <div class="card mb-4">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
-        Revenue Summary
+        Revenue - {{ table_counts.get('revenue_count') }} entries
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -172,7 +177,7 @@
 <div class="card mb-4">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
-        Savings Summary
+        Savings - {{ table_counts.get('savings_count') }} entries
     </div>
     <div class="card-body">
         <div class="table-responsive">
