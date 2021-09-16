@@ -1,18 +1,20 @@
 from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for
+    Blueprint, redirect, render_template, request, url_for, flash
 )
 from flask_wtf import FlaskForm
+from datetime import datetime
 from mtp.auth import login_required
 from mtp.db_manager.db import get_db
 from mtp.db_manager.db_interrogations import Query, Insert
-from mtp.protection import CustomCSRF, form_validated_message, form_error_message
+from mtp.protection import CustomCSRF, form_validated_message, form_error_message, NoFutureDates, CheckForNumber
 from wtforms.fields import SubmitField, TextField, SelectField, DateField, IntegerField, TextAreaField
-from wtforms.validators import InputRequired, Regexp
-
+from wtforms.validators import DataRequired, Regexp, ValidationError
+from wtforms.fields.html5 import DateField
 
 bp = Blueprint('budget', __name__, url_prefix='/budget')
 
 custom_protection = CustomCSRF()
+
 
 # Class object for handling multiple SQL queries, might be useful in cases where above code does not work
 
@@ -81,6 +83,15 @@ class BudgetDbConnector:
     def get_validation_reason(self, reason_value):
         return self.db_queries.get_validation_reason(reason_value)
 
+    def get_expense_count(self):
+        return self.db_queries.get_expense_count()
+
+    def get_revenue_count(self):
+        return self.db_queries.get_revenue_count()
+
+    def get_savings_count(self):
+        return self.db_queries.get_savings_count()
+
     def insert_expense(self, date, item, value, item_category, source):
         return self.db_inserts.insert_expense(date, item, value, item_category, source)
 
@@ -113,84 +124,89 @@ class BudgetDbConnector:
 
 
 class AddExpenseEntry(FlaskForm):
-    expense_date = DateField([InputRequired()])
-    expense_item = SelectField([InputRequired()])
-    expense_value = IntegerField([InputRequired()])
-    expense_category = SelectField([InputRequired()])
-    expense_source = SelectField([InputRequired()])
-    submit_expense = SubmitField([InputRequired()])
+    expense_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    expense_item = SelectField(validators=[DataRequired()])
+    expense_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    expense_category = SelectField(validators=[DataRequired()])
+    expense_source = SelectField(validators=[DataRequired()])
+    submit_expense = SubmitField(validators=[DataRequired()])
 
 
 class AddRevenueEntry(FlaskForm):
-    revenue_date = DateField([InputRequired()])  # TODO Add DateTime validation
-    revenue_value = IntegerField([InputRequired(), Regexp(r'[0-9.]+')])
-    revenue_source = SelectField([InputRequired()])
+    revenue_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    revenue_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    revenue_source = SelectField(validators=[DataRequired()])
     submit_revenue = SubmitField()
 
 
 class AddSavingsEntry(FlaskForm):
-    savings_date = DateField()
-    savings_value = IntegerField()
-    savings_source = SelectField()
-    savings_reason = SelectField()
-    savings_action = SelectField()
+    savings_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    savings_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    savings_source = SelectField(validators=[DataRequired()])
+    savings_reason = SelectField(validators=[DataRequired()])
+    savings_action = SelectField(validators=[DataRequired()])
     submit_savings = SubmitField()
 
 
 class AddUtilitiesEntry(FlaskForm):
-    utilities_date = DateField()
-    utilities_rent = IntegerField()
-    utilities_energy = IntegerField()
-    utilities_satellite = IntegerField()
-    utilities_maintenance = IntegerField()
-    utilities_details = TextAreaField()
+    utilities_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    utilities_rent = TextField(validators=[DataRequired(), CheckForNumber()])
+    utilities_energy = TextField(validators=[DataRequired(), CheckForNumber()])
+    utilities_satellite = TextField(validators=[DataRequired(), CheckForNumber()])
+    utilities_maintenance = TextField(validators=[DataRequired(), CheckForNumber()])
+    utilities_details = TextAreaField(validators=[DataRequired()])
     submit_utilities = SubmitField()
 
 
 class AddValidationItems(FlaskForm):
-    category_value = SelectField(coerce=str)
-    item_value = TextField([InputRequired(), Regexp(r'^([a-zA-Z ]+)$')])
+    category_value = SelectField(validators=[DataRequired()], coerce=str)
+    item_value = TextField(validators=[DataRequired(), CheckForNumber()])
     submit_items = SubmitField()
 
 
 class AddValidationCategory(FlaskForm):
-    category_value = TextField()
+    category_value = TextField(validators=[DataRequired(), CheckForNumber()])
     submit_category = SubmitField()
 
 
 class AddValidationSources(FlaskForm):
-    source_value = TextField()
+    source_value = TextField(validators=[DataRequired(), CheckForNumber()])
     submit_source = SubmitField()
 
 
 class AddValidationAccounts(FlaskForm):
-    account_value = TextField()
+    account_value = TextField(validators=[DataRequired(), CheckForNumber()])
     submit_account = SubmitField()
 
 
 class AddValidationActions(FlaskForm):
-    action_value = TextField()
+    action_value = TextField(validators=[DataRequired(), CheckForNumber()])
     submit_action = SubmitField()
 
 
 class AddValidationReason(FlaskForm):
-    reason_value = TextField()
+    reason_value = TextField(validators=[DataRequired(), CheckForNumber()])
     submit_reason = SubmitField()
 
 
 @bp.route('/')
 @login_required
 def summary():
-    return render_template('budget/summary.html', _object=BudgetDbConnector())
 
+    budget_connect = BudgetDbConnector()
 
-# TODO introduce validation within wtforms or some other way to catch possible errors
+    table_counts = {
+        'expense_count': budget_connect.get_expense_count()[0],
+        'revenue_count': budget_connect.get_revenue_count()[0],
+        'savings_count': budget_connect.get_savings_count()[0]
+    }
+
+    return render_template('budget/summary.html', _object=budget_connect, table_counts=table_counts)
 
 
 @bp.route('/new-expense-entry', methods=('GET', 'POST'))
 @login_required
 def add_expense_entry():
-
     db = get_db()
     budget_connect = BudgetDbConnector()
     expense_form = AddExpenseEntry()
@@ -224,20 +240,12 @@ def add_expense_entry():
 
             return redirect(url_for('budget.add_expense_entry'))
 
-        elif not expense_form.validate_on_submit():
-
-            if not expense_form.expense_date.data or not expense_form.expense_value.data:
-                form_error_message('Please provide a valid date and/or valid value integer number.')
-
-            return redirect(url_for('budget.add_expense_entry'))
-
     return render_template('budget/expense.html', expense_form=expense_form, _object=budget_connect)
 
 
 @bp.route('/new-revenue-entry', methods=('GET', 'POST'))
 @login_required
 def add_revenue_entry():
-
     db = get_db()
     budget_connect = BudgetDbConnector()
     revenue_form = AddRevenueEntry()
@@ -261,20 +269,12 @@ def add_revenue_entry():
 
             return redirect(url_for('budget.add_revenue_entry'))
 
-        elif not revenue_form.validate_on_submit():
-
-            if not revenue_form.revenue_date.data or not revenue_form.revenue_value.data:
-                form_error_message('Please provide a valid date and/or revenue value integer')
-
-            return redirect(url_for('budget.add_revenue_entry'))
-
     return render_template('budget/revenue.html', revenue_form=revenue_form, _object=budget_connect)
 
 
 @bp.route('/new-savings-entry', methods=('GET', 'POST'))
 @login_required
 def add_savings_entry():
-
     db = get_db()
     savings_form = AddSavingsEntry()
     budget_connect = BudgetDbConnector()
@@ -307,10 +307,6 @@ def add_savings_entry():
             db.commit()
             return redirect(url_for('budget.add_savings_entry'))
 
-        elif not savings_form.validate_on_submit():
-
-            if not savings_form.savings_date.data or not savings_form.savings_value.data:
-                form_error_message('Please provide a valid date and/or savings value integer')
         return redirect(url_for('budget.add_savings_entry'))
 
     return render_template('budget/savings.html', savings_form=savings_form, _object=budget_connect)
@@ -319,8 +315,6 @@ def add_savings_entry():
 @bp.route('/validation', methods=('GET', 'POST'))
 @login_required
 def validation():
-
-    db = get_db()
     budget_connect = BudgetDbConnector()
 
     items_form = AddValidationItems()
@@ -341,10 +335,6 @@ def validation():
                            accounts_form=accounts_form,
                            actions_form=actions_form,
                            reasons_form=reasons_form)
-
-    # better-me the SelectField item allocation in the database works. But, the selected option
-    #   is not actually visible when selected.
-    # TODO add Green Card confirmation when a valid database addition has been successful
 
 
 @bp.route('/validation/items', methods=('GET', 'POST'))
@@ -385,15 +375,10 @@ def validation_items():
 
             return redirect(url_for('budget.validation'))
 
-        # fixme currently not working. Validates item value whatever the value it has
-        #   even though a validation RegEx has been added.
-        #   The Logic seems to be flawed. It looks for something that has not passed validation
-        #   then sees if it has values or not inside it.
-
         elif not items_form.validate_on_submit():
 
-            if not items_form.item_value.data:
-                form_error_message('Please set a valid value for item.')
+            if items_form.item_value.data:
+                ValidationError(message=form_error_message('Item Value field only accepts letters and spaces.'))
 
             return redirect(url_for('budget.validation'))
 
@@ -443,8 +428,8 @@ def validation_categories():
 
         elif not categories_form.validate_on_submit():
 
-            if not categories_form.category_value.data:
-                form_error_message('Please set a valid value for category.')
+            if categories_form.category_value.data:
+                ValidationError(message=form_error_message('Category Value field only accepts letters and spaces.'))
 
             return redirect(url_for('budget.validation'))
 
@@ -494,8 +479,8 @@ def validation_sources():
 
         elif not sources_form.validate_on_submit():
 
-            if not sources_form.source_value.data:
-                form_error_message('Please set a valid value for sources.')
+            if sources_form.source_value.data:
+                ValidationError(message=form_error_message('Sources Value field only accepts letters and spaces.'))
 
             return redirect(url_for('budget.validation'))
 
@@ -545,8 +530,8 @@ def validation_accounts():
 
         elif not accounts_form.validate_on_submit():
 
-            if not accounts_form.account_value.data:
-                form_error_message('Please set a valid value for account.')
+            if accounts_form.account_value.data:
+                ValidationError(message=form_error_message('Account Value field only accepts letters and spaces.'))
 
             return redirect(url_for('budget.validation'))
 
@@ -598,8 +583,8 @@ def validation_actions():
 
         elif not actions_form.validate_on_submit():
 
-            if not actions_form.action_value.data:
-                form_error_message('Please set a valid value for action.')
+            if actions_form.action_value.data:
+                ValidationError(message=form_error_message('Action Value field only accepts letters and spaces.'))
 
             return redirect(url_for('budget.validation'))
 
@@ -631,7 +616,7 @@ def validation_reasons():
 
     if request.method == 'POST':
 
-        if reasons_form.is_submitted() and reasons_form.submit_reason.data:
+        if reasons_form.is_submitted() and reasons_form.validate_on_submit():
 
             reasons = reasons_form.reason_value.data
             reasons_list = budget_connect.get_validation_reason(reasons)
@@ -649,8 +634,8 @@ def validation_reasons():
 
         elif not reasons_form.validate_on_submit():
 
-            if not reasons_form.reason_value.data:
-                form_error_message('Please set a valid value for reason.')
+            if reasons_form.reason_value.data:
+                ValidationError(message=form_error_message('Reason Value field only accepts letters and spaces.'))
 
             return redirect(url_for('budget.validation'))
 
@@ -663,23 +648,25 @@ def validation_reasons():
                            reasons_form=reasons_form)
 
 
-@bp.route('/add_utilities_entry', methods=('GET', 'POST'))
+@bp.route('/new_utilities_entry', methods=('GET', 'POST'))
 @login_required
 def add_utilities_entry():
-
     db = get_db()
     budget_connect = BudgetDbConnector()
     utilities_form = AddUtilitiesEntry()
 
-    if request.method == 'POST':
-        if utilities_form.is_submitted() and utilities_form.submit_utilities.data:
+    date = utilities_form.utilities_date.data
+    rent = utilities_form.utilities_rent.data
+    energy = utilities_form.utilities_energy.data
+    satellite = utilities_form.utilities_satellite.data
+    maintenance = utilities_form.utilities_maintenance.data
+    details = utilities_form.utilities_details.data
 
-            date = utilities_form.utilities_date.data
-            rent = utilities_form.utilities_rent.data
-            energy = utilities_form.utilities_energy.data
-            satellite = utilities_form.utilities_satellite.data
-            maintenance = utilities_form.utilities_maintenance.data
-            details = utilities_form.utilities_details.data
+    if request.method == 'POST':
+
+        if utilities_form.is_submitted() and utilities_form.validate_on_submit():
+
+            form_validated_message('All values validated!')
 
             budget_connect.insert_utilities(date, rent, energy, satellite, maintenance, details)
             db.commit()
