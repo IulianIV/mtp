@@ -14,6 +14,7 @@ bp = Blueprint('mtp', __name__)
 
 custom_protection = CustomCSRF()
 
+
 class BlogDbConnector:
     def __init__(self):
         self.db = get_db()
