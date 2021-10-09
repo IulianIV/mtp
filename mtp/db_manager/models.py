@@ -1,8 +1,8 @@
+from flask import current_app
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from mtp.db_manager.db import get_db
 
-
-db = get_db()
+db = SQLAlchemy(current_app)
 
 
 class User(db.Model):
@@ -134,3 +134,10 @@ class ValidationSavingSources(db.Model):
 
     def __repr__(self):
         return f'Saving sources id: {self.id}'
+
+
+def init_db():
+
+    db.create_all()
+
+    return db
