@@ -4,8 +4,6 @@ from tkinter import filedialog
 from mtp import db_manager
 
 
-# TODO create new and separate view for importer
-
 class Import:
 
     def __init__(self):

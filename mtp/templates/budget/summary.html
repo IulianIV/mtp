@@ -64,7 +64,7 @@
 <div class="row">
     <div class="col-xl-3 col-md-6">
         <div class="card bg-primary text-white mb-4">
-            <div class="card-body">Table Summary</div>
+            <div class="card-body">Expense Summary</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
                 <p class="small text-white stretched-link">
                     <strong>{{ table_counts.get('expense_count') }} Expense entries</strong><br />
@@ -75,9 +75,14 @@
     </div>
     <div class="col-xl-3 col-md-6">
         <div class="card bg-success text-white mb-4">
-            <div class="card-body">Success Card</div>
+            <div class="card-body">Validation Summary</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                <p class="small text-white stretched-link">View Details</p>
+                <p class="small text-white stretched-link">
+                    <strong>{{ validation_counts.get('validation_categories') }} categories</strong><br />
+                    <strong>{{ validation_counts.get('validation_items') }} items</strong><br />
+                    <strong>{{ validation_counts.get('validation_accounts') }} accounts</strong><br />
+                    <strong>{{ validation_counts.get('validation_reason') }} reasons</strong><br />
+                    <strong>{{ validation_counts.get('validation_sources') }} sources</strong></p>
             </div>
         </div>
     </div>

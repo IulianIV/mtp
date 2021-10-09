@@ -1,25 +1,23 @@
 import os
-
 from flask import Flask
-from .db_manager import db
-from . import auth, budget, mtp, dataflow
-from flask_dropzone import Dropzone
+from mtp.db_manager.db import Config
 
-dropzone = Dropzone()
+
+__version__ = (1, 0, 0, "dev")
 
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    dropzone.init_app(app)
 
-    app.config.from_mapping(SECRET_KEY='dev', DATABASE=os.path.join(app.instance_path, 'mtp.sqlite'),)
+    app.config.from_object(Config)
+
     if test_config is None:
         # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
+        app.config.from_pyfile("config.py", silent=True)
     else:
-        # Load the test config if passed in
-        app.config.from_mapping(test_config)
+        # load the test config if passed in
+        app.config.update(test_config)
 
     # ensure the instance folder exists
     try:
@@ -27,12 +25,16 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    db.init_app(app)
+    from mtp.db_manager import db
+    with app.app_context():
+        db.init_app()
 
-    app.register_blueprint(auth.bp)
-    app.register_blueprint(mtp.bp)
-    app.register_blueprint(budget.bp)
-    app.register_blueprint(dataflow.bp)
+    # from . import auth, budget, mtp, dataflow
+    # app.register_blueprint(auth.bp)
+    # app.register_blueprint(mtp.bp)
+    # app.register_blueprint(budget.bp)
+    # app.register_blueprint(dataflow.bp)
+
     app.add_url_rule('/', endpoint='index')
 
     return app

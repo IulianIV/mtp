@@ -1,15 +1,12 @@
 from flask import (
-    Blueprint, redirect, render_template, request, url_for, flash
+    Blueprint, redirect, render_template, request, url_for
 )
-from flask_wtf import FlaskForm
-from datetime import datetime
 from mtp.auth import login_required
 from mtp.db_manager.db import get_db
 from mtp.db_manager.db_interrogations import Query, Insert
-from mtp.protection import CustomCSRF, form_validated_message, form_error_message, NoFutureDates, CheckForNumber
-from wtforms.fields import SubmitField, TextField, SelectField, DateField, IntegerField, TextAreaField
-from wtforms.validators import DataRequired, Regexp, ValidationError
-from wtforms.fields.html5 import DateField
+from mtp.protection import CustomCSRF, form_validated_message, form_error_message
+from mtp.mtp_forms import budget_forms
+from wtforms.validators import ValidationError
 
 bp = Blueprint('budget', __name__, url_prefix='/budget')
 
@@ -92,6 +89,21 @@ class BudgetDbConnector:
     def get_savings_count(self):
         return self.db_queries.get_savings_count()
 
+    def get_validation_categories_count(self):
+        return self.db_queries.get_validation_categories_count()
+
+    def get_validation_items_count(self):
+        return self.db_queries.get_validation_items_count()
+
+    def get_validation_accounts_count(self):
+        return self.db_queries.get_validation_accounts_count()
+
+    def get_validation_reason_count(self):
+        return self.db_queries.get_validation_reason_count()
+
+    def get_validation_sources_count(self):
+        return self.db_queries.get_validation_sources_count()
+
     def insert_expense(self, date, item, value, item_category, source):
         return self.db_inserts.insert_expense(date, item, value, item_category, source)
 
@@ -123,72 +135,6 @@ class BudgetDbConnector:
         return self.db_inserts.insert_validation_reasons(reasons)
 
 
-class AddExpenseEntry(FlaskForm):
-    expense_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
-    expense_item = SelectField(validators=[DataRequired()])
-    expense_value = TextField(validators=[DataRequired(), CheckForNumber()])
-    expense_category = SelectField(validators=[DataRequired()])
-    expense_source = SelectField(validators=[DataRequired()])
-    submit_expense = SubmitField(validators=[DataRequired()])
-
-
-class AddRevenueEntry(FlaskForm):
-    revenue_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
-    revenue_value = TextField(validators=[DataRequired(), CheckForNumber()])
-    revenue_source = SelectField(validators=[DataRequired()])
-    submit_revenue = SubmitField()
-
-
-class AddSavingsEntry(FlaskForm):
-    savings_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
-    savings_value = TextField(validators=[DataRequired(), CheckForNumber()])
-    savings_source = SelectField(validators=[DataRequired()])
-    savings_reason = SelectField(validators=[DataRequired()])
-    savings_action = SelectField(validators=[DataRequired()])
-    submit_savings = SubmitField()
-
-
-class AddUtilitiesEntry(FlaskForm):
-    utilities_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
-    utilities_rent = TextField(validators=[DataRequired(), CheckForNumber()])
-    utilities_energy = TextField(validators=[DataRequired(), CheckForNumber()])
-    utilities_satellite = TextField(validators=[DataRequired(), CheckForNumber()])
-    utilities_maintenance = TextField(validators=[DataRequired(), CheckForNumber()])
-    utilities_details = TextAreaField(validators=[DataRequired()])
-    submit_utilities = SubmitField()
-
-
-class AddValidationItems(FlaskForm):
-    category_value = SelectField(validators=[DataRequired()], coerce=str)
-    item_value = TextField(validators=[DataRequired(), CheckForNumber()])
-    submit_items = SubmitField()
-
-
-class AddValidationCategory(FlaskForm):
-    category_value = TextField(validators=[DataRequired(), CheckForNumber()])
-    submit_category = SubmitField()
-
-
-class AddValidationSources(FlaskForm):
-    source_value = TextField(validators=[DataRequired(), CheckForNumber()])
-    submit_source = SubmitField()
-
-
-class AddValidationAccounts(FlaskForm):
-    account_value = TextField(validators=[DataRequired(), CheckForNumber()])
-    submit_account = SubmitField()
-
-
-class AddValidationActions(FlaskForm):
-    action_value = TextField(validators=[DataRequired(), CheckForNumber()])
-    submit_action = SubmitField()
-
-
-class AddValidationReason(FlaskForm):
-    reason_value = TextField(validators=[DataRequired(), CheckForNumber()])
-    submit_reason = SubmitField()
-
-
 @bp.route('/')
 @login_required
 def summary():
@@ -201,7 +147,15 @@ def summary():
         'savings_count': budget_connect.get_savings_count()[0]
     }
 
-    return render_template('budget/summary.html', _object=budget_connect, table_counts=table_counts)
+    validation_counts = {
+        'validation_categories': budget_connect.get_validation_categories_count()[0],
+        'validation_items': budget_connect.get_validation_items_count()[0],
+        'validation_accounts': budget_connect.get_validation_accounts_count()[0],
+        'validation_reason': budget_connect.get_validation_reason_count()[0],
+        'validation_sources': budget_connect.get_validation_sources_count()[0]
+    }
+
+    return render_template('budget/summary.html', _object=budget_connect, table_counts=table_counts, validation_counts=validation_counts)
 
 
 @bp.route('/new-expense-entry', methods=('GET', 'POST'))
@@ -209,7 +163,7 @@ def summary():
 def add_expense_entry():
     db = get_db()
     budget_connect = BudgetDbConnector()
-    expense_form = AddExpenseEntry()
+    expense_form = budget_forms.AddExpenseEntry()
 
     items = budget_connect.query_validation_items
     items_set = [x['items'] for x in items]
@@ -248,7 +202,7 @@ def add_expense_entry():
 def add_revenue_entry():
     db = get_db()
     budget_connect = BudgetDbConnector()
-    revenue_form = AddRevenueEntry()
+    revenue_form = budget_forms.AddRevenueEntry()
 
     sources = budget_connect.query_validation_sources
     sources_set = [x['sources'] for x in sources]
@@ -276,7 +230,7 @@ def add_revenue_entry():
 @login_required
 def add_savings_entry():
     db = get_db()
-    savings_form = AddSavingsEntry()
+    savings_form = budget_forms.AddSavingsEntry()
     budget_connect = BudgetDbConnector()
 
     sources = budget_connect.query_validation_sources
@@ -317,12 +271,12 @@ def add_savings_entry():
 def validation():
     budget_connect = BudgetDbConnector()
 
-    items_form = AddValidationItems()
-    categories_form = AddValidationCategory()
-    sources_form = AddValidationSources()
-    accounts_form = AddValidationAccounts()
-    actions_form = AddValidationActions()
-    reasons_form = AddValidationReason()
+    items_form = budget_forms.AddValidationItems()
+    categories_form = budget_forms.AddValidationCategory()
+    sources_form = budget_forms.AddValidationSources()
+    accounts_form = budget_forms.AddValidationAccounts()
+    actions_form = budget_forms.AddValidationActions()
+    reasons_form = budget_forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -343,12 +297,12 @@ def validation_items():
     db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = AddValidationItems()
-    categories_form = AddValidationCategory()
-    sources_form = AddValidationSources()
-    accounts_form = AddValidationAccounts()
-    actions_form = AddValidationActions()
-    reasons_form = AddValidationReason()
+    items_form = budget_forms.AddValidationItems()
+    categories_form = budget_forms.AddValidationCategory()
+    sources_form = budget_forms.AddValidationSources()
+    accounts_form = budget_forms.AddValidationAccounts()
+    actions_form = budget_forms.AddValidationActions()
+    reasons_form = budget_forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -397,12 +351,12 @@ def validation_categories():
     db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = AddValidationItems()
-    categories_form = AddValidationCategory()
-    sources_form = AddValidationSources()
-    accounts_form = AddValidationAccounts()
-    actions_form = AddValidationActions()
-    reasons_form = AddValidationReason()
+    items_form = budget_forms.AddValidationItems()
+    categories_form = budget_forms.AddValidationCategory()
+    sources_form = budget_forms.AddValidationSources()
+    accounts_form = budget_forms.AddValidationAccounts()
+    actions_form = budget_forms.AddValidationActions()
+    reasons_form = budget_forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -448,12 +402,12 @@ def validation_sources():
     db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = AddValidationItems()
-    categories_form = AddValidationCategory()
-    sources_form = AddValidationSources()
-    accounts_form = AddValidationAccounts()
-    actions_form = AddValidationActions()
-    reasons_form = AddValidationReason()
+    items_form = budget_forms.AddValidationItems()
+    categories_form = budget_forms.AddValidationCategory()
+    sources_form = budget_forms.AddValidationSources()
+    accounts_form = budget_forms.AddValidationAccounts()
+    actions_form = budget_forms.AddValidationActions()
+    reasons_form = budget_forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -499,12 +453,12 @@ def validation_accounts():
     db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = AddValidationItems()
-    categories_form = AddValidationCategory()
-    sources_form = AddValidationSources()
-    accounts_form = AddValidationAccounts()
-    actions_form = AddValidationActions()
-    reasons_form = AddValidationReason()
+    items_form = budget_forms.AddValidationItems()
+    categories_form = budget_forms.AddValidationCategory()
+    sources_form = budget_forms.AddValidationSources()
+    accounts_form = budget_forms.AddValidationAccounts()
+    actions_form = budget_forms.AddValidationActions()
+    reasons_form = budget_forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -550,12 +504,12 @@ def validation_actions():
     db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = AddValidationItems()
-    categories_form = AddValidationCategory()
-    sources_form = AddValidationSources()
-    accounts_form = AddValidationAccounts()
-    actions_form = AddValidationActions()
-    reasons_form = AddValidationReason()
+    items_form = budget_forms.AddValidationItems()
+    categories_form = budget_forms.AddValidationCategory()
+    sources_form = budget_forms.AddValidationSources()
+    accounts_form = budget_forms.AddValidationAccounts()
+    actions_form = budget_forms.AddValidationActions()
+    reasons_form = budget_forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -603,12 +557,12 @@ def validation_reasons():
     db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = AddValidationItems()
-    categories_form = AddValidationCategory()
-    sources_form = AddValidationSources()
-    accounts_form = AddValidationAccounts()
-    actions_form = AddValidationActions()
-    reasons_form = AddValidationReason()
+    items_form = budget_forms.AddValidationItems()
+    categories_form = budget_forms.AddValidationCategory()
+    sources_form = budget_forms.AddValidationSources()
+    accounts_form = budget_forms.AddValidationAccounts()
+    actions_form = budget_forms.AddValidationActions()
+    reasons_form = budget_forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -653,7 +607,7 @@ def validation_reasons():
 def add_utilities_entry():
     db = get_db()
     budget_connect = BudgetDbConnector()
-    utilities_form = AddUtilitiesEntry()
+    utilities_form = budget_forms.AddUtilitiesEntry()
 
     date = utilities_form.utilities_date.data
     rent = utilities_form.utilities_rent.data

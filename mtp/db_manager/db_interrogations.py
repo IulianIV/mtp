@@ -198,6 +198,21 @@ class Query:
     def get_savings_count(self):
         return self.db.execute('SELECT count(*) FROM budget_savings').fetchone()
 
+    def get_validation_categories_count(self):
+        return self.db.execute('SELECT count(*) FROM validation_categories').fetchone()
+
+    def get_validation_items_count(self):
+        return self.db.execute('SELECT count(*) FROM validation_items').fetchone()
+
+    def get_validation_accounts_count(self):
+        return self.db.execute('SELECT count(*) FROM validation_savings_accounts').fetchone()
+
+    def get_validation_reason_count(self):
+        return self.db.execute('SELECT count(*) FROM validation_savings_reason').fetchone()
+
+    def get_validation_sources_count(self):
+        return self.db.execute('SELECT count(*) FROM validation_sources').fetchone()
+
     def get_validation_account(self, account_value):
         return self.db.execute(
             'SELECT savings_accounts'

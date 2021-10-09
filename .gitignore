@@ -146,3 +146,5 @@ tests/
 instance/
 .idea/
 /mtp/static/favicon.ico
+/mtp/static/favicon2.ico
+/migrations/

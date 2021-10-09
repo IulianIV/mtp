@@ -1,0 +1,73 @@
+from flask_wtf import FlaskForm
+from datetime import datetime
+
+from mtp.protection import NoFutureDates, CheckForNumber
+from wtforms.fields import SubmitField, TextField, SelectField, TextAreaField
+from wtforms.validators import DataRequired
+from wtforms.fields.html5 import DateField
+
+
+class AddExpenseEntry(FlaskForm):
+    expense_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    expense_item = SelectField(validators=[DataRequired()])
+    expense_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    expense_category = SelectField(validators=[DataRequired()])
+    expense_source = SelectField(validators=[DataRequired()])
+    submit_expense = SubmitField(validators=[DataRequired()])
+
+
+class AddRevenueEntry(FlaskForm):
+    revenue_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    revenue_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    revenue_source = SelectField(validators=[DataRequired()])
+    submit_revenue = SubmitField()
+
+
+class AddSavingsEntry(FlaskForm):
+    savings_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    savings_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    savings_source = SelectField(validators=[DataRequired()])
+    savings_reason = SelectField(validators=[DataRequired()])
+    savings_action = SelectField(validators=[DataRequired()])
+    submit_savings = SubmitField()
+
+
+class AddUtilitiesEntry(FlaskForm):
+    utilities_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    utilities_rent = TextField(validators=[DataRequired(), CheckForNumber()])
+    utilities_energy = TextField(validators=[DataRequired(), CheckForNumber()])
+    utilities_satellite = TextField(validators=[DataRequired(), CheckForNumber()])
+    utilities_maintenance = TextField(validators=[DataRequired(), CheckForNumber()])
+    utilities_details = TextAreaField(validators=[DataRequired()])
+    submit_utilities = SubmitField()
+
+
+class AddValidationItems(FlaskForm):
+    category_value = SelectField(validators=[DataRequired()], coerce=str)
+    item_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    submit_items = SubmitField()
+
+
+class AddValidationCategory(FlaskForm):
+    category_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    submit_category = SubmitField()
+
+
+class AddValidationSources(FlaskForm):
+    source_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    submit_source = SubmitField()
+
+
+class AddValidationAccounts(FlaskForm):
+    account_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    submit_account = SubmitField()
+
+
+class AddValidationActions(FlaskForm):
+    action_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    submit_action = SubmitField()
+
+
+class AddValidationReason(FlaskForm):
+    reason_value = TextField(validators=[DataRequired(), CheckForNumber()])
+    submit_reason = SubmitField()
