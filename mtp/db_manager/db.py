@@ -1,9 +1,8 @@
 from flask import current_app
-from flask_sqlalchemy import SQLAlchemy
 from flask.cli import with_appcontext
-from flask_migrate import Migrate
 import os
 import click
+from mtp.db_manager import models
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -20,28 +19,23 @@ class Config:
 
 def init_app():
 
-    db = SQLAlchemy(current_app)
-    migrate = Migrate(current_app, db)
+    database = get_db()
 
     current_app.cli.add_command(init_db_command)
 
-    return db
+    return database
 
 
 def get_db():
 
-    database = init_app()
+    database = models.db
 
     return database
 
 
 def init_db():
 
-    db_init = init_app()
-
-    from mtp.db_manager.models import User
-
-    db_init.create_all()
+    db_init = models.init_db()
 
     return db_init
 
