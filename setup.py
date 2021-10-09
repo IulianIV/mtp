@@ -14,7 +14,6 @@ setup(
         'pandas',
         'flask-dropzone',
         'flask_sqlalchemy',
-        'werkzeug',
-        'flask-migrate'
+        'werkzeug'
     ],
 )
