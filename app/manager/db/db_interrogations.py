@@ -1,13 +1,16 @@
-from mtp.db_manager.db import get_db
+from app import db
+
+# TODO add class abstraction and type hints to classes - the software cohesion is very low.
+#   too many responsibilities are given to a single class
 
 
 class Insert:
 
     def __init__(self):
-        self.db = get_db()
+        self.db = db
 
     def insert_expense(self, date, item, value, item_category, source):
-        return self.db.execute(
+        return self.db.session.add(
             'INSERT INTO budget_expense (expense_date, expense_item, '
             'expense_value, expense_item_category, expense_source)'
             'VALUES (?, ?, ?, ?, ?)', (date, item, value, item_category, source)
@@ -84,7 +87,7 @@ class Insert:
 class Query:
 
     def __init__(self):
-        self.db = get_db()
+        self.db = db
 
     def query_expense_entries(self):
         return self.db.execute(
@@ -241,7 +244,7 @@ class Query:
 class Update:
 
     def __init__(self):
-        self.db = get_db()
+        self.db = db
 
     def update_post(self, title, body, post_id):
         return self.db.execute(
@@ -254,7 +257,7 @@ class Update:
 class Delete:
 
     def __init__(self):
-        self.db = get_db()
+        self.db = db
 
     def delete_post(self, post_id):
         return self.db.execute('DELETE FROM post WHERE id = ?', (post_id,))

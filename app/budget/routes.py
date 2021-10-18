@@ -1,14 +1,14 @@
 from flask import (
-    Blueprint, redirect, render_template, request, url_for
+    redirect, render_template, request, url_for
 )
-from mtp.auth import login_required
-from mtp.db_manager.db import get_db
-from mtp.db_manager.db_interrogations import Query, Insert
-from mtp.protection import CustomCSRF, form_validated_message, form_error_message
-from mtp.mtp_forms import budget_forms
-from wtforms.validators import ValidationError
+from app.auth.routes import login_required
 
-bp = Blueprint('budget', __name__, url_prefix='/budget')
+from app.manager.db.db_interrogations import Query, Insert
+from app.manager.protection import CustomCSRF, form_validated_message, form_error_message
+from app.budget import forms
+from wtforms.validators import ValidationError
+from app.budget import bp
+from app import db
 
 custom_protection = CustomCSRF()
 
@@ -18,7 +18,7 @@ custom_protection = CustomCSRF()
 
 class BudgetDbConnector:
     def __init__(self):
-        self.db = get_db()
+        self.db = db
         self.db_queries = Query()
         self.db_inserts = Insert()
 
@@ -161,9 +161,8 @@ def summary():
 @bp.route('/new-expense-entry', methods=('GET', 'POST'))
 @login_required
 def add_expense_entry():
-    db = get_db()
     budget_connect = BudgetDbConnector()
-    expense_form = budget_forms.AddExpenseEntry()
+    expense_form = forms.AddExpenseEntry()
 
     items = budget_connect.query_validation_items
     items_set = [x['items'] for x in items]
@@ -200,9 +199,8 @@ def add_expense_entry():
 @bp.route('/new-revenue-entry', methods=('GET', 'POST'))
 @login_required
 def add_revenue_entry():
-    db = get_db()
     budget_connect = BudgetDbConnector()
-    revenue_form = budget_forms.AddRevenueEntry()
+    revenue_form = forms.AddRevenueEntry()
 
     sources = budget_connect.query_validation_sources
     sources_set = [x['sources'] for x in sources]
@@ -229,8 +227,7 @@ def add_revenue_entry():
 @bp.route('/new-savings-entry', methods=('GET', 'POST'))
 @login_required
 def add_savings_entry():
-    db = get_db()
-    savings_form = budget_forms.AddSavingsEntry()
+    savings_form = forms.AddSavingsEntry()
     budget_connect = BudgetDbConnector()
 
     sources = budget_connect.query_validation_sources
@@ -271,12 +268,12 @@ def add_savings_entry():
 def validation():
     budget_connect = BudgetDbConnector()
 
-    items_form = budget_forms.AddValidationItems()
-    categories_form = budget_forms.AddValidationCategory()
-    sources_form = budget_forms.AddValidationSources()
-    accounts_form = budget_forms.AddValidationAccounts()
-    actions_form = budget_forms.AddValidationActions()
-    reasons_form = budget_forms.AddValidationReason()
+    items_form = forms.AddValidationItems()
+    categories_form = forms.AddValidationCategory()
+    sources_form = forms.AddValidationSources()
+    accounts_form = forms.AddValidationAccounts()
+    actions_form = forms.AddValidationActions()
+    reasons_form = forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -294,15 +291,14 @@ def validation():
 @bp.route('/validation/items', methods=('GET', 'POST'))
 @login_required
 def validation_items():
-    db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = budget_forms.AddValidationItems()
-    categories_form = budget_forms.AddValidationCategory()
-    sources_form = budget_forms.AddValidationSources()
-    accounts_form = budget_forms.AddValidationAccounts()
-    actions_form = budget_forms.AddValidationActions()
-    reasons_form = budget_forms.AddValidationReason()
+    items_form = forms.AddValidationItems()
+    categories_form = forms.AddValidationCategory()
+    sources_form = forms.AddValidationSources()
+    accounts_form = forms.AddValidationAccounts()
+    actions_form = forms.AddValidationActions()
+    reasons_form = forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -348,15 +344,14 @@ def validation_items():
 @bp.route('/validation/category', methods=('GET', 'POST'))
 @login_required
 def validation_categories():
-    db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = budget_forms.AddValidationItems()
-    categories_form = budget_forms.AddValidationCategory()
-    sources_form = budget_forms.AddValidationSources()
-    accounts_form = budget_forms.AddValidationAccounts()
-    actions_form = budget_forms.AddValidationActions()
-    reasons_form = budget_forms.AddValidationReason()
+    items_form = forms.AddValidationItems()
+    categories_form = forms.AddValidationCategory()
+    sources_form = forms.AddValidationSources()
+    accounts_form = forms.AddValidationAccounts()
+    actions_form = forms.AddValidationActions()
+    reasons_form = forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -399,15 +394,14 @@ def validation_categories():
 @bp.route('/validation/sources', methods=('GET', 'POST'))
 @login_required
 def validation_sources():
-    db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = budget_forms.AddValidationItems()
-    categories_form = budget_forms.AddValidationCategory()
-    sources_form = budget_forms.AddValidationSources()
-    accounts_form = budget_forms.AddValidationAccounts()
-    actions_form = budget_forms.AddValidationActions()
-    reasons_form = budget_forms.AddValidationReason()
+    items_form = forms.AddValidationItems()
+    categories_form = forms.AddValidationCategory()
+    sources_form = forms.AddValidationSources()
+    accounts_form = forms.AddValidationAccounts()
+    actions_form = forms.AddValidationActions()
+    reasons_form = forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -450,15 +444,14 @@ def validation_sources():
 @bp.route('/validation/accounts', methods=('GET', 'POST'))
 @login_required
 def validation_accounts():
-    db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = budget_forms.AddValidationItems()
-    categories_form = budget_forms.AddValidationCategory()
-    sources_form = budget_forms.AddValidationSources()
-    accounts_form = budget_forms.AddValidationAccounts()
-    actions_form = budget_forms.AddValidationActions()
-    reasons_form = budget_forms.AddValidationReason()
+    items_form = forms.AddValidationItems()
+    categories_form = forms.AddValidationCategory()
+    sources_form = forms.AddValidationSources()
+    accounts_form = forms.AddValidationAccounts()
+    actions_form = forms.AddValidationActions()
+    reasons_form = forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -501,15 +494,14 @@ def validation_accounts():
 @bp.route('/validation/actions', methods=('GET', 'POST'))
 @login_required
 def validation_actions():
-    db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = budget_forms.AddValidationItems()
-    categories_form = budget_forms.AddValidationCategory()
-    sources_form = budget_forms.AddValidationSources()
-    accounts_form = budget_forms.AddValidationAccounts()
-    actions_form = budget_forms.AddValidationActions()
-    reasons_form = budget_forms.AddValidationReason()
+    items_form = forms.AddValidationItems()
+    categories_form = forms.AddValidationCategory()
+    sources_form = forms.AddValidationSources()
+    accounts_form = forms.AddValidationAccounts()
+    actions_form = forms.AddValidationActions()
+    reasons_form = forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -554,15 +546,14 @@ def validation_actions():
 @bp.route('/validation/reasons', methods=('GET', 'POST'))
 @login_required
 def validation_reasons():
-    db = get_db()
     budget_connect = BudgetDbConnector()
 
-    items_form = budget_forms.AddValidationItems()
-    categories_form = budget_forms.AddValidationCategory()
-    sources_form = budget_forms.AddValidationSources()
-    accounts_form = budget_forms.AddValidationAccounts()
-    actions_form = budget_forms.AddValidationActions()
-    reasons_form = budget_forms.AddValidationReason()
+    items_form = forms.AddValidationItems()
+    categories_form = forms.AddValidationCategory()
+    sources_form = forms.AddValidationSources()
+    accounts_form = forms.AddValidationAccounts()
+    actions_form = forms.AddValidationActions()
+    reasons_form = forms.AddValidationReason()
 
     categories = budget_connect.query_validation_categories
     category_set = [(x['categories']) for x in categories]
@@ -605,9 +596,8 @@ def validation_reasons():
 @bp.route('/new_utilities_entry', methods=('GET', 'POST'))
 @login_required
 def add_utilities_entry():
-    db = get_db()
     budget_connect = BudgetDbConnector()
-    utilities_form = budget_forms.AddUtilitiesEntry()
+    utilities_form = forms.AddUtilitiesEntry()
 
     date = utilities_form.utilities_date.data
     rent = utilities_form.utilities_rent.data

@@ -1,5 +1,4 @@
 from setuptools import find_packages, setup
-import os
 
 setup(
     name='mtp',
@@ -9,11 +8,14 @@ setup(
     zip_safe=False,
     install_requires=[
         'flask',
+        'flask-WTF',
         'wtforms',
         'click',
         'pandas',
+        'alembic',
         'flask-dropzone',
         'flask_sqlalchemy',
+        'flask-migrate',
         'werkzeug'
     ],
 )

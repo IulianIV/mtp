@@ -1,12 +1,9 @@
-from flask import current_app
-from flask_sqlalchemy import SQLAlchemy
+from app import db
 from datetime import datetime
-
-db = SQLAlchemy(current_app)
 
 
 class User(db.Model):
-    __tablename__ = 'users'
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(15), unique=True, nullable=False)
     password = db.Column(db.String(120), unique=True, nullable=False)
@@ -135,9 +132,3 @@ class ValidationSavingSources(db.Model):
     def __repr__(self):
         return f'Saving sources id: {self.id}'
 
-
-def init_db():
-
-    db.create_all()
-
-    return db

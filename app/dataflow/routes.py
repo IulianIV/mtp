@@ -1,13 +1,10 @@
 from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for,
-)
+    render_template, )
 from flask_wtf import FlaskForm
-from mtp.auth import login_required
+from app.auth.routes import login_required
 from flask_dropzone import Dropzone
-from wtforms.fields import SubmitField, FileField
-
-
-bp = Blueprint('dataflow', __name__, url_prefix='/dataflow')
+from wtforms.fields import SubmitField
+from app.dataflow import bp
 
 
 class UploadForm(FlaskForm):

@@ -1,23 +1,21 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    flash, g, redirect, render_template, request, url_for
 )
 from werkzeug.exceptions import abort
 from flask_wtf import FlaskForm
-from wtforms.fields import TextField, TextAreaField, SubmitField
+from wtforms.fields import StringField, TextAreaField, SubmitField
 
-from mtp.protection import CustomCSRF
-from mtp.auth import login_required
-from mtp.db_manager.db import get_db
-from mtp.db_manager.db_interrogations import Query, Insert, Update, Delete
-
-bp = Blueprint('mtp', __name__)
+from app.manager.protection import CustomCSRF
+from app.auth.routes import login_required
+from app import db
+from app.manager.db.db_interrogations import Query, Insert, Update, Delete
+from app.blog import bp
 
 custom_protection = CustomCSRF()
 
 
 class BlogDbConnector:
     def __init__(self):
-        self.db = get_db()
         self.db_queries = Query()
         self.db_insert = Insert()
         self.db_update = Update()
@@ -41,13 +39,13 @@ class BlogDbConnector:
 
 
 class AddPost(FlaskForm):
-    post_title = TextField()
+    post_title = StringField()
     post_body = TextAreaField()
     submit_post = SubmitField()
 
 
 class UpdatePost(FlaskForm):
-    update_title = TextField()
+    update_title = StringField()
     update_body = TextAreaField()
     submit_update = SubmitField()
 
@@ -63,7 +61,6 @@ def index():
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
 def create():
-    db = get_db()
     blog_connect = BlogDbConnector()
     post_form = AddPost()
 
@@ -105,7 +102,6 @@ def get_post(post_id, check_author=True):
 @bp.route('/<int:post_id>/update', methods=('GET', 'POST'))
 @login_required
 def update(post_id):
-    db = get_db()
     blog_connect = BlogDbConnector()
 
     update_form = UpdatePost()
@@ -131,7 +127,6 @@ def update(post_id):
 @bp.route('/<int:post_id>/delete', methods=('POST', 'GET'))
 @login_required
 def delete(post_id):
-    db = get_db()
     blog_connect = BlogDbConnector()
 
     get_post(post_id)
@@ -142,6 +137,7 @@ def delete(post_id):
     return redirect(url_for('mtp.index'))
 
 
+# better-me find a new place for these views
 @bp.route('/error-page/401', methods=('GET',))
 @login_required
 def error_401():
