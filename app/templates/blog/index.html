@@ -99,10 +99,10 @@
           {% for post in posts %}
               <tbody class="post">
                 <tr>
-                  <th class="small mb-1">{{ post['title'] }}</th>
-                  <th class="small mb-1">{{ post['body'] }}</th>
-                  <th class="small mb-1">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d, %H:%M:%S') }}</th>
-                  {% if g.user['id'] == post['author_id'] %}
+                  <th class="small mb-1">{{ post.title }}</th>
+                  <th class="small mb-1">{{ post.body }}</th>
+                  <th class="small mb-1">by {{ post.author_id }} on {{ post.crated.strftime('%Y-%m-%d, %H:%M:%S') }}</th>
+                  {# Needs fixing {% if g.user['id'] == post['author_id'] %}
                   <th>
                       <div class="custom-container">
                           <a class="action" href="{{ url_for('mtp.update', post_id=post['id']) }}">Edit</a>
@@ -114,7 +114,10 @@
                   <th>
                       <span><a class="action" href="{{ url_for('auth.login') }}">Log in</a> to edit posts.</span>
                   </th>
-                  {% endif %}
+                  {% endif %} #}
+                    <th>
+                      <span><a class="action" href="{{ url_for('auth.login') }}">Log in</a> to edit posts.</span>
+                  </th>
                 </tr>
               </tbody>
                 {% if not loop.last %}

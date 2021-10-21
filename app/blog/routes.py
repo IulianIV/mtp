@@ -1,17 +1,21 @@
 from flask import (
-    flash, g, redirect, render_template, request, url_for
+    redirect, render_template, request, url_for
 )
 from werkzeug.exceptions import abort
-from flask_wtf import FlaskForm
-from wtforms.fields import StringField, TextAreaField, SubmitField
 
+from app.blog.forms import AddPost, UpdatePost
+from app.manager.protection import form_validated_message, form_error_message
 from app.manager.protection import CustomCSRF
 from app.auth.routes import login_required
 from app import db
 from app.manager.db.db_interrogations import Query, Insert, Update, Delete
 from app.blog import bp
+from flask_login import current_user
 
 custom_protection = CustomCSRF()
+
+
+# TODO fix the template login info grabbing problem across all templates
 
 
 class BlogDbConnector:
@@ -38,62 +42,54 @@ class BlogDbConnector:
         return self.db_delete.delete_post(post_id)
 
 
-class AddPost(FlaskForm):
-    post_title = StringField()
-    post_body = TextAreaField()
-    submit_post = SubmitField()
-
-
-class UpdatePost(FlaskForm):
-    update_title = StringField()
-    update_body = TextAreaField()
-    submit_update = SubmitField()
-
-
 @bp.route('/')
 def index():
     blog_connect = BlogDbConnector()
 
     posts = blog_connect.query_blog_posts
-    return render_template('mtp/index.html', posts=posts)
+    return render_template('blog/index.html', posts=posts)
 
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
 def create():
     blog_connect = BlogDbConnector()
-    post_form = AddPost()
+    create_post_form = AddPost()
 
-    user_id = g.user['id']
+    user_id = current_user.get_id()
+    error = None
 
     if request.method == 'POST':
 
-        title = post_form.post_title.data
-        body = post_form.post_body.data
+        # better-me improve the functionality
+        if create_post_form.is_submitted() and create_post_form.validate_on_submit():
 
-        error = None
+            title = create_post_form.post_title.data
+            body = create_post_form.post_body.data
 
-        if not title:
-            error = 'Title is required.'
-        if error is not None:
-            flash(error)
-        else:
-            blog_connect.insert_post(title, body, user_id)
-            db.commit()
-            return redirect(url_for('mtp.index'))
+            form_validated_message(f'Post with title {title} has been generated!')
 
-    return render_template('mtp/create.html', post_form=post_form)
+            if not title:
+                error = 'Title is required.'
+            if error is not None:
+                form_error_message(f'{error}')
+            else:
+                blog_connect.insert_post(title, body, user_id)
+                db.commit()
+                return redirect(url_for('app.index'))
+
+    return render_template('mtp/create.html', create_post_form=create_post_form)
 
 
 def get_post(post_id, check_author=True):
     blog_connect = BlogDbConnector()
-    user_id = g.user['id']
+    user_id = current_user.get_id()
 
     post = blog_connect.query_blog_post(post_id)
 
     if post is None:
         abort(404, "Post id {0} doesn't exist.".format(post_id))
-    if check_author and post['author_id'] != user_id:
+    if check_author and post.author_id != user_id:
         abort(403)
 
     return post
@@ -117,7 +113,6 @@ def update(post_id):
         body = update_form.update_body.data
 
         blog_connect.update_post(title, body, post['id'])
-        db.commit()
 
         return redirect(url_for('mtp.index'))
 

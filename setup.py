@@ -16,6 +16,7 @@ setup(
         'flask-dropzone',
         'flask_sqlalchemy',
         'flask-migrate',
+        'flask-login',
         'werkzeug'
     ],
 )

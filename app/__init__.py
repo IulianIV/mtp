@@ -1,7 +1,7 @@
 import click
 from config import Config
 import os
-from flask import Flask
+from flask import Flask, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask.cli import with_appcontext
@@ -25,7 +25,8 @@ def create_app(test_config=None):
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
-        app.config.from_pyfile("config.py", silent=True)
+        # app.config.from_pyfile("config.py", silent=True)
+        app.config.from_object(Config)
     else:
         # load the test config if passed in
         app.config.update(test_config)
@@ -36,8 +37,8 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # from app.auth import bp as auth_bp
-    # app.register_blueprint(auth_bp)
+    from app.auth import bp as auth_bp
+    app.register_blueprint(auth_bp)
 
     from app.blog import bp as blog_bp
     app.register_blueprint(blog_bp)

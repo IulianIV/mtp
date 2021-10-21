@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/www.mtp.local.iml" filepath="$PROJECT_DIR$/.idea/www.mtp.local.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Algo_DataStruc/.idea/Algo_DataStruc.iml" filepath="$PROJECT_DIR$/../Algo_DataStruc/.idea/Algo_DataStruc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/mtp.iml" filepath="$PROJECT_DIR$/.idea/mtp.iml" />
     </modules>
   </component>
 </project>

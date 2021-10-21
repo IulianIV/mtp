@@ -82,18 +82,18 @@
                                       <form method="post" id="post-form">
                                           {{ post_form.hidden_tag() }}
                                         <div class="form-group">
-                                          <label class="small mb-1">Title</label>
-                                            {{ post_form.post_title(form='post-form', class='form-control py-4') }}
+                                          {{ create_post_form.post_title.label(class='small mb-1') }}
+                                            {{ create_post_form.post_title(form='post-form', class='form-control py-4') }}
 <!--                                          <input class="form-control py-4" name="title" id="title" value="{{ request.form['title'] }}"  placeholder="Enter post Title"/>-->
                                         </div>
                                         <div class="form-group">
-                                          <label>Body</label>
-                                            {{ post_form.post_body(form='post-form', class='form-control py-4') }}
+                                            {{ create_post_form.post_body.label(class='small mb-1') }}
+                                            {{ create_post_form.post_body(form='post-form', class='form-control py-4') }}
 <!--                                          <textarea class="form-control py-4" name="body" id="body" placeholder="Enter post content">{{ request.form['body'] }}</textarea>-->
                                         </div>
-                                          {{ post_form.submit_post(form='post-form', class='btn btn-primary') }}
+                                          {{ create_post_form.submit_post(form='post-form', class='btn btn-primary') }}
 <!--                                          <input type="submit" value="Save" class="btn btn-primary">-->
-                                        <a class="btn btn-danger" href="{{ url_for('mtp.index') }}">Cancel</a>
+                                        <a class="btn btn-danger" href="{{ url_for('app.index') }}">Cancel</a>
                                       </form>
                                     </div>
                                 </div>
