@@ -1,85 +1,84 @@
 import functools
-
 from flask import (
     flash, g, redirect, render_template, request, session, url_for
 )
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import generate_password_hash
 
-from app.manager.db.models import User
 from app.auth import bp
-from app.manager.db.models import *
 from app.manager.protection import form_validated_message, form_error_message
-from app.auth.forms import LoginForm
-from flask_login import login_user
+from app.auth.forms import LoginForm, RegisterForm
+from flask_login import login_user, current_user, logout_user
+from app.manager.db.models import User
+from app import db
 
 
-"""
-Form catcher that adds entries to `user` database 
-
-"""
-
+# better-me handle situation when user already exists
+# better-me handle situation when password != password_retype
+# better-me handle logic for password and password retype matching
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        error = None
 
-        if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
-        elif db.order_by(User.query.filter_by(username=username).first()) is not None:
-            error = f'User {username} is already registered.'
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
 
-        if error is None:
-            db.session.add(User(username=username, password=generate_password_hash(password)))
-            db.commit()
-            return redirect(url_for('auth.login'))
+    register_form = RegisterForm()
 
-        flash(error)
+    if register_form.is_submitted() and register_form.validate_on_submit():
 
-    return render_template('auth/register.html')
+        username = register_form.username.data
+        password = register_form.password.data
+
+        form_validated_message(f'Register requested for user {username}')
+
+        user = User(username=username)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+
+        return redirect(url_for('index'))
+
+    elif register_form.is_submitted() and register_form.validate_on_submit() and password != password_retype:
+        form_error_message('Passwords must be identical.')
+
+    return render_template('auth/register.html', register_form=register_form)
 
 
-"""
-Login handling for 'user' database
-
-"""
-
+# better-me improve the login functionality
+# better-me fix the log in
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
 
+    if current_user.is_authenticated:
+        return redirect(url_for('/'))
+
     login_form = LoginForm()
-    error = None
+
+    username = login_form.username.data
+    password = login_form.password.data
+    remember_me = login_form.remember_me.data
 
     if request.method == 'POST':
 
         if login_form.is_submitted() and login_form.validate_on_submit():
-            username = login_form.username.data
-            password = login_form.password.data
-            remember_me = login_form.remember_me.data
 
             form_validated_message(f'Login requested for user {username}, remember_me={remember_me}')
 
             user = User.query.filter_by(username=username).first()
 
-            login_user(user)
+            if user is None or not user.check_password(password):
+                form_error_message('Invalid username or password')
+                return render_template('auth/login.html', login_form=login_form)
 
-            # better-me Improve the way errors are shown with custom css or by implementing the card system
-            if user is None:
-                error = 'Incorrect username.'
-            elif not check_password_hash(user.password, password):
-                error = 'Incorrect password.'
+            login_user(user, remember=remember_me)
 
-            if error is None:
-                session.clear()
-                session['user_id'] = user.id
-                return redirect(url_for('index'))
+            return redirect(url_for('/'))
 
-        flash(error)
+        elif not login_form.validate_on_submit():
+            form_error_message('Error occurred.')
+
+        # better-me Improve the way errors are shown with custom css or by implementing the card system
 
     return render_template('auth/login.html', login_form=login_form)
 
@@ -98,7 +97,7 @@ def load_logged_in_user():
 
 @bp.route('/logout')
 def logout():
-    session.clear()
+    logout_user()
     return redirect(url_for('index'))
 
 

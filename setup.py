@@ -9,14 +9,14 @@ setup(
     install_requires=[
         'flask',
         'flask-WTF',
-        'wtforms',
-        'click',
-        'pandas',
-        'alembic',
         'flask-dropzone',
         'flask_sqlalchemy',
         'flask-migrate',
         'flask-login',
-        'werkzeug'
+        'alembic',
+        'werkzeug',
+        'wtforms',
+        'click',
+        'pandas'
     ],
 )

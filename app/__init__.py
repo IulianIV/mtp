@@ -1,17 +1,19 @@
 import click
 from config import Config
 import os
-from flask import Flask, g
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask.cli import with_appcontext
 from flask import current_app
+from flask_login import LoginManager
 
 
 __version__ = (1, 0, 0, "dev")
 
 db = SQLAlchemy()
 migrate = Migrate()
+login = LoginManager()
 
 
 def create_app(test_config=None):
@@ -22,6 +24,7 @@ def create_app(test_config=None):
 
     db.init_app(app)
     migrate.init_app(app, db)
+    login.init_app(app)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing

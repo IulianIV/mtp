@@ -1,8 +1,7 @@
 from flask_wtf import FlaskForm
-from datetime import datetime
 
 from wtforms.fields import PasswordField, StringField, BooleanField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, EqualTo
 
 
 class LoginForm(FlaskForm):
@@ -10,9 +9,15 @@ class LoginForm(FlaskForm):
     #   to the Form Field instantiation
     # TODO add action="" and novalidate to all forms. novalidate to let validation be done server side
     #   action="" when needed, if the forms needs to be sent to a different URL. if empty sends to current URL.
+    # TODO add validators back
     username = StringField('username', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
-    remember_me = BooleanField('remember me')
+    remember_me = BooleanField('remember me', validators=[DataRequired()])
     submit = SubmitField()
 
 
+class RegisterForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    password_retype = PasswordField('Retype password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField()

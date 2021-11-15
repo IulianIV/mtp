@@ -1,4 +1,3 @@
-from app import db
 from app.manager.db.models import *
 
 # TODO add class abstraction and type hints to classes - the software cohesion is very low.
@@ -104,7 +103,7 @@ class Query:
 
     @staticmethod
     def query_blog_posts():
-        return Post.created.desc()
+        return Post.query.order_by(Post.created).all()
 
     @staticmethod
     def get_validation_item(item_value):
