@@ -70,29 +70,30 @@
                             <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Utilities
                                 Entry</h3></div>
                             <div class="card-body">
-                                <form method="post" id="utilities-form">
+                                    <form action="{{ url_for('budget.add_utilities_entry') }}" id="utilities-form"
+                                      method="post">
                                     {{ utilities_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label>Date</label>
+                                                    {{ utilities_form.utilities_date.label(for='utilities-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Rent Value</label>
+                                                    {{ utilities_form.utilities_rent.label(for='utilities-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Energy Value</label>
+                                                    {{ utilities_form.utilities_energy.label(for='utilities-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Satellite value</label>
+                                                    {{ utilities_form.utilities_satellite.label(for='utilities-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Maintenance Value</label>
+                                                    {{ utilities_form.utilities_maintenance.label(for='utilities-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Details</label>
+                                                    {{ utilities_form.utilities_details.label(for='utilities-form') }}
                                                 </th>
                                             </tr>
                                             </thead>

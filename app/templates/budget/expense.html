@@ -33,9 +33,9 @@
         <div class="card bg-success text-white mb-4">
             <div class="card-body">Table info</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-               {% with no_errors = get_flashed_messages(category_filter=["validated"]) %}
+                {% with no_errors = get_flashed_messages(category_filter=["validated"]) %}
                 {% if no_errors %}
-                 {% for msg in no_errors %}
+                {% for msg in no_errors %}
                 <p class="small text-white stretched-link">{{ msg }}</p>
                 {% endfor %}
                 {% endif %}
@@ -71,26 +71,27 @@
                             <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Expense
                                 Entry</h3></div>
                             <div class="card-body">
-                                <form method="post" id="expense-form">
+                                <form method="post" id="expense-form" action="{{ url_for('budget.add_expense_entry') }}"
+                                      novalidate>
                                     {{ expense_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label>Date</label>
+                                                    {{ expense_form.expense_date.label(for='expense-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Item</label>
+                                                    {{ expense_form.expense_item.label(for='expense-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Value</label>
+                                                    {{ expense_form.expense_value.label(for='expense-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Category</label>
+                                                    {{ expense_form.expense_category.label(for='expense-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Source</label>
+                                                    {{ expense_form.expense_source.label(for='expense-form') }}
                                                 </th>
                                             </tr>
                                             </thead>

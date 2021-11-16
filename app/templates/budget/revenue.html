@@ -2,10 +2,10 @@
 
 {% block meta %}
 <meta charset="utf-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-<meta name="description" content=""/>
-<meta name="author" content=""/>
+<meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<meta content="" name="description"/>
+<meta content="" name="author"/>
 
 {% block title %}
 <title>MTP | Web App</title>
@@ -70,20 +70,21 @@
                             <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Revenue
                                 Entry</h3></div>
                             <div class="card-body">
-                                <form method="post" id="revenue-form">
+                                <form action="{{ url_for('budget.add_revenue_entry') }}" id="revenue-form"
+                                      method="post">
                                     {{ revenue_form.hidden_tag() }}
                                     <div class="table-responsive">
-                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <table cellspacing="0" class="table table-bordered" id="dataTable" width="100%">
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label>Date</label>
+                                                    {{ revenue_form.revenue_date.label(for='revenue-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Revenue</label>
+                                                    {{ revenue_form.revenue_value.label(for='revenue-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Source</label>
+                                                    {{ revenue_form.revenue_source.label(for='revenue-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
@@ -124,7 +125,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable2" width="100%" cellspacing="0">
+            <table cellspacing="0" class="table table-bordered" id="dataTable2" width="100%">
                 <thead>
                 <tr>
                     <th>id</th>

@@ -191,7 +191,8 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="items-form" action="{{ url_for('budget.validation_items') }}">
+                                    <form action="{{ url_for('budget.validation_items') }}" id="items-form"
+                                      method="post">
                                     {{ categories_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-1" width="100%"
@@ -199,10 +200,10 @@
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label>Items</label>
+                                                    {{ items_form.item_value.label(for='savings-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Categories</label>
+                                                    {{ items_form.category_value.label(for='savings-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
@@ -232,7 +233,8 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="categories-form" action="{{ url_for('budget.validation_categories') }}">
+                                    <form action="{{ url_for('budget.validation_categories') }}" id="categories-form"
+                                      method="post">
                                     {{ categories_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-2" width="100%"
@@ -240,7 +242,7 @@
                                             <thead>
                                             <tr>
                                                 <th>
-                                                    <label>Categories</label>
+                                                    {{ categories_form.category_value.label(for='categories-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
@@ -268,7 +270,8 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="sources-form" action="{{ url_for('budget.validation_sources') }}">
+                                <form action="{{ url_for('budget.validation_sources') }}" id="sources-form"
+                                      method="post">
                                     {{ sources_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-3" width="100%"
@@ -276,7 +279,7 @@
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label>Sources</label>
+                                                    {{ sources_form.source_value.label(for='sources-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
@@ -304,7 +307,8 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="accounts-form" action="{{ url_for('budget.validation_accounts') }}">
+                                    <form action="{{ url_for('budget.validation_accounts') }}" id="accounts-form"
+                                      method="post">
                                     {{ accounts_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-4" width="100%"
@@ -312,7 +316,7 @@
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label>Accounts</label>
+                                                    {{ accounts_form.account_value.label(for='accounts-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
@@ -340,7 +344,8 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="actions-form" action="{{ url_for('budget.validation_actions') }}">
+                                    <form action="{{ url_for('budget.validation_actions') }}" id="actions-form"
+                                      method="post">
                                     {{ actions_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-5" width="100%"
@@ -348,7 +353,7 @@
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label>Actions</label>
+                                                    {{ actions_form.action_value.label(for='actions-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
@@ -376,7 +381,8 @@
                                 </h3>
                             </div>
                             <div class="card-body">
-                                <form method="post" id="reasons-form" action="{{ url_for('budget.validation_reasons') }}">
+                                    <form action="{{ url_for('budget.validation_reasons') }}" id="reasons-form"
+                                      method="post">
                                     {{ reasons_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable-6" width="100%"
@@ -384,7 +390,7 @@
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label>Reason</label>
+                                                    {{ reasons_form.reason_value.label(for='actions-form') }}
                                                 </th>
                                             </tr>
                                             </thead>

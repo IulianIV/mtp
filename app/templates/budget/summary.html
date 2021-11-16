@@ -17,9 +17,9 @@
 {% block header %}
 <h1 class="mt-4">Budget Dashboard</h1>
 <ol class="breadcrumb mb-4">
-    {% if g.user %}
+    {% if not current_user.is_anonymous %}
     <li>
-        <a class="btn btn-primary btn-secondary" style="margin: 2px;" href="{{ url_for('mtp.index') }}">Blog</a>
+        <a class="btn btn-primary btn-secondary" style="margin: 2px;" href="{{ url_for('blog.index') }}">Blog</a>
     </li>
     <li>
         <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Reporting</a>
@@ -50,10 +50,10 @@
             Validation</a>
     </li>
     <li>
-        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{{ url_for('dataflow.importer') }}">Importer</a>
+        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.importer') }} #}#">Importer</a>
     </li>
     <li>
-        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{{ url_for('dataflow.exporter') }}">Exporter</a>
+        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.exporter') }} #}#">Exporter</a>
     </li>
     {% endif %}
 </ol>

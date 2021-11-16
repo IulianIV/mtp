@@ -70,26 +70,27 @@
                             <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Savings
                                 Entry</h3></div>
                             <div class="card-body">
-                                <form method="post" id="savings-form">
+                               <form action="{{ url_for('budget.add_savings_entry') }}" id="savings-form"
+                                      method="post">
                                     {{ savings_form.hidden_tag() }}
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
-                                                    <label>Date</label>
+                                                    {{ savings_form.savings_date.label(for='savings-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Value</label>
+                                                    {{ savings_form.savings_value.label(for='savings-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Source</label>
+                                                    {{ savings_form.savings_source.label(for='savings-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Reason</label>
+                                                    {{ savings_form.savings_reason.label(for='savings-form') }}
                                                 </th>
                                                 <th>
-                                                    <label>Action</label>
+                                                    {{ savings_form.savings_action.label(for='savings-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
