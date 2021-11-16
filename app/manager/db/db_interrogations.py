@@ -27,7 +27,7 @@ class Insert:
 
     def insert_validation_items(self, item, category):
         return self.db.session.add(
-            ValidationSavingItems(item=item, category=category))
+            ValidationSavingItems(items=item, category=category))
 
     def insert_validation_categories(self, categories):
         return self.db.session.add(
@@ -40,16 +40,16 @@ class Insert:
         )
 
     def insert_validation_accounts(self, accounts):
-        return self.db.session.add(ValidationSavingAccount(accounts=accounts))
+        return self.db.session.add(ValidationSavingAccount(saving_accounts=accounts))
 
     def insert_validation_actions(self, actions):
         return self.db.session.add(ValidationSavingAction(action=actions))
 
     def insert_validation_reasons(self, reasons):
-        return self.db.session.add(ValidationSavingReason(reasons=reasons))
+        return self.db.session.add(ValidationSavingReason(saving_reason=reasons))
 
-    def insert_post(self, title, body, user_id):
-        return self.db.session.add(Post(title=title, body=body, user_id=user_id))
+    def insert_post(self, title, body, author_id):
+        return self.db.session.add(Post(title=title, body=body, author_id=author_id))
 
 
 class Query:
@@ -59,47 +59,47 @@ class Query:
 
     @staticmethod
     def query_expense_entries():
-        return BudgetExpense.expense_date.asc()
+        return db.session.query(BudgetExpense.expense_date.asc())
 
     @staticmethod
     def query_validation_savings_reason():
-        return ValidationSavingReason.query.all()
+        return db.session.query(ValidationSavingReason.saving_reason)
 
     @staticmethod
     def query_revenue_entries():
-        return BudgetRevenue.query.all()
+        return db.session.query(BudgetRevenue.revenue_value)
 
     @staticmethod
     def query_savings_entries():
-        return BudgetSaving.saving_date.asc()
+        return db.session.query(BudgetSaving.saving_date.asc())
 
     @staticmethod
     def query_utilities_entries():
-        return BudgetUtilities.id.asc()
+        return db.session.query(BudgetUtilities.id.asc())
 
     @staticmethod
     def query_validation_items():
-        return ValidationSavingItems.query.all()
+        return db.session.query(ValidationSavingItems.items)
 
     @staticmethod
     def query_validation_categories():
-        return ValidationSavingCategories.query.all()
+        return db.session.query(ValidationSavingCategories.categories)
 
     @staticmethod
     def query_validation_savings_accounts():
-        return ValidationSavingAccount.query.all()
+        return db.session.query(ValidationSavingAccount.saving_accounts)
 
     @staticmethod
     def query_validation_sources():
-        return ValidationSavingSources.query.all()
+        return db.session.query(ValidationSavingSources.sources)
 
     @staticmethod
     def query_validation_savings_action_types():
-        return ValidationSavingAction.query.all()
+        return db.session.query(ValidationSavingAction.saving_action_type)
 
     @staticmethod
     def query_blog_post(post_id):
-        return Post.query.filter_by(post_id=post_id).first()
+        return Post.query.filter_by(id=post_id).first()
 
     @staticmethod
     def query_blog_posts():
@@ -127,7 +127,7 @@ class Query:
 
     @staticmethod
     def get_savings_count():
-        return BudgetSaving.query.coun()
+        return BudgetSaving.query.count()
 
     @staticmethod
     def get_validation_categories_count():
@@ -151,15 +151,15 @@ class Query:
 
     @staticmethod
     def get_validation_account(account_value):
-        return ValidationSavingAccount.query.filter_by(savings_accounts=account_value).first()
+        return ValidationSavingAccount.query.filter_by(saving_accounts=account_value).first()
 
     @staticmethod
     def get_validation_actions(action_value):
-        return ValidationSavingAction.query.filter_by(savings_action_types=action_value)
+        return ValidationSavingAction.query.filter_by(saving_action_type=action_value)
 
     @staticmethod
     def get_validation_reason(reason_value):
-        return ValidationSavingReason.query.filter_by(savings_reason=reason_value).first()
+        return ValidationSavingReason.query.filter_by(saving_reason=reason_value).first()
 
 
 class Update:
