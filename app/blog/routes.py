@@ -75,10 +75,10 @@ def create():
                 form_error_message(f'{error}')
             else:
                 blog_connect.insert_post(title, body, user_id)
-                db.commit()
-                return redirect(url_for('app.index'))
+                db.session.commit()
+                return redirect(url_for('blog.index'))
 
-    return render_template('mtp/create.html', create_post_form=create_post_form)
+    return render_template('blog/create.html', create_post_form=create_post_form)
 
 
 def get_post(post_id, check_author=True):
@@ -94,6 +94,7 @@ def get_post(post_id, check_author=True):
 
     return post
 
+# fixme gives a 403 Forbidden response
 
 @bp.route('/<int:post_id>/update', methods=('GET', 'POST'))
 @login_required
@@ -114,10 +115,12 @@ def update(post_id):
 
         blog_connect.update_post(title, body, post['id'])
 
-        return redirect(url_for('mtp.index'))
+        return redirect(url_for('blog.index'))
 
-    return render_template('mtp/update.html', post=post, update_form=update_form)
+    return render_template('blog/update.html', post=post, update_form=update_form)
 
+
+# fixme gives a 403 Forbidden response
 
 @bp.route('/<int:post_id>/delete', methods=('POST', 'GET'))
 @login_required
@@ -129,7 +132,7 @@ def delete(post_id):
     blog_connect.delete_post(post_id)
     db.commit()
 
-    return redirect(url_for('mtp.index'))
+    return redirect(url_for('blog.index'))
 
 
 # better-me find a new place for these views

@@ -1,13 +1,11 @@
 import functools
 from flask import (
-    flash, g, redirect, render_template, request, session, url_for
+   redirect, render_template, request, session, url_for
 )
-from werkzeug.security import generate_password_hash
-
-from app.auth import bp
-from app.manager.protection import form_validated_message, form_error_message
-from app.auth.forms import LoginForm, RegisterForm
 from flask_login import login_user, current_user, logout_user
+from app.auth import bp
+from app.auth.forms import LoginForm, RegisterForm
+from app.manager.protection import form_validated_message, form_error_message
 from app.manager.db.models import User
 from app import db
 
@@ -15,6 +13,7 @@ from app import db
 # better-me handle situation when user already exists
 # better-me handle situation when password != password_retype
 # better-me handle logic for password and password retype matching
+# better-me check the Register logic from Miguel Grinberg and implement
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
@@ -38,7 +37,7 @@ def register():
 
         return redirect(url_for('index'))
 
-    elif register_form.is_submitted() and register_form.validate_on_submit() and password != password_retype:
+    elif register_form.is_submitted() and register_form.validate_on_submit():
         form_error_message('Passwords must be identical.')
 
     return render_template('auth/register.html', register_form=register_form)
@@ -46,7 +45,8 @@ def register():
 
 # better-me improve the login functionality
 # better-me fix the log in
-
+# better-me follow the Log In structure from Miguel Grinberg and implement it
+# fixme has some issues on log in. Apparently only logs in if 'remember me' is checked
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
 
@@ -73,7 +73,7 @@ def login():
 
             login_user(user, remember=remember_me)
 
-            return redirect(url_for('/'))
+            return redirect(url_for('index'))
 
         elif not login_form.validate_on_submit():
             form_error_message('Error occurred.')
@@ -83,6 +83,7 @@ def login():
     return render_template('auth/login.html', login_form=login_form)
 
 
+# better-me follow the Log In strucutre from Miguel Grinberg and implement it
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get(f'User.query.all().first()')
@@ -95,12 +96,14 @@ def load_logged_in_user():
     return user
 
 
+# better-me follow the Log In strucutre from Miguel Grinberg and implement it
 @bp.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
 
+# better-me follow the Log In strucutre from Miguel Grinberg and implement it
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):

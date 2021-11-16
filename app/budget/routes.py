@@ -2,7 +2,6 @@ from flask import (
     redirect, render_template, request, url_for
 )
 from app.auth.routes import login_required
-
 from app.manager.db.db_interrogations import Query, Insert
 from app.manager.protection import CustomCSRF, form_validated_message, form_error_message
 from app.budget import forms
@@ -14,6 +13,7 @@ custom_protection = CustomCSRF()
 
 
 # Class object for handling multiple SQL queries, might be useful in cases where above code does not work
+# fixme Accounts, Actions and Reason from validation seemingly do not record the values in the form
 
 
 class BudgetDbConnector:
@@ -142,17 +142,17 @@ def summary():
     budget_connect = BudgetDbConnector()
 
     table_counts = {
-        'expense_count': budget_connect.get_expense_count()[0],
-        'revenue_count': budget_connect.get_revenue_count()[0],
-        'savings_count': budget_connect.get_savings_count()[0]
+        'expense_count': budget_connect.get_expense_count(),
+        'revenue_count': budget_connect.get_revenue_count(),
+        'savings_count': budget_connect.get_savings_count()
     }
 
     validation_counts = {
-        'validation_categories': budget_connect.get_validation_categories_count()[0],
-        'validation_items': budget_connect.get_validation_items_count()[0],
-        'validation_accounts': budget_connect.get_validation_accounts_count()[0],
-        'validation_reason': budget_connect.get_validation_reason_count()[0],
-        'validation_sources': budget_connect.get_validation_sources_count()[0]
+        'validation_categories': budget_connect.get_validation_categories_count(),
+        'validation_items': budget_connect.get_validation_items_count(),
+        'validation_accounts': budget_connect.get_validation_accounts_count(),
+        'validation_reason': budget_connect.get_validation_reason_count(),
+        'validation_sources': budget_connect.get_validation_sources_count()
     }
 
     return render_template('budget/summary.html', _object=budget_connect, table_counts=table_counts, validation_counts=validation_counts)
@@ -189,7 +189,7 @@ def add_expense_entry():
             form_validated_message('All values validated!')
 
             budget_connect.insert_expense(date, item, value, item_category, source)
-            db.commit()
+            db.session.commit()
 
             return redirect(url_for('budget.add_expense_entry'))
 
@@ -217,7 +217,7 @@ def add_revenue_entry():
             form_validated_message('All values validated!')
 
             budget_connect.insert_revenue(date, revenue, source)
-            db.commit()
+            db.session.commit()
 
             return redirect(url_for('budget.add_revenue_entry'))
 
@@ -255,7 +255,7 @@ def add_savings_entry():
             form_validated_message('All values validated!')
 
             budget_connect.insert_savings(date, value, source, reason, action)
-            db.commit()
+            db.session.commit()
             return redirect(url_for('budget.add_savings_entry'))
 
         return redirect(url_for('budget.add_savings_entry'))
@@ -321,7 +321,7 @@ def validation_items():
 
                 form_validated_message('Item value validated!')
                 budget_connect.insert_validation_items(item, category)
-                db.commit()
+                db.session.commit()
 
             return redirect(url_for('budget.validation'))
 
@@ -364,14 +364,18 @@ def validation_categories():
 
             category_list = budget_connect.get_validation_category(categories)
 
-            if category_list is not None and categories in category_list:
+            # fixme repair the login. ATM it throws an TypeError: argument of type 'ValidationSavingCategories' is not iterable
 
-                form_error_message(f'The value you chose for category: "{categories}" already exists')
+            # if category_list is not None and categories in category_list:
+            #
+            #     form_error_message(f'The value you chose for category: "{categories}" already exists')
 
-            elif category_list is None:
+            # fixme was a `elif` previous to TypeError.
+
+            if category_list is None:
                 form_validated_message('Category value validated!')
                 budget_connect.insert_validation_categories(categories)
-                db.commit()
+                db.session.commit()
 
             return redirect(url_for('budget.validation'))
 
@@ -421,7 +425,7 @@ def validation_sources():
             elif sources_list is None:
                 form_validated_message('Source value validated!')
                 budget_connect.insert_validation_sources(sources)
-                db.commit()
+                db.session.commit()
 
             return redirect(url_for('budget.validation'))
 
@@ -471,7 +475,7 @@ def validation_accounts():
             elif accounts_list is None:
                 form_validated_message('Account value validated!')
                 budget_connect.insert_validation_accounts(accounts)
-                db.commit()
+                db.session.commit()
 
             return redirect(url_for('budget.validation'))
 
@@ -523,7 +527,7 @@ def validation_actions():
 
                 form_validated_message('Action value validated!')
                 budget_connect.insert_validation_actions(actions)
-                db.commit()
+                db.session.commit()
 
             return redirect(url_for('budget.validation'))
 
@@ -573,7 +577,7 @@ def validation_reasons():
             elif reasons_list is None:
                 form_validated_message('Reason value validated!')
                 budget_connect.insert_validation_reasons(reasons)
-                db.commit()
+                db.session.commit()
 
             return redirect(url_for('budget.validation'))
 
@@ -613,7 +617,7 @@ def add_utilities_entry():
             form_validated_message('All values validated!')
 
             budget_connect.insert_utilities(date, rent, energy, satellite, maintenance, details)
-            db.commit()
+            db.session.commit()
 
             return redirect(url_for('budget.add_utilities_entry'))
 

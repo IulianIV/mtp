@@ -1,10 +1,9 @@
-from flask_wtf import FlaskForm
 from datetime import datetime
-
+from flask_wtf import FlaskForm
 from app.manager.protection import NoFutureDates, CheckForNumber
+from wtforms.fields import DateField
 from wtforms.fields import SubmitField, StringField, SelectField, TextAreaField
 from wtforms.validators import DataRequired
-from wtforms.fields.html5 import DateField
 
 
 class AddExpenseEntry(FlaskForm):
@@ -44,31 +43,31 @@ class AddUtilitiesEntry(FlaskForm):
 
 class AddValidationItems(FlaskForm):
     category_value = SelectField(validators=[DataRequired()], coerce=str)
-    item_value = StringField(validators=[DataRequired(), CheckForNumber()])
+    item_value = StringField(validators=[DataRequired()])
     submit_items = SubmitField()
 
 
 class AddValidationCategory(FlaskForm):
-    category_value = StringField(validators=[DataRequired(), CheckForNumber()])
+    category_value = StringField(validators=[DataRequired()])
     submit_category = SubmitField()
 
 
 class AddValidationSources(FlaskForm):
-    source_value = StringField(validators=[DataRequired(), CheckForNumber()])
+    source_value = StringField(validators=[DataRequired()])
     submit_source = SubmitField()
 
 
 class AddValidationAccounts(FlaskForm):
-    account_value = StringField(validators=[DataRequired(), CheckForNumber()])
+    account_value = StringField(validators=[DataRequired()])
     submit_account = SubmitField()
 
 
 class AddValidationActions(FlaskForm):
-    action_value = StringField(validators=[DataRequired(), CheckForNumber()])
+    action_value = StringField(validators=[DataRequired()])
     submit_action = SubmitField()
 
 
 class AddValidationReason(FlaskForm):
-    reason_value = StringField(validators=[DataRequired(), CheckForNumber()])
+    reason_value = StringField(validators=[DataRequired()])
     submit_reason = SubmitField()
 
