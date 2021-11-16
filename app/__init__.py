@@ -46,9 +46,9 @@ def create_app(test_config=None):
     from app.blog import bp as blog_bp
     app.register_blueprint(blog_bp)
 
-    # from app.budget import bp as budget_bp
-    # app.register_blueprint(budget_bp)
-    #
+    from app.budget import bp as budget_bp
+    app.register_blueprint(budget_bp)
+
     # from app.dataflow import bp as dataflow_bp
     # app.register_blueprint(dataflow_bp)
 
