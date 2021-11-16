@@ -101,23 +101,20 @@
                 <tr>
                   <th class="small mb-1">{{ post.title }}</th>
                   <th class="small mb-1">{{ post.body }}</th>
-                  <th class="small mb-1">by {{ post.author_id }} on {{ post.crated.strftime('%Y-%m-%d, %H:%M:%S') }}</th>
-                  {# Needs fixing {% if g.user['id'] == post['author_id'] %}
+                  <th class="small mb-1">by {{ post.author_id }} on {{ post.created.strftime('%Y-%m-%d, %H:%M:%S') }}</th>
+                  {% if current_user.id == post.author_id %}
                   <th>
                       <div class="custom-container">
-                          <a class="action" href="{{ url_for('mtp.update', post_id=post['id']) }}">Edit</a>
+                          <a class="action" href="{{ url_for('blog.update', post_id=post.id) }}">Edit</a>
                           <p>|</p>
-                          <a class="action" href="{{ url_for('mtp.delete', post_id=post['id']) }}">Delete</a>
+                          <a class="action" href="{{ url_for('blog.delete', post_id=post.id) }}">Delete</a>
                       </div>
                   </th>
                   {% else %}
                   <th>
                       <span><a class="action" href="{{ url_for('auth.login') }}">Log in</a> to edit posts.</span>
                   </th>
-                  {% endif %} #}
-                    <th>
-                      <span><a class="action" href="{{ url_for('auth.login') }}">Log in</a> to edit posts.</span>
-                  </th>
+                  {% endif %}
                 </tr>
               </tbody>
                 {% if not loop.last %}

@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
 {% block meta %}
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<meta name="description" content=""/>
+<meta name="author" content=""/>
 
-    {% block title %}
-    <title>MTP | Web App</title>
-    {% endblock %}
+{% block title %}
+<title>MTP | Web App</title>
+{% endblock %}
 
 {% endblock %}
 
@@ -60,7 +60,7 @@
             <div class="card-body">Error message Card</div>
             <div class="card-footer d-flex align-items-center justify-content-between">
                 {% for message in get_flashed_messages() %}
-                    <a class="small text-white stretched-link" href="#">{{ message }}</a>
+                <a class="small text-white stretched-link" href="#">{{ message }}</a>
                 {% endfor %}
                 <div class="small text-white"><i class="fas fa-angle-right"></i></div>
             </div>
@@ -71,36 +71,37 @@
 
 {% block content %}
 <div id="layoutAuthentication">
-            <div id="layoutAuthentication_content">
-                <main>
-                    <div class="container">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-5">
-                                <div class="card shadow-lg border-0 rounded-lg mt-5">
-                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Create New Post</h3></div>
-                                    <div class="card-body">
-                                      <form method="post" id="post-form">
-                                          {{ post_form.hidden_tag() }}
-                                        <div class="form-group">
-                                          {{ create_post_form.post_title.label(class='small mb-1') }}
-                                            {{ create_post_form.post_title(form='post-form', class='form-control py-4') }}
-<!--                                          <input class="form-control py-4" name="title" id="title" value="{{ request.form['title'] }}"  placeholder="Enter post Title"/>-->
-                                        </div>
-                                        <div class="form-group">
-                                            {{ create_post_form.post_body.label(class='small mb-1') }}
-                                            {{ create_post_form.post_body(form='post-form', class='form-control py-4') }}
-<!--                                          <textarea class="form-control py-4" name="body" id="body" placeholder="Enter post content">{{ request.form['body'] }}</textarea>-->
-                                        </div>
-                                          {{ create_post_form.submit_post(form='post-form', class='btn btn-primary') }}
-<!--                                          <input type="submit" value="Save" class="btn btn-primary">-->
-                                        <a class="btn btn-danger" href="{{ url_for('app.index') }}">Cancel</a>
-                                      </form>
+    <div id="layoutAuthentication_content">
+        <main>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-5">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header"><h3 class="text-center font-weight-light my-4">Create New Post</h3>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" id="post-form" action="{{ url_for('blog.create') }}" novalidate>
+                                    {{ create_post_form.hidden_tag() }}
+                                    <div class="form-group">
+                                        {{ create_post_form.post_title.label(class='small mb-1') }}
+                                        {{ create_post_form.post_title(form='post-form', class='form-control py-4') }}
+                                        <!--                                          <input class="form-control py-4" name="title" id="title" value="{{ request.form['title'] }}"  placeholder="Enter post Title"/>-->
                                     </div>
-                                </div>
+                                    <div class="form-group">
+                                        {{ create_post_form.post_body.label(class='small mb-1') }}
+                                        {{ create_post_form.post_body(form='post-form', class='form-control py-4') }}
+                                        <!--                                          <textarea class="form-control py-4" name="body" id="body" placeholder="Enter post content">{{ request.form['body'] }}</textarea>-->
+                                    </div>
+                                    {{ create_post_form.submit_post(form='post-form', class='btn btn-primary') }}
+                                    <!--                                          <input type="submit" value="Save" class="btn btn-primary">-->
+                                    <a class="btn btn-danger" href="{{ url_for('blog.index') }}">Cancel</a>
+                                </form>
                             </div>
                         </div>
-                  </div>
-                </main>
+                    </div>
+                </div>
             </div>
+        </main>
+    </div>
 </div>
 {% endblock %}
