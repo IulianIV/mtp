@@ -12,7 +12,7 @@ class LoginForm(FlaskForm):
     # TODO add validators back
     username = StringField('username', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
-    remember_me = BooleanField('remember me', validators=[DataRequired()])
+    remember_me = BooleanField('remember me')
     submit = SubmitField()
 
 
