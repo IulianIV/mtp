@@ -17,18 +17,18 @@
 {% block header %}
 <h1 class="mt-4">Posts Dashboard</h1>
     <ol class="breadcrumb mb-4">
-        {% if g.user %}
+        {% if not current_user.is_anonymous %}
         <li>
-            <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('mtp.create') }}">New Post</a>
+            <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('blog.create') }}">New Post</a>
         </li>
         <li>
             <a class="btn btn-primary " style="margin: 2px;" href="{{ url_for('budget.summary') }}">Budget</a>
         </li>
         <li>
-            <a class="btn btn-light " style="margin: 2px;" href="{{ url_for('dataflow.importer') }}">Importer</a>
+            <a class="btn btn-light " style="margin: 2px;" href="{# {{ url_for('dataflow.importer') }} #}#">Importer</a>
         </li>
         <li>
-            <a class="btn btn-light " style="margin: 2px;" href="{{ url_for('dataflow.exporter') }}">Exporter</a>
+            <a class="btn btn-light " style="margin: 2px;" href="{# {{ url_for('dataflow.exporter') }} #}#">Exporter</a>
         </li>
         {% endif %}
     </ol>
