@@ -11,19 +11,19 @@ class Insert:
 
     def insert_expense(self, date, item, value, item_category, source):
         return self.db.session.add(
-            BudgetExpense(date=date, item=item, value=value, item_category=item_category, source=source))
+            BudgetExpense(expense_date=date, expense_item=item, expense_value=value, expense_item_category=item_category, expense_source=source))
 
     def insert_revenue(self, date, revenue, source):
         return self.db.session.add(
-            BudgetRevenue(date=date, revenue=revenue, source=source))
+            BudgetRevenue(revenue_date=date, revenue_value=revenue, revenue_source=source))
 
     def insert_savings(self, date, value, source, reason, action):
         return self.db.session.add(
-            BudgetSaving(date=date, value=value, source=source, reason=reason, action=action))
+            BudgetSaving(saving_date=date, saving_value=value, saving_source=source, saving_reason=reason, saving_action=action))
 
     def insert_utilities(self, date, rent, energy, satellite, maintenance, details):
         return self.db.session.add(
-            BudgetUtilities(date=date, rent=rent, energy=energy, satellite=satellite, maintenance=maintenance, details=details))
+            BudgetUtilities(utilities_date=date, utilities_rent_value=rent, utilities_energy_value=energy, utilities_satellite_value=satellite, utilities_maintenance_value=maintenance, utilities_info=details))
 
     def insert_validation_items(self, item, category):
         return self.db.session.add(
@@ -43,7 +43,7 @@ class Insert:
         return self.db.session.add(ValidationSavingAccount(saving_accounts=accounts))
 
     def insert_validation_actions(self, actions):
-        return self.db.session.add(ValidationSavingAction(action=actions))
+        return self.db.session.add(ValidationSavingAction(saving_action_type=actions))
 
     def insert_validation_reasons(self, reasons):
         return self.db.session.add(ValidationSavingReason(saving_reason=reasons))
@@ -59,19 +59,19 @@ class Query:
 
     @staticmethod
     def query_expense_entries():
-        return db.session.query(BudgetExpense.expense_date.asc())
+        return BudgetExpense.query.order_by(BudgetExpense.expense_date.desc())
+
+    @staticmethod
+    def query_revenue_entries():
+        return BudgetRevenue.query.order_by(BudgetRevenue.revenue_date.desc())
+
+    @staticmethod
+    def query_savings_entries():
+        return BudgetSaving.query.order_by(BudgetSaving.saving_date.desc())
 
     @staticmethod
     def query_validation_savings_reason():
         return db.session.query(ValidationSavingReason.saving_reason)
-
-    @staticmethod
-    def query_revenue_entries():
-        return db.session.query(BudgetRevenue.revenue_value)
-
-    @staticmethod
-    def query_savings_entries():
-        return db.session.query(BudgetSaving.saving_date.asc())
 
     @staticmethod
     def query_utilities_entries():
@@ -155,7 +155,7 @@ class Query:
 
     @staticmethod
     def get_validation_actions(action_value):
-        return ValidationSavingAction.query.filter_by(saving_action_type=action_value)
+        return ValidationSavingAction.query.filter_by(saving_action_type=action_value).first()
 
     @staticmethod
     def get_validation_reason(reason_value):
@@ -169,11 +169,11 @@ class Update:
 
     def update_post(self, title, body, post_id):
 
-        post = Post.query.filter_by(id=post_id)
+        post = Post.query.filter_by(id=post_id).first()
         post.title = title
         post.body = body
 
-        return self.db.session.commit()
+        self.db.session.commit()
 
 
 class Delete:
@@ -181,6 +181,7 @@ class Delete:
     def __init__(self):
         self.db = db
 
-    @staticmethod
-    def delete_post(post_id):
-        return Post.query.filter_by(id=post_id).delete()
+    def delete_post(self, post_id):
+        Post.query.filter_by(id=post_id).delete()
+
+        self.db.session.commit()
