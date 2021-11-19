@@ -176,22 +176,20 @@ def add_expense_entry():
     sources_set = [x['sources'] for x in sources]
     expense_form.expense_source.choices = sources_set
 
-    if request.method == 'POST':
+    if expense_form.is_submitted() and expense_form.validate_on_submit():
 
-        if expense_form.is_submitted() and expense_form.validate_on_submit():
+        date = expense_form.expense_date.data
+        item = expense_form.expense_item.data
+        value = expense_form.expense_value.data
+        item_category = expense_form.expense_category.data
+        source = expense_form.expense_source.data
 
-            date = expense_form.expense_date.data
-            item = expense_form.expense_item.data
-            value = expense_form.expense_value.data
-            item_category = expense_form.expense_category.data
-            source = expense_form.expense_source.data
+        form_validated_message('All values validated!')
 
-            form_validated_message('All values validated!')
+        budget_connect.insert_expense(date, item, value, item_category, source)
+        db.session.commit()
 
-            budget_connect.insert_expense(date, item, value, item_category, source)
-            db.session.commit()
-
-            return redirect(url_for('budget.add_expense_entry'))
+        return redirect(url_for('budget.add_expense_entry'))
 
     return render_template('budget/expense.html', expense_form=expense_form, _object=budget_connect)
 
@@ -206,20 +204,18 @@ def add_revenue_entry():
     sources_set = [x['sources'] for x in sources]
     revenue_form.revenue_source.choices = sources_set
 
-    if request.method == 'POST':
+    if revenue_form.is_submitted() and revenue_form.validate_on_submit():
 
-        if revenue_form.is_submitted() and revenue_form.validate_on_submit():
+        date = revenue_form.revenue_date.data
+        revenue = revenue_form.revenue_value.data
+        source = revenue_form.revenue_source.data
 
-            date = revenue_form.revenue_date.data
-            revenue = revenue_form.revenue_value.data
-            source = revenue_form.revenue_source.data
+        form_validated_message('All values validated!')
 
-            form_validated_message('All values validated!')
+        budget_connect.insert_revenue(date, revenue, source)
+        db.session.commit()
 
-            budget_connect.insert_revenue(date, revenue, source)
-            db.session.commit()
-
-            return redirect(url_for('budget.add_revenue_entry'))
+        return redirect(url_for('budget.add_revenue_entry'))
 
     return render_template('budget/revenue.html', revenue_form=revenue_form, _object=budget_connect)
 
@@ -235,11 +231,11 @@ def add_savings_entry():
     savings_form.savings_source.choices = sources_set
 
     reasons = budget_connect.query_validation_savings_reason
-    reasons_set = [x['savings_reason'] for x in reasons]
+    reasons_set = [x['saving_reason'] for x in reasons]
     savings_form.savings_reason.choices = reasons_set
 
     actions = budget_connect.query_validation_savings_action_types
-    action_set = [x['savings_action_types'] for x in actions]
+    action_set = [x['saving_action_type'] for x in actions]
     savings_form.savings_action.choices = action_set
 
     if request.method == 'POST':
@@ -304,33 +300,31 @@ def validation_items():
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
-    if request.method == 'POST':
+    if items_form.is_submitted() and items_form.validate_on_submit():
 
-        if items_form.is_submitted() and items_form.validate_on_submit():
+        item = items_form.item_value.data
+        category = items_form.category_value.data
 
-            item = items_form.item_value.data
-            category = items_form.category_value.data
+        item_list = budget_connect.get_validation_item(item)
 
-            item_list = budget_connect.get_validation_item(item)
+        if item_list is not None and item in item_list:
 
-            if item_list is not None and item in item_list:
+            form_error_message(f'The value you chose for item: "{item}" already exists')
 
-                form_error_message(f'The value you chose for item: "{item}" already exists')
+        elif item_list is None:
 
-            elif item_list is None:
+            form_validated_message('Item value validated!')
+            budget_connect.insert_validation_items(item, category)
+            db.session.commit()
 
-                form_validated_message('Item value validated!')
-                budget_connect.insert_validation_items(item, category)
-                db.session.commit()
+        return redirect(url_for('budget.validation'))
 
-            return redirect(url_for('budget.validation'))
+    elif not items_form.validate_on_submit():
 
-        elif not items_form.validate_on_submit():
+        if items_form.item_value.data:
+            ValidationError(message=form_error_message('Item Value field only accepts letters and spaces.'))
 
-            if items_form.item_value.data:
-                ValidationError(message=form_error_message('Item Value field only accepts letters and spaces.'))
-
-            return redirect(url_for('budget.validation'))
+        return redirect(url_for('budget.validation'))
 
     return render_template('budget/validation.html', _object=budget_connect,
                            items_form=items_form,
@@ -357,34 +351,32 @@ def validation_categories():
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
-    if request.method == 'POST':
+    if categories_form.is_submitted() and categories_form.validate_on_submit():
+        categories = categories_form.category_value.data
 
-        if categories_form.is_submitted() and categories_form.validate_on_submit():
-            categories = categories_form.category_value.data
+        category_list = budget_connect.get_validation_category(categories)
 
-            category_list = budget_connect.get_validation_category(categories)
+        # fixme repair the login. ATM it throws an TypeError: argument of type 'ValidationSavingCategories' is not iterable
 
-            # fixme repair the login. ATM it throws an TypeError: argument of type 'ValidationSavingCategories' is not iterable
+        # if category_list is not None and categories in category_list:
+        #
+        #     form_error_message(f'The value you chose for category: "{categories}" already exists')
 
-            # if category_list is not None and categories in category_list:
-            #
-            #     form_error_message(f'The value you chose for category: "{categories}" already exists')
+        # fixme was a `elif` previous to TypeError.
 
-            # fixme was a `elif` previous to TypeError.
+        if category_list is None:
+            form_validated_message('Category value validated!')
+            budget_connect.insert_validation_categories(categories)
+            db.session.commit()
 
-            if category_list is None:
-                form_validated_message('Category value validated!')
-                budget_connect.insert_validation_categories(categories)
-                db.session.commit()
+        return redirect(url_for('budget.validation'))
 
-            return redirect(url_for('budget.validation'))
+    elif not categories_form.validate_on_submit():
 
-        elif not categories_form.validate_on_submit():
+        if categories_form.category_value.data:
+            ValidationError(message=form_error_message('Category Value field only accepts letters and spaces.'))
 
-            if categories_form.category_value.data:
-                ValidationError(message=form_error_message('Category Value field only accepts letters and spaces.'))
-
-            return redirect(url_for('budget.validation'))
+        return redirect(url_for('budget.validation'))
 
     return render_template('budget/validation.html', _object=budget_connect,
                            items_form=items_form,
@@ -411,30 +403,28 @@ def validation_sources():
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
-    if request.method == 'POST':
+    if sources_form.is_submitted() and sources_form.validate_on_submit():
 
-        if sources_form.is_submitted() and sources_form.validate_on_submit():
+        sources = sources_form.source_value.data
+        sources_list = budget_connect.get_validation_source(sources)
 
-            sources = sources_form.source_value.data
-            sources_list = budget_connect.get_validation_source(sources)
+        if sources_list is not None and sources in sources_list:
 
-            if sources_list is not None and sources in sources_list:
+            form_error_message(f'The value you chose for source: "{sources}" already exists')
 
-                form_error_message(f'The value you chose for source: "{sources}" already exists')
+        elif sources_list is None:
+            form_validated_message('Source value validated!')
+            budget_connect.insert_validation_sources(sources)
+            db.session.commit()
 
-            elif sources_list is None:
-                form_validated_message('Source value validated!')
-                budget_connect.insert_validation_sources(sources)
-                db.session.commit()
+        return redirect(url_for('budget.validation'))
 
-            return redirect(url_for('budget.validation'))
+    elif not sources_form.validate_on_submit():
 
-        elif not sources_form.validate_on_submit():
+        if sources_form.source_value.data:
+            ValidationError(message=form_error_message('Sources Value field only accepts letters and spaces.'))
 
-            if sources_form.source_value.data:
-                ValidationError(message=form_error_message('Sources Value field only accepts letters and spaces.'))
-
-            return redirect(url_for('budget.validation'))
+        return redirect(url_for('budget.validation'))
 
     return render_template('budget/validation.html', _object=budget_connect,
                            items_form=items_form,
@@ -461,30 +451,28 @@ def validation_accounts():
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
-    if request.method == 'POST':
+    if accounts_form.is_submitted() and accounts_form.validate_on_submit():
+        accounts = accounts_form.account_value.data
 
-        if accounts_form.is_submitted() and accounts_form.validate_on_submit():
-            accounts = accounts_form.account_value.data
+        accounts_list = budget_connect.get_validation_account(accounts)
 
-            accounts_list = budget_connect.get_validation_account(accounts)
+        if accounts_list is not None and accounts in accounts_list:
 
-            if accounts_list is not None and accounts in accounts_list:
+            form_error_message(f'The value you chose for account: "{accounts}" already exists')
 
-                form_error_message(f'The value you chose for account: "{accounts}" already exists')
+        elif accounts_list is None:
+            form_validated_message('Account value validated!')
+            budget_connect.insert_validation_accounts(accounts)
+            db.session.commit()
 
-            elif accounts_list is None:
-                form_validated_message('Account value validated!')
-                budget_connect.insert_validation_accounts(accounts)
-                db.session.commit()
+        return redirect(url_for('budget.validation'))
 
-            return redirect(url_for('budget.validation'))
+    elif not accounts_form.validate_on_submit():
 
-        elif not accounts_form.validate_on_submit():
+        if accounts_form.account_value.data:
+            ValidationError(message=form_error_message('Account Value field only accepts letters and spaces.'))
 
-            if accounts_form.account_value.data:
-                ValidationError(message=form_error_message('Account Value field only accepts letters and spaces.'))
-
-            return redirect(url_for('budget.validation'))
+        return redirect(url_for('budget.validation'))
 
     return render_template('budget/validation.html', _object=budget_connect,
                            items_form=items_form,
@@ -511,32 +499,30 @@ def validation_actions():
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
-    if request.method == 'POST':
+    if actions_form.is_submitted() and actions_form.validate_on_submit():
 
-        if actions_form.is_submitted() and actions_form.validate_on_submit():
+        actions = actions_form.action_value.data
 
-            actions = actions_form.action_value.data
+        action_list = budget_connect.get_validation_actions(actions)
 
-            action_list = budget_connect.get_validation_actions(actions)
+        if action_list is not None and actions in action_list:
 
-            if action_list is not None and actions in action_list:
+            form_error_message(f'The value you chose for action: "{actions}" already exists')
 
-                form_error_message(f'The value you chose for action: "{actions}" already exists')
+        elif action_list is None:
 
-            elif action_list is None:
+            form_validated_message('Action value validated!')
+            budget_connect.insert_validation_actions(actions)
+            db.session.commit()
 
-                form_validated_message('Action value validated!')
-                budget_connect.insert_validation_actions(actions)
-                db.session.commit()
+        return redirect(url_for('budget.validation'))
 
-            return redirect(url_for('budget.validation'))
+    elif not actions_form.validate_on_submit():
 
-        elif not actions_form.validate_on_submit():
+        if actions_form.action_value.data:
+            ValidationError(message=form_error_message('Action Value field only accepts letters and spaces.'))
 
-            if actions_form.action_value.data:
-                ValidationError(message=form_error_message('Action Value field only accepts letters and spaces.'))
-
-            return redirect(url_for('budget.validation'))
+        return redirect(url_for('budget.validation'))
 
     return render_template('budget/validation.html', _object=budget_connect,
                            items_form=items_form,
@@ -563,30 +549,28 @@ def validation_reasons():
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
-    if request.method == 'POST':
+    if reasons_form.is_submitted() and reasons_form.validate_on_submit():
 
-        if reasons_form.is_submitted() and reasons_form.validate_on_submit():
+        reasons = reasons_form.reason_value.data
+        reasons_list = budget_connect.get_validation_reason(reasons)
 
-            reasons = reasons_form.reason_value.data
-            reasons_list = budget_connect.get_validation_reason(reasons)
+        if reasons_list is not None and reasons in reasons_list:
 
-            if reasons_list is not None and reasons in reasons_list:
+            form_error_message(f'The value you chose for reason: "{reasons}" already exists')
 
-                form_error_message(f'The value you chose for reason: "{reasons}" already exists')
+        elif reasons_list is None:
+            form_validated_message('Reason value validated!')
+            budget_connect.insert_validation_reasons(reasons)
+            db.session.commit()
 
-            elif reasons_list is None:
-                form_validated_message('Reason value validated!')
-                budget_connect.insert_validation_reasons(reasons)
-                db.session.commit()
+        return redirect(url_for('budget.validation'))
 
-            return redirect(url_for('budget.validation'))
+    elif not reasons_form.validate_on_submit():
 
-        elif not reasons_form.validate_on_submit():
+        if reasons_form.reason_value.data:
+            ValidationError(message=form_error_message('Reason Value field only accepts letters and spaces.'))
 
-            if reasons_form.reason_value.data:
-                ValidationError(message=form_error_message('Reason Value field only accepts letters and spaces.'))
-
-            return redirect(url_for('budget.validation'))
+        return redirect(url_for('budget.validation'))
 
     return render_template('budget/validation.html', _object=budget_connect,
                            items_form=items_form,
@@ -610,16 +594,14 @@ def add_utilities_entry():
     maintenance = utilities_form.utilities_maintenance.data
     details = utilities_form.utilities_details.data
 
-    if request.method == 'POST':
+    if utilities_form.is_submitted() and utilities_form.validate_on_submit():
 
-        if utilities_form.is_submitted() and utilities_form.validate_on_submit():
+        form_validated_message('All values validated!')
 
-            form_validated_message('All values validated!')
+        budget_connect.insert_utilities(date, rent, energy, satellite, maintenance, details)
+        db.session.commit()
 
-            budget_connect.insert_utilities(date, rent, energy, satellite, maintenance, details)
-            db.session.commit()
-
-            return redirect(url_for('budget.add_utilities_entry'))
+        return redirect(url_for('budget.add_utilities_entry'))
 
     return render_template('budget/utilities.html', _object=budget_connect, utilities_form=utilities_form)
 
