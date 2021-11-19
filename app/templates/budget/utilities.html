@@ -15,15 +15,44 @@
 
 {% block header %}
 <h1 class="mt-4">Utilities Dashboard</h1>
-<!--
-    <ol class="breadcrumb mb-4">
-        {% if g.user %}
-        <li>
-            <a class="btn btn-primary" href="{{ url_for('mtp.create') }}">New Post</a>
-        </li>
-        {% endif %}
-    </ol>
--->
+<ol class="breadcrumb mb-4">
+    {% if not current_user.is_anonymous %}
+    <li>
+        <a class="btn btn-primary btn-secondary" style="margin: 2px;" href="{{ url_for('blog.index') }}">Blog</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-primary" style="margin: 2px;" href="{{ url_for('budget.summary') }}">Summary</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Reporting</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Statistics</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Lookup</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_expense_entry') }}">Add
+            New
+            Expense</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_revenue_entry') }}">Add
+            Revenue</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_savings_entry') }}">Add
+            Savings</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.importer') }} #}#">Importer</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.exporter') }} #}#">Exporter</a>
+    </li>
+    {% endif %}
+</ol>
 {% endblock %}
 
 {% block cards %}
