@@ -59,24 +59,22 @@ def create():
     user_id = current_user.get_id()
     error = None
 
-    if request.method == 'POST':
+    # better-me improve the functionality
+    if create_post_form.is_submitted() and create_post_form.validate_on_submit():
 
-        # better-me improve the functionality
-        if create_post_form.is_submitted() and create_post_form.validate_on_submit():
+        title = create_post_form.post_title.data
+        body = create_post_form.post_body.data
 
-            title = create_post_form.post_title.data
-            body = create_post_form.post_body.data
+        form_validated_message(f'Post with title {title} has been generated!')
 
-            form_validated_message(f'Post with title {title} has been generated!')
-
-            if not title:
-                error = 'Title is required.'
-            if error is not None:
-                form_error_message(f'{error}')
-            else:
-                blog_connect.insert_post(title, body, user_id)
-                db.session.commit()
-                return redirect(url_for('blog.index'))
+        if not title:
+            error = 'Title is required.'
+        if error is not None:
+            form_error_message(f'{error}')
+        else:
+            blog_connect.insert_post(title, body, user_id)
+            db.session.commit()
+            return redirect(url_for('blog.index'))
 
     return render_template('blog/create.html', create_post_form=create_post_form)
 
@@ -88,9 +86,11 @@ def get_post(post_id, check_author=True):
     post = blog_connect.query_blog_post(post_id)
 
     if post is None:
-        abort(404, "Post id {0} doesn't exist.".format(post_id))
+        abort(404, f'Post id {post_id} doesnt exist.')
     if check_author and post.author_id != user_id:
-        abort(403)
+        print(post.author_id)
+        print(user_id)
+        print(post)
 
     return post
 
@@ -113,7 +113,7 @@ def update(post_id):
         title = update_form.update_title.data
         body = update_form.update_body.data
 
-        blog_connect.update_post(title, body, post['id'])
+        blog_connect.update_post(title, body, post.id)
 
         return redirect(url_for('blog.index'))
 
@@ -130,7 +130,7 @@ def delete(post_id):
     get_post(post_id)
 
     blog_connect.delete_post(post_id)
-    db.commit()
+    db.session.commit()
 
     return redirect(url_for('blog.index'))
 

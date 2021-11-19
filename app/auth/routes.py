@@ -46,7 +46,7 @@ def register():
 # better-me improve the login functionality
 # better-me fix the log in
 # better-me follow the Log In structure from Miguel Grinberg and implement it
-# fixme has some issues on log in. Apparently only logs in if 'remember me' is checked
+
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
 
@@ -59,26 +59,24 @@ def login():
     password = login_form.password.data
     remember_me = login_form.remember_me.data
 
-    if request.method == 'POST':
+    if login_form.is_submitted() and login_form.validate_on_submit():
 
-        if login_form.is_submitted() and login_form.validate_on_submit():
+        form_validated_message(f'Login requested for user {username}, remember_me={remember_me}')
 
-            form_validated_message(f'Login requested for user {username}, remember_me={remember_me}')
+        user = User.query.filter_by(username=username).first()
 
-            user = User.query.filter_by(username=username).first()
+        if user is None or not user.check_password(password):
+            form_error_message('Invalid username or password')
+            return render_template('auth/login.html', login_form=login_form)
 
-            if user is None or not user.check_password(password):
-                form_error_message('Invalid username or password')
-                return render_template('auth/login.html', login_form=login_form)
+        login_user(user, remember=remember_me)
 
-            login_user(user, remember=remember_me)
+        return redirect(url_for('index'))
 
-            return redirect(url_for('index'))
+    elif not login_form.validate_on_submit():
+        form_error_message('Error occurred.')
 
-        elif not login_form.validate_on_submit():
-            form_error_message('Error occurred.')
-
-        # better-me Improve the way errors are shown with custom css or by implementing the card system
+    # better-me Improve the way errors are shown with custom css or by implementing the card system
 
     return render_template('auth/login.html', login_form=login_form)
 
