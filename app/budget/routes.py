@@ -89,6 +89,9 @@ class BudgetDbConnector:
     def get_savings_count(self):
         return self.db_queries.get_savings_count()
 
+    def get_utilities_count(self):
+        return self.db_queries.get_utilities_count()
+
     def get_validation_categories_count(self):
         return self.db_queries.get_validation_categories_count()
 
@@ -164,6 +167,10 @@ def add_expense_entry():
     budget_connect = BudgetDbConnector()
     expense_form = forms.AddExpenseEntry()
 
+    table_counts = {
+        'expense_count': budget_connect.get_expense_count()
+    }
+
     items = budget_connect.query_validation_items
     items_set = [x['items'] for x in items]
     expense_form.expense_item.choices = items_set
@@ -191,7 +198,7 @@ def add_expense_entry():
 
         return redirect(url_for('budget.add_expense_entry'))
 
-    return render_template('budget/expense.html', expense_form=expense_form, _object=budget_connect)
+    return render_template('budget/expense.html', expense_form=expense_form, _object=budget_connect, table_counts=table_counts)
 
 
 @bp.route('/new-revenue-entry', methods=('GET', 'POST'))
@@ -199,6 +206,10 @@ def add_expense_entry():
 def add_revenue_entry():
     budget_connect = BudgetDbConnector()
     revenue_form = forms.AddRevenueEntry()
+
+    table_counts = {
+        'revenue_count': budget_connect.get_revenue_count()
+    }
 
     sources = budget_connect.query_validation_sources
     sources_set = [x['sources'] for x in sources]
@@ -217,7 +228,7 @@ def add_revenue_entry():
 
         return redirect(url_for('budget.add_revenue_entry'))
 
-    return render_template('budget/revenue.html', revenue_form=revenue_form, _object=budget_connect)
+    return render_template('budget/revenue.html', revenue_form=revenue_form, _object=budget_connect, table_counts=table_counts)
 
 
 @bp.route('/new-savings-entry', methods=('GET', 'POST'))
@@ -225,6 +236,10 @@ def add_revenue_entry():
 def add_savings_entry():
     savings_form = forms.AddSavingsEntry()
     budget_connect = BudgetDbConnector()
+
+    table_counts = {
+        'saving_count': budget_connect.get_savings_count()
+    }
 
     sources = budget_connect.query_validation_sources
     sources_set = [x['sources'] for x in sources]
@@ -256,7 +271,7 @@ def add_savings_entry():
 
         return redirect(url_for('budget.add_savings_entry'))
 
-    return render_template('budget/savings.html', savings_form=savings_form, _object=budget_connect)
+    return render_template('budget/savings.html', savings_form=savings_form, _object=budget_connect, table_counts=table_counts)
 
 
 @bp.route('/validation', methods=('GET', 'POST'))
@@ -587,6 +602,10 @@ def add_utilities_entry():
     budget_connect = BudgetDbConnector()
     utilities_form = forms.AddUtilitiesEntry()
 
+    table_counts = {
+        'utilities_count': budget_connect.get_utilities_count()
+    }
+
     date = utilities_form.utilities_date.data
     rent = utilities_form.utilities_rent.data
     energy = utilities_form.utilities_energy.data
@@ -603,7 +622,7 @@ def add_utilities_entry():
 
         return redirect(url_for('budget.add_utilities_entry'))
 
-    return render_template('budget/utilities.html', _object=budget_connect, utilities_form=utilities_form)
+    return render_template('budget/utilities.html', _object=budget_connect, utilities_form=utilities_form, table_counts=table_counts)
 
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
