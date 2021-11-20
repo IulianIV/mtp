@@ -183,8 +183,8 @@
                     <th>Savings Action</th>
                 </tr>
                 </thead>
-                {% for entry in _object.query_savings_entries %}
                 <tbody class="post">
+                {% for entry in _object.query_savings_entries %}
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
                     <th class="small mb-1">{{ entry['saving_date'] }}</th>
@@ -193,10 +193,17 @@
                     <th class="small mb-1">{{ entry['saving_reason'] }}</th>
                     <th class="small mb-1">{{ entry['saving_action'] }}</th>
                 </tr>
-                </tbody>
                 {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>
 </div>
+{% block scripts %}
+ <script>
+    $(document).ready(function () {
+      $('#dataTable3').DataTable();
+    });
+ </script>
+{% endblock %}
 {% endblock %}

@@ -183,8 +183,8 @@
                     <th>Expense Source</th>
                 </tr>
                 </thead>
-                {% for entry in _object.query_expense_entries %}
                 <tbody class="post">
+                {% for entry in _object.query_expense_entries %}
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
                     <th class="small mb-1">{{ entry['expense_date'] }}</th>
@@ -193,10 +193,17 @@
                     <th class="small mb-1">{{ entry['expense_item_category'] }}</th>
                     <th class="small mb-1">{{ entry['expense_source'] }}</th>
                 </tr>
-                </tbody>
                 {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>
 </div>
+{% block scripts %}
+ <script>
+    $(document).ready(function () {
+      $('#dataTable2').DataTable();
+    });
+ </script>
+{% endblock %}
 {% endblock %}

@@ -167,18 +167,25 @@
                     <th>Revenue Source</th>
                 </tr>
                 </thead>
-                {% for entry in _object.query_revenue_entries %}
                 <tbody class="post">
+                {% for entry in _object.query_revenue_entries %}
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
                     <th class="small mb-1">{{ entry['revenue_date'] }}</th>
                     <th class="small mb-1">{{ entry['revenue_value'] }}</th>
                     <th class="small mb-1">{{ entry['revenue_source'] }}</th>
                 </tr>
-                </tbody>
                 {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>
 </div>
+{% block scripts %}
+ <script>
+    $(document).ready(function () {
+      $('#dataTable2').DataTable();
+    });
+ </script>
+{% endblock %}
 {% endblock %}
