@@ -75,7 +75,7 @@ class Query:
 
     @staticmethod
     def query_utilities_entries():
-        return db.session.query(BudgetUtilities.id.asc())
+        return BudgetUtilities.query.order_by(BudgetUtilities.utilities_date.desc())
 
     @staticmethod
     def query_validation_items():
@@ -128,6 +128,10 @@ class Query:
     @staticmethod
     def get_savings_count():
         return BudgetSaving.query.count()
+
+    @staticmethod
+    def get_utilities_count():
+        return BudgetUtilities.query.count()
 
     @staticmethod
     def get_validation_categories_count():
