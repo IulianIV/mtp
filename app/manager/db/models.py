@@ -31,7 +31,7 @@ class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    created = db.Column(db.DateTime, index=True, nullable=False, default=datetime.utcnow)
+    created = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     title = db.Column(db.String(90), nullable=False)
     body = db.Column(db.Text, nullable=False)
 
@@ -42,7 +42,7 @@ class Post(db.Model):
 class BudgetRevenue(db.Model):
     __tablename__ = 'budget_revenue'
     id = db.Column(db.Integer, primary_key=True)
-    revenue_date = db.Column(db.DateTime, index=True, nullable=False, default=datetime.utcnow)
+    revenue_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     revenue_value = db.Column(db.Float, nullable=False)
     revenue_source = db.Column(db.String(20), nullable=False)
 
@@ -53,7 +53,7 @@ class BudgetRevenue(db.Model):
 class BudgetSaving(db.Model):
     __tablename__ = 'budget_saving'
     id = db.Column(db.Integer, primary_key=True)
-    saving_date = db.Column(db.DateTime, index=True, nullable=False, default=datetime.utcnow)
+    saving_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     saving_value = db.Column(db.Float, nullable=False)
     saving_source = db.Column(db.String(20), nullable=False)
     saving_reason = db.Column(db.String(20), nullable=False)
@@ -66,7 +66,7 @@ class BudgetSaving(db.Model):
 class BudgetExpense(db.Model):
     __tablename__ = 'budget_expense'
     id = db.Column(db.Integer, primary_key=True)
-    expense_date = db.Column(db.DateTime, index=True, nullable=False, default=datetime.utcnow)
+    expense_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     expense_item = db.Column(db.String(20), nullable=False)
     expense_value = db.Column(db.Float, nullable=False)
     expense_item_category = db.Column(db.String(20), nullable=False)
@@ -81,7 +81,7 @@ class BudgetExpense(db.Model):
 class BudgetUtilities(db.Model):
     __tablename__ = 'budget_utilities'
     id = db.Column(db.Integer, primary_key=True)
-    utilities_date = db.Column(db.DateTime, index=True, nullable=False, default=datetime.utcnow)
+    utilities_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     utilities_rent_value = db.Column(db.Float, nullable=False)
     utilities_energy_value = db.Column(db.Float, nullable=False)
     utilities_satellite_value = db.Column(db.Float, nullable=False)
