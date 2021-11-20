@@ -45,6 +45,10 @@
             Utilities</a>
     </li>
     <li>
+        <a class="btn btn-primary btn-primary" style="margin: 2px;" href="{{ url_for('budget.validation') }}">See
+            Validation</a>
+    </li>
+    <li>
         <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.importer') }} #}#">Importer</a>
     </li>
     <li>
@@ -164,7 +168,7 @@
 <div class="card mb-4">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
-        Expense Summary
+        <strong>Expense Summary</strong> - {{ table_counts.get('expense_count') }} entries
     </div>
     <div class="card-body">
         <div class="table-responsive">

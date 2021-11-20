@@ -46,6 +46,10 @@
             Utilities</a>
     </li>
     <li>
+        <a class="btn btn-primary btn-primary" style="margin: 2px;" href="{{ url_for('budget.validation') }}">See
+            Validation</a>
+    </li>
+    <li>
         <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.importer') }} #}#">Importer</a>
     </li>
     <li>
@@ -164,7 +168,7 @@
 <div class="card mb-4">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
-        Savings Summary
+        <strong>Savings Summary</strong> - {{ table_counts.get('saving_count') }} entries
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -183,11 +187,11 @@
                 <tbody class="post">
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
-                    <th class="small mb-1">{{ entry['savings_date'] }}</th>
-                    <th class="small mb-1">{{ entry['savings_value'] }}</th>
-                    <th class="small mb-1">{{ entry['savings_source'] }}</th>
-                    <th class="small mb-1">{{ entry['savings_reason'] }}</th>
-                    <th class="small mb-1">{{ entry['savings_action'] }}</th>
+                    <th class="small mb-1">{{ entry['saving_date'] }}</th>
+                    <th class="small mb-1">{{ entry['saving_value'] }}</th>
+                    <th class="small mb-1">{{ entry['saving_source'] }}</th>
+                    <th class="small mb-1">{{ entry['saving_reason'] }}</th>
+                    <th class="small mb-1">{{ entry['saving_action'] }}</th>
                 </tr>
                 </tbody>
                 {% endfor %}
