@@ -77,6 +77,21 @@ class BudgetExpense(db.Model):
     def __repr__(self):
         return f'Budget expense ID: {self.id}'
 
+    def to_dict(self):
+
+        entry_date = self.expense_date
+        formatted_date = entry_date.strftime('%Y-%m-%d')
+
+        return {
+            'id': self.id,
+            'expense_date': formatted_date,
+            'expense_item': self.expense_item,
+            'expense_value': self.expense_value,
+            'expense_item_category': self.expense_item_category,
+            'expense_source': self.expense_source
+
+        }
+
 
 class BudgetUtilities(db.Model):
     __tablename__ = 'budget_utilities'
