@@ -107,7 +107,7 @@
                                       novalidate>
                                     {{ expense_form.hidden_tag() }}
                                     <div class="table-responsive">
-                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <table class="table table-bordered" id="Expense1" width="100%" cellspacing="0">
                                             <thead>
                                             <tr>
                                                 <th style="font-weight= bold;">
@@ -172,7 +172,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable2" width="100%" cellspacing="0">
+            <table class="table table-bordered" id="Expense2" width="100%" cellspacing="0">
                 <thead>
                 <tr>
                     <th>id</th>
@@ -200,10 +200,21 @@
     </div>
 </div>
 {% block scripts %}
- <script>
+<script type="text/javascript">
     $(document).ready(function () {
-      $('#dataTable2').DataTable();
+      $('#Expense2').DataTable({
+        ajax: '/api/expense-data',
+        serverSide: true,
+        columns: [
+          {data: 'id', orderable: false},
+          {data: 'expense_date'},
+          {data: 'expense_item'},
+          {data: 'expense_value'},
+          {data: 'expense_item_category', orderable: false},
+          {data: 'expense_source', orderable: false}
+        ],
+      });
     });
- </script>
+</script>
 {% endblock %}
 {% endblock %}
