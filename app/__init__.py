@@ -1,12 +1,13 @@
 import click
 from config import Config
 import os
-from flask import Flask
+from flask import Flask, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask.cli import with_appcontext
 from flask import current_app
 from flask_login import LoginManager
+from flask_debugtoolbar import DebugToolbarExtension
 
 
 __version__ = (1, 0, 0, "dev")
@@ -14,6 +15,7 @@ __version__ = (1, 0, 0, "dev")
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
+toolbar = DebugToolbarExtension()
 
 
 def create_app(test_config=None):
@@ -25,6 +27,7 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
+    toolbar.init_app(app)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -46,8 +49,14 @@ def create_app(test_config=None):
     from app.blog import bp as blog_bp
     app.register_blueprint(blog_bp)
 
+    from app.api import bp as api_bp
+    app.register_blueprint(api_bp)
+
     from app.budget import bp as budget_bp
     app.register_blueprint(budget_bp)
+
+    from app.seo import bp as seo_bp
+    app.register_blueprint(seo_bp)
 
     # from app.dataflow import bp as dataflow_bp
     # app.register_blueprint(dataflow_bp)
