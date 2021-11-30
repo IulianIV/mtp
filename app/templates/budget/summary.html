@@ -216,14 +216,60 @@
 {% block scripts %}
  <script>
     $(document).ready(function () {
-      $('#summary-expense-table').DataTable();
-    });
+      $('#summary-expense-table').DataTable({
+        serverSide: true,
+        ajax: {
+            url: '/api/data',
+            data: {
+                loc_path: '/budget/new-expense-entry'
+                }
+            },
+        columns: [
+          {data: "id", orderable: false},
+          {data: "expense_date"},
+          {data: "expense_item"},
+          {data: "expense_value"},
+          {data: "expense_item_category", orderable: false},
+          {data: "expense_source", orderable: false},
+        ],
+        });
+        });
     $(document).ready(function () {
-      $('#summary-revenue-table').DataTable();
-    });
+      $('#summary-revenue-table').DataTable({
+        serverSide: true,
+        ajax: {
+            url: '/api/data',
+            data: {
+                loc_path: '/budget/new-revenue-entry'
+                }
+            },
+        columns: [
+          {data: "id", orderable: false},
+          {data: "revenue_date"},
+          {data: "revenue_value"},
+          {data: "revenue_source", orderable: false},
+        ],
+        });
+        });
     $(document).ready(function () {
-      $('#summary-savings-table').DataTable();
-    });
+      $('#summary-savings-table').DataTable({
+        serverSide: true,
+        ajax: {
+            url: '/api/data',
+            data: {
+                loc_path: '/budget/new-savings-entry'
+                }
+            },
+        columns: [
+          {data: "id", orderable: false},
+          {data: "saving_date"},
+          {data: "saving_value"},
+          {data: "saving_source", orderable: false},
+          {data: "saving_reason", orderable: false},
+          {data: "saving_action", orderable: false},
+        ],
+        });
+        });
  </script>
 {% endblock %}
 
