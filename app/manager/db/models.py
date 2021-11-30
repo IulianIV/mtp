@@ -49,6 +49,18 @@ class BudgetRevenue(db.Model):
     def __repr__(self):
         return f'Budget revenue ID: {self.id}'
 
+    def to_dict(self):
+
+        entry_date = self.revenue_date
+        formatted_date = entry_date.strftime('%Y-%m-%d')
+
+        return {
+            'id': self.id,
+            'revenue_date': formatted_date,
+            'revenue_value': self.revenue_value,
+            'revenue_source': self.revenue_source
+        }
+
 
 class BudgetSaving(db.Model):
     __tablename__ = 'budget_saving'
@@ -61,6 +73,20 @@ class BudgetSaving(db.Model):
 
     def __repr__(self):
         return f'Budget saving ID: {self.id}'
+
+    def to_dict(self):
+
+        entry_date = self.saving_date
+        formatted_date = entry_date.strftime('%Y-%m-%d')
+
+        return {
+            'id': self.id,
+            'saving_date': formatted_date,
+            'saving_value': self.saving_value,
+            'saving_source': self.saving_source,
+            'saving_reason': self.saving_reason,
+            'saving_action': self.saving_action
+        }
 
 
 class BudgetExpense(db.Model):
@@ -89,7 +115,6 @@ class BudgetExpense(db.Model):
             'expense_value': self.expense_value,
             'expense_item_category': self.expense_item_category,
             'expense_source': self.expense_source
-
         }
 
 
@@ -105,6 +130,21 @@ class BudgetUtilities(db.Model):
 
     def __repr__(self):
         return f'Budget utilities id: {self.id}'
+
+    def to_dict(self):
+
+        entry_date = self.utilities_date
+        formatted_date = entry_date.strftime('%Y-%m-%d')
+
+        return {
+            'id': self.id,
+            'utilities_date': formatted_date,
+            'utilities_rent_value': self.utilities_rent_value,
+            'utilities_energy_value': self.utilities_energy_value,
+            'utilities_satellite_value': self.utilities_satellite_value,
+            'utilities_maintenance_value': self.utilities_maintenance_value,
+            'utilities_info': self.utilities_info
+        }
 
 
 class ValidationSavingAccount(db.Model):
