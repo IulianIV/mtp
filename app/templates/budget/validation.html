@@ -1,0 +1,420 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<meta name="description" content=""/>
+<meta name="author" content=""/>
+
+{% block title %}
+<title>MTP | Web App</title>
+{% endblock %}
+
+{% endblock %}
+
+
+{% block header %}
+<h1 class="mt-4">Validation Dashboard</h1>
+<ol class="breadcrumb mb-4">
+    {% if not current_user.is_anonymous %}
+    <li>
+        <a class="btn btn-primary btn-secondary" style="margin: 2px;" href="{{ url_for('blog.index') }}">Blog</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-primary" style="margin: 2px;" href="{{ url_for('budget.summary') }}">Summary</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Reporting</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Statistics</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Lookup</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_expense_entry') }}">Add
+            New
+            Expense</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_revenue_entry') }}">Add
+            Revenue</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_savings_entry') }}">Add
+            Savings</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_utilities_entry') }}">Add
+            Utilities</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.importer') }} #}#">Importer</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.exporter') }} #}#">Exporter</a>
+    </li>
+    {% endif %}
+</ol>
+{% endblock %}
+
+
+{% block cards %}
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">Table info</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                {% with no_errors = get_flashed_messages(category_filter=["validated"]) %}
+                {% if no_errors %}
+                 {% for msg in no_errors %}
+                <p class="small text-white stretched-link">{{ msg }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-danger text-white mb-4">
+            <div class="card-body">Error messages</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                {% if errors %}
+                {% for msg in errors %}
+                <p class="small text-white stretched-link">{{ msg }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        Validation Entries
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Items</th>
+                    <th>Categories</th>
+                    <th>Sources</th>
+                    <th>Accounts</th>
+                    <th>Actions</th>
+                    <th>Reason</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr>
+                    <td>
+                        <select class="form-select py-1">
+                            {% for item in _object.query_validation_items %}
+                            <option>
+                                {{ item['items'] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select py-1">
+                            {% for category in _object.query_validation_categories %}
+                            <option>
+                                {{ category['categories'] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select py-1">
+                            {% for source in _object.query_validation_sources %}
+                            <option>
+                                {{ source['sources'] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                     <td>
+                        <select class="form-select py-1">
+                            {% for account in _object.query_validation_savings_accounts %}
+                            <option>
+                                {{ account['saving_accounts'] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select py-1">
+                            {% for action in _object.query_validation_savings_action_types %}
+                            <option>
+                                {{ action['saving_action_type'] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                    </td>
+                    <td>
+                        <select class="form-select py-1">
+                            {% for reason in _object.query_validation_savings_reason %}
+                            <option>
+                                {{ reason['saving_reason'] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="layoutBudgetIndex">
+    <div id="layoutBudgetIndex_content">
+        <main>
+            <div class="container">
+                <div class="row justify-content-center-valid">
+                    <div class="col-bdgt-1-valid">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Item validation entry
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                    <form action="{{ url_for('budget.validation_items') }}" id="items-form"
+                                      method="post">
+                                    {{ categories_form.hidden_tag() }}
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable-1" width="100%"
+                                               cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th style="font-weight= bold;">
+                                                    {{ items_form.item_value.label(for='savings-form') }}
+                                                </th>
+                                                <th>
+                                                    {{ items_form.category_value.label(for='savings-form') }}
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <th>
+                                                    {{ items_form.item_value(form='items-form', class='form-control py-4', placeholder="Ex.: Books") }}
+                                                </th>
+                                                <th>
+                                                    {{ items_form.category_value(form='items-form', class='form-select py-4') }}
+                                                </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {{ items_form.submit_items(form='items-form', value="Save", class="btn btn-primary")
+                                    }}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-bdgt-1-valid">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Category validation entry
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                    <form action="{{ url_for('budget.validation_categories') }}" id="categories-form"
+                                      method="post">
+                                    {{ categories_form.hidden_tag() }}
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable-2" width="100%"
+                                               cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th>
+                                                    {{ categories_form.category_value.label(for='categories-form') }}
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <th>
+                                                    {{ categories_form.category_value(form='categories-form',
+                                                    class="form-control py-4", placeholder="Ex.: Shopping") }}
+                                                </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {{ categories_form.submit_category(form='categories-form', value="Save", class="btn
+                                    btn-primary") }}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-bdgt-1-valid">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Sources validation entry
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <form action="{{ url_for('budget.validation_sources') }}" id="sources-form"
+                                      method="post">
+                                    {{ sources_form.hidden_tag() }}
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable-3" width="100%"
+                                               cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th style="font-weight= bold;">
+                                                    {{ sources_form.source_value.label(for='sources-form') }}
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <th>
+                                                    {{ sources_form.source_value(form='sources-form',
+                                                    class="form-control py-4", placeholder="Ex.: Savings EC") }}
+                                                </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {{ sources_form.submit_source(form='sources-form', value="Save", class="btn
+                                    btn-primary") }}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-bdgt-1-valid">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Accounts validation entry
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                    <form action="{{ url_for('budget.validation_accounts') }}" id="accounts-form"
+                                      method="post">
+                                    {{ accounts_form.hidden_tag() }}
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable-4" width="100%"
+                                               cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th style="font-weight= bold;">
+                                                    {{ accounts_form.account_value.label(for='accounts-form') }}
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <th>
+                                                    {{ accounts_form.account_value(form='accounts-form',
+                                                    class="form-control py-4", placeholder="Ex.: EC") }}
+                                                </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {{ accounts_form.submit_account(form='accounts-form', value="Save", class="btn
+                                    btn-primary") }}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-bdgt-1-valid">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Actions validation entry
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                    <form action="{{ url_for('budget.validation_actions') }}" id="actions-form"
+                                      method="post">
+                                    {{ actions_form.hidden_tag() }}
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable-5" width="100%"
+                                               cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th style="font-weight= bold;">
+                                                    {{ actions_form.action_value.label(for='actions-form') }}
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <th>
+                                                    {{ actions_form.action_value(form='actions-form',
+                                                    class="form-control py-4", placeholder="Ex.: Deposit") }}
+                                                </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {{ actions_form.submit_action(form='actions-form', value="Save", class="btn
+                                    btn-primary") }}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-bdgt-1-valid">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">
+                                    Add new Reason validation entry
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                    <form action="{{ url_for('budget.validation_reasons') }}" id="reasons-form"
+                                      method="post">
+                                    {{ reasons_form.hidden_tag() }}
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable-6" width="100%"
+                                               cellspacing="0">
+                                            <thead>
+                                            <tr>
+                                                <th style="font-weight= bold;">
+                                                    {{ reasons_form.reason_value.label(for='actions-form') }}
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <th>
+                                                    {{ reasons_form.reason_value(form='reasons-form',
+                                                    class="form-control py-4", placeholder="Ex.: Charity") }}
+                                                </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {{ reasons_form.submit_reason(form='reasons-form', value="Save", class="btn
+                                    btn-primary") }}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+
+{% endblock %}

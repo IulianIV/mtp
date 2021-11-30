@@ -8,9 +8,15 @@ setup(
     zip_safe=False,
     install_requires=[
         'flask',
+        'flask-WTF',
+        'flask-dropzone',
+        'flask_sqlalchemy',
+        'flask-migrate',
+        'flask-login',
+        'alembic',
+        'werkzeug',
         'wtforms',
         'click',
-        'pandas',
-        'flask-dropzone'
+        'pandas'
     ],
 )

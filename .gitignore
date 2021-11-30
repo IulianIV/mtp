@@ -142,7 +142,7 @@ cython_debug/
 
 hello.py
 *.pyc
-tests/
-instance/
+app/manager/tests/
 .idea/
-/mtp/static/favicon.ico
+/app/static/favicon.ico
+/app/static/favicon2.ico

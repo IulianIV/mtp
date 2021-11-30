@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<meta charset="utf-8"/>
+<meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<meta content="" name="description"/>
+<meta content="" name="author"/>
+
+{% block title %}
+<title>MTP | Web App</title>
+{% endblock %}
+
+{% endblock %}
+
+{% block header %}
+<h1 class="mt-4">Revenue Dashboard</h1>
+<ol class="breadcrumb mb-4">
+    {% if not current_user.is_anonymous %}
+    <li>
+        <a class="btn btn-primary btn-secondary" style="margin: 2px;" href="{{ url_for('blog.index') }}">Blog</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-primary" style="margin: 2px;" href="{{ url_for('budget.summary') }}">Summary</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Reporting</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Statistics</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Lookup</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_expense_entry') }}">Add
+            New
+            Expense</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_savings_entry') }}">Add
+            Savings</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_utilities_entry') }}">Add
+            Utilities</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-primary" style="margin: 2px;" href="{{ url_for('budget.validation') }}">See
+            Validation</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.importer') }} #}#">Importer</a>
+    </li>
+    <li>
+        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.exporter') }} #}#">Exporter</a>
+    </li>
+    {% endif %}
+</ol>
+{% endblock %}
+
+{% block cards %}
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">Table info</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                {% with no_errors = get_flashed_messages(category_filter=["validated"]) %}
+                {% if no_errors %}
+                {% for msg in no_errors %}
+                <p class="small text-white stretched-link"> {{ msg }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-danger text-white mb-4">
+            <div class="card-body">Error messages</div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                {% if errors %}
+                {% for msg in errors %}
+                <p class="small text-white stretched-link">{{ msg }}</p>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="layoutBudgetIndex">
+    <div id="layoutBudgetIndex_content">
+        <main>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-bdgt-1">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Revenue
+                                Entry</h3></div>
+                            <div class="card-body">
+                                <form action="{{ url_for('budget.add_revenue_entry') }}" id="revenue-form"
+                                      method="post">
+                                    {{ revenue_form.hidden_tag() }}
+                                    <div class="table-responsive">
+                                        <table cellspacing="0" class="table table-bordered" id="dataTable" width="100%">
+                                            <thead>
+                                            <tr>
+                                                <th style="font-weight= bold;">
+                                                    {{ revenue_form.revenue_date.label(for='revenue-form') }}
+                                                </th>
+                                                <th>
+                                                    {{ revenue_form.revenue_value.label(for='revenue-form') }}
+                                                </th>
+                                                <th>
+                                                    {{ revenue_form.revenue_source.label(for='revenue-form') }}
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <th>
+                                                    {{ revenue_form.revenue_date(form='revenue-form',
+                                                    class='form-control py-4', placeholder="Ex.: 2021-01-15") }}
+                                                </th>
+                                                <th>
+                                                    {{ revenue_form.revenue_value(form='revenue-form',
+                                                    class='form-control py-4', placeholder="Ex.: 15.25") }}
+                                                </th>
+                                                <th>
+                                                    {{ revenue_form.revenue_source(form='revenue-form',
+                                                    class='form-select py-4') }}
+                                                </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {{ revenue_form.submit_revenue(form='revenue-form', value="Save", class="btn
+                                    btn-primary") }}
+                                    <a class="btn btn-danger" href="{{ url_for('budget.summary') }}">Cancel</a>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        <strong>Revenue Summary</strong> - {{ table_counts.get('revenue_count') }} entries
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table cellspacing="0" class="table table-bordered" id="revenue-summary-table" width="100%">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Revenue Date</th>
+                    <th>Revenue Value</th>
+                    <th>Revenue Source</th>
+                </tr>
+                </thead>
+                <tbody class="post">
+                {% for entry in _object.query_revenue_entries %}
+                <tr>
+                    <th class="small mb-1">{{ entry['id'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_date'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_value'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_source'] }}</th>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% block scripts %}
+<script type="text/javascript">
+    $(document).ready(function () {
+      $('#revenue-summary-table').DataTable({
+        serverSide: true,
+        ajax: {
+            url: '/api/data',
+            data: {
+                loc_path: (function(data) {
+                        data = window.location.pathname;
+                        return data;
+                        }())
+                }
+            },
+        columns: [
+          {data: "id", orderable: false},
+          {data: "revenue_date"},
+          {data: "revenue_value"},
+          {data: "revenue_source", orderable: false},
+        ],
+        });
+        });
+</script>
+{% endblock %}
+{% endblock %}
