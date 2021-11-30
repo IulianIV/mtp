@@ -182,10 +182,27 @@
     </div>
 </div>
 {% block scripts %}
- <script>
+<script type="text/javascript">
     $(document).ready(function () {
-      $('#revenue-summary-table').DataTable();
-    });
- </script>
+      $('#revenue-summary-table').DataTable({
+        serverSide: true,
+        ajax: {
+            url: '/api/data',
+            data: {
+                loc_path: (function(data) {
+                        data = window.location.pathname;
+                        return data;
+                        }())
+                }
+            },
+        columns: [
+          {data: "id", orderable: false},
+          {data: "revenue_date"},
+          {data: "revenue_value"},
+          {data: "revenue_source", orderable: false},
+        ],
+        });
+        });
+</script>
 {% endblock %}
 {% endblock %}

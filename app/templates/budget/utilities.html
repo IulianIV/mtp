@@ -210,10 +210,30 @@
     </div>
 </div>
 {% block scripts %}
- <script>
+<script type="text/javascript">
     $(document).ready(function () {
-      $('#utilities-summary-table').DataTable();
-    });
- </script>
+      $('#utilities-summary-table').DataTable({
+        serverSide: true,
+        ajax: {
+            url: '/api/data',
+            data: {
+                loc_path: (function(data) {
+                        data = window.location.pathname;
+                        return data;
+                        }())
+                }
+            },
+        columns: [
+          {data: "id", orderable: false},
+          {data: "utilities_date"},
+          {data: "utilities_rent_value"},
+          {data: "utilities_energy_value"},
+          {data: "utilities_satellite_value"},
+          {data: "utilities_maintenance_value"},
+          {data: "utilities_info", orderable: false},
+        ],
+        });
+        });
+</script>
 {% endblock %}
 {% endblock %}

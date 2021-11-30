@@ -172,7 +172,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered" id="Expense2" width="100%" cellspacing="0">
+            <table class="table table-bordered" id="expense-summary-table" width="100%" cellspacing="0">
                 <thead>
                 <tr>
                     <th>id</th>
@@ -202,19 +202,27 @@
 {% block scripts %}
 <script type="text/javascript">
     $(document).ready(function () {
-      $('#Expense2').DataTable({
-        ajax: '/api/expense-data',
+      $('#expense-summary-table').DataTable({
         serverSide: true,
+        ajax: {
+            url: '/api/data',
+            data: {
+                loc_path: (function(data) {
+                        data = window.location.pathname;
+                        return data;
+                        }())
+                }
+            },
         columns: [
-          {data: 'id', orderable: false},
-          {data: 'expense_date'},
-          {data: 'expense_item'},
-          {data: 'expense_value'},
-          {data: 'expense_item_category', orderable: false},
-          {data: 'expense_source', orderable: false}
+          {data: "id", orderable: false},
+          {data: "expense_date"},
+          {data: "expense_item"},
+          {data: "expense_value"},
+          {data: "expense_item_category", orderable: false},
+          {data: "expense_source", orderable: false},
         ],
-      });
-    });
+        });
+        });
 </script>
 {% endblock %}
 {% endblock %}
