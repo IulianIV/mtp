@@ -17,6 +17,12 @@ migrate = Migrate()
 login = LoginManager()
 toolbar = DebugToolbarExtension()
 
+# TODO the current implementation of the DataTables functionality lacks proper coupling.
+#   the script is repeated several times throughout the templates.
+#   a solution would be to add a base template for Budget Additions.
+#   the views themselves are 90% identical anyway, since the only difference is the query itself, with some small
+#   differences
+
 
 def create_app(test_config=None):
 
