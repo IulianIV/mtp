@@ -58,3 +58,40 @@ the need to remove a button means that you have to modify almost all existing ht
    4. User Registering.
 5. **E-mail notifications** and e-mail management (for authentication purposes and newsletters)
 6. Try implementing **class abstraction and type hinting**.
+
+
+# App Structure
+
+The app is structured using Flask Factory with Blueprints for the possibility to seamlessly create new apps.
+Using Blueprints also improves portability. The disadvantage is that it more than often has circular import issues.
+
+The project is structured the following way:
+* Project folder-
+  * app folder -> contains static, templates and app folders;
+  * config file;
+  * main app file which initializes the app
+  * setup file;
+  * readme file;
+  * migrations folder -> keeps track fo database versions;
+  * instance folder -> holds database, design and sqlite info.
+* Every app itself contains:
+  * An init.py file that contains the BluePrint initialization
+  * forms.py file - if needed - holds form declarations;
+  * routes.py file - logic and view functionality;
+  * Any other file that is related to that certain app.
+  
+```bash
+Project folder
+├───app
+│   ├───api
+│   ├───auth
+│   ├───static
+│   ├───templates
+│   └───other apps
+├───instance
+├───migrations
+├───config.py
+├───app_name.py
+├───setup.py
+├───README.md
+```
