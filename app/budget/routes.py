@@ -12,10 +12,6 @@ from app import db
 custom_protection = CustomCSRF()
 
 
-# Class object for handling multiple SQL queries, might be useful in cases where above code does not work
-# fixme Accounts, Actions and Reason from validation seemingly do not record the values in the form
-
-
 class BudgetDbConnector:
     def __init__(self):
         self.db = db

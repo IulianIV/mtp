@@ -6,7 +6,8 @@ from app.api import bp
 from app import db
 
 
-# better-me do something so that this data is only visible only to admins for debugging
+# has-dependency Permissions Module:
+#   should only be visible and accessible to certain types of users.
 
 
 @bp.route('/data', methods=('GET', 'POST'))

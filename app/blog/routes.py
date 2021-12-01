@@ -62,7 +62,7 @@ def create():
     user_id = current_user.get_id()
     error = None
 
-    # better-me improve the functionality
+    # better-me improve the post creation functionality
     if create_post_form.is_submitted() and create_post_form.validate_on_submit():
 
         title = create_post_form.post_title.data
@@ -135,7 +135,7 @@ def delete(post_id):
     return redirect(url_for('blog.index'))
 
 
-# better-me find a new place for these views
+# TODO create a dedicated folder and view for error pages - maybe in the SEO module?
 @bp.route('/error-page/401', methods=('GET',))
 @login_required
 def error_401():

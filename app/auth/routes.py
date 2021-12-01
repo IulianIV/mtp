@@ -81,7 +81,7 @@ def login():
     return render_template('auth/login.html', login_form=login_form)
 
 
-# better-me follow the Log In strucutre from Miguel Grinberg and implement it
+# better-me follow the Log In structure from Miguel Grinberg and implement it
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get(f'User.query.all().first()')
@@ -94,14 +94,14 @@ def load_logged_in_user():
     return user
 
 
-# better-me follow the Log In strucutre from Miguel Grinberg and implement it
+# better-me follow the Log In structure from Miguel Grinberg and implement it
 @bp.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
 
-# better-me follow the Log In strucutre from Miguel Grinberg and implement it
+# better-me follow the Log In structure from Miguel Grinberg and implement it
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
