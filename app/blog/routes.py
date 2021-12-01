@@ -15,7 +15,8 @@ from flask_login import current_user
 custom_protection = CustomCSRF()
 
 
-# TODO fix the template login info grabbing problem across all templates
+# better-me can the BlogDbConnector be replaced with a more pythonic, sqlalchemy like structure?
+#   the current implementation has very high cohesion and the coupling is very elevated.
 
 
 class BlogDbConnector:
@@ -45,6 +46,8 @@ class BlogDbConnector:
 @bp.route('/')
 def index():
     blog_connect = BlogDbConnector()
+
+    user_id = current_user.get_id()
 
     posts = blog_connect.query_blog_posts
     return render_template('blog/index.html', posts=posts)
@@ -94,7 +97,6 @@ def get_post(post_id, check_author=True):
 
     return post
 
-# fixme gives a 403 Forbidden response
 
 @bp.route('/<int:post_id>/update', methods=('GET', 'POST'))
 @login_required
@@ -119,8 +121,6 @@ def update(post_id):
 
     return render_template('blog/update.html', post=post, update_form=update_form)
 
-
-# fixme gives a 403 Forbidden response
 
 @bp.route('/<int:post_id>/delete', methods=('POST', 'GET'))
 @login_required
