@@ -27,12 +27,6 @@
         <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Reporting</a>
     </li>
     <li>
-        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Statistics</a>
-    </li>
-    <li>
-        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Lookup</a>
-    </li>
-    <li>
         <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_revenue_entry') }}">Add
             Revenue</a>
     </li>
@@ -49,10 +43,7 @@
             Validation</a>
     </li>
     <li>
-        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.importer') }} #}#">Importer</a>
-    </li>
-    <li>
-        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.exporter') }} #}#">Exporter</a>
+        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.index') }} #}#">Data flow</a>
     </li>
     {% endif %}
 </ol>
