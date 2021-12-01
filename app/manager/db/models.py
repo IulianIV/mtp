@@ -5,6 +5,9 @@ from flask_login import UserMixin
 from app import login
 
 
+# TODO check the Foreign Key functionalities
+#   check the functionality of the table relationships.
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
