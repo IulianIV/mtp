@@ -632,22 +632,8 @@ def update_entry():
     pass
 
 
-@login_required
-@bp.route('/statistics')
-def statistics():
-    return render_template('budget/statistics.html')
-    pass
-
-
 @bp.route('/report')
 @login_required
 def report():
     return render_template('budget/report.html')
-    pass
-
-
-@bp.route('/lookup')
-@login_required
-def lookup():
-    return render_template('budget/lookup.html')
     pass
