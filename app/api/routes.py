@@ -5,12 +5,12 @@ from app.manager.db.models import BudgetExpense, BudgetRevenue, BudgetSaving, Bu
 from app.api import bp
 from app import db
 
+
 # better-me do something so that this data is only visible only to admins for debugging
 
 
 @bp.route('/data', methods=('GET', 'POST'))
 def data():
-
     # get current path
     if request.args.get('loc_path', type=str):
         current_loc = request.args.get('loc_path', type=str)
@@ -104,4 +104,3 @@ def data():
         'recordsTotal': table_map[current_loc]['table'].query.count(),
         'draw': request.args.get('draw', type=int)
     }
-
