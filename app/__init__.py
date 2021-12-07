@@ -1,7 +1,7 @@
 import click
 from config import Config
 import os
-from flask import Flask, request, send_from_directory
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask.cli import with_appcontext
@@ -66,6 +66,9 @@ def create_app(test_config=None):
 
     # from app.dataflow import bp as dataflow_bp
     # app.register_blueprint(dataflow_bp)
+
+    from app.webtools import bp as webtools_bp
+    app.register_blueprint(webtools_bp)
 
     app.add_url_rule('/', endpoint='index')
 
