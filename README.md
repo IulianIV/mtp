@@ -32,13 +32,14 @@ There are several app-specific functionalities that are to be implemented for ea
 4. **Logger**:
    1. Log data coming in and out of the app using the builtin loggers.
 5. **URL Shorter**;
-6. **Work Tools** - such as Catalog Management and Automations;
-7. **Google Sheets and Excel Integrations**;
-8. **E-book Manager** that connects to Calibre and sends books to kindle;
-9. Besides DB backup, **export everything as CSV files** as hard backups;
-   1. These could be made with the logic to export them as ready queries that when added in a DB Manager they would autopopulate everything.
-10. Given a list of products and their attributes & sale date create **Related, Up and Cross Sells** associations;
-11. **Recommended products' algorithm** connected to the above sub-app.
+6. **URL Parser/Encode-Decode**;
+7. **Work Tools** - such as Catalog Management and Automations;
+8. **Google Sheets and Excel Integrations**;
+9. **E-book Manager** that connects to Calibre and sends books to kindle;
+10. Besides DB backup, **export everything as CSV files** as hard backups;
+    1. These could be made with the logic to export them as ready queries that when added in a DB Manager they would autopopulate everything.
+11. Given a list of products and their attributes & sale date create **Related, Up and Cross Sells** associations;
+12. **Recommended products' algorithm** connected to the above sub-app.
 
 General App Wide TODOs:
 1. **Revamp the templating**:
