@@ -32,7 +32,7 @@ There are several app-specific functionalities that are to be implemented for ea
 4. **Logger**:
    1. Log data coming in and out of the app using the builtin loggers.
 5. **URL Shorter**;
-6. **URL Parser/Encode-Decode**;
+6. [x] **URL Parser/Encode-Decode**;
 7. **Work Tools** - such as Catalog Management and Automations;
 8. **Google Sheets and Excel Integrations**;
 9. **E-book Manager** that connects to Calibre and sends books to kindle;
@@ -68,17 +68,20 @@ Using Blueprints also improves portability. The disadvantage is that it more tha
 
 The project is structured the following way:
 * Project folder-
-  * app folder -> contains static, templates and app folders;
+  * app folder
+    * contains static, templates and app folders;
   * config file;
   * main app file which initializes the app
   * setup file;
   * readme file;
-  * migrations folder -> keeps track fo database versions;
-  * instance folder -> holds database, design and sqlite info.
+  * migrations folder
+    * keeps track fo database versions;
+  * instance folder
+    * holds database, design and sqlite info.
 * Every app itself contains:
-  * An init.py file that contains the BluePrint initialization
-  * forms.py file - if needed - holds form declarations;
-  * routes.py file - logic and view functionality;
+  * An `init.py` file that contains the BluePrint initialization
+  * `forms.py` file - if needed - holds form declarations;
+  * `routes.py` file - logic and view functionality;
   * Any other file that is related to that certain app.
   
 ```bash
