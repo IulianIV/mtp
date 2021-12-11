@@ -1,7 +1,7 @@
 from flask import (
     render_template, request
 )
-from urllib.parse import quote, unquote
+from urllib.parse import quote, unquote, urlparse, parse_qs
 from app.auth.routes import login_required
 from app.manager.protection import form_validated_message, form_error_message
 from app.webtools import bp, forms
@@ -28,25 +28,27 @@ encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', '
              'utf_32', 'utf_32_be', 'utf_32_le', 'utf_16', 'utf_16_be', 'utf_16_le', 'utf_7', 'utf_8', 'utf_8_sig']
 
 
-@bp.route('/url-decoder-encoder-parser',  methods=('GET', 'POST'))
+@bp.route('/url-encode-decode-parser', methods=('GET', 'POST'))
 @login_required
-def url_coder_parser():
+def url_encode_decode_parse():
 
-    coder_form = forms.EncodeDecode()
+    coder_parser_form = forms.EncodeDecodeParse()
     validated = False
     result_url = ''
     url_value = ''
     error_string = '_#_'
+    parsed_url = ''
+    decoded_url_query = ''
 
-    coder_form.select_encoding.choices = encodings
+    coder_parser_form.select_encoding.choices = encodings
 
     if request.method == 'POST':
-        if coder_form.is_submitted():
+        if coder_parser_form.is_submitted() and coder_parser_form.encode_decode.data:
 
-            url_field = coder_form.url_field.data
-            encode = coder_form.encode.data
-            decode = coder_form.decode.data
-            selected_encoding = coder_form.select_encoding.data
+            url_field = coder_parser_form.url_field.data
+            encode = coder_parser_form.encode.data
+            decode = coder_parser_form.decode.data
+            selected_encoding = coder_parser_form.select_encoding.data
 
             if encode and decode:
                 form_error_message('You can`t encode and decode simultaneously.')
@@ -75,8 +77,23 @@ def url_coder_parser():
                     form_validated_message('URL successfully decoded.')
                     validated = True
 
+        # TODO add advanced query parsing with the ability to choose encoding (from already existing form)
+        #   keep_blank_values, strict_parsing, errors, max_num_fields and separator
+
+        if coder_parser_form.is_submitted() and coder_parser_form.parse.data:
+
+            url_to_split = coder_parser_form.url_field.data
+
+            parsed_url = urlparse(url_to_split)
+
+            decoded_url_query = unquote(parsed_url.query)
+
+            raw_url_query = parse_qs(parsed_url.query)
+
+            form_validated_message('URL parsed successfully!')
+
         if validated:
-            coder_form.url_field.data = coder_form.encode.data = coder_form.decode.data = ''
+            coder_parser_form.url_field.data = coder_parser_form.encode.data = coder_parser_form.decode.data = ''
             result_url = url_value
 
-    return render_template('webtools/urltools.html', coder_form=coder_form, result_url=result_url)
+    return render_template('webtools/urltools.html', coder_parser_form=coder_parser_form, result_url=result_url, parsed_url=[parsed_url, decoded_url_query, raw_url_query])
