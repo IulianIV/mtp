@@ -14,7 +14,7 @@ import re
 # TODO add option to modify encoding at choice, otherwise it defaults to utf-8
 # better-me improve code and functionality
 # better-me add functionality to choose encoding for decode and encode
-# better-me do a database integration to remember all used URLs
+# better-me do a database integration to remember all used URLs, options selected and parameters found
 encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', 'cp500', 'cp720', 'cp737', 'cp775',
              'cp850', 'cp852', 'cp855', 'cp856', 'cp857', 'cp858', 'cp860', 'cp861', 'cp862', 'cp863', 'cp864',
              'cp865', 'cp866', 'cp869', 'cp874', 'cp875', 'cp932', 'cp949', 'cp950', 'cp1006', 'cp1026', 'cp1125',
@@ -39,6 +39,7 @@ def url_encode_decode_parse():
     error_string = '_#_'
     parsed_url = ''
     decoded_url_query = ''
+    raw_url_query = ''
 
     coder_parser_form.select_encoding.choices = encodings
 
@@ -96,4 +97,5 @@ def url_encode_decode_parse():
             coder_parser_form.url_field.data = coder_parser_form.encode.data = coder_parser_form.decode.data = ''
             result_url = url_value
 
-    return render_template('webtools/urltools.html', coder_parser_form=coder_parser_form, result_url=result_url, parsed_url=[parsed_url, decoded_url_query, raw_url_query])
+    return render_template('webtools/urltools.html', coder_parser_form=coder_parser_form,
+                           result_url=result_url, parsed_url=[parsed_url, decoded_url_query, raw_url_query])

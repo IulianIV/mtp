@@ -20,12 +20,20 @@ At the moment there are several modules implemented that are still a work in pro
    2. Seen Anime;
    3. Read Books;
    4. Games played.
+5. **Marketing Tools**:
+   1. GTM Container Spy;
+      1. _this might end up being a module itself_.
+   2. Google Geolocation feed manipulator;
+      1. _an example of this was created in sheets_ (not efficient enough though).
+   3. ***Others will be added***
 
-There are several app-specific functionalities that are to be implemented for ease of usage.
+There are several smaller functionalities that are to be implemented for ease of usage.
+Based on the difficulty of the implementation they will be refactored as modules.
 1. **Data flow import & export**:
    1. Adds the functionality to import & export data from the Database.
 2. **Database Manager**:
    1. Automatically backups the database at set intervals.
+      1. _could end up as a module_.
 3. **Tester**:
    1. Clone the current app and all of its functionalities;
    2. Populate a database with fake data;
