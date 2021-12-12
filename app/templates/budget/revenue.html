@@ -15,71 +15,36 @@
 
 {% block header %}
 <h1 class="mt-4">Revenue Dashboard</h1>
-<ol class="breadcrumb mb-4">
+<div class="breadcrumb mb-4">
     {% if not current_user.is_anonymous %}
-    <li>
-        <a class="btn btn-primary btn-secondary" style="margin: 2px;" href="{{ url_for('blog.index') }}">Blog</a>
-    </li>
-    <li>
-        <a class="btn btn-primary btn-primary" style="margin: 2px;" href="{{ url_for('budget.summary') }}">Summary</a>
-    </li>
-    <li>
-        <a class="btn btn-primary btn-info" style="margin: 2px;" href="#">Reporting</a>
-    </li>
-    <li>
-        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_expense_entry') }}">Add
-            New
-            Expense</a>
-    </li>
-    <li>
-        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_savings_entry') }}">Add
-            Savings</a>
-    </li>
-    <li>
-        <a class="btn btn-primary btn-success" style="margin: 2px;" href="{{ url_for('budget.add_utilities_entry') }}">Add
-            Utilities</a>
-    </li>
-    <li>
-        <a class="btn btn-primary btn-primary" style="margin: 2px;" href="{{ url_for('budget.validation') }}">See
-            Validation</a>
-    </li>
-    <li>
-        <a class="btn btn-primary btn-light" style="margin: 2px;" href="{# {{ url_for('dataflow.index') }} #}#">Data flow</a>
-    </li>
+    <a class="btn btn-secondary" style="margin: 2px;" role="button" href="{{ url_for('blog.index') }}">Blog</a>
+    <a class="btn btn-info" style="margin: 2px;" role="button" href="#">Reporting</a>
+    <div class="btn-group">
+        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false" style="margin: 2px;">
+            Budget
+        </button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{{ url_for('budget.summary') }}">Summary</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{{ url_for('budget.add_expense_entry') }}">Add New Expense</a>
+            <a class="dropdown-item" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
+            <a class="dropdown-item" href="{{ url_for('budget.add_utilities_entry') }}">Add Utilities</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{{ url_for('budget.validation') }}">See Validation</a>
+        </div>
+    </div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false" style="margin: 2px;">
+            Webtools
+        </button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{{ url_for('webtools.url_encode_decode_parse') }}">URL Encoder/Decoder & Parse</a>
+        </div>
+    </div>
+    <a class="btn btn-light" style="margin: 2px;" role="button" href="#">Data flow</a>
     {% endif %}
-</ol>
-{% endblock %}
-
-{% block cards %}
-<div class="row">
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-success text-white mb-4">
-            <div class="card-body">Table info</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                {% with no_errors = get_flashed_messages(category_filter=["validated"]) %}
-                {% if no_errors %}
-                {% for msg in no_errors %}
-                <p class="small text-white stretched-link"> {{ msg }}</p>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-danger text-white mb-4">
-            <div class="card-body">Error messages</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                {% with errors = get_flashed_messages(category_filter=["error"]) %}
-                {% if errors %}
-                {% for msg in errors %}
-                <p class="small text-white stretched-link">{{ msg }}</p>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}
 
@@ -194,6 +159,7 @@
         ],
         });
         });
+
 </script>
 {% endblock %}
 {% endblock %}

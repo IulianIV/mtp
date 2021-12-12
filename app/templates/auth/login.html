@@ -37,13 +37,4 @@
 <div class="card-footer text-center">
     <div class="small"><a href="{{ url_for('auth.register') }}">Need an account? Sign up!</a></div>
 </div>
-<div class="card-footer text-center">
-                {% with errors = get_flashed_messages(category_filter=["error"]) %}
-                {% if errors %}
-                {% for msg in errors %}
-                <p class="small">{{ msg }}</p>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
-            </div>
 {% endblock %}
