@@ -133,25 +133,3 @@ def delete(post_id):
     db.session.commit()
 
     return redirect(url_for('blog.index'))
-
-
-# TODO create a dedicated folder and view for error pages - maybe in the SEO module?
-@bp.route('/error-page/401', methods=('GET',))
-@login_required
-def error_401():
-    pass
-    return render_template('401.html')
-
-
-@bp.route('/error-page/404', methods=('GET',))
-@login_required
-def error_404():
-    pass
-    return render_template('404.html')
-
-
-@bp.route('/error-page/500', methods=('GET',))
-@login_required
-def error_500():
-    pass
-    return render_template('500.html')

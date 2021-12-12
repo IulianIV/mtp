@@ -146,16 +146,5 @@ hello.py
 /app/static/favicon.ico
 /app/static/favicon2.ico
 /app/static/scripts.js
-/app/static/chart-pie-demo.js
-/app/static/chart-bar-demo.js
-/app/static/datatables-demo.js
-/app/static/chart-area-demo.js
 /app/static/startbootstrap-sb-admin-2-gh-pages.zip
 /app/static/startbootstrap-sb-admin-gh-pages.zip
-/app/static/401_model.html
-/app/static/500_model.html
-/app/static/404_model.html
-/app/static/charts.html
-/app/static/layout-sidenav-light.html
-/app/static/layout-static.html
-/app/static/tables.html
