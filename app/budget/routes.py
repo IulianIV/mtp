@@ -592,7 +592,7 @@ def validation_reasons():
                            reasons_form=reasons_form)
 
 
-@bp.route('/new_utilities_entry', methods=('GET', 'POST'))
+@bp.route('/new-utilities-entry', methods=('GET', 'POST'))
 @login_required
 def add_utilities_entry():
     budget_connect = BudgetDbConnector()

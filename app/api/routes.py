@@ -37,7 +37,7 @@ def data():
             'sort_by': ['saving_date', 'saving_value'],
             'default_sort': 'saving_date'
         },
-        '/budget/new_utilities_entry': {
+        '/budget/new-utilities-entry': {
             'table': BudgetUtilities,
             'query': BudgetUtilities.query,
             'sort_by': ['utilities_date', 'utilities_rent_value',
