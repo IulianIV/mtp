@@ -1,6 +1,7 @@
 # MTP
 
 The app itself will track everything I feel like keeping track of in the future.
+
 At the moment there are several modules implemented that are still a work in progress.
 1. **Budgeting app**:
    1. Track Expenses;
@@ -28,7 +29,8 @@ At the moment there are several modules implemented that are still a work in pro
    3. ***Others will be added***
 
 There are several smaller functionalities that are to be implemented for ease of usage.
-Based on the difficulty of the implementation they will be refactored as modules.
+
+_Based on the difficulty of the implementation some functionalities will be implemented as modules._
 1. **Data flow import & export**:
    1. Adds the functionality to import & export data from the Database.
 2. **Database Manager**:
@@ -72,7 +74,14 @@ the need to remove a button means that you have to modify almost all existing ht
 # App Structure
 
 The app is structured using Flask Factory with Blueprints for the possibility to seamlessly create new apps.
-Using Blueprints also improves portability. The disadvantage is that it more than often has circular import issues.
+Using Blueprints also improves portability. 
+
+The disadvantage is that it more than often has circular import issues.
+More than often, circular imports can be fixed by not calling a package or functionality before it has been successfully loaded
+(this is more likely to throw a `app out of context` error).
+
+In certain cases (more often that necessary) imports can be added at the end of the file.
+(this is not PEP8 recommended, but it is accepted when absolutely necessary)
 
 The project is structured the following way:
 * Project folder-
