@@ -4,6 +4,8 @@ from flask import (
 from urllib.parse import quote, unquote, urlparse, parse_qs
 from app.auth.routes import login_required
 from app.manager.protection import form_validated_message, form_error_message
+from app.manager.db.db_interrogations import Insert
+from app import db
 from app.webtools import bp, forms
 import re
 
@@ -14,7 +16,6 @@ import re
 # TODO add option to modify encoding at choice, otherwise it defaults to utf-8
 # better-me improve code and functionality
 # better-me add functionality to choose encoding for decode and encode
-# better-me do a database integration to remember all used URLs, options selected and parameters found
 encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', 'cp500', 'cp720', 'cp737', 'cp775',
              'cp850', 'cp852', 'cp855', 'cp856', 'cp857', 'cp858', 'cp860', 'cp861', 'cp862', 'cp863', 'cp864',
              'cp865', 'cp866', 'cp869', 'cp874', 'cp875', 'cp932', 'cp949', 'cp950', 'cp1006', 'cp1026', 'cp1125',
@@ -28,11 +29,20 @@ encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', '
              'utf_32', 'utf_32_be', 'utf_32_le', 'utf_16', 'utf_16_be', 'utf_16_le', 'utf_7', 'utf_8', 'utf_8_sig']
 
 
+class BlogDbConnector:
+    def __init__(self):
+        self.db_insert = Insert()
+
+    def insert_url(self, raw_url, encode_option=None, encoding=None):
+        return self.db_insert.add_new_url(raw_url, encode_option, encoding)
+
+
 @bp.route('/url-encode-decode-parser', methods=('GET', 'POST'))
 @login_required
 def url_encode_decode_parse():
 
     coder_parser_form = forms.EncodeDecodeParse()
+    blog_connect = BlogDbConnector()
     validated = False
     result_url = ''
     url_value = ''
@@ -63,6 +73,8 @@ def url_encode_decode_parse():
                     form_error_message(f'Your URL contains unsupported characters for {selected_encoding} encoding.')
                 else:
                     validated = True
+                    blog_connect.insert_url(url_field, 'encode', selected_encoding)
+                    db.session.commit()
                     form_validated_message('URL successfully encoded.')
 
             if decode:
@@ -74,9 +86,13 @@ def url_encode_decode_parse():
                     form_error_message('The decode encountered a UTF-8 error. All occurrences of "_#_" in your result '
                                        'represent characters that have thrown the error.')
                     validated = True
+                    blog_connect.insert_url(url_field, decode, selected_encoding)
+                    db.session.commit()
                 else:
                     form_validated_message('URL successfully decoded.')
                     validated = True
+                    blog_connect.insert_url(url_field, 'decode', selected_encoding)
+                    db.session.commit()
 
         # TODO add advanced query parsing with the ability to choose encoding (from already existing form)
         #   keep_blank_values, strict_parsing, errors, max_num_fields and separator
@@ -90,6 +106,9 @@ def url_encode_decode_parse():
             decoded_url_query = unquote(parsed_url.query)
 
             raw_url_query = parse_qs(parsed_url.query)
+
+            blog_connect.insert_url(url_to_split, None, None)
+            db.session.commit()
 
             form_validated_message('URL parsed successfully!')
 

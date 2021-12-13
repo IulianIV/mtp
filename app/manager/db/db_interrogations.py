@@ -51,6 +51,9 @@ class Insert:
     def insert_post(self, title, body, author_id):
         return self.db.session.add(Post(title=title, body=body, author_id=author_id))
 
+    def add_new_url(self, raw_url, encode_option, encoding):
+        return self.db.session.add(UrlEncodeDecodeParse(raw_url=raw_url, encode_option=encode_option, encoding=encoding))
+
 
 class Query:
 

@@ -203,3 +203,15 @@ class ValidationSavingSources(db.Model):
 
     def __repr__(self):
         return f'Saving sources id: {self.id}'
+
+
+class UrlEncodeDecodeParse(db.Model):
+    __tablename__ = 'url_encode_decode_parse'
+    id = db.Column(db.Integer, primary_key=True)
+    url_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
+    raw_url = db.Column(db.String(1000), nullable=False)
+    encode_option = db.Column(db.String(10))
+    encoding = db.Column(db.String(10))
+
+    def __repr__(self):
+        return f'URL with id {self.id} is: {self.raw_url}'
