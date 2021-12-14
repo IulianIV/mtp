@@ -1,11 +1,9 @@
-from app.manager.db.models import *
 from typing import NewType, Union
+
+from app.manager.db.models import *
 
 # Type checking
 DateTime = NewType('DateTime', datetime)
-
-# TODO add class abstraction and type hints to classes - the software cohesion is very low.
-#   too many responsibilities are given to a single class
 
 
 class Insert:

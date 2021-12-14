@@ -1,14 +1,15 @@
-import click
-from config import Config
 import os
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask.cli import with_appcontext
-from flask import current_app
-from flask_login import LoginManager
-from flask_debugtoolbar import DebugToolbarExtension
 
+import click
+from flask import Flask
+from flask import current_app
+from flask.cli import with_appcontext
+from flask_debugtoolbar import DebugToolbarExtension
+from flask_login import LoginManager
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
+from config import Config
 
 __version__ = (1, 0, 0, "dev")
 
@@ -16,12 +17,6 @@ db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
 toolbar = DebugToolbarExtension()
-
-# TODO the current implementation of the DataTables functionality lacks proper coupling.
-#   the script is repeated several times throughout the templates.
-#   a solution would be to add a base template for Budget Additions.
-#   the views themselves are 90% identical anyway, since the only difference is the query itself, with some small
-#   differences
 
 
 def create_app(test_config=None):
