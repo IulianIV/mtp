@@ -9,13 +9,6 @@ from app import db
 from app.webtools import bp, forms
 import re
 
-# TODO Gather this data through a button actioned parse of the python website that handles this data.
-#   the parsed data should be added to a encodings database and accessed from there.
-#   URL example: https://docs.python.org/3.7/library/codecs.html#standard-encodings
-
-# TODO add option to modify encoding at choice, otherwise it defaults to utf-8
-# better-me improve code and functionality
-# better-me add functionality to choose encoding for decode and encode
 encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', 'cp500', 'cp720', 'cp737', 'cp775',
              'cp850', 'cp852', 'cp855', 'cp856', 'cp857', 'cp858', 'cp860', 'cp861', 'cp862', 'cp863', 'cp864',
              'cp865', 'cp866', 'cp869', 'cp874', 'cp875', 'cp932', 'cp949', 'cp950', 'cp1006', 'cp1026', 'cp1125',

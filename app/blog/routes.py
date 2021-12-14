@@ -63,9 +63,7 @@ def get_post(post_id, check_author=True):
     if post is None:
         abort(404, f'Post id {post_id} doesnt exist.')
     if check_author and post.author_id != user_id:
-        print(post.author_id)
-        print(user_id)
-        print(post)
+        pass
 
     return post
 
