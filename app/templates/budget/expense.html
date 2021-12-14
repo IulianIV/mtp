@@ -138,7 +138,7 @@
                 </tr>
                 </thead>
                 <tbody class="post">
-                {% for entry in _object.query_expense_entries %}
+                {% for entry in db_queries.query_expense_entries() %}
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
                     <th class="small mb-1">{{ entry['expense_date'] }}</th>

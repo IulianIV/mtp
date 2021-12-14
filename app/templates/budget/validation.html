@@ -73,7 +73,7 @@
                 <tr>
                     <td>
                         <select class="form-select py-1">
-                            {% for item in _object.query_validation_items %}
+                            {% for item in db_queries.query_validation_items() %}
                             <option>
                                 {{ item['items'] }}
                             </option>
@@ -82,7 +82,7 @@
                     </td>
                     <td>
                         <select class="form-select py-1">
-                            {% for category in _object.query_validation_categories %}
+                            {% for category in db_queries.query_validation_categories() %}
                             <option>
                                 {{ category['categories'] }}
                             </option>
@@ -91,7 +91,7 @@
                     </td>
                     <td>
                         <select class="form-select py-1">
-                            {% for source in _object.query_validation_sources %}
+                            {% for source in db_queries.query_validation_sources() %}
                             <option>
                                 {{ source['sources'] }}
                             </option>
@@ -100,7 +100,7 @@
                     </td>
                      <td>
                         <select class="form-select py-1">
-                            {% for account in _object.query_validation_savings_accounts %}
+                            {% for account in db_queries.query_validation_savings_accounts() %}
                             <option>
                                 {{ account['saving_accounts'] }}
                             </option>
@@ -109,7 +109,7 @@
                     </td>
                     <td>
                         <select class="form-select py-1">
-                            {% for action in _object.query_validation_savings_action_types %}
+                            {% for action in db_queries.query_validation_savings_action_types() %}
                             <option>
                                 {{ action['saving_action_type'] }}
                             </option>
@@ -119,7 +119,7 @@
                     </td>
                     <td>
                         <select class="form-select py-1">
-                            {% for reason in _object.query_validation_savings_reason %}
+                            {% for reason in db_queries.query_validation_savings_reason() %}
                             <option>
                                 {{ reason['saving_reason'] }}
                             </option>

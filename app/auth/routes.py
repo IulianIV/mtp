@@ -1,6 +1,6 @@
 import functools
 from flask import (
-   redirect, render_template, request, session, url_for
+   redirect, render_template, session, url_for
 )
 from flask_login import login_user, current_user, logout_user
 from app.auth import bp
