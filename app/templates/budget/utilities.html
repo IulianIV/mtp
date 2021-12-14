@@ -13,41 +13,6 @@
 
 {% endblock %}
 
-{% block header %}
-<h1 class="mt-4">Utilities Dashboard</h1>
-<div class="breadcrumb mb-4">
-    {% if not current_user.is_anonymous %}
-    <a class="btn btn-secondary" style="margin: 2px;" role="button" href="{{ url_for('blog.index') }}">Blog</a>
-    <a class="btn btn-info" style="margin: 2px;" role="button" href="#">Reporting</a>
-    <div class="btn-group">
-        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                aria-expanded="false" style="margin: 2px;">
-            Budget
-        </button>
-        <div class="dropdown-menu">
-            <a class="dropdown-item" href="{{ url_for('budget.summary') }}">Summary</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
-            <a class="dropdown-item" href="{{ url_for('budget.add_expense_entry') }}">Add New Expense</a>
-            <a class="dropdown-item" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{{ url_for('budget.validation') }}">See Validation</a>
-        </div>
-    </div>
-    <div class="btn-group">
-        <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                aria-expanded="false" style="margin: 2px;">
-            Webtools
-        </button>
-        <div class="dropdown-menu">
-            <a class="dropdown-item" href="{{ url_for('webtools.url_encode_decode_parse') }}">URL Encoder/Decoder & Parse</a>
-        </div>
-    </div>
-    <a class="btn btn-light" style="margin: 2px;" role="button" href="#">Data flow</a>
-    {% endif %}
-</div>
-{% endblock %}
-
 {% block content %}
 <div id="layoutBudgetIndex">
     <div id="layoutBudgetIndex_content">
