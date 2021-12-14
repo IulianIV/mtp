@@ -1,13 +1,15 @@
+import re
+from urllib.parse import quote, unquote, urlparse, parse_qs
+
 from flask import (
     render_template, request
 )
-from urllib.parse import quote, unquote, urlparse, parse_qs
-from app.auth.routes import login_required
-from app.manager.protection import form_validated_message, form_error_message
-from app.manager.db.db_interrogations import Insert
+
 from app import db
+from app.auth.routes import login_required
+from app.manager.db.db_interrogations import Insert
+from app.manager.protection import form_validated_message, form_error_message
 from app.webtools import bp, forms
-import re
 
 encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', 'cp500', 'cp720', 'cp737', 'cp775',
              'cp850', 'cp852', 'cp855', 'cp856', 'cp857', 'cp858', 'cp860', 'cp861', 'cp862', 'cp863', 'cp864',
@@ -103,5 +105,12 @@ def url_encode_decode_parse():
             coder_parser_form.url_field.data = coder_parser_form.encode.data = coder_parser_form.decode.data = ''
             result_url = url_value
 
-    return render_template('webtools/urltools.html', coder_parser_form=coder_parser_form,
+    return render_template('webtools/encode_decode_parse.html', coder_parser_form=coder_parser_form,
                            result_url=result_url, parsed_url=[parsed_url, decoded_url_query, raw_url_query])
+
+
+@bp.route('/url-checker', methods=('GET', 'POST'))
+@login_required
+def url_checker():
+
+    return render_template('webtools/url_checker.html')

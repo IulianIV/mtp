@@ -68,7 +68,7 @@ the need to remove a button means that you have to modify almost all existing ht
    3. User forgot password;
    4. User Registering.
 5. **E-mail notifications** and e-mail management (for authentication purposes and newsletters)
-6. Try implementing **class abstraction and type hinting**.
+6. Try implementing **class abstraction**.
 
 
 # App Structure
@@ -81,7 +81,7 @@ More than often, circular imports can be fixed by not calling a package or funct
 (this is more likely to throw a `app out of context` error).
 
 In certain cases (more often that necessary) imports can be added at the end of the file.
-(this is not PEP8 recommended, but it is accepted when absolutely necessary)
+(this is not a PEP recommendation, but it is accepted when absolutely necessary)
 
 The project is structured the following way:
 * Project folder-
@@ -104,13 +104,13 @@ The project is structured the following way:
 ```bash
 Project folder
 ├───app
-│   ├───api
-│   ├───auth
-│   ├───static
-│   ├───templates
-│   └───other apps
-├───instance
-├───migrations
+│   ├───api\
+│   ├───auth\
+│   ├───static\
+│   ├───templates\
+│   └───other apps\
+├───instance\
+├───migrations\
 ├───config.py
 ├───app_name.py
 ├───setup.py
