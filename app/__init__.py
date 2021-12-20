@@ -86,4 +86,11 @@ def init_db():
     return db_init
 
 
+@click.command('fake-validation')
+@with_appcontext
+def create_fake_validation_command():
+    populate_fakes.create_fake_validation()
+    click.echo('Created fake validation entries..')
+
 from app.manager.db import models
+from app.manager.tests import populate_fakes
