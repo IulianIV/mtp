@@ -18,6 +18,9 @@ migrate = Migrate()
 login = LoginManager()
 toolbar = DebugToolbarExtension()
 
+# better-me Add a way to switch databases (switch from production to testing)
+#   think about how to version a test db.
+# TODO Upon choosing a test database, a initialization will autofill with fake data.
 
 def create_app(test_config=None):
 
@@ -84,6 +87,8 @@ def init_db():
     db.create_all()
 
     return db_init
+
+# fixme Needs to be fixed. Issues a "No such command error"
 
 
 @click.command('fake-validation')

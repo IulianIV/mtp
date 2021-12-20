@@ -13,6 +13,8 @@ FAKE_EXPENSE = random.randint(500, 1860)
 FAKE_UTILITIES = random.randint(1, 12)
 FAKE_VALIDATION = random.randint(5, 35)
 
+# better-me Make the implementation more dynamic and client friendly.
+
 
 @click.command('create-fake-posts')
 @with_appcontext
