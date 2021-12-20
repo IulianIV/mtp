@@ -6,7 +6,7 @@ from app import login
 
 
 # TODO check the Foreign Key functionalities
-#   check the functionality of the table relationships.
+#   check the functionality of the column and table relationships (accounts, sources etc).
 
 @login.user_loader
 def load_user(id):
