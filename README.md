@@ -38,7 +38,7 @@ _Based on the difficulty of the implementation some functionalities will be impl
       1. _could end up as a module_.
 3. **Tester**:
    1. Clone the current app and all of its functionalities;
-   2. Populate a database with fake data;
+   2. [x] Populate a database with fake data;
 4. **Logger**:
    1. Log data coming in and out of the app using the builtin loggers.
 5. **URL Shorter**;
