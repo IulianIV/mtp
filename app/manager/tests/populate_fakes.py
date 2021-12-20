@@ -1,6 +1,8 @@
 import random
-import click
+
 from faker import Faker
+
+from app import with_appcontext
 from app.manager.db.models import *
 from app.manager.tests import bp
 
@@ -17,11 +19,12 @@ FAKE_VALIDATION = random.randint(5, 35)
 # TODO create a faker for URLs. There is fake.url() also add condition for URL parameters random generation.
 #   Either by passing random set of known params (e.g. UTM) or completely random where it generates an arbitrary
 #   number of parameters (randomized) and corresponding values (randomized)
+# TODO add cli.arguments if needed and cli.options where can be used.
 
 
 @bp.cli.command('create-fake-posts')
 def create_fake_posts():
-    """Generate fake users."""
+    """Generate fake posts."""
     faker = Faker()
     for i in range(FAKE_POSTS):
         post = Post(author_id=1, title=faker.paragraph(nb_sentences=1, variable_nb_sentences=False),
@@ -88,6 +91,7 @@ def create_fake_utilities():
 
 @bp.cli.command('create-fake-validation')
 def create_fake_validation():
+    """ Generate fake validation entries across all validation tables """
     gen_range = range(1, 5)
 
     for i in gen_range:
@@ -109,8 +113,17 @@ def create_fake_validation():
         saving_sources = ValidationSavingSources(sources=f'Account{i}')
         db.session.add(saving_sources)
     db.session.commit()
+    print(f'Added 5 validation entries across all tables.')
 
 
-if __name__ == '__main__':
+@bp.cli.command('fake-all')
+@with_appcontext
+def fake_all():
+    """ Automatically populate the whole database with fake data. """
     create_fake_validation()
-
+    create_fake_posts()
+    create_fake_utilities()
+    create_fake_expense()
+    create_fake_revenue()
+    create_fake_saving()
+    print('Successfully populated the database with fake data!')

@@ -1,4 +1,5 @@
 import os
+
 import click
 from flask import Flask
 from flask import current_app
@@ -7,6 +8,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+
 from config import Config
 
 __version__ = (1, 0, 0, "dev")
@@ -47,6 +49,7 @@ def create_app(test_config=None):
     app.cli.add_command(populate_fakes.create_fake_expense)
     app.cli.add_command(populate_fakes.create_fake_revenue)
     app.cli.add_command(populate_fakes.create_fake_utilities)
+    app.cli.add_command(populate_fakes.fake_all)
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -99,7 +102,7 @@ def create_app(test_config=None):
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
-    """Clear the existing data and create new tables. TODO: Check this. Doesn't seem to do all that is stated."""
+    """Initialize and create new database. TODO: Check this. Doesn't seem to do all that is stated."""
     init_db()
     click.echo('Initialized the database.')
 
