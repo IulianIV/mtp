@@ -1,5 +1,4 @@
 import os
-
 import click
 from flask import Flask
 from flask import current_app
@@ -8,7 +7,6 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-
 from config import Config
 
 __version__ = (1, 0, 0, "dev")
@@ -21,12 +19,34 @@ toolbar = DebugToolbarExtension()
 # better-me Add a way to switch databases (switch from production to testing)
 #   think about how to version a test db.
 # TODO Upon choosing a test database, a initialization will autofill with fake data.
+# TODO now that you can make faker work finish the app by using fake data for easier control.
+#   when you have a stable budgeting functionality, then make it usable
+
+"""
+ there seems to be some confusion onf how CLI are implemented.
+@click.command() coupled with @with_appcontext si for situation when the flask.cli built-in method is not used.
+@blueprint_name.cli.command() is the flask.cli built-in method.
+Which is better, why does the latter work only if implemented by the formers method?
+
+details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
+
+"""  # TODO Fix this CLI implementation confusion.
+
 
 def create_app(test_config=None):
 
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(Config)
     app.cli.add_command(init_db_command)
+
+    # Start of possibly not efficient CLI implementation
+    app.cli.add_command(populate_fakes.create_fake_validation)
+    app.cli.add_command(populate_fakes.create_fake_posts)
+    app.cli.add_command(populate_fakes.create_fake_saving)
+    app.cli.add_command(populate_fakes.create_fake_validation)
+    app.cli.add_command(populate_fakes.create_fake_expense)
+    app.cli.add_command(populate_fakes.create_fake_revenue)
+    app.cli.add_command(populate_fakes.create_fake_utilities)
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -68,6 +88,9 @@ def create_app(test_config=None):
     from app.webtools import bp as webtools_bp
     app.register_blueprint(webtools_bp)
 
+    from app.manager.tests import bp as manager_tests_bp
+    app.register_blueprint(manager_tests_bp)
+
     app.add_url_rule('/', endpoint='index')
 
     return app
@@ -76,7 +99,7 @@ def create_app(test_config=None):
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
-    """Clear the existing data and create new tables."""
+    """Clear the existing data and create new tables. TODO: Check this. Doesn't seem to do all that is stated."""
     init_db()
     click.echo('Initialized the database.')
 
@@ -88,14 +111,6 @@ def init_db():
 
     return db_init
 
-# fixme Needs to be fixed. Issues a "No such command error"
-
-
-@click.command('fake-validation')
-@with_appcontext
-def create_fake_validation_command():
-    populate_fakes.create_fake_validation()
-    click.echo('Created fake validation entries..')
 
 from app.manager.db import models
 from app.manager.tests import populate_fakes
