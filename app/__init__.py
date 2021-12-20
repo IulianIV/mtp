@@ -81,7 +81,7 @@ def init_db_command():
 @with_appcontext
 def init_db():
     db_init = db.init_app(current_app)
-    db_init.create_all()
+    db.create_all()
 
     return db_init
 
