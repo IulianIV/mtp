@@ -98,11 +98,12 @@ def create_app(test_config=None):
 
     return app
 
-
+# better-me Add proper functionality to the db init command.
+#   check for existence. if exists: do...?
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
-    """Initialize and create new database. TODO: Check this. Doesn't seem to do all that is stated."""
+    """Initialize and create new database."""
     init_db()
     click.echo('Initialized the database.')
 
