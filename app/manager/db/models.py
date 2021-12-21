@@ -1,18 +1,23 @@
-from app import db
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
+
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from app import db
 from app import login
 
 
 # TODO check the Foreign Key functionalities
 #   check the functionality of the column and table relationships (accounts, sources etc).
+# TODO add user relationship to all budgeting tables and have entries filter by current user.
 
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
 
+# TODO add avatar to each user using gravatars and flask-Avatars
+# TODO add user fields: email, about_me, last_seen, etc
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
