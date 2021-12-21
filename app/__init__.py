@@ -42,14 +42,14 @@ def create_app(test_config=None):
     app.cli.add_command(init_db_command)
 
     # Start of possibly not efficient CLI implementation
-    app.cli.add_command(populate_fakes.create_fake_validation)
-    app.cli.add_command(populate_fakes.create_fake_posts)
-    app.cli.add_command(populate_fakes.create_fake_saving)
-    app.cli.add_command(populate_fakes.create_fake_validation)
-    app.cli.add_command(populate_fakes.create_fake_expense)
-    app.cli.add_command(populate_fakes.create_fake_revenue)
-    app.cli.add_command(populate_fakes.create_fake_utilities)
-    app.cli.add_command(populate_fakes.fake_all)
+    app.cli.add_command(fake_generator.create_fake_validation)
+    app.cli.add_command(fake_generator.create_fake_posts)
+    app.cli.add_command(fake_generator.create_fake_saving)
+    app.cli.add_command(fake_generator.create_fake_validation)
+    app.cli.add_command(fake_generator.create_fake_expense)
+    app.cli.add_command(fake_generator.create_fake_revenue)
+    app.cli.add_command(fake_generator.create_fake_utilities)
+    app.cli.add_command(fake_generator.create_fake_urls)
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -116,4 +116,4 @@ def init_db():
 
 
 from app.manager.db import models
-from app.manager.tests import populate_fakes
+from app.manager.tests import fake_generator
