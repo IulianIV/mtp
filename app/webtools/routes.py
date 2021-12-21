@@ -11,7 +11,7 @@ from app.manager.db.db_interrogations import Insert
 from app.manager.protection import form_validated_message, form_error_message
 from app.webtools import bp, forms
 
-# TODO Add a UTM interpreted for in-database URLs and metric/statistics to that.
+# TODO Add a UTM interpreter for in-database URLs and metric/statistics to that.
 #   can and should be located in the reporting & statistics app and here only have a link to it.
 
 encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', 'cp500', 'cp720', 'cp737', 'cp775',
@@ -112,8 +112,11 @@ def url_encode_decode_parse():
                            result_url=result_url, parsed_url=[parsed_url, decoded_url_query, raw_url_query])
 
 
+# TODO will check a URL, return its HTTP response, generate a preview, read and print OpenGraph data and preview it
+#   for multiple social media websites and print JSON-LD schema if present and the type fo structured data it holds.
 @bp.route('/url-checker', methods=('GET', 'POST'))
 @login_required
 def url_checker():
 
     return render_template('webtools/url_checker.html')
+
