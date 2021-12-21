@@ -43,32 +43,46 @@ _Based on the difficulty of the implementation some functionalities will be impl
    1. Log data coming in and out of the app using the builtin loggers.
 5. **URL Shorter**;
 6. [x] **URL Parser/Encode-Decode**;
-7. **Work Tools** - such as Catalog Management and Automations;
-8. **Google Sheets and Excel Integrations**;
-9. **E-book Manager** that connects to Calibre and sends books to kindle;
-10. Besides DB backup, **export everything as CSV files** as hard backups;
+7. **URL Checker**
+   1. Checks a URL HTTP response;
+      1. can be given a list, if list return a dictionary of URLs and their HTTP Response;
+      2. if list: generate result in a copy-paste pop-up;
+   2. Generate a URL Preview;
+   3. Print the OpenGraph Snippet and Preview for multiple social media accounts;
+      1. if chosen preview should be in a prompt;
+   4. Print JSON-LD schema and the schema name, if exists.
+8. **Work Tools** - such as Catalog Management and Automations;
+9. **Google Sheets and Excel Integrations**;
+10. **E-book Manager** that connects to Calibre and sends books to kindle;
+11. Besides DB backup, **export everything as CSV files** as hard backups;
     1. These could be made with the logic to export them as ready queries that when added in a DB Manager they would autopopulate everything.
-11. Given a list of products and their attributes & sale date create **Related, Up and Cross Sells** associations;
-12. **Recommended products' algorithm** connected to the above sub-app.
+12. Given a list of products and their attributes & sale date create **Related, Up and Cross Sells** associations;
+13. **Recommended products' algorithm** connected to the above sub-app.
+14. **User profile** They can see blog posts, privileges etc.
 
 General App Wide TODOs:
-1. **Revamp the templating**:
-   1. There should be a base template that contains the elements general to every app;
-   2. Other templates dedicated to each app;
-   3. Any other templates needed
+1. [x] **Revamp the templating**:
+   1. [x] There should be a base template that contains the elements general to every app;
+   2. [x] Other templates dedicated to each app;
+   3. [x] Any other templates needed
 
 Templating revamping is necessary to reduce cohesion and coupling. At the moment
 the need to remove a button means that you have to modify almost all existing html templates.
 
 2. Make sure **SQLAlchemy is implemented everywhere** a database connection is needed.
-3. **Add permissions**. What can a standard user do and what can an admin do?
-4. **Revamp the authentication logic**.
+3. **Basic Multiple Users** Have databases populated with details from the currently logged-in user. Show data accordingly.
+4. **Add permissions**. What can a standard user do and what can an admin do?
+   1. _Admin_: Can see and do everything;
+   2. _Spectator_: Can only view;
+   3. _Editor_: Can't see and use unit tests, dataflow;
+5. **Revamp the authentication logic**.
    1. User login;
    2. User logout;
    3. User forgot password;
    4. User Registering.
-5. **E-mail notifications** and e-mail management (for authentication purposes and newsletters)
-6. Try implementing **class abstraction**.
+6. **E-mail notifications** and e-mail management (for authentication purposes and newsletters)
+7. Try implementing **class abstraction** where necessary.
+8. Add a "help me/about" section in the menu with general info.
 
 
 # App Structure
