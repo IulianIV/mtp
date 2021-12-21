@@ -20,6 +20,30 @@
         Posts
     </div>
     <div class="card-body">
+        <div class="card-deck">
+            <div class="card">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
+                        additional content. This content is a little bit longer.</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last updated 3 mins ago</small>
+                </div>
+            </div>
+            <div class="card">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This card has supporting text below as a natural lead-in to additional
+                        content.</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last updated 3 mins ago</small>
+                </div>
+            </div>
+        </div>
         <div class="table-responsive">
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
@@ -27,6 +51,7 @@
                     <th>Title</th>
                     <th>Body</th>
                     <th>About</th>
+                    <th>Image</th>
                     <th>Options</th>
                 </tr>
                 </thead>
@@ -38,6 +63,11 @@
                     <th class="small mb-1">by {{ post.username }} on {{ post.created.strftime('%Y-%m-%d')
                         }}
                     </th>
+                    <th>
+                        <img src="{{ url_for('static', filename='avatar.png') }}"
+                             style="width: 50px; height: 50px; align: center"/>
+                    </th>
+
                     {% if current_user.id == post.author_id %}
                     <th>
                         <div class="custom-container">
