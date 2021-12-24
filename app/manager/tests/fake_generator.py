@@ -1,11 +1,15 @@
 import random
-
 import click
 from faker import Faker
-
+from flask import (
+    redirect, render_template, request, url_for
+)
 from app.manager.db.models import *
-from app.manager.tests import bp
+from app.manager import tests_bp
+from app.manager.protection import form_validated_message, form_error_message
+from app.auth.routes import login_required
 from app.webtools.routes import encodings
+from app.manager.tests.forms import AddFakes
 
 FAKE_POSTS = 15
 FAKE_REVENUE = '15-55'
@@ -17,20 +21,73 @@ FAKE_VALIDATION = 5
 # TODO implement a web interface for test units such as the ones below.
 
 
-@bp.cli.command('create-fake-posts')
-@click.argument('posts_number')
-def create_fake_posts(posts_number):
+# better-me have the design show checkboxes only on URL choice
+# better-me add validation for ranges
+# better-me improve the jQuery made in the HTMl file for form manipulation
+@tests_bp.route('/tests/fake-data-generator', methods=('GET', 'POST'))
+@login_required
+def add_fakes():
+    fake_form = AddFakes()
+
+    fake_form.fake_choices.choices = ['Fake Posts', 'Fake Revenue', 'Fake Saving', 'Fake Expense', 'Fake Utilities', 'Fake Validation', 'Fake URLs']
+
+    if request.method == 'POST':
+        if fake_form.is_submitted() and (not fake_form.have_params.data and not fake_form.randomized_params.data):
+            fake_choice = fake_form.fake_choices.data
+            fake_range = fake_form.fake_number.data
+
+            choice_func_map = {
+                'Fake Posts': create_fake_posts,
+                'Fake Revenue': create_fake_revenue,
+                'Fake Saving': create_fake_saving,
+                'Fake Expense': create_fake_expense,
+                'Fake Utilities': create_fake_utilities
+            }
+
+            fake_data = choice_func_map[fake_choice](fake_range)
+
+            form_validated_message(f'Successfully added {fake_data} {fake_choice}')
+
+            return redirect(url_for('manager-tests.add_fakes'))
+
+        if fake_form.is_submitted() and (fake_form.have_params.data or fake_form.randomized_params.data):
+            fake_choice = fake_form.fake_choices.data
+            fake_range = fake_form.fake_number.data
+            fake_utm = fake_form.have_params.data
+            fake_params = fake_form.randomized_params.data
+
+            choice_func_map = {
+                'Fake URLs': create_fake_urls
+            }
+
+            fake_data = choice_func_map[fake_choice](fake_range, fake_utm, fake_params)
+
+            form_validated_message(f'Successfully added {fake_data}')
+
+            return redirect(url_for('manager-tests.add_fakes'))
+
+    return render_template('manager/tests/fake_generator.html', fake_form=fake_form)
+
+
+# fix-me this doesn't work from view execution if click commands are enabled.
+# @tests_bp.cli.command('create-fake-posts')
+# @click.argument('posts_range')
+def create_fake_posts(posts_range: str):
     """Generate fake posts."""
     faker = Faker()
-    for i in range(int(posts_number)):
+    posts_range = posts_range.split('-')
+    gen_num = random.randint(int(posts_range[0]), int(posts_range[1]))
+
+    for i in range(gen_num):
         post = Post(author_id=1, title=faker.paragraph(nb_sentences=1, variable_nb_sentences=False),
                     body=faker.paragraph(nb_sentences=5, variable_nb_sentences=True))
         db.session.add(post)
     db.session.commit()
-    print(f'Added {posts_number} fake posts to the database.')
+    print(f'Added {gen_num} fake posts to the database.')
+    return gen_num
 
 
-@bp.cli.command('create-fake-revenue')
+@tests_bp.cli.command('create-fake-revenue')
 @click.argument('revenue_range')
 def create_fake_revenue(revenue_range: str):
     """Generate fake revenue entries."""
@@ -43,9 +100,11 @@ def create_fake_revenue(revenue_range: str):
         db.session.add(revenue)
     db.session.commit()
     print(f'Added {gen_num} fake revenues to the database.')
+    return gen_num
 
 
-@bp.cli.command('create-fake-saving')
+
+@tests_bp.cli.command('create-fake-saving')
 @click.argument('saving_range')
 def create_fake_saving(saving_range: str):
     """Generate fake savings entries."""
@@ -60,9 +119,11 @@ def create_fake_saving(saving_range: str):
         db.session.add(saving)
     db.session.commit()
     print(f'Added {gen_num} fake saving to the database.')
+    return gen_num
 
 
-@bp.cli.command('create-fake-expense')
+
+@tests_bp.cli.command('create-fake-expense')
 @click.argument('expense_range')
 def create_fake_expense(expense_range: str):
     """Generate fake expense entries."""
@@ -77,9 +138,11 @@ def create_fake_expense(expense_range: str):
         db.session.add(expense)
     db.session.commit()
     print(f'Added {gen_num} fake expense to the database.')
+    return gen_num
 
 
-@bp.cli.command('create-fake-utilities')
+
+@tests_bp.cli.command('create-fake-utilities')
 @click.argument('utilities_range')
 def create_fake_utilities(utilities_range: str):
     """Generate fake expense entries."""
@@ -96,9 +159,11 @@ def create_fake_utilities(utilities_range: str):
         db.session.add(utility)
     db.session.commit()
     print(f'Added {gen_num} fake utility to the database.')
+    return gen_num
 
 
-@bp.cli.command('create-fake-validation')
+
+@tests_bp.cli.command('create-fake-validation')
 @click.argument('validation_entries')
 def create_fake_validation(validation_entries: int):
     """ Generate fake validation entries across all validation tables """
@@ -124,9 +189,11 @@ def create_fake_validation(validation_entries: int):
         db.session.add(saving_sources)
     db.session.commit()
     print(f'Added {validation_entries} validation entries across all tables.')
+    return gen_num
 
 
-@bp.cli.command('create-fake-urls')
+
+@tests_bp.cli.command('create-fake-urls')
 @click.argument('urls_num')
 @click.argument('url_params', required=False)
 @click.argument('randomized_params', required=False)
@@ -166,3 +233,5 @@ def create_fake_urls(urls_num: int, url_params: bool = False, randomized_params:
             db.session.add(url_decode_encode)
         db.session.commit()
         print(f'Added {urls_num} fake urls to the database with fake parameters and fake values.')
+
+    return urls_num
