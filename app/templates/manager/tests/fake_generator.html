@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<meta name="description" content=""/>
+<meta name="author" content=""/>
+
+{% block title %}
+<title>MTP | Web App</title>
+{% endblock %}
+
+{% endblock %}
+
+{% block content %}
+<div id="layoutAuthentication">
+    <div id="layoutAuthentication_content">
+        <main>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-5">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header"><h3 class="text-center font-weight-light my-4">Generate Fake Data</h3>
+                            </div>
+                            <div class="card-body">
+                                <form id="fake-form" action="{{ url_for('manager-tests.add_fakes') }}"
+                                      method="post">
+                                    {{ fake_form.hidden_tag() }}
+                                    <div class="form-group">
+                                        {{ fake_form.fake_choices.label(class='form-check-label') }}
+                                        {{ fake_form.fake_choices(form='fake-form', class='form-control py-4') }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ fake_form.fake_number.label(class='form-check-label') }}
+                                        {{ fake_form.fake_number(form='fake-form', class='small mb-1') }}
+                                    </div>
+                                    <div class="form-check url-field">
+                                        {{ fake_form.have_params(form='fake-form', class='small mb-1') }}
+                                        {{ fake_form.have_params.label(class='form-check-label') }}
+                                    </div>
+                                     <div class="form-check url-field">
+                                        {{ fake_form.randomized_params(form='fake-form', class='small mb-1') }}
+                                        {{ fake_form.randomized_params.label(class='form-check-label') }}
+                                    </div>
+                                    {{ fake_form.submit_fakes(form='fake-form', class='btn btn-primary') }}
+                                    <a class="btn btn-danger"
+                                       href="{{ url_for('manager-tests.add_fakes') }}">Cancel</a>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% block scripts %}
+<script type="text/javascript">
+$(function () {
+    $('input[name="have_params"]').css({ 'display': 'none'});
+    $('input[name="randomized_params"]').css({ 'display': 'none'});
+    $('label[for="have_params"]').css({ 'display': 'none'});
+    $('label[for="randomized_params"]').css({ 'display': 'none'});
+
+    //show it when the checkbox is clicked
+    $('select[name="fake_choices"]').change(function () {
+        var val = $(this).find('option:selected').text();
+        if (val == 'Fake URLs') {
+            $('input[name="have_params"]').fadeIn();
+            $('input[name="randomized_params"]').fadeIn();
+            $('label[for="have_params"]').fadeIn();
+            $('label[for="randomized_params"]').fadeIn();
+        } else {
+            $('input[name="have_params"]').hide();
+            $('input[name="randomized_params"]').hide();
+            $('label[for="have_params"]').css({ 'display': 'none'});
+            $('label[for="randomized_params"]').css({ 'display': 'none'});
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
