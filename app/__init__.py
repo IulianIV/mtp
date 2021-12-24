@@ -23,7 +23,9 @@ toolbar = DebugToolbarExtension()
 # TODO Upon choosing a test database, a initialization will autofill with fake data.
 # TODO now that you can make faker work finish the app by using fake data for easier control.
 #   when you have a stable budgeting functionality, then make it usable
-
+# fix-me see the base.html file HTML structure that hides API template view
+# better-me rename tests button as dropdown
+# better-me find out how to make nested menus
 """
  there seems to be some confusion onf how CLI are implemented.
 @click.command() coupled with @with_appcontext si for situation when the flask.cli built-in method is not used.
@@ -43,7 +45,7 @@ def create_app(test_config=None):
 
     # Start of possibly not efficient CLI implementation
     app.cli.add_command(fake_generator.create_fake_validation)
-    app.cli.add_command(fake_generator.create_fake_posts)
+    # app.cli.add_command(fake_generator.create_fake_posts)
     app.cli.add_command(fake_generator.create_fake_saving)
     app.cli.add_command(fake_generator.create_fake_validation)
     app.cli.add_command(fake_generator.create_fake_expense)
@@ -91,7 +93,7 @@ def create_app(test_config=None):
     from app.webtools import bp as webtools_bp
     app.register_blueprint(webtools_bp)
 
-    from app.manager.tests import bp as manager_tests_bp
+    from app.manager import tests_bp as manager_tests_bp
     app.register_blueprint(manager_tests_bp)
 
     app.add_url_rule('/', endpoint='index')
