@@ -3,7 +3,13 @@
 <head>
     {% block meta %}
     {% endblock %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    {# Testing conditional debugging #}
+    {% if config['DEBUG'] %}
+    <link rel="stylesheet" href=" {{ url_for('static', filename='styles.css') }}">
+    {% else %}
+    <link rel="stylesheet" href="https://tech-biomed.com/mtp_static/styles.css">
+    {% endif %}
+    {# end of conditional debugging #}
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon2.ico') }}">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.css">
     <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -130,8 +136,8 @@
                     <div class="collapse" id="collapseDataflow" aria-labelledby="headingOne"
                          data-parent="#sidenavAccordion">
                         <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="{# {{ url_for('dataflow.importer') }} #}#">Import data</a>
-                            <a class="nav-link" href="{# {{ url_for('dataflow.exporter') }} #}#">Export data</a>
+                            <a class="nav-link" href="{# {{ url_for('manager.dataflow.importer') }} #}#">Import data</a>
+                            <a class="nav-link" href="{# {{ url_for('manager.dataflow.exporter') }} #}#">Export data</a>
                         </nav>
                     </div>
                     {# <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOthers"
@@ -202,41 +208,42 @@
                             <a class="dropdown-item" href="{{ url_for('webtools.url_checker') }}">URL Checker</a>
                         </div>
                     </div>
-                    <a class="btn btn-light" style="margin: 2px;" role="button" href="#">Data flow</a>
-                    {% endif %}
-                </div>
+                        <a class="btn btn-light" style="margin: 2px;" role="button" href="#">Data flow</a>
+                    <a class="btn btn-light" style="margin: 2px;" role="button" href="{{ url_for('manager-tests.add_fakes') }}">Faker</a>
+                        {% endif %}
+                    </div>
 
-                <div class="row">
-                    {% with no_errors = get_flashed_messages(category_filter=["validated"]), errors =
-                    get_flashed_messages(category_filter=["error"]) %}
-                    {% if no_errors %}
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card bg-success text-white mb-4">
-                            <div class="card-body">Validation success</div>
-                            <div class="card-footer d-flex align-items-center justify-content-between">
-                                {% for msg in no_errors %}
-                                <p class="small text-white stretched-link">{{ msg }}</p>
-                                {% endfor %}
+                    <div class="row">
+                        {% with no_errors = get_flashed_messages(category_filter=["validated"]), errors =
+                        get_flashed_messages(category_filter=["error"]) %}
+                        {% if no_errors %}
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card bg-success text-white mb-4">
+                                <div class="card-body">Validation success</div>
+                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                    {% for msg in no_errors %}
+                                    <p class="small text-white stretched-link">{{ msg }}</p>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    {% elif errors %}
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card bg-danger text-white mb-4">
-                            <div class="card-body">Error messages</div>
-                            <div class="card-footer d-flex align-items-center justify-content-between">
-                                {% for msg in errors %}
-                                <p class="small text-white stretched-link">{{ msg }}</p>
-                                {% endfor %}
+                        {% elif errors %}
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card bg-danger text-white mb-4">
+                                <div class="card-body">Error messages</div>
+                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                    {% for msg in errors %}
+                                    <p class="small text-white stretched-link">{{ msg }}</p>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
+                        {% endif %}
+                        {% endwith %}
                     </div>
-                    {% endif %}
-                    {% endwith %}
+                    {% block content %}
+                    {% endblock %}
                 </div>
-                {% block content %}
-                {% endblock %}
-            </div>
         </main>
         <footer class="py-4 bg-light mt-auto">
             <div class="container-fluid">
