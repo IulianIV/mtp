@@ -71,7 +71,14 @@ $(function () {
             $('input[name="randomized_params"]').fadeIn();
             $('label[for="have_params"]').fadeIn();
             $('label[for="randomized_params"]').fadeIn();
+        } else if (val == 'Fake Validation') {
+            $('label[for="fake_number"]').text("Choose number of fakes to generate [integer] (e.g. 5)");
+            $('input[name="have_params"]').hide();
+            $('input[name="randomized_params"]').hide();
+            $('label[for="have_params"]').css({ 'display': 'none'});
+            $('label[for="randomized_params"]').css({ 'display': 'none'});
         } else {
+            $('label[for="fake_number"]').text("Choose number of fakes to generate [range] (e.g. 5-25)");
             $('input[name="have_params"]').hide();
             $('input[name="randomized_params"]').hide();
             $('label[for="have_params"]').css({ 'display': 'none'});
