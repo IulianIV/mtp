@@ -44,14 +44,14 @@ def create_app(test_config=None):
     app.cli.add_command(init_db_command)
 
     # Start of possibly not efficient CLI implementation
-    app.cli.add_command(fake_generator.create_fake_validation)
-    # app.cli.add_command(fake_generator.create_fake_posts)
-    app.cli.add_command(fake_generator.create_fake_saving)
-    app.cli.add_command(fake_generator.create_fake_validation)
-    app.cli.add_command(fake_generator.create_fake_expense)
-    app.cli.add_command(fake_generator.create_fake_revenue)
-    app.cli.add_command(fake_generator.create_fake_utilities)
-    app.cli.add_command(fake_generator.create_fake_urls)
+    app.cli.add_command(fake_generator.cli_create_fake_validation)
+    app.cli.add_command(fake_generator.cli_create_fake_posts)
+    app.cli.add_command(fake_generator.cli_create_fake_saving)
+    app.cli.add_command(fake_generator.cli_create_fake_validation)
+    app.cli.add_command(fake_generator.cli_create_fake_expense)
+    app.cli.add_command(fake_generator.cli_create_fake_revenue)
+    app.cli.add_command(fake_generator.cli_create_fake_utilities)
+    app.cli.add_command(fake_generator.cli_create_fake_urls)
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -99,6 +99,7 @@ def create_app(test_config=None):
     app.add_url_rule('/', endpoint='index')
 
     return app
+
 
 # better-me Add proper functionality to the db init command.
 #   check for existence. if exists: do...?
