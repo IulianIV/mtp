@@ -1,22 +1,17 @@
 import random
+
 import click
 from faker import Faker
 from flask import (
     redirect, render_template, request, url_for
 )
-from app.manager.db.models import *
-from app.manager import tests_bp
-from app.manager.protection import form_validated_message, form_error_message
-from app.auth.routes import login_required
-from app.webtools.routes import encodings
-from app.manager.tests.forms import AddFakes
 
-FAKE_POSTS = 15
-FAKE_REVENUE = '15-55'
-FAKE_SAVING = '3-15'
-FAKE_EXPENSE = '500-1860'
-FAKE_UTILITIES = '1-12'
-FAKE_VALIDATION = 5
+from app.auth.routes import login_required
+from app.manager import tests_bp
+from app.manager.db.models import *
+from app.manager.protection import form_validated_message, form_error_message
+from app.manager.tests.forms import AddFakes
+from app.webtools.routes import encodings
 
 
 # better-me add validation for ranges
@@ -25,7 +20,8 @@ FAKE_VALIDATION = 5
 def add_fakes():
     fake_form = AddFakes()
 
-    fake_form.fake_choices.choices = ['Fake Posts', 'Fake Revenue', 'Fake Saving', 'Fake Expense', 'Fake Utilities', 'Fake Validation', 'Fake URLs']
+    fake_form.fake_choices.choices = ['Fake Posts', 'Fake Revenue', 'Fake Saving', 'Fake Expense', 'Fake Utilities',
+                                      'Fake Validation', 'Fake URLs']
 
     if request.method == 'POST':
         if fake_form.is_submitted() and fake_form.fake_choices.data != 'Fake URLs':
@@ -178,7 +174,8 @@ def create_fake_validation(validation_entries: int):
     return validation_entries
 
 
-# better-me even though it works, this does not cover the both True values selection situation. Create some escape conditional.
+# better-me even though it works, this does not cover the both True values selection situation. Create some escape
+#  conditional.
 def create_fake_urls(urls_num: int, url_params: bool = False, randomized_params: bool = False):
     """Generate fake expense entries."""
     faker = Faker()
