@@ -18,12 +18,8 @@ FAKE_EXPENSE = '500-1860'
 FAKE_UTILITIES = '1-12'
 FAKE_VALIDATION = 5
 
-# TODO implement a web interface for test units such as the ones below.
 
-
-# better-me have the design show checkboxes only on URL choice
 # better-me add validation for ranges
-# better-me improve the jQuery made in the HTMl file for form manipulation
 @tests_bp.route('/tests/fake-data-generator', methods=('GET', 'POST'))
 @login_required
 def add_fakes():
@@ -32,7 +28,7 @@ def add_fakes():
     fake_form.fake_choices.choices = ['Fake Posts', 'Fake Revenue', 'Fake Saving', 'Fake Expense', 'Fake Utilities', 'Fake Validation', 'Fake URLs']
 
     if request.method == 'POST':
-        if fake_form.is_submitted() and (not fake_form.have_params.data and not fake_form.randomized_params.data):
+        if fake_form.is_submitted() and fake_form.fake_choices.data != 'Fake URLs':
             fake_choice = fake_form.fake_choices.data
             fake_range = fake_form.fake_number.data
 
@@ -41,7 +37,8 @@ def add_fakes():
                 'Fake Revenue': create_fake_revenue,
                 'Fake Saving': create_fake_saving,
                 'Fake Expense': create_fake_expense,
-                'Fake Utilities': create_fake_utilities
+                'Fake Utilities': create_fake_utilities,
+                'Fake Validation': create_fake_validation
             }
 
             fake_data = choice_func_map[fake_choice](fake_range)
@@ -50,11 +47,16 @@ def add_fakes():
 
             return redirect(url_for('manager-tests.add_fakes'))
 
-        if fake_form.is_submitted() and (fake_form.have_params.data or fake_form.randomized_params.data):
+        if fake_form.is_submitted() and fake_form.fake_choices.data == 'Fake URLs':
             fake_choice = fake_form.fake_choices.data
             fake_range = fake_form.fake_number.data
             fake_utm = fake_form.have_params.data
             fake_params = fake_form.randomized_params.data
+
+            if fake_form.is_submitted() and fake_utm and fake_params:
+                form_error_message('Either one or None checkboxes must be selected. Selection of both is not possible.')
+
+                return redirect(url_for('manager-tests.add_fakes'))
 
             choice_func_map = {
                 'Fake URLs': create_fake_urls
@@ -69,9 +71,6 @@ def add_fakes():
     return render_template('manager/tests/fake_generator.html', fake_form=fake_form)
 
 
-# fix-me this doesn't work from view execution if click commands are enabled.
-# @tests_bp.cli.command('create-fake-posts')
-# @click.argument('posts_range')
 def create_fake_posts(posts_range: str):
     """Generate fake posts."""
     faker = Faker()
@@ -87,8 +86,6 @@ def create_fake_posts(posts_range: str):
     return gen_num
 
 
-@tests_bp.cli.command('create-fake-revenue')
-@click.argument('revenue_range')
 def create_fake_revenue(revenue_range: str):
     """Generate fake revenue entries."""
     revenue_range = revenue_range.split('-')
@@ -103,9 +100,6 @@ def create_fake_revenue(revenue_range: str):
     return gen_num
 
 
-
-@tests_bp.cli.command('create-fake-saving')
-@click.argument('saving_range')
 def create_fake_saving(saving_range: str):
     """Generate fake savings entries."""
     saving_range = saving_range.split('-')
@@ -122,9 +116,6 @@ def create_fake_saving(saving_range: str):
     return gen_num
 
 
-
-@tests_bp.cli.command('create-fake-expense')
-@click.argument('expense_range')
 def create_fake_expense(expense_range: str):
     """Generate fake expense entries."""
     expense_range = expense_range.split('-')
@@ -141,9 +132,6 @@ def create_fake_expense(expense_range: str):
     return gen_num
 
 
-
-@tests_bp.cli.command('create-fake-utilities')
-@click.argument('utilities_range')
 def create_fake_utilities(utilities_range: str):
     """Generate fake expense entries."""
     utilities_range = utilities_range.split('-')
@@ -162,9 +150,7 @@ def create_fake_utilities(utilities_range: str):
     return gen_num
 
 
-
-@tests_bp.cli.command('create-fake-validation')
-@click.argument('validation_entries')
+# fix-me throws IntegrityError. It tries to input data as "accountX" (X being i value) whilst "accountX" already exists
 def create_fake_validation(validation_entries: int):
     """ Generate fake validation entries across all validation tables """
     gen_range = range(1, int(validation_entries))
@@ -189,14 +175,10 @@ def create_fake_validation(validation_entries: int):
         db.session.add(saving_sources)
     db.session.commit()
     print(f'Added {validation_entries} validation entries across all tables.')
-    return gen_num
+    return validation_entries
 
 
-
-@tests_bp.cli.command('create-fake-urls')
-@click.argument('urls_num')
-@click.argument('url_params', required=False)
-@click.argument('randomized_params', required=False)
+# better-me even though it works, this does not cover the both True values selection situation. Create some escape conditional.
 def create_fake_urls(urls_num: int, url_params: bool = False, randomized_params: bool = False):
     """Generate fake expense entries."""
     faker = Faker()
@@ -211,7 +193,6 @@ def create_fake_urls(urls_num: int, url_params: bool = False, randomized_params:
             db.session.add(url_decode_encode)
         db.session.commit()
         print(f'Added {urls_num} fake urls to the database with no parameters.')
-
     if url_params and not randomized_params:
 
         for i in range(int(urls_num)):
@@ -222,8 +203,7 @@ def create_fake_urls(urls_num: int, url_params: bool = False, randomized_params:
             db.session.add(url_decode_encode)
         db.session.commit()
         print(f'Added {urls_num} fake urls to the database with fake UTM parameters.')
-
-    if url_params and randomized_params:
+    if not url_params and randomized_params:
 
         for i in range(int(urls_num)):
             random_utm = faker.bothify(text='???_???=????&??????=?????&###_????=????_####&????###=?????')
@@ -235,3 +215,47 @@ def create_fake_urls(urls_num: int, url_params: bool = False, randomized_params:
         print(f'Added {urls_num} fake urls to the database with fake parameters and fake values.')
 
     return urls_num
+
+
+@tests_bp.cli.command('create-fake-posts')
+@click.argument('posts_range')
+def cli_create_fake_posts(posts_range: str):
+    create_fake_posts(posts_range)
+
+
+@tests_bp.cli.command('create-fake-revenue')
+@click.argument('revenue_range')
+def cli_create_fake_revenue(revenue_range: str):
+    create_fake_revenue(revenue_range)
+
+
+@tests_bp.cli.command('create-fake-saving')
+@click.argument('saving_range')
+def cli_create_fake_saving(saving_range: str):
+    create_fake_saving(saving_range)
+
+
+@tests_bp.cli.command('create-fake-expense')
+@click.argument('expense_range')
+def cli_create_fake_expense(expense_range: str):
+    create_fake_expense(expense_range)
+
+
+@tests_bp.cli.command('create-fake-utilities')
+@click.argument('utilities_range')
+def cli_create_fake_utilities(utilities_range: str):
+    create_fake_utilities(utilities_range)
+
+
+@tests_bp.cli.command('create-fake-validation')
+@click.argument('validation_entries')
+def cli_create_fake_validation(validation_entries: int):
+    create_fake_validation(validation_entries)
+
+
+@tests_bp.cli.command('create-fake-urls')
+@click.argument('urls_num')
+@click.argument('url_params', required=False)
+@click.argument('randomized_params', required=False)
+def cli_create_fake_urls(urls_num: int, url_params: bool = False, randomized_params: bool = False):
+    create_fake_urls(urls_num, url_params, randomized_params)
