@@ -30,16 +30,20 @@
                 <div class="card-body" style="overflow-y: auto">
                     <h4 class="card-title">{{ post.title }}</h4>
                     <p class="card-text">{{ post.body }}</p>
-                    <p class="card-text">by {{ post.author_id }} on {{ post.created.strftime('%Y-%m-%d') }}</p>
+                    <p class="card-text">by {{ author_name(post.author_id) }} on {{ post.created.strftime('%Y-%m-%d') }}</p>
                 </div>
                 {% if current_user.id == post.author_id %}
                 <div class="card-footer" style="background: inherit; border-color: inherit;">
                     <a href="{{ url_for('blog.update', post_id=post.id) }}" class="btn btn-primary">Edit</a>
-                    <a href="{{ url_for('blog.delete', post_id=post.id) }}" class="btn btn-outline-primary">Delete</a>
+                    <a href="{{ url_for('blog.delete', post_id=post.id) }}" class="btn btn-outline-danger">Delete</a>
+                </div>
+                {% elif not current_user.is_authenticated %}
+                <div class="card-footer" style="background: inherit; border-color: inherit;">
+                    <a href="{{ url_for('auth.login') }}" class="text text-danger">Editable by <strong>{{ author_name(post.author_id) }}</strong> (login)</a>
                 </div>
                 {% else %}
                 <div class="card-footer" style="background: inherit; border-color: inherit;">
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log in to edit posts.</a>
+                    <a href="{{ url_for('auth.logout') }}" class="text text-danger">Editable by <strong>{{ author_name(post.author_id) }}</strong> (logout)</a>
                 </div>
                 {% endif %}
             </div>

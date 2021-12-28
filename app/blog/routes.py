@@ -1,16 +1,16 @@
 from flask import (
     redirect, render_template, request, url_for
 )
+from flask_login import current_user
 from werkzeug.exceptions import abort
 
-from app.blog.forms import AddPost, UpdatePost
-from app.manager.protection import form_validated_message, form_error_message
-from app.manager.protection import CustomCSRF
-from app.auth.routes import login_required
 from app import db
-from app.manager.db.db_interrogations import Query, Insert, Update, Delete
+from app.auth.routes import login_required
 from app.blog import bp
-from flask_login import current_user
+from app.blog.forms import AddPost, UpdatePost
+from app.manager.db.db_interrogations import Query, Insert, Update, Delete
+from app.manager.protection import CustomCSRF
+from app.manager.protection import form_validated_message, form_error_message
 
 custom_protection = CustomCSRF()
 db_queries = Query()
@@ -18,15 +18,14 @@ db_insert = Insert()
 db_update = Update()
 db_delete = Delete()
 
+# TODO handle blog posts pagination. Maybe similar to the one introduced in the Budget App but with no tables.
+
 
 # TODO show creator of post by username not by author_id
 @bp.route('/')
 def index():
-    user_id = current_user.get_id()
-
     posts = db_queries.query_blog_posts()
-    print(posts[1].author_id)
-    return render_template('blog/index.html', posts=posts)
+    return render_template('blog/index.html', posts=posts, author_name=db_queries.get_username_from_post_author)
 
 
 @bp.route('/create', methods=('GET', 'POST'))
@@ -93,6 +92,8 @@ def update(post_id):
     return render_template('blog/update.html', post=post, update_form=update_form)
 
 
+# better-me Add conditional that logged in user can only delete his own posts.
+#   FE wise the button is not accessible but if they access by URL any post can be deleted.
 @bp.route('/<int:post_id>/delete', methods=('POST', 'GET'))
 @login_required
 def delete(post_id):
