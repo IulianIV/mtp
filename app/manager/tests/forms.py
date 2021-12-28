@@ -6,7 +6,8 @@ from wtforms.validators import DataRequired
 
 class AddFakes(FlaskForm):
     fake_choices = SelectField('Choose what data to fake', validators=[DataRequired()])
-    fake_number = TextAreaField('Choose number of fakes to generate [range] (e.g. 5-25)', validators=[DataRequired(), CheckForNumber()])
+    fake_number = TextAreaField('Choose number of fakes to generate [range] (e.g. 5-25)', validators=[DataRequired(),
+                                                                                                      CheckForNumber()])
     have_params = BooleanField('Add randomized UTMs?')
     randomized_params = BooleanField('Add randomized URL params and values?')
     submit_fakes = SubmitField()

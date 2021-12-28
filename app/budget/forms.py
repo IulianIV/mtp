@@ -7,7 +7,8 @@ from wtforms.validators import DataRequired
 
 
 class AddExpenseEntry(FlaskForm):
-    expense_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    expense_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
+                             format='%Y-%m-%d', default=datetime.now())
     expense_item = SelectField(validators=[DataRequired()])
     expense_value = StringField(validators=[DataRequired(), CheckForNumber()])
     expense_category = SelectField(validators=[DataRequired()])
@@ -16,14 +17,16 @@ class AddExpenseEntry(FlaskForm):
 
 
 class AddRevenueEntry(FlaskForm):
-    revenue_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    revenue_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
+                             format='%Y-%m-%d', default=datetime.now())
     revenue_value = StringField(validators=[DataRequired(), CheckForNumber()])
     revenue_source = SelectField(validators=[DataRequired()])
     submit_revenue = SubmitField()
 
 
 class AddSavingsEntry(FlaskForm):
-    savings_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    savings_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
+                             format='%Y-%m-%d', default=datetime.now())
     savings_value = StringField(validators=[DataRequired(), CheckForNumber()])
     savings_source = SelectField(validators=[DataRequired()])
     savings_reason = SelectField(validators=[DataRequired()])
@@ -32,7 +35,8 @@ class AddSavingsEntry(FlaskForm):
 
 
 class AddUtilitiesEntry(FlaskForm):
-    utilities_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')], format='%Y-%m-%d', default=datetime.now())
+    utilities_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
+                               format='%Y-%m-%d', default=datetime.now())
     utilities_rent = StringField(validators=[DataRequired(), CheckForNumber()])
     utilities_energy = StringField(validators=[DataRequired(), CheckForNumber()])
     utilities_satellite = StringField(validators=[DataRequired(), CheckForNumber()])

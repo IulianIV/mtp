@@ -13,7 +13,8 @@ class Insert:
 
     def insert_expense(self, date: DateTime, item: str, value: str, item_category: str, source: str):
         return self.db.session.add(
-            BudgetExpense(expense_date=date, expense_item=item, expense_value=value, expense_item_category=item_category, expense_source=source))
+            BudgetExpense(expense_date=date, expense_item=item, expense_value=value,
+                          expense_item_category=item_category, expense_source=source))
 
     def insert_revenue(self, date: DateTime, revenue: str, source: str):
         return self.db.session.add(
@@ -21,11 +22,14 @@ class Insert:
 
     def insert_savings(self, date: DateTime, value: str, source: str, reason: str, action: str):
         return self.db.session.add(
-            BudgetSaving(saving_date=date, saving_value=value, saving_source=source, saving_reason=reason, saving_action=action))
+            BudgetSaving(saving_date=date, saving_value=value, saving_source=source, saving_reason=reason,
+                         saving_action=action))
 
     def insert_utilities(self, date: DateTime, rent: str, energy: str, satellite: str, maintenance: str, details: str):
         return self.db.session.add(
-            BudgetUtilities(utilities_date=date, utilities_rent_value=rent, utilities_energy_value=energy, utilities_satellite_value=satellite, utilities_maintenance_value=maintenance, utilities_info=details))
+            BudgetUtilities(utilities_date=date, utilities_rent_value=rent, utilities_energy_value=energy,
+                            utilities_satellite_value=satellite,
+                            utilities_maintenance_value=maintenance, utilities_info=details))
 
     def insert_validation_items(self, item: str, category: str):
         return self.db.session.add(
@@ -54,7 +58,8 @@ class Insert:
         return self.db.session.add(Post(title=title, body=body, author_id=author_id))
 
     def add_new_url(self, raw_url: str, encode_option: Union[str, None], encoding: Union[str, None]):
-        return self.db.session.add(UrlEncodeDecodeParse(raw_url=raw_url, encode_option=encode_option, encoding=encoding))
+        return self.db.session.add(UrlEncodeDecodeParse(raw_url=raw_url, encode_option=encode_option,
+                                                        encoding=encoding))
 
 
 class Query:

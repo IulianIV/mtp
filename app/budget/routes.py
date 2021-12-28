@@ -32,7 +32,8 @@ def summary():
         'validation_sources': db_queries.get_validation_sources_count()
     }
 
-    return render_template('budget/summary.html', db_queries=db_queries, table_counts=table_counts, validation_counts=validation_counts)
+    return render_template('budget/summary.html', db_queries=db_queries, table_counts=table_counts,
+                           validation_counts=validation_counts)
 
 
 @bp.route('/new-expense-entry', methods=('GET', 'POST'))
@@ -71,7 +72,8 @@ def add_expense_entry():
 
         return redirect(url_for('budget.add_expense_entry'))
 
-    return render_template('budget/expense.html', expense_form=expense_form, db_queries=db_queries, table_counts=table_counts)
+    return render_template('budget/expense.html', expense_form=expense_form, db_queries=db_queries,
+                           table_counts=table_counts)
 
 
 @bp.route('/new-revenue-entry', methods=('GET', 'POST'))
@@ -100,7 +102,8 @@ def add_revenue_entry():
 
         return redirect(url_for('budget.add_revenue_entry'))
 
-    return render_template('budget/revenue.html', revenue_form=revenue_form, db_queries=db_queries, table_counts=table_counts)
+    return render_template('budget/revenue.html', revenue_form=revenue_form, db_queries=db_queries,
+                           table_counts=table_counts)
 
 
 @bp.route('/new-savings-entry', methods=('GET', 'POST'))
@@ -142,7 +145,8 @@ def add_savings_entry():
 
         return redirect(url_for('budget.add_savings_entry'))
 
-    return render_template('budget/savings.html', savings_form=savings_form, db_queries=db_queries, table_counts=table_counts)
+    return render_template('budget/savings.html', savings_form=savings_form, db_queries=db_queries,
+                           table_counts=table_counts)
 
 
 @bp.route('/validation', methods=('GET', 'POST'))
@@ -239,7 +243,8 @@ def validation_categories():
 
         category_list = db_queries.get_validation_category(categories)
 
-        # fixme repair the login. ATM it throws an TypeError: argument of type 'ValidationSavingCategories' is not iterable
+        # fixme repair the login. ATM it throws an
+        #  TypeError: argument of type 'ValidationSavingCategories' is not iterable
 
         # if category_list is not None and categories in category_list:
         #
@@ -485,7 +490,8 @@ def add_utilities_entry():
 
         return redirect(url_for('budget.add_utilities_entry'))
 
-    return render_template('budget/utilities.html', db_queries=db_queries, utilities_form=utilities_form, table_counts=table_counts)
+    return render_template('budget/utilities.html', db_queries=db_queries,
+                           utilities_form=utilities_form, table_counts=table_counts)
 
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
