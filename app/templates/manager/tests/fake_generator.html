@@ -67,11 +67,12 @@ $(function () {
     $('select[name="fake_choices"]').change(function () {
         var val = $(this).find('option:selected').text();
         if (val == 'Fake URLs') {
+            $('label[for="fake_number"]').text("Choose number of fakes to generate [integer] (e.g. 5)");
             $('input[name="have_params"]').fadeIn();
             $('input[name="randomized_params"]').fadeIn();
             $('label[for="have_params"]').fadeIn();
             $('label[for="randomized_params"]').fadeIn();
-        } else if (val == 'Fake Validation') {
+        } else if (val == 'Fake Validation' || val == 'Fake Users') {
             $('label[for="fake_number"]').text("Choose number of fakes to generate [integer] (e.g. 5)");
             $('input[name="have_params"]').hide();
             $('input[name="randomized_params"]').hide();

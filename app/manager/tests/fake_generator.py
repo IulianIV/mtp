@@ -5,6 +5,7 @@ from faker import Faker
 from flask import (
     redirect, render_template, request, url_for
 )
+from flask_login import current_user
 
 from app.auth.routes import login_required
 from app.manager import tests_bp
@@ -20,15 +21,16 @@ from app.webtools.routes import encodings
 def add_fakes():
     fake_form = AddFakes()
 
-    fake_form.fake_choices.choices = ['Fake Posts', 'Fake Revenue', 'Fake Saving', 'Fake Expense', 'Fake Utilities',
-                                      'Fake Validation', 'Fake URLs']
+    fake_form.fake_choices.choices = ['Fake Users', 'Fake Posts', 'Fake Revenue', 'Fake Saving',
+                                      'Fake Expense', 'Fake Utilities', 'Fake Validation', 'Fake URLs']
 
     if request.method == 'POST':
         if fake_form.is_submitted() and fake_form.fake_choices.data != 'Fake URLs':
             fake_choice = fake_form.fake_choices.data
-            fake_range = fake_form.fake_number.data
+            fake_number = fake_form.fake_number.data
 
             choice_func_map = {
+                'Fake Users': create_fake_users,
                 'Fake Posts': create_fake_posts,
                 'Fake Revenue': create_fake_revenue,
                 'Fake Saving': create_fake_saving,
@@ -37,7 +39,7 @@ def add_fakes():
                 'Fake Validation': create_fake_validation
             }
 
-            fake_data = choice_func_map[fake_choice](fake_range)
+            fake_data = choice_func_map[fake_choice](fake_number)
 
             form_validated_message(f'Successfully added {fake_data} {fake_choice}')
 
@@ -60,11 +62,24 @@ def add_fakes():
 
             fake_data = choice_func_map[fake_choice](fake_range, fake_utm, fake_params)
 
-            form_validated_message(f'Successfully added {fake_data}')
+            form_validated_message(f'Successfully added {fake_data} URLs')
 
             return redirect(url_for('manager-tests.add_fakes'))
 
     return render_template('manager/tests/fake_generator.html', fake_form=fake_form)
+
+
+def create_fake_users(users_num: int):
+    """Generate fake users."""
+    faker = Faker()
+
+    for i in range(int(users_num)):
+        user = User(username=faker.first_name())
+        user.set_password(faker.bothify(text='??###'))
+        db.session.add(user)
+    db.session.commit()
+    print(f'Added {users_num} fake users to the database.')
+    return users_num
 
 
 def create_fake_posts(posts_range: str):
@@ -74,7 +89,7 @@ def create_fake_posts(posts_range: str):
     gen_num = random.randint(int(posts_range[0]), int(posts_range[1]))
 
     for i in range(gen_num):
-        post = Post(author_id=1, title=faker.paragraph(nb_sentences=1, variable_nb_sentences=False),
+        post = Post(author_id=current_user.get_id(), title=faker.paragraph(nb_sentences=1, variable_nb_sentences=False),
                     body=faker.paragraph(nb_sentences=5, variable_nb_sentences=True))
         db.session.add(post)
     db.session.commit()
@@ -212,6 +227,12 @@ def create_fake_urls(urls_num: int, url_params: bool = False, randomized_params:
         print(f'Added {urls_num} fake urls to the database with fake parameters and fake values.')
 
     return urls_num
+
+
+@tests_bp.cli.command('create-fake-users')
+@click.argument('users_num')
+def cli_create_fake_users(users_num: int):
+    create_fake_users(users_num)
 
 
 @tests_bp.cli.command('create-fake-posts')
