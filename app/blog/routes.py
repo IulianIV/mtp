@@ -19,11 +19,13 @@ db_update = Update()
 db_delete = Delete()
 
 
+# TODO show creator of post by username not by author_id
 @bp.route('/')
 def index():
     user_id = current_user.get_id()
 
     posts = db_queries.query_blog_posts()
+    print(posts[1].author_id)
     return render_template('blog/index.html', posts=posts)
 
 
