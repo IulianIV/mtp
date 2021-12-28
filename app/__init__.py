@@ -23,7 +23,7 @@ toolbar = DebugToolbarExtension()
 # TODO Upon choosing a test database, a initialization will autofill with fake data.
 # TODO now that you can make faker work finish the app by using fake data for easier control.
 #   when you have a stable budgeting functionality, then make it usable
-# fix-me see the base.html file HTML structure that hides API template view
+# fixme see the base.html file HTML structure that hides API template view
 # better-me rename tests button as dropdown
 # better-me find out how to make nested menus
 """
@@ -35,6 +35,18 @@ Which is better, why does the latter work only if implemented by the formers met
 details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 
 """  # TODO Fix this CLI implementation confusion.
+# TODO Add User Avatars, Post Image in DataBase
+#   if no image is provided randomly generate one (avatar & post alike)
+#   all should be deletable/editable. If on edit a image is deleted and no other is provided, generate a random one.
+#   Same for user creation. Can be added an Image. If none, generate.
+#   Images should have requirements for upload for posting.
+# TODO Move Error pages to another app, not Authentication.
+# fixme add security to log in and registering functionality.
+#   current validation checks are done by form data input not by the Form class itself. Check why.
+#   consult with the log-in implementation from Miguel.
+# TODO add a password reset form.
+# TODO add e-amil validation for accounts.
+# TODO have password fields be checked as is and when hashed.
 
 
 def create_app(test_config=None):
@@ -44,6 +56,7 @@ def create_app(test_config=None):
     app.cli.add_command(init_db_command)
 
     # Start of possibly not efficient CLI implementation
+    app.cli.add_command(fake_generator.cli_create_fake_users)
     app.cli.add_command(fake_generator.cli_create_fake_validation)
     app.cli.add_command(fake_generator.cli_create_fake_posts)
     app.cli.add_command(fake_generator.cli_create_fake_saving)
@@ -95,6 +108,9 @@ def create_app(test_config=None):
 
     from app.manager import tests_bp as manager_tests_bp
     app.register_blueprint(manager_tests_bp)
+
+    from app.analytics import bp as analytics_bp
+    app.register_blueprint(analytics_bp)
 
     app.add_url_rule('/', endpoint='index')
 
