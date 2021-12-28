@@ -2,7 +2,7 @@ from typing import NewType, Union
 
 from app.manager.db.models import *
 
-# Type checking
+# Type hinting
 DateTime = NewType('DateTime', datetime)
 
 
@@ -116,6 +116,10 @@ class Query:
         return Post.query.order_by(Post.created).all()
 
     @staticmethod
+    def get_username_from_post_author(post_author_id: int) -> str:
+        return User.query.filter_by(id=post_author_id).first().username
+
+    @staticmethod
     def get_validation_item(item_value: str) -> str:
         return ValidationSavingItems.query.filter_by(items=item_value).first()
 
@@ -199,3 +203,9 @@ class Delete:
         Post.query.filter_by(id=post_id).delete()
 
         self.db.session.commit()
+
+
+class BudgetQueries:
+
+    def __init__(self):
+        self.db = db
