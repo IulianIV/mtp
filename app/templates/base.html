@@ -5,14 +5,14 @@
     {% endblock %}
     {# Testing conditional debugging #}
     {% if config['DEBUG'] %}
-    <link rel="stylesheet" href=" {{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     {% else %}
     <link rel="stylesheet" href="https://tech-biomed.com/mtp_static/styles.css">
     {% endif %}
     {# end of conditional debugging #}
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon2.ico') }}">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.css">
-<!-- Might be needed for the current blog styling    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />-->
+    <!-- Might be needed for the current blog styling    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />-->
     <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf8"
             src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
@@ -22,170 +22,54 @@
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
 
+
 </head>
 <body class="sb-nav-fixed">
-<div class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+<nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     {% if not current_user.is_anonymous %}
-    <a class="navbar-brand" href="{{ url_for('index')}}">MTP Web App - Welcome admin!</a>
+    <a class="navbar-brand" href="{{ url_for('index')}}">Welcome, {{ current_user.username }}!</a>
     {% else %}
-    <a class="navbar-brand" href="{{ url_for('index')}}">MTP Web App</a>
+    <a class="navbar-brand" href="{{ url_for('index')}}">Welcome, Anonymous!</a>
     {% endif %}
-</div>
-<div id="layoutSidenav">
-    <div id="layoutSidenav_nav">
-        <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-            <div class="sb-sidenav-menu">
-                <div class="nav">
-                    <div class="sb-sidenav-menu-heading">Core</div>
-                    <a class="nav-link" href="{{ url_for('index')}}">
-                        <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                        Dashboard
-                    </a>
-                    <div class="sb-sidenav-menu-heading">Interface</div>
-                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                       aria-expanded="false" aria-controls="collapsePages">
-                        <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
-                        Authentication
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapsePages" aria-labelledby="headingTwo"
-                         data-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
-                            {% if current_user.is_anonymous %}
-                            <a class="nav-link collapsed" href="{{ url_for('auth.login') }}"
-                               data-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">Login</a>
-                            <a class="nav-link collapsed" href="{{ url_for('auth.register') }}"
-                               data-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">Register</a>
-                            {% else %}
-                            <a class="nav-link collapsed" href="#">Forgot Password</a>
-                            {% endif %}
-                            {% if not current_user.is_anonymous %}
-                            <a class="nav-link collapsed" href="{{ url_for('auth.logout') }}"
-                               data-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">Logout</a>
-                            <a class="nav-link collapsed" href="#" data-toggle="collapse"
-                               data-target="#pagesCollapseError" aria-expanded="false"
-                               aria-controls="pagesCollapseError">
-                                Error
-                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                            </a>
-                            <div class="collapse" id="pagesCollapseError" aria-labelledby="headingOne"
-                                 data-parent="#sidenavAccordionPages">
-                                <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="{{ url_for('seo.error_401') }}">401
-                                        Page</a>
-                                    <a class="nav-link" href="{{ url_for('seo.error_404') }}">404
-                                        Page</a>
-                                    <a class="nav-link" href="{{ url_for('seo.error_500') }}">500
-                                        Page</a>
-                                </nav>
-                            </div>
-                        </nav>
-                    </div>
-                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts"
-                       aria-expanded="false" aria-controls="collapseLayouts">
-                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                        Micro-blog
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne"
-                         data-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="{{ url_for('blog.index') }}">Homepage</a>
-                            <a class="nav-link" href="{{ url_for('blog.create') }}">Create post</a>
-                        </nav>
-                    </div>
-                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBudget"
-                       aria-expanded="false" aria-controls="collapseBudget">
-                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                        Budget
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapseBudget" aria-labelledby="headingOne"
-                         data-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="{{ url_for('budget.summary') }}">Summary</a>
-                            <a class="nav-link" href="#">Statistics</a>
-                            <a class="nav-link" href="#">Reporting</a>
-                            <a class="nav-link" href="#">Lookup</a>
-                            <a class="nav-link" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
-                            <a class="nav-link" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
-                            <a class="nav-link" href="{{ url_for('budget.add_expense_entry') }}">Add Expense</a>
-                            <a class="nav-link" href="{{ url_for('budget.add_utilities_entry') }}">Add Utilities</a>
-                            <a class="nav-link" href="{{ url_for('budget.validation') }}">Validation</a>
-                        </nav>
-                    </div>
-                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseWebTools"
-                       aria-expanded="false" aria-controls="collapseWebTools">
-                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                        Web Tools
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapseWebTools" aria-labelledby="headingOne"
-                         data-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="{{ url_for('webtools.url_encode_decode_parse') }}">URL
-                                Encoder/Decoder & Parse</a>
-
-                        </nav>
-                    </div>
-                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOthers"
-                       aria-expanded="false" aria-controls="collapseDataflow">
-                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                        Dataflow
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="collapseDataflow" aria-labelledby="headingOne"
-                         data-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="{# {{ url_for('manager.dataflow.importer') }} #}#">Import data</a>
-                            <a class="nav-link" href="{# {{ url_for('manager.dataflow.exporter') }} #}#">Export data</a>
-                        </nav>
-                    </div>
-                    {# <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOthers"
-                          aria-expanded="false" aria-controls="collapseApi">
-                    <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                    API Data & Calls
-                    <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownProfile" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Profile
                 </a>
-                    <div class="collapse" id="collapseApi" aria-labelledby="headingOne"
-                         data-parent="#sidenavAccordion">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="{{ url_for('api.data') }}">Budget Expense JSON</a>
-                        </nav>
-                    </div>
-                    #}
-                    {% endif %}
+                {% if current_user.is_anonymous %}
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownProfile">
+                    <a class="dropdown-item" href="{{ url_for('auth.login') }}">Login</a>
+                    <a class="dropdown-item" href="{{ url_for('auth.register') }}">Register</a>
                 </div>
-            </div>
-            {% if not current_user.is_anonymous and current_user.username == 'admin' %}
-            <div class="sb-sidenav-footer">
-                <div class="small">Logged in as:</div>
-                MTP Admin
-            </div>
-            {% elif not current_user.is_anonymous %}
-            <div class="sb-sidenav-footer">
-                <div class="small">Logged in as:</div>
-                Welcome, {{ current_user.username }}!
-            </div>
-            {% endif %}
-        </nav>
-    </div>
-    <div id="layoutSidenav_content">
-        <main>
-            <div class="container-fluid">
-                <h1 class="mt-4">Toolbar</h1>
-                <div class="breadcrumb mb-4">
-                    {% if not current_user.is_anonymous %}
-                    <a class="btn btn-secondary" style="margin: 2px;" role="button" href="{{ url_for('blog.index') }}">Blog</a>
-                    <a class="btn btn-info" style="margin: 2px;" role="button" href="#">Reporting</a>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"
-                                aria-haspopup="true"
-                                aria-expanded="false" style="margin: 2px;">
-                            Budget
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ url_for('budget.summary') }}">Summary</a>
+                {% elif not current_user.is_anonymous %}
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ url_for('seo.error_401') }}">401 Error Page</a>
+                    <a class="dropdown-item" href="{{ url_for('seo.error_404') }}">404 Error Page</a>
+                    <a class="dropdown-item" href="{{ url_for('seo.error_500') }}">500 Error Page</a>
+                </div>
+                {% endif %}
+            </li>
+            {% if not current_user.is_anonymous %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBlog" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Blog
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownBlog">
+                    <a class="dropdown-item" href="{{ url_for('blog.create') }}">Create Post</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBudget" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Budget
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownBudget">
+                    <a class="dropdown-item" href="{{ url_for('budget.summary') }}">Summary</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
                             <a class="dropdown-item" href="{{ url_for('budget.add_expense_entry') }}">Add New
@@ -195,56 +79,79 @@
                                 Utilities</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url_for('budget.validation') }}">See Validation</a>
-                        </div>
-                    </div>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown"
-                                aria-haspopup="true"
-                                aria-expanded="false" style="margin: 2px;">
-                            Webtools
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ url_for('webtools.url_encode_decode_parse') }}">URL
+                </div>
+            </li>
+             <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownWebtools" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Webtools
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownWebtools">
+                    <a class="dropdown-item" href="{{ url_for('webtools.url_encode_decode_parse') }}">URL
                                 Encoder/Decoder & Parse</a>
                             <a class="dropdown-item" href="{{ url_for('webtools.url_checker') }}">URL Checker</a>
-                        </div>
-                    </div>
-                        <a class="btn btn-light" style="margin: 2px;" role="button" href="#">Data flow</a>
-                    <a class="btn btn-light" style="margin: 2px;" role="button" href="{{ url_for('manager-tests.add_fakes') }}">Faker</a>
-                        {% endif %}
-                    </div>
-
-                    <div class="row">
-                        {% with no_errors = get_flashed_messages(category_filter=["validated"]), errors =
-                        get_flashed_messages(category_filter=["error"]) %}
-                        {% if no_errors %}
-                        <div class="col-xl-3 col-md-6">
-                            <div class="card bg-success text-white mb-4">
-                                <div class="card-body">Validation success</div>
-                                <div class="card-footer d-flex align-items-center justify-content-between">
-                                    {% for msg in no_errors %}
-                                    <p class="small text-white stretched-link">{{ msg }}</p>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                        {% elif errors %}
-                        <div class="col-xl-3 col-md-6">
-                            <div class="card bg-danger text-white mb-4">
-                                <div class="card-body">Error messages</div>
-                                <div class="card-footer d-flex align-items-center justify-content-between">
-                                    {% for msg in errors %}
-                                    <p class="small text-white stretched-link">{{ msg }}</p>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% endwith %}
-                    </div>
-                    {% block content %}
-                    {% endblock %}
                 </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAnalytics" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Analytics
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownAnalytics">
+                    <a class="dropdown-item" href="{{ url_for('analytics.lifetime_expense') }}">Reporting (temp)</a>
+                            <a class="dropdown-item" href="#">Statistics</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownManager" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Manager
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownManager">
+                    <a class="dropdown-item" href="{{ url_for('manager-tests.add_fakes') }}">Faker</a>
+                            <a class="dropdown-item" href="#">Data flow</a>
+                            <a class="dropdown-item" href="#">API Data & Calls</a>
+                </div>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid">
+                <div class="row">
+                    {% with no_errors = get_flashed_messages(category_filter=["validated"]), errors =
+                    get_flashed_messages(category_filter=["error"]) %}
+                    {% if no_errors %}
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card bg-success text-white mb-4">
+                            <div class="card-body">Success</div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                {% for msg in no_errors %}
+                                <p class="small text-white stretched-link">{{ msg }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% elif errors %}
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card bg-danger text-white mb-4">
+                            <div class="card-body">Error messages</div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                {% for msg in errors %}
+                                <p class="small text-white stretched-link">{{ msg }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+                {% block content %}
+                {% endblock %}
+            </div>
         </main>
         <footer class="py-4 bg-light mt-auto">
             <div class="container-fluid">
@@ -258,7 +165,9 @@
                 </div>
             </div>
         </footer>
+
     </div>
 </div>
+<!--<script type="text/javascript" src="{{ url_for('static', filename='helpers.js') }}" crossorigin="anonymous"></script>-->
 </body>
 </html>
