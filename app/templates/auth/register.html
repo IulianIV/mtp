@@ -1,7 +1,6 @@
 {% extends 'auth_base.html' %}
 
 {% block head %}
-<!--suppress GrazieInspection, GrazieInspection -->azieInspection -->
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -42,10 +41,6 @@
 </div>
 <div class="card-footer text-center">
     <div class="small"><a href="{{ url_for('auth.login') }}">Have an account? Go to login</a></div>
-</div>
-{% elif not current_user.is_anonymous %}
-<div class="card-footer text-center">
-    <div class="small"><a href="{{ url_for('index') }}">You already have an account.</a></div>
 </div>
 {% endif %}
 {% endblock %}

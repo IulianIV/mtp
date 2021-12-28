@@ -1,19 +1,18 @@
 import functools
+
 from flask import (
-   redirect, render_template, session, url_for
+    redirect, render_template, url_for
 )
 from flask_login import login_user, current_user, logout_user
+
+from app import db
 from app.auth import bp
 from app.auth.forms import LoginForm, RegisterForm
-from app.manager.protection import form_validated_message, form_error_message
 from app.manager.db.models import User
-from app import db
+from app.manager.protection import form_validated_message, form_error_message
 
 
 # better-me handle situation when user already exists
-# better-me handle situation when password != password_retype
-# better-me handle logic for password and password retype matching
-# better-me check the Register logic from Miguel Grinberg and implement
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
@@ -23,30 +22,31 @@ def register():
 
     register_form = RegisterForm()
 
-    if register_form.is_submitted() and register_form.validate_on_submit():
+    if register_form.is_submitted() :
 
         username = register_form.username.data
         password = register_form.password.data
+        password_retype = register_form.password_retype.data
 
-        form_validated_message(f'Register requested for user {username}')
+        if password == password_retype:
+            form_validated_message(f'User {username} has been registered and logged in')
 
-        user = User(username=username)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
+            user = User(username=username)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
 
-        return redirect(url_for('index'))
+            login_user(user)
 
-    elif register_form.is_submitted() and register_form.validate_on_submit():
-        form_error_message('Passwords must be identical.')
+            return redirect(url_for('index'))
+        else:
+            form_error_message(f'Passwords must be identical.')
+            return redirect(url_for('auth.register'))
 
     return render_template('auth/register.html', register_form=register_form)
 
 
 # better-me improve the login functionality
-# better-me fix the log in
-# better-me follow the Log In structure from Miguel Grinberg and implement it
-
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
 
@@ -61,47 +61,30 @@ def login():
 
     if login_form.is_submitted() and login_form.validate_on_submit():
 
-        form_validated_message(f'Login requested for user {username}, remember_me={remember_me}')
-
         user = User.query.filter_by(username=username).first()
 
         if user is None or not user.check_password(password):
             form_error_message('Invalid username or password')
             return render_template('auth/login.html', login_form=login_form)
+        else:
+            if remember_me:
+                form_validated_message(f'{username} is now logged in. {username} will be remembered')
+            else:
+                form_validated_message(f'{username} is now logged in. {username} is not set up for remember')
 
         login_user(user, remember=remember_me)
 
         return redirect(url_for('index'))
 
-    elif not login_form.validate_on_submit():
-        form_error_message('Error occurred.')
-
-    # better-me Improve the way errors are shown with custom css or by implementing the card system
-
     return render_template('auth/login.html', login_form=login_form)
 
 
-# better-me follow the Log In structure from Miguel Grinberg and implement it
-@bp.before_app_request
-def load_logged_in_user():
-    user_id = session.get(f'User.query.all().first()')
-
-    if user_id is None:
-        user = None
-    else:
-        user = User.query.filter_by(id=user_id).first()
-
-    return user
-
-
-# better-me follow the Log In structure from Miguel Grinberg and implement it
 @bp.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('auth.login'))
 
 
-# better-me follow the Log In structure from Miguel Grinberg and implement it
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
