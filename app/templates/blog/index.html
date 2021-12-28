@@ -14,91 +14,36 @@
 {% endblock %}
 
 {% block content %}
-<div class="card mb-4">
-    <div class="card-header">
-        <i class="fas fa-table mr-1"></i>
-        Posts
-    </div>
-    <div class="card-body">
-        <div class="card-deck">
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src="..." alt="Card image cap">
-                <div class="card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                        card's content.</p>
+<div class="container-for-posts">
+    <div class="row pt-5-for-posts m-auto">
+        {% for post in posts %}
+        <div class="col-md-6 col-lg-4 pb-3">
+            <div class="card card-custom bg-white border-white border-0" style="height: 450px">
+                <div class="card-custom-img"
+                     style="background-image: url(http://res.cloudinary.com/d3/image/upload/c_scale,q_auto:good,w_1110/trianglify-v1-cs85g_cc5d2i.jpg);"></div>
+                <div class="card-custom-avatar">
+                    <img class="img-fluid"
+                         src="http://res.cloudinary.com/d3/image/upload/c_pad,g_center,h_200,q_auto:eco,w_200/bootstrap-logo_u3c8dx.jpg"
+                         alt="Avatar"/>
                 </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Cras justo odio</li>
-                    <li class="list-group-item">Dapibus ac facilisis in</li>
-                    <li class="list-group-item">Vestibulum at eros</li>
-                </ul>
-                <div class="card-body">
-                    <a href="#" class="card-link">Card link</a>
-                    <a href="#" class="card-link">Another link</a>
+                <div class="card-body" style="overflow-y: auto">
+                    <h4 class="card-title">{{ post.title }}</h4>
+                    <p class="card-text">{{ post.body }}</p>
+                    <p class="card-text">by {{ post.author_id }} on {{ post.created.strftime('%Y-%m-%d') }}</p>
                 </div>
+                {% if current_user.id == post.author_id %}
+                <div class="card-footer" style="background: inherit; border-color: inherit;">
+                    <a href="{{ url_for('blog.update', post_id=post.id) }}" class="btn btn-primary">Edit</a>
+                    <a href="{{ url_for('blog.delete', post_id=post.id) }}" class="btn btn-outline-primary">Delete</a>
+                </div>
+                {% else %}
+                <div class="card-footer" style="background: inherit; border-color: inherit;">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log in to edit posts.</a>
+                </div>
+                {% endif %}
             </div>
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src="..." alt="Card image cap">
-                <div class="card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
-                        card's content.</p>
-                </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Cras justo odio</li>
-                    <li class="list-group-item">Dapibus ac facilisis in</li>
-                    <li class="list-group-item">Vestibulum at eros</li>
-                </ul>
-                <div class="card-body">
-                    <a href="#" class="card-link">Card link</a>
-                    <a href="#" class="card-link">Another link</a>
-                </div>
-            </div>
-
         </div>
-        <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Body</th>
-                    <th>About</th>
-                    <th>Image</th>
-                    <th>Options</th>
-                </tr>
-                </thead>
-                <tbody class="post">
-                {% for post in posts %}
-                <tr>
-                    <th class="small mb-1">{{ post.title }}</th>
-                    <th class="small mb-1">{{ post.body }}</th>
-                    <th class="small mb-1">by {{ post.username }} on {{ post.created.strftime('%Y-%m-%d')
-                        }}
-                    </th>
-                    <th>
-                        <img src="{{ url_for('static', filename='avatar.png') }}"
-                             style="width: 50px; height: 50px; align: center"/>
-                    </th>
-
-                    {% if current_user.id == post.author_id %}
-                    <th>
-                        <div class="custom-container">
-                            <a class="action" href="{{ url_for('blog.update', post_id=post.id) }}">Edit</a>
-                            <p>|</p>
-                            <a class="action" href="{{ url_for('blog.delete', post_id=post.id) }}">Delete</a>
-                        </div>
-                    </th>
-                    {% else %}
-                    <th>
-                        <span><a class="action" href="{{ url_for('auth.login') }}">Log in</a> to edit posts.</span>
-                    </th>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% endfor %}
     </div>
 </div>
 
