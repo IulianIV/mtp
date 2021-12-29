@@ -11,7 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from config import Config
 
-__version__ = (1, 0, 0, "dev")
+__version__ = (1, 1, 0, "dev")
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -21,29 +21,20 @@ toolbar = DebugToolbarExtension()
 # better-me Add a way to switch databases (switch from production to testing)
 #   think about how to version a test db.
 # TODO Upon choosing a test database, a initialization will autofill with fake data.
-# TODO now that you can make faker work finish the app by using fake data for easier control.
-#   when you have a stable budgeting functionality, then make it usable
-# fixme see the base.html file HTML structure that hides API template view
-# better-me rename tests button as dropdown
-# better-me find out how to make nested menus
 """
- there seems to be some confusion onf how CLI are implemented.
-@click.command() coupled with @with_appcontext si for situation when the flask.cli built-in method is not used.
+ there seems to be some confusion on how CLI are implemented.
+@click.command() coupled with @with_appcontext is for situation when the flask.cli built-in method is not used.
 @blueprint_name.cli.command() is the flask.cli built-in method.
 Which is better, why does the latter work only if implemented by the formers method?
 
 details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 
 """  # TODO Fix this CLI implementation confusion.
-# TODO Add User Avatars, Post Image in DataBase
+# TODO Post Image in DataBase
 #   if no image is provided randomly generate one (avatar & post alike)
 #   all should be deletable/editable. If on edit a image is deleted and no other is provided, generate a random one.
 #   Same for user creation. Can be added an Image. If none, generate.
 #   Images should have requirements for upload for posting.
-# TODO Move Error pages to another app, not Authentication.
-# fixme add security to log in and registering functionality.
-#   current validation checks are done by form data input not by the Form class itself. Check why.
-#   consult with the log-in implementation from Miguel.
 # TODO add a password reset form.
 # TODO add e-amil validation for accounts.
 # TODO have password fields be checked as is and when hashed.
