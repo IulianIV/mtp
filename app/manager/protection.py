@@ -1,8 +1,9 @@
+import secrets
+from datetime import datetime
+
 from flask import Flask, flash
 from flask_wtf import CSRFProtect
 from wtforms.validators import ValidationError
-from datetime import datetime
-import secrets
 
 
 class CustomCSRF:
@@ -57,3 +58,19 @@ class CheckForNumber(object):
         except ValueError:
             self.message = 'Value must be a number. Can not import text.'
             raise ValidationError(form_error_message(self.message))
+
+
+def check_range(ranged_faker_func):
+
+    def wrapper(*args):
+        range_nums = args[0].split('-')
+
+        if int(range_nums[0]) >= int(range_nums[1]):
+            form_error_message(f'Given range {args[0]} must '
+                               f'evaluate to an ascending positive integer range (e.g. 1-5). ')
+        else:
+            print('they are good', 'test 2 after validty check')
+            print(args[0], 'arguments print good, decorator')
+            return ranged_faker_func(args[0])
+
+    return wrapper
