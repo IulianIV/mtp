@@ -73,6 +73,12 @@ class Query:
         self.db = db
 
     @staticmethod
+    def check_existing_user(username):
+        user = User.query.filter_by(username=username).first()
+
+        return user
+
+    @staticmethod
     def query_expense_entries() -> list:
         return BudgetExpense.query.order_by(BudgetExpense.expense_date.desc())
 
