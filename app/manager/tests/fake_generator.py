@@ -10,12 +10,13 @@ from flask_login import current_user
 from app.auth.routes import login_required
 from app.manager import tests_bp
 from app.manager.db.models import *
-from app.manager.protection import form_validated_message, form_error_message
+from app.manager.protection import form_validated_message, form_error_message, check_range
 from app.manager.tests.forms import AddFakes
 from app.webtools.routes import encodings
 
 
-# better-me add validation for ranges
+# TODO Validation for ranges added. Research if custom validation through WTForms would be better. Whilst with this
+#   you learned about decorators
 @tests_bp.route('/tests/fake-data-generator', methods=('GET', 'POST'))
 @login_required
 def add_fakes():
@@ -40,6 +41,8 @@ def add_fakes():
             }
 
             fake_data = choice_func_map[fake_choice](fake_number)
+            if not fake_data:
+                return redirect(url_for('manager-tests.add_fakes'))
 
             form_validated_message(f'Successfully added {fake_data} {fake_choice}')
 
@@ -82,6 +85,8 @@ def create_fake_users(users_num: int):
     return users_num
 
 
+# fixme upon using current_user.get_id() to post on behalf of logged user, CLI usage is bugged.
+@check_range
 def create_fake_posts(posts_range: str):
     """Generate fake posts."""
     faker = Faker()
@@ -89,14 +94,16 @@ def create_fake_posts(posts_range: str):
     gen_num = random.randint(int(posts_range[0]), int(posts_range[1]))
 
     for i in range(gen_num):
-        post = Post(author_id=current_user.get_id(), title=faker.paragraph(nb_sentences=1, variable_nb_sentences=False),
+        post = Post(author_id=current_user.get_id() if current_user is not None else 1,
+                    title=faker.paragraph(nb_sentences=1, variable_nb_sentences=False),
                     body=faker.paragraph(nb_sentences=5, variable_nb_sentences=True))
         db.session.add(post)
     db.session.commit()
-    print(f'Added {gen_num} fake posts to the database.')
+
     return gen_num
 
 
+@check_range
 def create_fake_revenue(revenue_range: str):
     """Generate fake revenue entries."""
     revenue_range = revenue_range.split('-')
@@ -111,6 +118,7 @@ def create_fake_revenue(revenue_range: str):
     return gen_num
 
 
+@check_range
 def create_fake_saving(saving_range: str):
     """Generate fake savings entries."""
     saving_range = saving_range.split('-')
@@ -127,6 +135,7 @@ def create_fake_saving(saving_range: str):
     return gen_num
 
 
+@check_range
 def create_fake_expense(expense_range: str):
     """Generate fake expense entries."""
     expense_range = expense_range.split('-')
@@ -143,6 +152,7 @@ def create_fake_expense(expense_range: str):
     return gen_num
 
 
+@check_range
 def create_fake_utilities(utilities_range: str):
     """Generate fake expense entries."""
     utilities_range = utilities_range.split('-')
