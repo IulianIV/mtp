@@ -5,14 +5,16 @@ from flask import (
 )
 from flask_login import login_user, current_user, logout_user
 
-from app import db
 from app.auth import bp
 from app.auth.forms import LoginForm, RegisterForm
-from app.manager.db.models import User
+from app.manager.db.db_interrogations import *
 from app.manager.protection import form_validated_message, form_error_message
 
 
 # better-me handle situation when user already exists
+
+db_insert = Insert()
+
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
@@ -22,21 +24,18 @@ def register():
 
     register_form = RegisterForm()
 
-    if register_form.is_submitted() :
+    if register_form.is_submitted():
 
         username = register_form.username.data
         password = register_form.password.data
         password_retype = register_form.password_retype.data
+        email = register_form.email.data
 
         if password == password_retype:
-            form_validated_message(f'User {username} has been registered and logged in')
+            form_validated_message(f'User {username} has been registered. Please log in to continue')
 
-            user = User(username=username)
-            user.set_password(password)
-            db.session.add(user)
+            db_insert.insert_user(username, email, password)
             db.session.commit()
-
-            login_user(user)
 
             return redirect(url_for('index'))
         else:
