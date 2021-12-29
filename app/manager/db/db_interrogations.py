@@ -11,6 +11,11 @@ class Insert:
     def __init__(self):
         self.db = db
 
+    def insert_user(self, username: str, email: str, password: str):
+        user = User(username=username, email=email)
+        user.set_password(password)
+        return self.db.session.add(user)
+
     def insert_expense(self, date: DateTime, item: str, value: str, item_category: str, source: str):
         return self.db.session.add(
             BudgetExpense(expense_date=date, expense_item=item, expense_value=value,
@@ -118,6 +123,10 @@ class Query:
     @staticmethod
     def get_username_from_post_author(post_author_id: int) -> str:
         return User.query.filter_by(id=post_author_id).first().username
+
+    @staticmethod
+    def get_user_from_post_author(post_author_id: int) -> str:
+        return User.query.filter_by(id=post_author_id).first()
 
     @staticmethod
     def get_validation_item(item_value: str) -> str:
