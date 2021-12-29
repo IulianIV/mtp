@@ -1,17 +1,20 @@
 from flask import (
     request, redirect, url_for
 )
-from app.manager.db.models import BudgetExpense, BudgetRevenue, BudgetSaving, BudgetUtilities
-from app.api import bp
+
 from app import db
+from app.api import bp
+from app.manager.db.models import BudgetExpense, BudgetRevenue, BudgetSaving, BudgetUtilities
 
 
-# has-dependency Permissions Module:
-#   should only be visible and accessible to certain types of users.
+# fixme it is now basically inaccessible form the FE.
+#   accessing the /api/data URL with '?loc_path="{url_from_table_map_encoded}"' renders the page as it triggers and
+#   bypassing the functionality. Fix this.
 
 
-@bp.route('/data', methods=('GET', 'POST'))
+@bp.route('/data', methods=['GET'])
 def data():
+
     # get current path
     if request.args.get('loc_path', type=str):
         current_loc = request.args.get('loc_path', type=str)
