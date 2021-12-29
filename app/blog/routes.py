@@ -25,7 +25,8 @@ db_delete = Delete()
 @bp.route('/')
 def index():
     posts = db_queries.query_blog_posts()
-    return render_template('blog/index.html', posts=posts, author_name=db_queries.get_username_from_post_author)
+    return render_template('blog/index.html', posts=posts, author_name=db_queries.get_username_from_post_author,
+                           user=db_queries.get_user_from_post_author)
 
 
 @bp.route('/create', methods=('GET', 'POST'))
