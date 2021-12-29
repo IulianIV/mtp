@@ -10,10 +10,8 @@ from app.auth.forms import LoginForm, RegisterForm
 from app.manager.db.db_interrogations import *
 from app.manager.protection import form_validated_message, form_error_message
 
-
-# better-me handle situation when user already exists
-
 db_insert = Insert()
+db_query = Query()
 
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -31,15 +29,20 @@ def register():
         password_retype = register_form.password_retype.data
         email = register_form.email.data
 
-        if password == password_retype:
+        username_validity = db_query.check_existing_user(username)
+
+        if password == password_retype and username_validity is None:
             form_validated_message(f'User {username} has been registered. Please log in to continue')
 
             db_insert.insert_user(username, email, password)
             db.session.commit()
 
             return redirect(url_for('index'))
+        elif password != password_retype and username_validity:
+            form_error_message(f'Passwords must be identical. Username {username} already exists.')
+            return redirect(url_for('auth.register'))
         else:
-            form_error_message(f'Passwords must be identical.')
+            form_error_message('Either password or username are incorrect.')
             return redirect(url_for('auth.register'))
 
     return render_template('auth/register.html', register_form=register_form)
