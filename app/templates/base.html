@@ -46,16 +46,13 @@
                 {% elif not current_user.is_anonymous %}
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ url_for('seo.error_401') }}">401 Error Page</a>
-                    <a class="dropdown-item" href="{{ url_for('seo.error_404') }}">404 Error Page</a>
-                    <a class="dropdown-item" href="{{ url_for('seo.error_500') }}">500 Error Page</a>
                 </div>
                 {% endif %}
             </li>
             {% if not current_user.is_anonymous %}
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBlog" role="button" data-toggle="dropdown"
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBlog" role="button"
+                   data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
                     Blog
                 </a>
@@ -64,53 +61,61 @@
                 </div>
             </li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBudget" role="button" data-toggle="dropdown"
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBudget" role="button"
+                   data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
                     Budget
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownBudget">
                     <a class="dropdown-item" href="{{ url_for('budget.summary') }}">Summary</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
-                            <a class="dropdown-item" href="{{ url_for('budget.add_expense_entry') }}">Add New
-                                Expense</a>
-                            <a class="dropdown-item" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
-                            <a class="dropdown-item" href="{{ url_for('budget.add_utilities_entry') }}">Add
-                                Utilities</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ url_for('budget.validation') }}">See Validation</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
+                    <a class="dropdown-item" href="{{ url_for('budget.add_expense_entry') }}">Add New
+                        Expense</a>
+                    <a class="dropdown-item" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
+                    <a class="dropdown-item" href="{{ url_for('budget.add_utilities_entry') }}">Add
+                        Utilities</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ url_for('budget.validation') }}">See Validation</a>
                 </div>
             </li>
-             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownWebtools" role="button" data-toggle="dropdown"
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownWebtools" role="button"
+                   data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
                     Webtools
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownWebtools">
                     <a class="dropdown-item" href="{{ url_for('webtools.url_encode_decode_parse') }}">URL
-                                Encoder/Decoder & Parse</a>
-                            <a class="dropdown-item" href="{{ url_for('webtools.url_checker') }}">URL Checker</a>
+                        Encoder/Decoder & Parse</a>
+                    <a class="dropdown-item" href="{{ url_for('webtools.url_checker') }}">URL Checker</a>
                 </div>
             </li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAnalytics" role="button" data-toggle="dropdown"
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAnalytics" role="button"
+                   data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
                     Analytics
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownAnalytics">
                     <a class="dropdown-item" href="{{ url_for('analytics.lifetime_expense') }}">Reporting (temp)</a>
-                            <a class="dropdown-item" href="#">Statistics</a>
+                    <a class="dropdown-item" href="#">Statistics</a>
                 </div>
             </li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownManager" role="button" data-toggle="dropdown"
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownManager" role="button"
+                   data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
                     Manager
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownManager">
                     <a class="dropdown-item" href="{{ url_for('manager-tests.add_fakes') }}">Faker</a>
-                            <a class="dropdown-item" href="#">Data flow</a>
-                            <a class="dropdown-item" href="#">API Data & Calls</a>
+                    <a class="dropdown-item" href="#">Data flow</a>
+                    <a class="dropdown-item" href="#">API Data & Calls</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ url_for('seo.error_401') }}">401 Error Page</a>
+                    <a class="dropdown-item" href="{{ url_for('seo.error_404') }}">404 Error Page</a>
+                    <a class="dropdown-item" href="{{ url_for('seo.error_500') }}">500 Error Page</a>
                 </div>
             </li>
             {% endif %}
