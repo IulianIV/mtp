@@ -10,6 +10,8 @@ from app.manager.db.models import BudgetExpense, BudgetRevenue, BudgetSaving, Bu
 # fixme it is now basically inaccessible form the FE.
 #   accessing the /api/data URL with '?loc_path="{url_from_table_map_encoded}"' renders the page as it triggers and
 #   bypassing the functionality. Fix this.
+# better-me try to reduce cohesion of current function. A more dynamic if choice?
+#   anyhow, create an endpoint for utm-stats
 
 
 @bp.route('/data', methods=['GET'])
