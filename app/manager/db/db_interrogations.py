@@ -1,5 +1,7 @@
 from typing import NewType, Union
 
+from sqlalchemy import and_
+
 from app.manager.db.models import *
 
 # Type hinting
@@ -193,6 +195,14 @@ class Query:
     @staticmethod
     def get_validation_reason(reason_value: str) -> str:
         return ValidationSavingReason.query.filter_by(saving_reason=reason_value).first()
+
+    # PEP violation by comparing to None with equality operators, should be with 'is'
+    #   but, sqlalchemy does not work with 'is' and only recognizes '==' and '!=' because
+    #   it is using magic methods (operator overloading) to generate sql constructs
+    @staticmethod
+    def get_parsed_urls():
+        return UrlEncodeDecodeParse.query.filter(and_(UrlEncodeDecodeParse.encode_option == None,
+                                                 UrlEncodeDecodeParse.encoding == None))
 
 
 class Update:
