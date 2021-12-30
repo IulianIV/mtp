@@ -35,9 +35,17 @@ details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 #   all should be deletable/editable. If on edit a image is deleted and no other is provided, generate a random one.
 #   Same for user creation. Can be added an Image. If none, generate.
 #   Images should have requirements for upload for posting.
-# TODO add a password reset form.
-# TODO add e-amil validation for accounts.
+# TODO add a password reset form and password request form.
+# TODO add e-mail validation for accounts.
 # TODO have password fields be checked as is and when hashed.
+# TODO add UTM module from README.md
+# TODO determine the right way to show graphs. Using matplotlib requires 90% of times to save them as pictures/vectors
+#   and then save them which would require explicit exceptions from caching through HTTP headers if the graphs
+#   are dynamic. JS can be used to process data from a certain endpoint ar through web sockets and plot using, maybe
+#   d3.js or similar. Using d3.js will certainly make data way more dynamic and more user friendly. Look into that.
+
+# better-me Check coupling among all apps. There should be as little as possible functions with responsibilities outside
+#   their set scope.
 
 
 def create_app(test_config=None):
