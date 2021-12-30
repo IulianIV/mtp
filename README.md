@@ -59,6 +59,11 @@ _Based on the difficulty of the implementation some functionalities will be impl
 12. Given a list of products and their attributes & sale date create **Related, Up and Cross Sells** associations;
 13. **Recommended products' algorithm** connected to the above sub-app.
 14. **User profile** They can see blog posts, privileges etc.
+15. **Marketing UTM Analyzer** based on the URLs parsed by the URL parser.
+    1. a URL is parsed there and checked if you want to add it to the UTm analyzer. Upon "yes" it will get passed to a database.
+    A better explanation to the functionality can be viewed as a template, check --> [this URL](http://127.0.0.1:5000/analytics/utm-analyzer-template) (TO BE MOVED FROM HERE TO OWN MODULE).
+    This analysis should be done only on URLs that contain UTM tags. The stats reporting for URL reports a general overview, this will be more specific.
+    2. Eventually, a module that handles custom marketing parameters should be added (maybe if the user selects if a UTL is deemed as marketing)
 
 General App Wide TODOs:
 1. [x] **Revamp the templating**:
