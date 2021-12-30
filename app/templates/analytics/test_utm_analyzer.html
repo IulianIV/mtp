@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<meta name="description" content=""/>
+<meta name="author" content=""/>
+
+{% block title %}
+<title>MTP | Web App</title>
+{% endblock %}
+
+{% endblock %}
+
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        General data
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="summary-expense-table" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Company name</th>
+                    <th>Observations</th>
+                    <th>latest UTM campaign</th>
+                     <th>latest UTM Source</th>
+                     <th>latest UTM Medium</th>
+                     <th>latest UTM Content</th>
+                </tr>
+                </thead>
+                <tbody class="post">
+                <tr>
+                    <th class="small mb-1">Company1</th>
+                    <th class="small mb-1">Competitors</th>
+                    <th class="small mb-1">July2021-cheap-stuff</th>
+                    <th class="small mb-1">facebook</th>
+                    <th class="small mb-1">social</th>
+                    <th class="small mb-1">product-sku-1</th>
+                </tr>
+                <tr>
+                    <th class="small mb-1">Company2</th>
+                    <th class="small mb-1">Randos</th>
+                    <th class="small mb-1">extra-sale-forever</th>
+                    <th class="small mb-1">whatsapp</th>
+                    <th class="small mb-1">social</th>
+                    <th class="small mb-1">from_site_banner</th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        Company1 Specific view - the company should be selectable from a field
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="summary-expense-table" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Analyzed URL</th>
+                    <th>Campaign</th>
+                     <th>Medium</th>
+                     <th>Source</th>
+                     <th>Content</th>
+                    <th>Observations</th>
+                </tr>
+                </thead>
+                <tbody class="post">
+                <tr>
+                    <th class="small mb-1">today</th>
+                    <th class="small mb-1">company1.com/?utm_campaign=whatever&utm_medium=social&utm_source=facebook&utm_content=sales</th>
+                    <th class="small mb-1">whatever</th>
+                    <th class="small mb-1">social</th>
+                    <th class="small mb-1">facebook</th>
+                    <th class="small mb-1">sales</th>
+                    <th class="small mb-1">received on email</th>
+                </tr>
+                <tr>
+                    <th class="small mb-1">yesterday</th>
+                    <th class="small mb-1">company1.com/?utm_campaign=nowhereclose&utm_medium=social&utm_source=facebook&utm_content=promotions</th>
+                    <th class="small mb-1">nowhereclose</th>
+                    <th class="small mb-1">social</th>
+                    <th class="small mb-1">facebook</th>
+                    <th class="small mb-1">promotions</th>
+                    <th class="small mb-1">found on facebook, stolen for competition</th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
