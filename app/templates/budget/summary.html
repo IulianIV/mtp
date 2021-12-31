@@ -33,7 +33,7 @@
                         </thead>
                         <tbody class="post">
                         <tr>
-                            <th class="h4 table-primary">RON {{ '{:,}'.format(summary_data['current_month_total_expense']) }}</th>
+                            <th class="h4 table-primary">RON {{ '{:,}'.format(summary_data['current_month_total_revenue']) }}</th>
                             <th class="h4 table-primary">12345</th>
                         </tr>
                         </tbody>
@@ -47,7 +47,7 @@
                         </thead>
                         <tbody class="post">
                         <tr>
-                            <th class="h4 table-danger">123456</th>
+                            <th class="h4 table-danger">RON {{ '{:,}'.format(summary_data['current_month_total_expense'] | round(2) ) }}</th>
                             <th class="h4 table-success">12345</th>
                         </tr>
                         </tbody>
