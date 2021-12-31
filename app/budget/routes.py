@@ -1,14 +1,16 @@
 from datetime import datetime
+
 from flask import (
     redirect, render_template, request, url_for
 )
+from wtforms.validators import ValidationError
+
+from app import db
 from app.auth.routes import login_required
+from app.budget import bp
+from app.budget import forms
 from app.manager.db.db_interrogations import Query, Insert
 from app.manager.protection import CustomCSRF, form_validated_message, form_error_message
-from app.budget import forms
-from wtforms.validators import ValidationError
-from app.budget import bp
-from app import db
 
 custom_protection = CustomCSRF()
 db_queries = Query()
@@ -29,9 +31,14 @@ def summary():
     total_current_month_revenue = sum(current_month_revenue_values[x][0] for x
                                       in range(len(current_month_revenue_values)))
 
+    current_month_expense_values = db_queries.get_current_month_expenses()
+    total_current_month_expense = sum(current_month_expense_values[x][0] for x
+                                      in range(len(current_month_expense_values)))
+
     summary_data = {
         'date': display_date,
-        'current_month_total_expense': total_current_month_revenue
+        'current_month_total_revenue': total_current_month_revenue,
+        'current_month_total_expense': total_current_month_expense
     }
 
     return render_template('budget/summary.html', summary_data=summary_data )
