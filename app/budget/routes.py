@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import (
     redirect, render_template, request, url_for
 )
@@ -14,26 +15,26 @@ db_queries = Query()
 db_inserts = Insert()
 
 
+# TODO Add RON to EUR Conversion by passing already converted values to template then process them with AJAX when box
+#   is checked
 @bp.route('/')
 @login_required
 def summary():
 
-    table_counts = {
-        'expense_count': db_queries.get_expense_count(),
-        'revenue_count': db_queries.get_revenue_count(),
-        'savings_count': db_queries.get_savings_count()
+    now = datetime.now()
+
+    display_date = now.strftime('%B, ') + now.strftime('%Y')
+
+    current_month_revenue_values = db_queries.get_current_month_revenue()
+    total_current_month_revenue = sum(current_month_revenue_values[x][0] for x
+                                      in range(len(current_month_revenue_values)))
+
+    summary_data = {
+        'date': display_date,
+        'current_month_total_expense': total_current_month_revenue
     }
 
-    validation_counts = {
-        'validation_categories': db_queries.get_validation_categories_count(),
-        'validation_items': db_queries.get_validation_items_count(),
-        'validation_accounts': db_queries.get_validation_accounts_count(),
-        'validation_reason': db_queries.get_validation_reason_count(),
-        'validation_sources': db_queries.get_validation_sources_count()
-    }
-
-    return render_template('budget/summary.html', db_queries=db_queries, table_counts=table_counts,
-                           validation_counts=validation_counts)
+    return render_template('budget/summary.html', summary_data=summary_data )
 
 
 @bp.route('/new-expense-entry', methods=('GET', 'POST'))
