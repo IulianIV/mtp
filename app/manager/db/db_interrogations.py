@@ -1,11 +1,12 @@
 from typing import NewType, Union
-from datetime import datetime
+
 from sqlalchemy import and_, extract
 
 from app.manager.db.models import *
 
 # Type hinting
 DateTime = NewType('DateTime', datetime)
+current_month = datetime.now().month
 
 
 class Insert:
@@ -207,10 +208,12 @@ class Query:
     @staticmethod
     def get_current_month_revenue():
 
-        current_month = datetime.now().month
-
         return BudgetRevenue.query.filter(extract('month', BudgetRevenue.revenue_date) == current_month).with_entities(BudgetRevenue.revenue_value).all()
 
+    @staticmethod
+    def get_current_month_expenses():
+
+        return BudgetExpense.query.filter(extract('month', BudgetExpense.expense_date) == current_month).with_entities(BudgetExpense.expense_value).all()
 
 class Update:
 
