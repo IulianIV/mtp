@@ -29,6 +29,27 @@ def lifetime_expense():
     return render_template('analytics/analytics.html')
 
 
+# better-me maybe find a better name for this function and its template?
+@bp.route('/budget-tables')
+def budget_tables():
+    table_counts = {
+            'expense_count': db_queries.get_expense_count(),
+            'revenue_count': db_queries.get_revenue_count(),
+            'savings_count': db_queries.get_savings_count()
+        }
+
+    validation_counts = {
+        'validation_categories': db_queries.get_validation_categories_count(),
+        'validation_items': db_queries.get_validation_items_count(),
+        'validation_accounts': db_queries.get_validation_accounts_count(),
+        'validation_reason': db_queries.get_validation_reason_count(),
+        'validation_sources': db_queries.get_validation_sources_count()
+    }
+
+    return render_template('analytics/budget_tables.html', db_queries=db_queries, table_counts=table_counts,
+                           validation_counts=validation_counts)
+
+
 @bp.route('/utm-stats')
 def utm_stats():
     raw_entries = db_queries.get_parsed_urls()
