@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<meta name="description" content=""/>
+<meta name="author" content=""/>
+
+{% block title %}
+<title>MTP | Web App</title>
+{% endblock %}
+
+{% endblock %}
+
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        Expense - {{ table_counts.get('expense_count') }} entries
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="summary-expense-table" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Expense Date</th>
+                    <th>Expense Item</th>
+                    <th>Expense Value</th>
+                    <th>Expense Category</th>
+                    <th>Expense Source</th>
+                </tr>
+                </thead>
+                <tbody class="post">
+                {% for entry in db_queries.query_expense_entries() %}
+                <tr>
+                    <th class="small mb-1">{{ entry['id'] }}</th>
+                    <th class="small mb-1">{{ entry['expense_date'] }}</th>
+                    <th class="small mb-1">{{ entry['expense_item'] }}</th>
+                    <th class="small mb-1">{{ entry['expense_value'] }}</th>
+                    <th class="small mb-1">{{ entry['expense_item_category'] }}</th>
+                    <th class="small mb-1">{{ entry['expense_source'] }}</th>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        Revenue - {{ table_counts.get('revenue_count') }} entries
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="summary-revenue-table" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Revenue Date</th>
+                    <th>Revenue Value</th>
+                    <th>Revenue Source</th>
+                </tr>
+                </thead>
+                <tbody class="post">
+                {% for entry in db_queries.query_revenue_entries() %}
+                <tr>
+                    <th class="small mb-1">{{ entry['id'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_date'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_value'] }}</th>
+                    <th class="small mb-1">{{ entry['revenue_source'] }}</th>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        Savings - {{ table_counts.get('savings_count') }} entries
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="summary-savings-table" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Savings Date</th>
+                    <th>Savings Value</th>
+                    <th>Savings Source</th>
+                    <th>Savings Reason</th>
+                    <th>Savings Action</th>
+                </tr>
+                </thead>
+                <tbody class="post">
+                {% for entry in db_queries.query_savings_entries() %}
+                <tr>
+                    <th class="small mb-1">{{ entry['id'] }}</th>
+                    <th class="small mb-1">{{ entry['saving_date'] }}</th>
+                    <th class="small mb-1">{{ entry['saving_value'] }}</th>
+                    <th class="small mb-1">{{ entry['saving_source'] }}</th>
+                    <th class="small mb-1">{{ entry['saving_reason'] }}</th>
+                    <th class="small mb-1">{{ entry['saving_action'] }}</th>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% block scripts %}
+ <script>
+    $(document).ready(function () {
+      $('#summary-expense-table').DataTable({
+        serverSide: true,
+        ajax: {
+            url: '/api/data',
+            data: {
+                loc_path: '/budget/new-expense-entry'
+                }
+            },
+        columns: [
+          {data: "id", orderable: false},
+          {data: "expense_date"},
+          {data: "expense_item"},
+          {data: "expense_value"},
+          {data: "expense_item_category", orderable: false},
+          {data: "expense_source", orderable: false},
+        ],
+        });
+        });
+    $(document).ready(function () {
+      $('#summary-revenue-table').DataTable({
+        serverSide: true,
+        ajax: {
+            url: '/api/data',
+            data: {
+                loc_path: '/budget/new-revenue-entry'
+                }
+            },
+        columns: [
+          {data: "id", orderable: false},
+          {data: "revenue_date"},
+          {data: "revenue_value"},
+          {data: "revenue_source", orderable: false},
+        ],
+        });
+        });
+    $(document).ready(function () {
+      $('#summary-savings-table').DataTable({
+        serverSide: true,
+        ajax: {
+            url: '/api/data',
+            data: {
+                loc_path: '/budget/new-savings-entry'
+                }
+            },
+        columns: [
+          {data: "id", orderable: false},
+          {data: "saving_date"},
+          {data: "saving_value"},
+          {data: "saving_source", orderable: false},
+          {data: "saving_reason", orderable: false},
+          {data: "saving_action", orderable: false},
+        ],
+        });
+        });
+ </script>
+{% endblock %}
+
+
+{% endblock %}
