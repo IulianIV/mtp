@@ -15,163 +15,160 @@
 
 
 {% block content %}
-<div class="card mb-4">
-    <div class="card-header">
-        <i class="fas fa-table mr-1"></i>
-        Expense - {{ table_counts.get('expense_count') }} entries
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card text-center">
+            <div class="card-header">
+                Current month summary
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">{{ summary_data['date'] }}</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm" id="summary-table-1" width="100%" cellspacing="0">
+                        <thead>
+                        <tr class="table-active">
+                            <th>Total value for this month</th>
+                            <th>Total useful value for this month</th>
+                        </tr>
+                        </thead>
+                        <tbody class="post">
+                        <tr>
+                            <th class="h4 table-primary">RON {{ '{:,}'.format(summary_data['current_month_total_expense']) }}</th>
+                            <th class="h4 table-primary">12345</th>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-bordered table-sm" id="summary-table-2" width="100%" cellspacing="0">
+                        <thead>
+                        <tr class="table-active">
+                            <th>Total money spent this month</th>
+                            <th>Total spendable money for this month value for this month</th>
+                        </tr>
+                        </thead>
+                        <tbody class="post">
+                        <tr>
+                            <th class="h4 table-danger">123456</th>
+                            <th class="h4 table-success">12345</th>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <img src="{{ url_for('static', filename='Expenses_by_Item_Category.png') }}" class="rounded" alt="Responsive image">
+    <img src="{{ url_for('static', filename='Expenses_by_Items.png') }}" class="rounded" alt="Responsive image">
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="summary-expense-table" width="100%" cellspacing="0">
-                <thead>
-                <tr>
-                    <th>id</th>
-                    <th>Expense Date</th>
-                    <th>Expense Item</th>
-                    <th>Expense Value</th>
-                    <th>Expense Category</th>
-                    <th>Expense Source</th>
-                </tr>
-                </thead>
-                <tbody class="post">
-                {% for entry in db_queries.query_expense_entries() %}
-                <tr>
-                    <th class="small mb-1">{{ entry['id'] }}</th>
-                    <th class="small mb-1">{{ entry['expense_date'] }}</th>
-                    <th class="small mb-1">{{ entry['expense_item'] }}</th>
-                    <th class="small mb-1">{{ entry['expense_value'] }}</th>
-                    <th class="small mb-1">{{ entry['expense_item_category'] }}</th>
-                    <th class="small mb-1">{{ entry['expense_source'] }}</th>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="col-lg-6 mb-4">
+        <div class="card text-center">
+            <div class="card-header">
+                Saving Summary
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm" id="summary-table-4" width="100%" cellspacing="0">
+                        <thead>
+                        <tr class="table-active">
+                            <th>EC Account</th>
+                            <th>ED Account</th>
+                            <th>IF Account</th>
+                        </tr>
+                        </thead>
+                        <tbody class="post">
+                        <tr>
+                            <th class="h4 table-success">56.22</th>
+                            <th class="h4 table-success">213.45</th>
+                            <th class="h4 table-success">5568.66</th>
+                        </tr>
+                        <tr class="table-active">
+                            <th colspan="3">Total Savings</th>
+                        </tr>
+                        <tr class="table-danger">
+                            <th colspan="3">5500.56</th>
+                        </tr>
+                        <tr class="table-warning">
+                            <th colspan="2">EUR Quick View</th>
+                            <th>
+                                <input type="checkbox" aria-label="Checkbox for following text input">
+                            </th>
+                        </tr>
+                        <tr class="table-primary">
+                            <th colspan="2" class="text-left">EC Account</th>
+                            <th colspan="2" class="h4 table-success" >€451.72</th>
+                        </tr>
+                        <tr class="table-primary">
+                            <th colspan="2" class="text-left">ED Account</th>
+                            <th colspan="2" class="h4 table-success">€451.72</th>
+                        </tr>
+                        <tr class="table-primary">
+                            <th colspan="2" class="text-left">IF Account</th>
+                            <th colspan="2" class="h4 table-success">€451.72</th>
+                        </tr>
+                        <tr class="table-danger">
+                            <th colspan="2" class="text-left">Total Savings Account</th>
+                            <th colspan="2" class="h4 table-success">€451.72</th>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card text-center">
+            <div class="card-header">
+                Cash Flow
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm" id="summary-table-5" width="100%" cellspacing="0">
+                        <thead>
+                        <tr class="table-active">
+                            <th>Bank</th>
+                            <th>Revolut</th>
+                            <th>Cash</th>
+                        </tr>
+                        </thead>
+                        <tbody class="post">
+                        <tr>
+                            <th class="h4 table-success">56.22</th>
+                            <th class="h4 table-success">213.45</th>
+                            <th class="h4 table-success">5568.66</th>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </div>
         </div>
     </div>
 </div>
 <div class="card mb-4">
-    <div class="card-header">
-        <i class="fas fa-table mr-1"></i>
-        Revenue - {{ table_counts.get('revenue_count') }} entries
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="summary-revenue-table" width="100%" cellspacing="0">
-                <thead>
-                <tr>
-                    <th>id</th>
-                    <th>Revenue Date</th>
-                    <th>Revenue Value</th>
-                    <th>Revenue Source</th>
-                </tr>
-                </thead>
-                <tbody class="post">
-                {% for entry in db_queries.query_revenue_entries() %}
-                <tr>
-                    <th class="small mb-1">{{ entry['id'] }}</th>
-                    <th class="small mb-1">{{ entry['revenue_date'] }}</th>
-                    <th class="small mb-1">{{ entry['revenue_value'] }}</th>
-                    <th class="small mb-1">{{ entry['revenue_source'] }}</th>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="card text-center">
+        <div class="card-header">
+            This month expenses summarized
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm" id="summary-table-3" width="100%" cellspacing="0">
+                    <thead>
+                    <tr class="table-success">
+                        <th>Date</th>
+                        <th>Total Spent</th>
+                        <th>Items</th>
+                        <th>Category</th>
+                    </tr>
+                    </thead>
+                    <tbody class="post">
+                    <tr>
+                        <th class="table-primary">today</th>
+                        <th class="table-warning">12345</th>
+                        <th class="table-warning">Rent, Food</th>
+                        <th class="table-warning">Shopping</th>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer text-muted">
+            Some info
         </div>
     </div>
 </div>
-<div class="card mb-4">
-    <div class="card-header">
-        <i class="fas fa-table mr-1"></i>
-        Savings - {{ table_counts.get('savings_count') }} entries
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="summary-savings-table" width="100%" cellspacing="0">
-                <thead>
-                <tr>
-                    <th>id</th>
-                    <th>Savings Date</th>
-                    <th>Savings Value</th>
-                    <th>Savings Source</th>
-                    <th>Savings Reason</th>
-                    <th>Savings Action</th>
-                </tr>
-                </thead>
-                <tbody class="post">
-                {% for entry in db_queries.query_savings_entries() %}
-                <tr>
-                    <th class="small mb-1">{{ entry['id'] }}</th>
-                    <th class="small mb-1">{{ entry['saving_date'] }}</th>
-                    <th class="small mb-1">{{ entry['saving_value'] }}</th>
-                    <th class="small mb-1">{{ entry['saving_source'] }}</th>
-                    <th class="small mb-1">{{ entry['saving_reason'] }}</th>
-                    <th class="small mb-1">{{ entry['saving_action'] }}</th>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-{% block scripts %}
- <script>
-    $(document).ready(function () {
-      $('#summary-expense-table').DataTable({
-        serverSide: true,
-        ajax: {
-            url: '/api/data',
-            data: {
-                loc_path: '/budget/new-expense-entry'
-                }
-            },
-        columns: [
-          {data: "id", orderable: false},
-          {data: "expense_date"},
-          {data: "expense_item"},
-          {data: "expense_value"},
-          {data: "expense_item_category", orderable: false},
-          {data: "expense_source", orderable: false},
-        ],
-        });
-        });
-    $(document).ready(function () {
-      $('#summary-revenue-table').DataTable({
-        serverSide: true,
-        ajax: {
-            url: '/api/data',
-            data: {
-                loc_path: '/budget/new-revenue-entry'
-                }
-            },
-        columns: [
-          {data: "id", orderable: false},
-          {data: "revenue_date"},
-          {data: "revenue_value"},
-          {data: "revenue_source", orderable: false},
-        ],
-        });
-        });
-    $(document).ready(function () {
-      $('#summary-savings-table').DataTable({
-        serverSide: true,
-        ajax: {
-            url: '/api/data',
-            data: {
-                loc_path: '/budget/new-savings-entry'
-                }
-            },
-        columns: [
-          {data: "id", orderable: false},
-          {data: "saving_date"},
-          {data: "saving_value"},
-          {data: "saving_source", orderable: false},
-          {data: "saving_reason", orderable: false},
-          {data: "saving_action", orderable: false},
-        ],
-        });
-        });
- </script>
-{% endblock %}
-
-
 {% endblock %}
