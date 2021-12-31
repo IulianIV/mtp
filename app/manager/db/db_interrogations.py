@@ -1,6 +1,6 @@
 from typing import NewType, Union
-
-from sqlalchemy import and_
+from datetime import datetime
+from sqlalchemy import and_, extract
 
 from app.manager.db.models import *
 
@@ -203,6 +203,13 @@ class Query:
     def get_parsed_urls():
         return UrlEncodeDecodeParse.query.filter(and_(UrlEncodeDecodeParse.encode_option == None,
                                                  UrlEncodeDecodeParse.encoding == None))
+
+    @staticmethod
+    def get_current_month_revenue():
+
+        current_month = datetime.now().month
+
+        return BudgetRevenue.query.filter(extract('month', BudgetRevenue.revenue_date) == current_month).with_entities(BudgetRevenue.revenue_value).all()
 
 
 class Update:
