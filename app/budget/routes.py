@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import (
     redirect, render_template, request, url_for
 )
+from forex_python.converter import CurrencyRates
 from wtforms.validators import ValidationError
 
 from app import db
@@ -15,6 +16,7 @@ from app.manager.protection import CustomCSRF, form_validated_message, form_erro
 custom_protection = CustomCSRF()
 db_queries = Query()
 db_inserts = Insert()
+currency = CurrencyRates()
 
 
 # TODO Add RON to EUR Conversion by passing already converted values to template then process them with AJAX when box
@@ -27,18 +29,31 @@ def summary():
 
     display_date = now.strftime('%B, ') + now.strftime('%Y')
 
-    current_month_revenue_values = db_queries.get_current_month_revenue()
+    current_month_revenue_values = db_queries.get_current_month_data()['revenue']
     total_current_month_revenue = sum(current_month_revenue_values[x][0] for x
                                       in range(len(current_month_revenue_values)))
 
-    current_month_expense_values = db_queries.get_current_month_expenses()
+    current_month_expense_values = db_queries.get_current_month_data()['expense']
     total_current_month_expense = sum(current_month_expense_values[x][0] for x
                                       in range(len(current_month_expense_values)))
+
+    ec_savings_total_value = sum([x.saving_value for x in db_queries.get_savings_data()['ec']])
+    ed_savings_total_value = sum([x.saving_value for x in db_queries.get_savings_data()['ed']])
+    if_savings_total_value = sum([x.saving_value for x in db_queries.get_savings_data()['if']])
+    overall_savings_total = ec_savings_total_value + ed_savings_total_value + if_savings_total_value
 
     summary_data = {
         'date': display_date,
         'current_month_total_revenue': total_current_month_revenue,
-        'current_month_total_expense': total_current_month_expense
+        'current_month_total_expense': total_current_month_expense,
+        'ec_savings': ec_savings_total_value,
+        'ed_savings': ed_savings_total_value,
+        'if_savings': if_savings_total_value,
+        'savings_total': overall_savings_total,
+        'ec_savings_EUR': currency.convert('RON', 'EUR', ec_savings_total_value),
+        'ed_savings_EUR': currency.convert('RON', 'EUR', ed_savings_total_value),
+        'if_savings_EUR': currency.convert('RON', 'EUR', if_savings_total_value),
+        'savings_total_EUR': currency.convert('RON', 'EUR', overall_savings_total)
     }
 
     return render_template('budget/summary.html', summary_data=summary_data )
