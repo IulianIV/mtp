@@ -7,6 +7,7 @@ from app.manager.db.models import *
 # Type hinting
 DateTime = NewType('DateTime', datetime)
 current_month = datetime.now().month
+current_year = datetime.now().year
 
 
 class Insert:
@@ -203,17 +204,38 @@ class Query:
     @staticmethod
     def get_parsed_urls():
         return UrlEncodeDecodeParse.query.filter(and_(UrlEncodeDecodeParse.encode_option == None,
-                                                 UrlEncodeDecodeParse.encoding == None))
+                                                      UrlEncodeDecodeParse.encoding == None))
 
     @staticmethod
-    def get_current_month_revenue():
+    def get_current_month_data():
 
-        return BudgetRevenue.query.filter(extract('month', BudgetRevenue.revenue_date) == current_month).with_entities(BudgetRevenue.revenue_value).all()
+        budget_totals = {
+            'revenue': BudgetRevenue.query.
+            filter(extract('month', BudgetRevenue.revenue_date) == current_month).
+            filter(extract('year', BudgetRevenue.revenue_date) == current_year).
+            with_entities(BudgetRevenue.revenue_value).all(),
+            'expense': BudgetExpense.query.
+            filter(extract('month', BudgetExpense.expense_date) == current_month).
+            filter(extract('year', BudgetExpense.expense_date) == current_year).
+            with_entities(BudgetExpense.expense_value).all()
+        }
+
+        return budget_totals
 
     @staticmethod
-    def get_current_month_expenses():
+    def get_savings_data():
 
-        return BudgetExpense.query.filter(extract('month', BudgetExpense.expense_date) == current_month).with_entities(BudgetExpense.expense_value).all()
+        savings_totals = {
+            'ec': BudgetSaving.query.
+            filter_by(saving_source='EC').all(),
+            'ed': BudgetSaving.query.
+            filter_by(saving_source='ED').all(),
+            'if': BudgetSaving.query.
+            filter_by(saving_source='IF').all(),
+        }
+
+        return savings_totals
+
 
 class Update:
 
@@ -221,7 +243,6 @@ class Update:
         self.db = db
 
     def update_post(self, title: str, body: str, post_id: str):
-
         post = Post.query.filter_by(id=post_id).first()
         post.title = title
         post.body = body
