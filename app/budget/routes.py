@@ -21,7 +21,6 @@ currency = CurrencyRates()
 def summary():
 
     now = datetime.now()
-
     display_date = now.strftime('%B, ') + now.strftime('%Y')
 
     current_month_revenue_values = get_current_month_data()['revenue']
@@ -37,6 +36,8 @@ def summary():
     if_savings_total_value = sum([x.saving_value for x in get_savings_data()['if']])
     overall_savings_total = ec_savings_total_value + ed_savings_total_value + if_savings_total_value
 
+    current_month_general_summary = [x for x in get_current_month_summary()]
+
     summary_data = {
         'date': display_date,
         'current_month_total_revenue': total_current_month_revenue,
@@ -48,11 +49,11 @@ def summary():
         'ec_savings_EUR': currency.convert('RON', 'EUR', ec_savings_total_value),
         'ed_savings_EUR': currency.convert('RON', 'EUR', ed_savings_total_value),
         'if_savings_EUR': currency.convert('RON', 'EUR', if_savings_total_value),
-        'savings_total_EUR': currency.convert('RON', 'EUR', overall_savings_total)
+        'savings_total_EUR': currency.convert('RON', 'EUR', overall_savings_total),
+        'current_month_summary': current_month_general_summary
     }
 
-    print(get_current_month_summary())
-    return render_template('budget/summary.html', summary_data=summary_data )
+    return render_template('budget/summary.html', summary_data=summary_data)
 
 
 @bp.route('/new-expense-entry', methods=('GET', 'POST'))
