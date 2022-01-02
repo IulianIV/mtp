@@ -33,7 +33,9 @@
                         </thead>
                         <tbody class="post">
                         <tr>
-                            <th class="h4 table-primary">RON {{ '{:,}'.format(summary_data['current_month_total_revenue']) }}</th>
+                            <th class="h4 table-primary">RON {{
+                                '{:,}'.format(summary_data['current_month_total_revenue']) }}
+                            </th>
                             <th class="h4 table-primary">12345</th>
                         </tr>
                         </tbody>
@@ -47,7 +49,9 @@
                         </thead>
                         <tbody class="post">
                         <tr>
-                            <th class="h4 table-danger">RON {{ '{:,}'.format(summary_data['current_month_total_expense'] | round(2) ) }}</th>
+                            <th class="h4 table-danger">RON {{ '{:,}'.format(summary_data['current_month_total_expense']
+                                |round(2) ) }}
+                            </th>
                             <th class="h4 table-success">12345</th>
                         </tr>
                         </tbody>
@@ -55,8 +59,9 @@
                 </div>
             </div>
         </div>
-        <img src="{{ url_for('static', filename='Expenses_by_Item_Category.png') }}" class="rounded" alt="Responsive image">
-    <img src="{{ url_for('static', filename='Expenses_by_Items.png') }}" class="rounded" alt="Responsive image">
+        <img src="{{ url_for('static', filename='Expenses_by_Item_Category.png') }}" class="rounded"
+             alt="Responsive image">
+        <img src="{{ url_for('static', filename='Expenses_by_Items.png') }}" class="rounded" alt="Responsive image">
     </div>
     <div class="col-lg-6 mb-4">
         <div class="card text-center">
@@ -75,66 +80,83 @@
                         </thead>
                         <tbody class="post">
                         <tr>
-                            <th class="h4 table-success">56.22</th>
-                            <th class="h4 table-success">213.45</th>
-                            <th class="h4 table-success">5568.66</th>
+                            <th class="h4 table-success">RON {{ '{:,}'.format(summary_data['ec_savings'] |round(2) )
+                                }}
+                            </th>
+                            <th class="h4 table-success">RON {{ '{:,}'.format(summary_data['ed_savings'] |float|round(2)
+                                ) }}
+                            </th>
+                            <th class="h4 table-success">RON {{ '{:,}'.format(summary_data['if_savings'] |round(2) )
+                                }}
+                            </th>
                         </tr>
                         <tr class="table-active">
                             <th colspan="3">Total Savings</th>
                         </tr>
                         <tr class="table-danger">
-                            <th colspan="3">5500.56</th>
+                            <th colspan="3" class="h4">RON {{ '{:,}'.format(summary_data['savings_total'] |round(2) )
+                                }}
+                            </th>
                         </tr>
                         <tr class="table-warning">
                             <th colspan="2">EUR Quick View</th>
                             <th>
-                                <input type="checkbox" aria-label="Checkbox for following text input">
+                                <button type="button" class="btn btn-secondary btn-sm" name="show_eurview">Show</button>
+                                <button type="button" class="btn btn-secondary btn-sm" name="hide_eurview"
+                                        style="display: none;">Hide
+                                </button>
                             </th>
                         </tr>
-                        <tr class="table-primary">
+                        <tr class="table-primary eurview" style="display: none;">
                             <th colspan="2" class="text-left">EC Account</th>
-                            <th colspan="2" class="h4 table-success" >€451.72</th>
+                            <th colspan="2" class="h4 table-success">€ {{ '{:,}'.format(summary_data['ec_savings_EUR']
+                                |float|round(2)
+                                ) }}
+                            </th>
                         </tr>
-                        <tr class="table-primary">
+                        <tr class="table-primary eurview" style="display: none;">
                             <th colspan="2" class="text-left">ED Account</th>
-                            <th colspan="2" class="h4 table-success">€451.72</th>
+                            <th colspan="2" class="h4 table-success">€ {{ '{:,}'.format(summary_data['ed_savings_EUR'] |float|round(2)
+                                ) }}</th>
                         </tr>
-                        <tr class="table-primary">
+                        <tr class="table-primary eurview" style="display: none;">
                             <th colspan="2" class="text-left">IF Account</th>
-                            <th colspan="2" class="h4 table-success">€451.72</th>
+                            <th colspan="2" class="h4 table-success">€ {{ '{:,}'.format(summary_data['if_savings_EUR'] |float|round(2)
+                                ) }}</th>
                         </tr>
-                        <tr class="table-danger">
+                        <tr class="table-primary eurview" style="display: none;">
                             <th colspan="2" class="text-left">Total Savings Account</th>
-                            <th colspan="2" class="h4 table-success">€451.72</th>
+                            <th colspan="2" class="h4 table-success">€ {{ '{:,}'.format(summary_data['savings_total_EUR'] |round(2) )
+                                }}</th>
                         </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="card text-center">
-            <div class="card-header">
-                Cash Flow
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-sm" id="summary-table-5" width="100%" cellspacing="0">
-                        <thead>
-                        <tr class="table-active">
-                            <th>Bank</th>
-                            <th>Revolut</th>
-                            <th>Cash</th>
-                        </tr>
-                        </thead>
-                        <tbody class="post">
-                        <tr>
-                            <th class="h4 table-success">56.22</th>
-                            <th class="h4 table-success">213.45</th>
-                            <th class="h4 table-success">5568.66</th>
-                        </tr>
-                        </tbody>
-                    </table>
+                <div class="card-header">
+                    Cash Flow
                 </div>
-            </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm" id="summary-table-5" width="100%" cellspacing="0">
+                            <thead>
+                            <tr class="table-active">
+                                <th>Bank</th>
+                                <th>Revolut</th>
+                                <th>Cash</th>
+                            </tr>
+                            </thead>
+                            <tbody class="post">
+                            <tr>
+                                <th class="h4 table-success">56.22</th>
+                                <th class="h4 table-success">213.45</th>
+                                <th class="h4 table-success">5568.66</th>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -171,4 +193,22 @@
         </div>
     </div>
 </div>
+{% block scripts %}
+<script type="text/javascript">
+$(document).ready(function(){
+  $('button[name="show_eurview"]').click(function(){
+    $('tr[class="table-primary eurview"]').show();
+    $('tr[class="table-primary eurview"]').show();
+    $('button[name="hide_eurview"]').show();
+  });
+  $('button[name="hide_eurview"]').click(function(){
+    $('tr[class="table-primary eurview"]').hide()
+    $('tr[class="table-primary eurview"]').hide()
+    $('button[name="hide_eurview"]').hide();
+
+  });
+});
+
+</script>
+{% endblock %}
 {% endblock %}

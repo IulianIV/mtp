@@ -34,7 +34,7 @@
                 </tr>
                 </thead>
                 <tbody class="post">
-                {% for entry in db_queries.query_expense_entries() %}
+                {% for entry in budget_queries['expense_entries'] %}
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
                     <th class="small mb-1">{{ entry['expense_date'] }}</th>
@@ -66,7 +66,7 @@
                 </tr>
                 </thead>
                 <tbody class="post">
-                {% for entry in db_queries.query_revenue_entries() %}
+                {% for entry in budget_queries['revenue_entries'] %}
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
                     <th class="small mb-1">{{ entry['revenue_date'] }}</th>
@@ -98,7 +98,7 @@
                 </tr>
                 </thead>
                 <tbody class="post">
-                {% for entry in db_queries.query_savings_entries() %}
+                {% for entry in budget_queries['savings_entries'] %}
                 <tr>
                     <th class="small mb-1">{{ entry['id'] }}</th>
                     <th class="small mb-1">{{ entry['saving_date'] }}</th>

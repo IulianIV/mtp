@@ -1,21 +1,16 @@
-from datetime import datetime
-
 from flask import (
     redirect, render_template, request, url_for
 )
 from forex_python.converter import CurrencyRates
 from wtforms.validators import ValidationError
 
-from app import db
 from app.auth.routes import login_required
 from app.budget import bp
 from app.budget import forms
-from app.manager.db.db_interrogations import Query, Insert
+from app.manager.db.db_interrogations import *
 from app.manager.protection import CustomCSRF, form_validated_message, form_error_message
 
 custom_protection = CustomCSRF()
-db_queries = Query()
-db_inserts = Insert()
 currency = CurrencyRates()
 
 
@@ -29,17 +24,17 @@ def summary():
 
     display_date = now.strftime('%B, ') + now.strftime('%Y')
 
-    current_month_revenue_values = db_queries.get_current_month_data()['revenue']
+    current_month_revenue_values = get_current_month_data()['revenue']
     total_current_month_revenue = sum(current_month_revenue_values[x][0] for x
                                       in range(len(current_month_revenue_values)))
 
-    current_month_expense_values = db_queries.get_current_month_data()['expense']
+    current_month_expense_values = get_current_month_data()['expense']
     total_current_month_expense = sum(current_month_expense_values[x][0] for x
                                       in range(len(current_month_expense_values)))
 
-    ec_savings_total_value = sum([x.saving_value for x in db_queries.get_savings_data()['ec']])
-    ed_savings_total_value = sum([x.saving_value for x in db_queries.get_savings_data()['ed']])
-    if_savings_total_value = sum([x.saving_value for x in db_queries.get_savings_data()['if']])
+    ec_savings_total_value = sum([x.saving_value for x in get_savings_data()['ec']])
+    ed_savings_total_value = sum([x.saving_value for x in get_savings_data()['ed']])
+    if_savings_total_value = sum([x.saving_value for x in get_savings_data()['if']])
     overall_savings_total = ec_savings_total_value + ed_savings_total_value + if_savings_total_value
 
     summary_data = {
@@ -56,6 +51,7 @@ def summary():
         'savings_total_EUR': currency.convert('RON', 'EUR', overall_savings_total)
     }
 
+    print(get_current_month_summary())
     return render_template('budget/summary.html', summary_data=summary_data )
 
 
@@ -63,20 +59,21 @@ def summary():
 @login_required
 def add_expense_entry():
     expense_form = forms.AddExpenseEntry()
+    expense_entries = query_expense_entries()
 
     table_counts = {
-        'expense_count': db_queries.get_expense_count()
+        'expense_count': get_expense_count()
     }
 
-    items = db_queries.query_validation_items()
+    items = query_validation_items()
     items_set = [x['items'] for x in items]
     expense_form.expense_item.choices = items_set
 
-    item_categories = db_queries.query_validation_categories()
+    item_categories = query_validation_categories()
     item_categories_set = [x['categories'] for x in item_categories]
     expense_form.expense_category.choices = item_categories_set
 
-    sources = db_queries.query_validation_sources()
+    sources = query_validation_sources()
     sources_set = [x['sources'] for x in sources]
     expense_form.expense_source.choices = sources_set
 
@@ -90,12 +87,12 @@ def add_expense_entry():
 
         form_validated_message('All values validated!')
 
-        db_inserts.insert_expense(date, item, value, item_category, source)
+        insert_expense(date, item, value, item_category, source)
         db.session.commit()
 
         return redirect(url_for('budget.add_expense_entry'))
 
-    return render_template('budget/expense.html', expense_form=expense_form, db_queries=db_queries,
+    return render_template('budget/expense.html', expense_form=expense_form, expense_entries=expense_entries,
                            table_counts=table_counts)
 
 
@@ -103,12 +100,13 @@ def add_expense_entry():
 @login_required
 def add_revenue_entry():
     revenue_form = forms.AddRevenueEntry()
+    revenue_entries = query_revenue_entries()
 
     table_counts = {
-        'revenue_count': db_queries.get_revenue_count()
+        'revenue_count': get_revenue_count()
     }
 
-    sources = db_queries.query_validation_sources()
+    sources = query_validation_sources()
     sources_set = [x['sources'] for x in sources]
     revenue_form.revenue_source.choices = sources_set
 
@@ -120,12 +118,12 @@ def add_revenue_entry():
 
         form_validated_message('All values validated!')
 
-        db_inserts.insert_revenue(date, revenue, source)
+        insert_revenue(date, revenue, source)
         db.session.commit()
 
         return redirect(url_for('budget.add_revenue_entry'))
 
-    return render_template('budget/revenue.html', revenue_form=revenue_form, db_queries=db_queries,
+    return render_template('budget/revenue.html', revenue_form=revenue_form, revenue_entries=revenue_entries,
                            table_counts=table_counts)
 
 
@@ -133,20 +131,21 @@ def add_revenue_entry():
 @login_required
 def add_savings_entry():
     savings_form = forms.AddSavingsEntry()
+    savings_entries = query_savings_entries()
 
     table_counts = {
-        'saving_count': db_queries.get_savings_count()
+        'saving_count': get_savings_count()
     }
 
-    sources = db_queries.query_validation_sources()
+    sources = query_validation_sources()
     sources_set = [x['sources'] for x in sources]
     savings_form.savings_source.choices = sources_set
 
-    reasons = db_queries.query_validation_savings_reason()
+    reasons = query_validation_savings_reason()
     reasons_set = [x['saving_reason'] for x in reasons]
     savings_form.savings_reason.choices = reasons_set
 
-    actions = db_queries.query_validation_savings_action_types()
+    actions = query_validation_savings_action_types()
     action_set = [x['saving_action_type'] for x in actions]
     savings_form.savings_action.choices = action_set
 
@@ -162,19 +161,27 @@ def add_savings_entry():
 
             form_validated_message('All values validated!')
 
-            db_inserts.insert_savings(date, value, source, reason, action)
+            insert_savings(date, value, source, reason, action)
             db.session.commit()
             return redirect(url_for('budget.add_savings_entry'))
 
         return redirect(url_for('budget.add_savings_entry'))
 
-    return render_template('budget/savings.html', savings_form=savings_form, db_queries=db_queries,
+    return render_template('budget/savings.html', savings_form=savings_form, savings_entries=savings_entries,
                            table_counts=table_counts)
 
 
 @bp.route('/validation', methods=('GET', 'POST'))
 @login_required
 def validation():
+    validation_entries = {
+        'validation_items': query_validation_items(),
+        'validation_categories': query_validation_categories(),
+        'validation_sources': query_validation_sources(),
+        'validation_accounts': query_validation_savings_accounts(),
+        'validation_action_types': query_validation_savings_action_types(),
+        'validation_reasons': query_validation_savings_reason()
+    }
 
     items_form = forms.AddValidationItems()
     categories_form = forms.AddValidationCategory()
@@ -183,11 +190,11 @@ def validation():
     actions_form = forms.AddValidationActions()
     reasons_form = forms.AddValidationReason()
 
-    categories = db_queries.query_validation_categories()
+    categories = query_validation_categories()
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
-    return render_template('budget/validation.html', db_queries=db_queries,
+    return render_template('budget/validation.html', validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -199,6 +206,14 @@ def validation():
 @bp.route('/validation/items', methods=('GET', 'POST'))
 @login_required
 def validation_items():
+    validation_entries = {
+        'validation_items': query_validation_items(),
+        'validation_categories': query_validation_categories(),
+        'validation_sources': query_validation_sources(),
+        'validation_accounts': query_validation_savings_accounts(),
+        'validation_action_types': query_validation_savings_action_types(),
+        'validation_reasons': query_validation_savings_reason()
+    }
 
     items_form = forms.AddValidationItems()
     categories_form = forms.AddValidationCategory()
@@ -207,7 +222,7 @@ def validation_items():
     actions_form = forms.AddValidationActions()
     reasons_form = forms.AddValidationReason()
 
-    categories = db_queries.query_validation_categories()
+    categories = query_validation_categories()
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
@@ -216,7 +231,7 @@ def validation_items():
         item = items_form.item_value.data
         category = items_form.category_value.data
 
-        item_list = db_queries.get_validation_item(item)
+        item_list = get_validation_item(item)
 
         if item_list is not None and item in item_list:
 
@@ -225,7 +240,7 @@ def validation_items():
         elif item_list is None:
 
             form_validated_message('Item value validated!')
-            db_inserts.insert_validation_items(item, category)
+            insert_validation_items(item, category)
             db.session.commit()
 
         return redirect(url_for('budget.validation'))
@@ -237,7 +252,7 @@ def validation_items():
 
         return redirect(url_for('budget.validation'))
 
-    return render_template('budget/validation.html', db_queries=db_queries,
+    return render_template('budget/validation.html', validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -249,6 +264,14 @@ def validation_items():
 @bp.route('/validation/category', methods=('GET', 'POST'))
 @login_required
 def validation_categories():
+    validation_entries = {
+        'validation_items': query_validation_items(),
+        'validation_categories': query_validation_categories(),
+        'validation_sources': query_validation_sources(),
+        'validation_accounts': query_validation_savings_accounts(),
+        'validation_action_types': query_validation_savings_action_types(),
+        'validation_reasons': query_validation_savings_reason()
+    }
 
     items_form = forms.AddValidationItems()
     categories_form = forms.AddValidationCategory()
@@ -257,14 +280,14 @@ def validation_categories():
     actions_form = forms.AddValidationActions()
     reasons_form = forms.AddValidationReason()
 
-    categories = db_queries.query_validation_categories()
+    categories = query_validation_categories()
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
     if categories_form.is_submitted() and categories_form.validate_on_submit():
         categories = categories_form.category_value.data
 
-        category_list = db_queries.get_validation_category(categories)
+        category_list = get_validation_category(categories)
 
         # fixme repair the login. ATM it throws an
         #  TypeError: argument of type 'ValidationSavingCategories' is not iterable
@@ -277,7 +300,7 @@ def validation_categories():
 
         if category_list is None:
             form_validated_message('Category value validated!')
-            db_inserts.insert_validation_categories(categories)
+            insert_validation_categories(categories)
             db.session.commit()
 
         return redirect(url_for('budget.validation'))
@@ -289,7 +312,7 @@ def validation_categories():
 
         return redirect(url_for('budget.validation'))
 
-    return render_template('budget/validation.html', db_queries=db_queries,
+    return render_template('budget/validation.html', validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -301,6 +324,14 @@ def validation_categories():
 @bp.route('/validation/sources', methods=('GET', 'POST'))
 @login_required
 def validation_sources():
+    validation_entries = {
+        'validation_items': query_validation_items(),
+        'validation_categories': query_validation_categories(),
+        'validation_sources': query_validation_sources(),
+        'validation_accounts': query_validation_savings_accounts(),
+        'validation_action_types': query_validation_savings_action_types(),
+        'validation_reasons': query_validation_savings_reason()
+    }
 
     items_form = forms.AddValidationItems()
     categories_form = forms.AddValidationCategory()
@@ -309,14 +340,14 @@ def validation_sources():
     actions_form = forms.AddValidationActions()
     reasons_form = forms.AddValidationReason()
 
-    categories = db_queries.query_validation_categories()
+    categories = query_validation_categories()
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
     if sources_form.is_submitted() and sources_form.validate_on_submit():
 
         sources = sources_form.source_value.data
-        sources_list = db_queries.get_validation_source(sources)
+        sources_list = get_validation_source(sources)
 
         if sources_list is not None and sources in sources_list:
 
@@ -324,7 +355,7 @@ def validation_sources():
 
         elif sources_list is None:
             form_validated_message('Source value validated!')
-            db_inserts.insert_validation_sources(sources)
+            insert_validation_sources(sources)
             db.session.commit()
 
         return redirect(url_for('budget.validation'))
@@ -336,7 +367,7 @@ def validation_sources():
 
         return redirect(url_for('budget.validation'))
 
-    return render_template('budget/validation.html', db_queries=db_queries,
+    return render_template('budget/validation.html', validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -348,6 +379,14 @@ def validation_sources():
 @bp.route('/validation/accounts', methods=('GET', 'POST'))
 @login_required
 def validation_accounts():
+    validation_entries = {
+        'validation_items': query_validation_items(),
+        'validation_categories': query_validation_categories(),
+        'validation_sources': query_validation_sources(),
+        'validation_accounts': query_validation_savings_accounts(),
+        'validation_action_types': query_validation_savings_action_types(),
+        'validation_reasons': query_validation_savings_reason()
+    }
 
     items_form = forms.AddValidationItems()
     categories_form = forms.AddValidationCategory()
@@ -356,14 +395,14 @@ def validation_accounts():
     actions_form = forms.AddValidationActions()
     reasons_form = forms.AddValidationReason()
 
-    categories = db_queries.query_validation_categories()
+    categories = query_validation_categories()
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
     if accounts_form.is_submitted() and accounts_form.validate_on_submit():
         accounts = accounts_form.account_value.data
 
-        accounts_list = db_queries.get_validation_account(accounts)
+        accounts_list = get_validation_account(accounts)
 
         if accounts_list is not None and accounts in accounts_list:
 
@@ -371,7 +410,7 @@ def validation_accounts():
 
         elif accounts_list is None:
             form_validated_message('Account value validated!')
-            db_inserts.insert_validation_accounts(accounts)
+            insert_validation_accounts(accounts)
             db.session.commit()
 
         return redirect(url_for('budget.validation'))
@@ -383,7 +422,7 @@ def validation_accounts():
 
         return redirect(url_for('budget.validation'))
 
-    return render_template('budget/validation.html', db_queries=db_queries,
+    return render_template('budget/validation.html', validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -395,6 +434,14 @@ def validation_accounts():
 @bp.route('/validation/actions', methods=('GET', 'POST'))
 @login_required
 def validation_actions():
+    validation_entries = {
+        'validation_items': query_validation_items(),
+        'validation_categories': query_validation_categories(),
+        'validation_sources': query_validation_sources(),
+        'validation_accounts': query_validation_savings_accounts(),
+        'validation_action_types': query_validation_savings_action_types(),
+        'validation_reasons': query_validation_savings_reason()
+    }
 
     items_form = forms.AddValidationItems()
     categories_form = forms.AddValidationCategory()
@@ -403,7 +450,7 @@ def validation_actions():
     actions_form = forms.AddValidationActions()
     reasons_form = forms.AddValidationReason()
 
-    categories = db_queries.query_validation_categories()
+    categories = query_validation_categories()
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
@@ -411,7 +458,7 @@ def validation_actions():
 
         actions = actions_form.action_value.data
 
-        action_list = db_queries.get_validation_actions(actions)
+        action_list = get_validation_actions(actions)
 
         if action_list is not None and actions in action_list:
 
@@ -420,7 +467,7 @@ def validation_actions():
         elif action_list is None:
 
             form_validated_message('Action value validated!')
-            db_inserts.insert_validation_actions(actions)
+            insert_validation_actions(actions)
             db.session.commit()
 
         return redirect(url_for('budget.validation'))
@@ -432,7 +479,7 @@ def validation_actions():
 
         return redirect(url_for('budget.validation'))
 
-    return render_template('budget/validation.html', db_queries=db_queries,
+    return render_template('budget/validation.html', validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -444,6 +491,14 @@ def validation_actions():
 @bp.route('/validation/reasons', methods=('GET', 'POST'))
 @login_required
 def validation_reasons():
+    validation_entries = {
+        'validation_items': query_validation_items(),
+        'validation_categories': query_validation_categories(),
+        'validation_sources': query_validation_sources(),
+        'validation_accounts': query_validation_savings_accounts(),
+        'validation_action_types': query_validation_savings_action_types(),
+        'validation_reasons': query_validation_savings_reason()
+    }
 
     items_form = forms.AddValidationItems()
     categories_form = forms.AddValidationCategory()
@@ -452,14 +507,14 @@ def validation_reasons():
     actions_form = forms.AddValidationActions()
     reasons_form = forms.AddValidationReason()
 
-    categories = db_queries.query_validation_categories()
+    categories = query_validation_categories()
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
     if reasons_form.is_submitted() and reasons_form.validate_on_submit():
 
         reasons = reasons_form.reason_value.data
-        reasons_list = db_queries.get_validation_reason(reasons)
+        reasons_list = get_validation_reason(reasons)
 
         if reasons_list is not None and reasons in reasons_list:
 
@@ -467,7 +522,7 @@ def validation_reasons():
 
         elif reasons_list is None:
             form_validated_message('Reason value validated!')
-            db_inserts.insert_validation_reasons(reasons)
+            insert_validation_reasons(reasons)
             db.session.commit()
 
         return redirect(url_for('budget.validation'))
@@ -479,7 +534,7 @@ def validation_reasons():
 
         return redirect(url_for('budget.validation'))
 
-    return render_template('budget/validation.html', db_queries=db_queries,
+    return render_template('budget/validation.html', validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -491,10 +546,12 @@ def validation_reasons():
 @bp.route('/new-utilities-entry', methods=('GET', 'POST'))
 @login_required
 def add_utilities_entry():
+
     utilities_form = forms.AddUtilitiesEntry()
+    utilities_entries = query_utilities_entries()
 
     table_counts = {
-        'utilities_count': db_queries.get_utilities_count()
+        'utilities_count': get_utilities_count()
     }
 
     date = utilities_form.utilities_date.data
@@ -508,12 +565,12 @@ def add_utilities_entry():
 
         form_validated_message('All values validated!')
 
-        db_inserts.insert_utilities(date, rent, energy, satellite, maintenance, details)
+        insert_utilities(date, rent, energy, satellite, maintenance, details)
         db.session.commit()
 
         return redirect(url_for('budget.add_utilities_entry'))
 
-    return render_template('budget/utilities.html', db_queries=db_queries,
+    return render_template('budget/utilities.html', utilities_entries=utilities_entries,
                            utilities_form=utilities_form, table_counts=table_counts)
 
 

@@ -10,9 +10,6 @@ from app.auth.forms import LoginForm, RegisterForm
 from app.manager.db.db_interrogations import *
 from app.manager.protection import form_validated_message, form_error_message
 
-db_insert = Insert()
-db_query = Query()
-
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
@@ -29,12 +26,12 @@ def register():
         password_retype = register_form.password_retype.data
         email = register_form.email.data
 
-        username_validity = db_query.check_existing_user(username)
+        username_validity = check_existing_user(username)
 
         if password == password_retype and username_validity is None:
             form_validated_message(f'User {username} has been registered. Please log in to continue')
 
-            db_insert.insert_user(username, email, password)
+            insert_user(username, email, password)
             db.session.commit()
 
             return redirect(url_for('index'))
@@ -96,4 +93,3 @@ def login_required(view):
         return view(**kwargs)
 
     return wrapped_view
-

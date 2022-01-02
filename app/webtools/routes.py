@@ -5,9 +5,8 @@ from flask import (
     render_template, request
 )
 
-from app import db
 from app.auth.routes import login_required
-from app.manager.db.db_interrogations import Insert
+from app.manager.db.db_interrogations import *
 from app.manager.protection import form_validated_message, form_error_message
 from app.webtools import bp, forms
 
@@ -27,9 +26,6 @@ encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', '
              'iso8859_16', 'johab', 'koi8_r', 'koi8_t', 'koi8_u', 'kz1048', 'mac_cyrillic', 'mac_greek', 'mac_iceland',
              'mac_latin2', 'mac_roman', 'mac_turkish', 'ptcp154', 'shift_jis', 'shift_jis_2004', 'shift_jisx0213',
              'utf_32', 'utf_32_be', 'utf_32_le', 'utf_16', 'utf_16_be', 'utf_16_le', 'utf_7', 'utf_8', 'utf_8_sig']
-
-
-db_insert = Insert()
 
 
 @bp.route('/url-encode-decode-parser', methods=('GET', 'POST'))
@@ -67,7 +63,7 @@ def url_encode_decode_parse():
                     form_error_message(f'Your URL contains unsupported characters for {selected_encoding} encoding.')
                 else:
                     validated = True
-                    db_insert.add_new_url(url_field, 'encode', selected_encoding)
+                    add_new_url(url_field, 'encode', selected_encoding)
                     db.session.commit()
                     form_validated_message('URL successfully encoded.')
 
@@ -80,12 +76,12 @@ def url_encode_decode_parse():
                     form_error_message('The decode encountered a UTF-8 error. All occurrences of "_#_" in your result '
                                        'represent characters that have thrown the error.')
                     validated = True
-                    db_insert.add_new_url(url_field, decode, selected_encoding)
+                    add_new_url(url_field, decode, selected_encoding)
                     db.session.commit()
                 else:
                     form_validated_message('URL successfully decoded.')
                     validated = True
-                    db_insert.add_new_url(url_field, 'decode', selected_encoding)
+                    add_new_url(url_field, 'decode', selected_encoding)
                     db.session.commit()
 
         # TODO add advanced query parsing with the ability to choose encoding (from already existing form)
@@ -101,7 +97,7 @@ def url_encode_decode_parse():
 
             raw_url_query = parse_qs(parsed_url.query)
 
-            db_insert.add_new_url(url_to_split, None, None)
+            add_new_url(url_to_split, None, None)
             db.session.commit()
 
             form_validated_message('URL parsed successfully!')
