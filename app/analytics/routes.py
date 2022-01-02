@@ -1,11 +1,7 @@
-import io
-import random
 from urllib.parse import parse_qs, urlparse
 
 import pandas as pd
-from flask import render_template, Response
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
+from flask import render_template
 
 from app.analytics import bp
 from app.manager.db.db_interrogations import *
@@ -78,29 +74,8 @@ def utm_stats():
         all_values_dict['qs'].append(raw_url_query)
         all_values_dict['netloc'].append(url_domain)
 
-    fig = create_figure()
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-
-    return render_template('analytics/utm_stats.html', output=output.getvalue(), url_data=all_values_dict,
-                           most_params=most_params, mimetype='image/png')
-
-
-@bp.route('/plot.png')
-def plot_png():
-    fig = create_figure()
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return Response(output.getvalue(), mimetype='image/png')
-
-
-def create_figure():
-    fig = Figure()
-    axis = fig.add_subplot(1, 1, 1)
-    xs = range(100)
-    ys = [random.randint(1, 50) for x in xs]
-    axis.plot(xs, ys)
-    return fig
+    return render_template('analytics/utm_stats.html', url_data=all_values_dict,
+                           most_params=most_params)
 
 
 # fixme To be removed in the future when module is implemented. Exists only for communication purposes
