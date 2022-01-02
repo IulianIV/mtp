@@ -1,14 +1,18 @@
 from typing import NewType, Union
 
-from sqlalchemy import and_, extract
+from sqlalchemy import and_, extract, func
 
 from app.manager.db.models import *
 
 # Type hinting
 DateTime = NewType('DateTime', datetime)
+
 current_month = datetime.now().month
 current_year = datetime.now().year
-db = db
+
+"""
+Database INSERT queries section
+"""
 
 
 def insert_user(username: str, email: str, password: str):
@@ -77,6 +81,11 @@ def insert_post(title: str, body: str, author_id: str):
 def add_new_url(raw_url: str, encode_option: Union[str, None], encoding: Union[str, None]):
     return db.session.add(UrlEncodeDecodeParse(raw_url=raw_url, encode_option=encode_option,
                                                encoding=encoding))
+
+
+"""
+Database SELECT queries section
+"""
 
 
 def check_existing_user(username):
@@ -213,13 +222,13 @@ def get_parsed_urls():
 def get_current_month_data():
     budget_totals = {
         'revenue': BudgetRevenue.query.
-            filter(extract('month', BudgetRevenue.revenue_date) == current_month).
-            filter(extract('year', BudgetRevenue.revenue_date) == current_year).
-            with_entities(BudgetRevenue.revenue_value).all(),
+        filter(extract('month', BudgetRevenue.revenue_date) == current_month).
+        filter(extract('year', BudgetRevenue.revenue_date) == current_year).
+        with_entities(BudgetRevenue.revenue_value).all(),
         'expense': BudgetExpense.query.
-            filter(extract('month', BudgetExpense.expense_date) == current_month).
-            filter(extract('year', BudgetExpense.expense_date) == current_year).
-            with_entities(BudgetExpense.expense_value).all()
+        filter(extract('month', BudgetExpense.expense_date) == current_month).
+        filter(extract('year', BudgetExpense.expense_date) == current_year).
+        with_entities(BudgetExpense.expense_value).all()
     }
 
     return budget_totals
@@ -228,20 +237,47 @@ def get_current_month_data():
 def get_savings_data():
     savings_totals = {
         'ec': BudgetSaving.query.
-            filter_by(saving_source='EC').all(),
+        filter_by(saving_source='EC').all(),
         'ed': BudgetSaving.query.
-            filter_by(saving_source='ED').all(),
+        filter_by(saving_source='ED').all(),
         'if': BudgetSaving.query.
-            filter_by(saving_source='IF').all(),
+        filter_by(saving_source='IF').all(),
     }
 
     return savings_totals
 
 
+"""
+Raw database query - useful in tests.
+
+SELECT
+id, expense_date, SUM(expense_value),
+GROUP_CONCAT(DISTINCT(expense_item)) AS Items,
+GROUP_CONCAT(DISTINCT(expense_item_category)) AS Categories
+FROM
+budget_expense
+WHERE strftime('%Y', expense_date) = '2018'
+AND strftime('%m', expense_date) = '04'
+GROUP BY expense_date
+
+"""
+
+
 def get_current_month_summary():
-    data = db.session.concat(BudgetExpense.expense_item).all()
+    data = db.session. \
+        query(BudgetExpense.id, BudgetExpense.expense_date, func.sum(BudgetExpense.expense_value),
+              func.group_concat(BudgetExpense.expense_item.distinct()),
+              func.group_concat(BudgetExpense.expense_item_category.distinct())). \
+        filter(extract('month', BudgetExpense.expense_date) == current_month).\
+        filter(extract('year', BudgetExpense.expense_date) == current_year).\
+        group_by(BudgetExpense.expense_date)
 
     return data
+
+
+"""
+Database UPDATE queries section
+"""
 
 
 def update_post(title: str, body: str, post_id: str):
@@ -250,6 +286,11 @@ def update_post(title: str, body: str, post_id: str):
     post.body = body
 
     db.session.commit()
+
+
+"""
+Database DELETE queries section
+"""
 
 
 def delete_post(post_id: str):
