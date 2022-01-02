@@ -222,13 +222,13 @@ def get_parsed_urls():
 def get_current_month_data():
     budget_totals = {
         'revenue': BudgetRevenue.query.
-        filter(extract('month', BudgetRevenue.revenue_date) == current_month).
-        filter(extract('year', BudgetRevenue.revenue_date) == current_year).
-        with_entities(BudgetRevenue.revenue_value).all(),
+            filter(extract('month', BudgetRevenue.revenue_date) == current_month).
+            filter(extract('year', BudgetRevenue.revenue_date) == current_year).
+            with_entities(BudgetRevenue.revenue_value).all(),
         'expense': BudgetExpense.query.
-        filter(extract('month', BudgetExpense.expense_date) == current_month).
-        filter(extract('year', BudgetExpense.expense_date) == current_year).
-        with_entities(BudgetExpense.expense_value).all()
+            filter(extract('month', BudgetExpense.expense_date) == current_month).
+            filter(extract('year', BudgetExpense.expense_date) == current_year).
+            with_entities(BudgetExpense.expense_value).all()
     }
 
     return budget_totals
@@ -237,11 +237,11 @@ def get_current_month_data():
 def get_savings_data():
     savings_totals = {
         'ec': BudgetSaving.query.
-        filter_by(saving_source='EC').all(),
+            filter_by(saving_source='EC').all(),
         'ed': BudgetSaving.query.
-        filter_by(saving_source='ED').all(),
+            filter_by(saving_source='ED').all(),
         'if': BudgetSaving.query.
-        filter_by(saving_source='IF').all(),
+            filter_by(saving_source='IF').all(),
     }
 
     return savings_totals
@@ -264,15 +264,59 @@ GROUP BY expense_date
 
 
 def get_current_month_summary():
-    data = db.session. \
+    current_month_summary = db.session. \
         query(BudgetExpense.id, BudgetExpense.expense_date, func.sum(BudgetExpense.expense_value),
               func.group_concat(BudgetExpense.expense_item.distinct()),
               func.group_concat(BudgetExpense.expense_item_category.distinct())). \
-        filter(extract('month', BudgetExpense.expense_date) == current_month).\
-        filter(extract('year', BudgetExpense.expense_date) == current_year).\
+        filter(extract('month', BudgetExpense.expense_date) == current_month). \
+        filter(extract('year', BudgetExpense.expense_date) == current_year). \
         group_by(BudgetExpense.expense_date)
 
-    return data
+    return current_month_summary
+
+
+"""
+SELECT
+COUNT(id) AS 'Number of #',
+expense_item_category as Category
+FROM
+budget_expense
+WHERE strftime('%Y', expense_date) = '2020'
+AND strftime('%m', expense_date) = '09'
+GROUP BY expense_item_category
+"""
+
+
+def get_expense_count_by_category():
+    category_count = db.session.query(func.count(BudgetExpense.id),
+                                      BudgetExpense.expense_item_category). \
+        filter(extract('month', BudgetExpense.expense_date) == current_month). \
+        filter(extract('year', BudgetExpense.expense_date) == current_year). \
+        group_by(BudgetExpense.expense_item_category)
+
+    return category_count
+
+
+"""
+SELECT
+COUNT(id) AS 'Number of #',
+expense_item as Item
+FROM
+budget_expense
+WHERE strftime('%Y', expense_date) = '2022'
+AND strftime('%m', expense_date) = '01'
+GROUP BY expense_item
+"""
+
+
+def get_expense_count_by_item():
+    item_count = db.session.query(func.count(BudgetExpense.id),
+                                  BudgetExpense.expense_item). \
+        filter(extract('month', BudgetExpense.expense_date) == current_month). \
+        filter(extract('year', BudgetExpense.expense_date) == current_year). \
+        group_by(BudgetExpense.expense_item)
+
+    return item_count
 
 
 """
