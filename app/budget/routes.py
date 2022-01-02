@@ -4,6 +4,7 @@ from flask import (
 from forex_python.converter import CurrencyRates
 from wtforms.validators import ValidationError
 
+from app.analytics.utils import category_frequency_plot, item_frequency_plot
 from app.auth.routes import login_required
 from app.budget import bp
 from app.budget import forms
@@ -14,8 +15,9 @@ custom_protection = CustomCSRF()
 currency = CurrencyRates()
 
 
-# TODO Add RON to EUR Conversion by passing already converted values to template then process them with AJAX when box
-#   is checked
+# TODO Change plot show up by using a JavaScript library
+# fixme as the view has grown in complexity it has become VERY slow
+# TODO port graphs to d3.js
 @bp.route('/')
 @login_required
 def summary():
@@ -37,6 +39,9 @@ def summary():
     overall_savings_total = ec_savings_total_value + ed_savings_total_value + if_savings_total_value
 
     current_month_general_summary = [x for x in get_current_month_summary()]
+
+    category_frequency_plot(get_expense_count_by_category())
+    item_frequency_plot(get_expense_count_by_item())
 
     summary_data = {
         'date': display_date,
