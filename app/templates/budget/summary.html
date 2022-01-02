@@ -178,12 +178,14 @@
                     </tr>
                     </thead>
                     <tbody class="post">
+                    {% for entry in summary_data['current_month_summary'] %}
                     <tr>
-                        <th class="table-primary">today</th>
-                        <th class="table-warning">12345</th>
-                        <th class="table-warning">Rent, Food</th>
-                        <th class="table-warning">Shopping</th>
+                        <th class="table-primary">{{ entry[1] }}</th>
+                        <th class="table-warning">{{ entry[2] }}</th>
+                        <th class="table-warning">{{ entry[3] }}</th>
+                        <th class="table-warning">{{ entry[4] }}</th>
                     </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
