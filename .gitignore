@@ -145,7 +145,7 @@ hello.py
 .idea/
 /app/static/favicon.ico
 /app/static/favicon2.ico
-/app/static/scripts.js
+/app/static/js/scripts.js
 /app/static/startbootstrap-sb-admin-2-gh-pages.zip
 /app/static/startbootstrap-sb-admin-gh-pages.zip
 /.idea/
