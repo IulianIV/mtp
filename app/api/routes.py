@@ -2,9 +2,8 @@ from flask import (
     request, redirect, url_for
 )
 
-from app import db
 from app.api import bp
-from app.manager.db.models import BudgetExpense, BudgetRevenue, BudgetSaving, BudgetUtilities
+from app.manager.db.db_interrogations import *
 
 
 # fixme it is now basically inaccessible form the FE.
@@ -109,4 +108,34 @@ def data():
         'recordsFiltered': total_filtered,
         'recordsTotal': table_map[current_loc]['table'].query.count(),
         'draw': request.args.get('draw', type=int)
+    }
+
+
+@bp.route('/data/summary-graph/categories', methods=['GET'])
+def summary_graph_categories_data():
+    category_data = [x for x in get_expense_count_by_category()]
+
+    data_test = []
+
+    count = [int(x[0]) for x in category_data]
+    categories = [x[1] for x in category_data]
+
+    for item in range(len(categories)):
+        data_test.append({'group': '{}'.format(categories[item]), 'value': '{}'.format(count[item])})
+
+    return {
+        'data': data_test
+    }
+
+
+@bp.route('/data/summary-graph/items', methods=['GET'])
+def summary_graph_items_data():
+    items_data = [x for x in get_expense_count_by_item()]
+
+    count = [int(x[0]) for x in items_data]
+    items = [x[1] for x in items_data]
+
+    return {
+        'count': count,
+        'categories': items
     }
