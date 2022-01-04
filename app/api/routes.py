@@ -132,10 +132,14 @@ def summary_graph_categories_data():
 def summary_graph_items_data():
     items_data = [x for x in get_expense_count_by_item()]
 
+    data_test = []
+
     count = [int(x[0]) for x in items_data]
     items = [x[1] for x in items_data]
 
+    for item in range(len(items)):
+        data_test.append({'group': '{}'.format(items[item]), 'value': '{}'.format(count[item])})
+
     return {
-        'count': count,
-        'categories': items
+        'data': data_test
     }
