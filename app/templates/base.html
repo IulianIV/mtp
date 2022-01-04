@@ -13,7 +13,8 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon2.ico') }}">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.css">
     <!-- Might be needed for the current blog styling    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />-->
-    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf8"
             src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
     <script type="text/javascript" charset="utf8"
@@ -100,8 +101,10 @@
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownAnalytics">
                     <a class="dropdown-item" href="{{ url_for('analytics.lifetime_expense') }}">Reporting (temp)</a>
                     <a class="dropdown-item" href="{{ url_for('analytics.budget_tables') }}">Budget Tables</a>
-                    <a class="dropdown-item" href="{{ url_for('analytics.utm_analyzer') }}">UTM Analyzer (for testing)</a>
-                    <a class="dropdown-item" href="{{ url_for('analytics.utm_stats') }}">Parsed URLs Parameters & Values</a>
+                    <a class="dropdown-item" href="{{ url_for('analytics.utm_analyzer') }}">UTM Analyzer (for
+                        testing)</a>
+                    <a class="dropdown-item" href="{{ url_for('analytics.utm_stats') }}">Parsed URLs Parameters &
+                        Values</a>
                     <a class="dropdown-item" href="#">Statistics</a>
                 </div>
             </li>
