@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from flask import current_app
 
-
-# TODO add a more abstract function to be able to pass different queries and generate different pictures
+# has-dependency to-be deprecated file. Useful for generating graphs. Now they are implemented
+#  through d3.js for flexibility.
 
 
 def category_frequency_plot(values):
