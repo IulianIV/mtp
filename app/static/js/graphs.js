@@ -1,19 +1,13 @@
-// create 2 data_set
-var data1 = {
-"data": [
-   {'group': "A", 'value': '4'},
-   {'group': "B", 'value': '25'},
-   {'group': "C", 'value': '8'}
-]};
+// fetch data through jQuery AJAX and on success create graph
+// the plot is initialized on button press
 
-data_test = data1.data
+var category_data = $.getJSON( "/api/data/summary-graph/categories").done(function(response) {
+    update(response.data);
+  })
 
-var data2 = [
-   {group: "A", value: 7},
-   {group: "B", value: 1},
-   {group: "C", value: 20},
-   {group: "D", value: 10}
-];
+var item_data = $.getJSON( "/api/data/summary-graph/items").done(function(response) {
+    response.data;
+  })
 
 // set the dimensions and margins of the graph
 var margin = {top: 30, right: 30, bottom: 70, left: 60},
@@ -76,5 +70,3 @@ function update(data) {
     .remove()
 }
 
-// Initialize the plot with the first dataset
-update(data_test)
