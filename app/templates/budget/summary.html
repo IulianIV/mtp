@@ -56,15 +56,16 @@
                         </tr>
                         </tbody>
                     </table>
-                    <button type="button" class="btn btn-secondary">Expense by Category</button>
-                    <button type="button" class="btn btn-secondary">Expense by Item</button>
+                    <button type="button" class="btn btn-secondary" onclick="update(category_data.responseJSON.data)
+">Expense by Category
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="update(item_data.responseJSON.data)
+">Expense by Item
+                    </button>
                 </div>
             </div>
         </div>
         <div id="my_dataviz"></div>
-        <img src="{{ url_for('static', filename='graphs/category_frequency.png') }}" class="rounded"
-             alt="Responsive image" style="width: 393px; height: 300px;">
-        <img src="{{ url_for('static', filename='graphs/item_frequency.png') }}" class="rounded" alt="Responsive image" style="width: 393px; height: 300px;">
     </div>
     <div class="col-lg-6 mb-4">
         <div class="card text-center">
@@ -119,18 +120,24 @@
                         </tr>
                         <tr class="table-primary eurview" style="display: none;">
                             <th colspan="2" class="text-left">ED Account</th>
-                            <th colspan="2" class="h4 table-success">€ {{ '{:,}'.format(summary_data['ed_savings_EUR'] |float|round(2)
-                                ) }}</th>
+                            <th colspan="2" class="h4 table-success">€ {{ '{:,}'.format(summary_data['ed_savings_EUR']
+                                |float|round(2)
+                                ) }}
+                            </th>
                         </tr>
                         <tr class="table-primary eurview" style="display: none;">
                             <th colspan="2" class="text-left">IF Account</th>
-                            <th colspan="2" class="h4 table-success">€ {{ '{:,}'.format(summary_data['if_savings_EUR'] |float|round(2)
-                                ) }}</th>
+                            <th colspan="2" class="h4 table-success">€ {{ '{:,}'.format(summary_data['if_savings_EUR']
+                                |float|round(2)
+                                ) }}
+                            </th>
                         </tr>
                         <tr class="table-primary eurview" style="display: none;">
                             <th colspan="2" class="text-left">Total Savings Account</th>
-                            <th colspan="2" class="h4 table-success">€ {{ '{:,}'.format(summary_data['savings_total_EUR'] |round(2) )
-                                }}</th>
+                            <th colspan="2" class="h4 table-success">€ {{
+                                '{:,}'.format(summary_data['savings_total_EUR'] |round(2) )
+                                }}
+                            </th>
                         </tr>
                         </tbody>
                     </table>
