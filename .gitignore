@@ -152,4 +152,4 @@ hello.py
 /.idea/misc.xml
 /app/static/open-iconic-master/
 /app/static/open-iconic-master.zip
-/migrations/versions/
+/migrations/
