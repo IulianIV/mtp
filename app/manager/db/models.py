@@ -8,24 +8,32 @@ from app import db
 from app import login
 
 
-# TODO check the Foreign Key functionalities
-#   check the functionality of the column and table relationships (accounts, sources etc).
-# TODO add user relationship to all budgeting tables and have entries filter by current user.
+# TODO Add permissions Table nad migrate/upgrade
 
 @login.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# TODO add a "created at" field to the DB.
+# TODO change "posts" to "posts_id"
+
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(15), unique=True, nullable=False)
-    posts = db.relationship('Post', backref='author', lazy='dynamic')
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_profile_id = db.relationship('UserProfile')
+    budget_revenue_id = db.relationship('BudgetRevenue', lazy='dynamic')
+    budget_saving_id = db.relationship('BudgetSaving', lazy='dynamic')
+    budget_expense_id = db.relationship('BudgetExpense', lazy='dynamic')
+    budget_utilities_id = db.relationship('BudgetUtilities', lazy='dynamic')
+    url_decode_parse_id = db.relationship('UrlEncodeDecodeParse')
+    username = db.Column(db.String(15), unique=True, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow())
     password_hash = db.Column(db.String(128))
     email = db.Column(db.String(120), index=True, unique=True)
-    bio = db.Column(db.String(120), index=True, unique=False)
+    posts = db.relationship('Post', lazy='dynamic')
     last_seen = db.Column(db.DateTime, default=datetime.utcnow())
+    # permissions = db.Column(db.Integer, nullable=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -41,12 +49,20 @@ class User(UserMixin, db.Model):
         return f'User: {self.username}, with id: {self.id}'
 
 
+class UserProfile(db.Model):
+    __tablename__ = 'user_profile'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
+    bio = db.Column(db.String(12), unique=False, nullable=True)
+    avatar = db.Column(db.String(256), unique=False, nullable=True)
+
+
 class Post(db.Model):
     __tablename__ = 'posts'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    created = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
-    title = db.Column(db.String(90), nullable=False)
+    created = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    title = db.Column(db.String(90), nullable=False, index=True)
     body = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
@@ -55,10 +71,11 @@ class Post(db.Model):
 
 class BudgetRevenue(db.Model):
     __tablename__ = 'budget_revenue'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     revenue_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     revenue_value = db.Column(db.Float, nullable=False)
-    revenue_source = db.Column(db.String(20), nullable=False)
+    revenue_source = db.Column(db.String(20), db.ForeignKey('saving_sources.sources'), nullable=False)
 
     def __repr__(self):
         return f'Budget revenue ID: {self.id}'
@@ -78,12 +95,16 @@ class BudgetRevenue(db.Model):
 
 class BudgetSaving(db.Model):
     __tablename__ = 'budget_saving'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     saving_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     saving_value = db.Column(db.Float, nullable=False)
-    saving_source = db.Column(db.String(20), nullable=False)
-    saving_reason = db.Column(db.String(20), nullable=False)
-    saving_action = db.Column(db.String(20), nullable=False)
+    saving_source = db.Column(db.String(20), db.ForeignKey('savings_accounts.saving_accounts'), nullable=False,
+                              index=True)
+    saving_reason = db.Column(db.String(20), db.ForeignKey('saving_reason.saving_reason'), nullable=False,
+                              index=True)
+    saving_action = db.Column(db.String(20), db.ForeignKey('savings_actions.saving_action_type'),
+                              nullable=False, index=True)
 
     def __repr__(self):
         return f'Budget saving ID: {self.id}'
@@ -105,14 +126,14 @@ class BudgetSaving(db.Model):
 
 class BudgetExpense(db.Model):
     __tablename__ = 'budget_expense'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     expense_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
-    expense_item = db.Column(db.String(20), nullable=False)
+    expense_item = db.Column(db.String(20), db.ForeignKey('saving_items.items'), nullable=False)
     expense_value = db.Column(db.Float, nullable=False)
-    expense_item_category = db.Column(db.String(20), nullable=False)
-    # fixme implement a way to add foreign keys: the previous implementation throws error
-    #   foreign_keys=[BudgetRevenue.revenue_source, BudgetSaving.saving_source]
-    expense_source = db.Column(db.String(20), nullable=False)
+    expense_item_category = db.Column(db.String(20), db.ForeignKey('saving_categories.categories'),
+                                      nullable=False)
+    expense_source = db.Column(db.String(20), db.ForeignKey('saving_sources.sources'), nullable=False)
 
     def __repr__(self):
         return f'Budget expense ID: {self.id}'
@@ -134,13 +155,15 @@ class BudgetExpense(db.Model):
 
 class BudgetUtilities(db.Model):
     __tablename__ = 'budget_utilities'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     utilities_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     utilities_rent_value = db.Column(db.Float, nullable=False)
     utilities_energy_value = db.Column(db.Float, nullable=False)
     utilities_satellite_value = db.Column(db.Float, nullable=False)
     utilities_maintenance_value = db.Column(db.Float, nullable=False)
     utilities_info = db.Column(db.Text, nullable=False)
+    budget_source = db.Column(db.String(20), db.ForeignKey('saving_sources.sources'))
 
     def __repr__(self):
         return f'Budget utilities id: {self.id}'
@@ -163,8 +186,9 @@ class BudgetUtilities(db.Model):
 
 class ValidationSavingAccount(db.Model):
     __tablename__ = 'savings_accounts'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     saving_accounts = db.Column(db.String(10), nullable=False, unique=True)
+    budget_saving_id = db.relationship('BudgetSaving')
 
     def __repr__(self):
         return f'Saving account id: {self.id}'
@@ -172,8 +196,9 @@ class ValidationSavingAccount(db.Model):
 
 class ValidationSavingAction(db.Model):
     __tablename__ = 'savings_actions'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     saving_action_type = db.Column(db.String(10), nullable=False, unique=True)
+    budget_saving_id = db.relationship('BudgetSaving')
 
     def __repr__(self):
         return f'Saving action id: {self.id}'
@@ -181,8 +206,10 @@ class ValidationSavingAction(db.Model):
 
 class ValidationSavingCategories(db.Model):
     __tablename__ = 'saving_categories'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     categories = db.Column(db.String(20), nullable=False, unique=True)
+    budget_expense_id = db.relationship('BudgetExpense')
+    validation_saving_item_id = db.relationship('ValidationSavingItems')
 
     def __repr__(self):
         return f'Saving categories id: {self.id}'
@@ -190,9 +217,10 @@ class ValidationSavingCategories(db.Model):
 
 class ValidationSavingItems(db.Model):
     __tablename__ = 'saving_items'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    budget_expense_id = db.relationship('BudgetExpense')
+    category = db.Column(db.String(20), db.ForeignKey('saving_categories.categories'), nullable=False)
     items = db.Column(db.String(20), nullable=False, unique=True)
-    category = db.Column(db.String(20), nullable=False)
 
     def __repr__(self):
         return f'Saving items: {self.id}'
@@ -200,8 +228,9 @@ class ValidationSavingItems(db.Model):
 
 class ValidationSavingReason(db.Model):
     __tablename__ = 'saving_reason'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     saving_reason = db.Column(db.String(25), nullable=False, unique=True)
+    budget_saving_id = db.relationship('BudgetSaving')
 
     def __repr__(self):
         return f'Saving reason id: {self.id}'
@@ -209,8 +238,11 @@ class ValidationSavingReason(db.Model):
 
 class ValidationSavingSources(db.Model):
     __tablename__ = 'saving_sources'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     sources = db.Column(db.String(10), nullable=False, unique=True)
+    budget_revenue_id = db.relationship('BudgetRevenue')
+    budget_expense_id = db.relationship('BudgetExpense')
+    budget_utilities_id = db.relationship('BudgetUtilities')
 
     def __repr__(self):
         return f'Saving sources id: {self.id}'
@@ -218,7 +250,8 @@ class ValidationSavingSources(db.Model):
 
 class UrlEncodeDecodeParse(db.Model):
     __tablename__ = 'url_encode_decode_parse'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     url_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     raw_url = db.Column(db.String(1000), nullable=False)
     encode_option = db.Column(db.String(10))
