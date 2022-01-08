@@ -24,7 +24,7 @@
                             <div class="card-header"><h3 class="text-center font-weight-light my-4">Add new Utilities
                                 Entry</h3></div>
                             <div class="card-body">
-                                    <form action="{{ url_for('budget.add_utilities_entry') }}" id="utilities-form"
+                                <form action="{{ url_for('budget.add_utilities_entry') }}" id="utilities-form"
                                       method="post">
                                     {{ utilities_form.hidden_tag() }}
                                     <div class="table-responsive">
@@ -44,7 +44,13 @@
                                                     {{ utilities_form.utilities_satellite.label(for='utilities-form') }}
                                                 </th>
                                                 <th>
-                                                    {{ utilities_form.utilities_maintenance.label(for='utilities-form') }}
+                                                    {{ utilities_form.utilities_maintenance.label(for='utilities-form')
+                                                    }}
+                                                </th>
+                                                <th>
+                                                    {{
+                                                    utilities_form.utilities_budget_sources.label(for='utilities-form')
+                                                    }}
                                                 </th>
                                                 <th>
                                                     {{ utilities_form.utilities_details.label(for='utilities-form') }}
@@ -72,6 +78,11 @@
                                                 <th>
                                                     {{ utilities_form.utilities_maintenance(form='utilities-form',
                                                     class='form-control py-4', placeholder="Ex.: 15.25") }}
+                                                </th>
+                                                <th>
+                                                    {{ utilities_form.utilities_budget_sources(form='utilities-form',
+                                                    class='form-control py-4', placeholder="Ex.: To add placeholder
+                                                    according to right table") }}
                                                 </th>
                                                 <th>
                                                     {{ utilities_form.utilities_details(form='utilities-form',
@@ -110,6 +121,7 @@
                     <th>Utilities Energy</th>
                     <th>Utilities Satellite</th>
                     <th>Utilities Maintenance</th>
+                    <th>Utilities Source</th>
                     <th>Utilities Details</th>
                 </tr>
                 </thead>
@@ -122,6 +134,7 @@
                     <th class="small mb-1">{{ entry['utilities_energy_value'] }}</th>
                     <th class="small mb-1">{{ entry['utilities_satellite_value'] }}</th>
                     <th class="small mb-1">{{ entry['utilities_maintenance_value'] }}</th>
+                    <th class="small mb-1">{{ entry['budget_source'] }}</th>
                     <th class="small mb-1">{{ entry['utilities_info'] }}</th>
                 </tr>
                 {% endfor %}
@@ -151,10 +164,13 @@
           {data: "utilities_energy_value"},
           {data: "utilities_satellite_value"},
           {data: "utilities_maintenance_value"},
+          {data: "budget_source"},
           {data: "utilities_info", orderable: false},
         ],
         });
         });
+
+
 </script>
 {% endblock %}
 {% endblock %}
