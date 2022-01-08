@@ -9,7 +9,7 @@ from flask_login import current_user
 
 from app.auth.routes import login_required
 from app.manager import tests_bp
-from app.manager.db.models import *
+from app.manager.db.db_interrogations import *
 from app.manager.protection import form_validated_message, form_error_message, check_range
 from app.manager.tests.forms import AddFakes
 from app.webtools.routes import encodings
@@ -17,6 +17,10 @@ from app.webtools.routes import encodings
 
 # TODO Validation for ranges added. Research if custom validation through WTForms would be better. Whilst with this
 #   you learned about decorators
+# TODO Add date-time choice for test value insertion
+# TODO Convert Form Range field to Int field or string field. Or at least STRIP field and permit only
+#   certain types of data.
+
 @tests_bp.route('/tests/fake-data-generator', methods=('GET', 'POST'))
 @login_required
 def add_fakes():
@@ -77,7 +81,7 @@ def create_fake_users(users_num: int):
     faker = Faker()
 
     for i in range(int(users_num)):
-        user = User(username=faker.first_name())
+        user = User(username=faker.first_name(), email=faker.email())
         user.set_password(faker.bothify(text='??###'))
         db.session.add(user)
     db.session.commit()
@@ -93,8 +97,13 @@ def create_fake_posts(posts_range: str):
     posts_range = posts_range.split('-')
     gen_num = random.randint(int(posts_range[0]), int(posts_range[1]))
 
+    if current_user.get_id():
+        user_id = current_user.get_id()
+    else:
+        user_id = 1
+
     for i in range(gen_num):
-        post = Post(author_id=current_user.get_id() if current_user is not None else 1,
+        post = Post(author_id=user_id,
                     title=faker.paragraph(nb_sentences=1, variable_nb_sentences=False),
                     body=faker.paragraph(nb_sentences=5, variable_nb_sentences=True))
         db.session.add(post)
@@ -106,12 +115,17 @@ def create_fake_posts(posts_range: str):
 @check_range
 def create_fake_revenue(revenue_range: str):
     """Generate fake revenue entries."""
+    saving_sources = get_validation_saving_sources()
     revenue_range = revenue_range.split('-')
     gen_num = random.randint(int(revenue_range[0]), int(revenue_range[1]))
+    if current_user.get_id():
+        user_id = current_user.get_id()
+    else:
+        user_id = 1
 
     for i in range(gen_num):
-        revenue = BudgetRevenue(revenue_value=random.randint(850, 4500),
-                                revenue_source=f'Account{random.randint(1, 5)}')
+        revenue = BudgetRevenue(user_id=user_id, revenue_value=random.randint(850, 4500),
+                                revenue_source=saving_sources[random.randint(0, len(saving_sources)-1)].sources)
         db.session.add(revenue)
     db.session.commit()
     print(f'Added {gen_num} fake revenues to the database.')
@@ -123,12 +137,20 @@ def create_fake_saving(saving_range: str):
     """Generate fake savings entries."""
     saving_range = saving_range.split('-')
     gen_num = random.randint(int(saving_range[0]), int(saving_range[1]))
+    saving_sources = get_validation_saving_accounts()
+    saving_reasons = get_validation_saving_reasons()
+    saving_actions = get_validation_saving_action()
+
+    if current_user.get_id():
+        user_id = current_user.get_id()
+    else:
+        user_id = 1
 
     for i in range(gen_num):
-        saving = BudgetSaving(saving_value=random.randint(850, 4500),
-                              saving_source=f'Account{random.randint(1, 5)}',
-                              saving_reason=f'Reasons{random.randint(1, 5)}',
-                              saving_action=f'Action{random.randint(1, 5)}')
+        saving = BudgetSaving(user_id=user_id, saving_value=random.randint(850, 4500),
+                              saving_source=saving_sources[random.randint(0, len(saving_sources)-1)].saving_accounts,
+                              saving_reason=saving_reasons[random.randint(0, len(saving_reasons)-1)].saving_reason,
+                              saving_action=saving_actions[random.randint(0, len(saving_actions)-1)].saving_action_type)
         db.session.add(saving)
     db.session.commit()
     print(f'Added {gen_num} fake saving to the database.')
@@ -140,12 +162,21 @@ def create_fake_expense(expense_range: str):
     """Generate fake expense entries."""
     expense_range = expense_range.split('-')
     gen_num = random.randint(int(expense_range[0]), int(expense_range[1]))
+    validation_items_categories = get_validation_saving_items()
+    saving_sources = get_validation_saving_sources()
+    random_int = random.randint(0, len(validation_items_categories)-1)
+
+    if current_user.get_id():
+        user_id = current_user.get_id()
+    else:
+        user_id = 1
 
     for i in range(gen_num):
-        expense = BudgetExpense(expense_item=f'Item{random.randint(1, 5)}',
+        expense = BudgetExpense(user_id=user_id,
+                                expense_item=validation_items_categories[random_int].items,
                                 expense_value=random.randint(5, 560),
-                                expense_item_category=f'Categ{random.randint(1, 5)}',
-                                expense_source=f'Account{random.randint(1, 5)}')
+                                expense_item_category=validation_items_categories[random_int].category,
+                                expense_source=saving_sources[random.randint(0, len(saving_sources)-1)].sources)
         db.session.add(expense)
     db.session.commit()
     print(f'Added {gen_num} fake expense to the database.')
@@ -157,21 +188,28 @@ def create_fake_utilities(utilities_range: str):
     """Generate fake expense entries."""
     utilities_range = utilities_range.split('-')
     gen_num = random.randint(int(utilities_range[0]), int(utilities_range[1]))
+    saving_sources = get_validation_saving_sources()
+
+    if current_user.get_id():
+        user_id = current_user.get_id()
+    else:
+        user_id = 1
 
     faker = Faker()
     for i in range(gen_num):
-        utility = BudgetUtilities(utilities_rent_value=random.randint(50, 250),
+        utility = BudgetUtilities(user_id=user_id,
+                                  utilities_rent_value=random.randint(50, 250),
                                   utilities_energy_value=random.randint(50, 250),
                                   utilities_satellite_value=random.randint(50, 250),
                                   utilities_maintenance_value=random.randint(50, 250),
-                                  utilities_info=faker.paragraph(nb_sentences=1, variable_nb_sentences=False))
+                                  utilities_info=faker.paragraph(nb_sentences=1, variable_nb_sentences=False),
+                                  budget_source=saving_sources[random.randint(0, len(saving_sources)-1)].sources)
         db.session.add(utility)
     db.session.commit()
     print(f'Added {gen_num} fake utility to the database.')
     return gen_num
 
 
-# fix-me throws IntegrityError. It tries to input data as "accountX" (X being i value) whilst "accountX" already exists
 def create_fake_validation(validation_entries: int):
     """ Generate fake validation entries across all validation tables """
     gen_range = range(1, int(validation_entries))
@@ -206,12 +244,18 @@ def create_fake_urls(urls_num: int, url_params: bool = False, randomized_params:
     faker = Faker()
     encode_option = ['encode', 'decode']
 
+    if current_user.get_id():
+        user_id = current_user.get_id()
+    else:
+        user_id = 1
+
     if not url_params and not randomized_params:
 
         for i in range(int(urls_num)):
-            url_decode_encode = UrlEncodeDecodeParse(raw_url=faker.uri(),
+            url_decode_encode = UrlEncodeDecodeParse(user_id=user_id,
+                                                     raw_url=faker.uri(),
                                                      encode_option=encode_option[random.randint(0, 1)],
-                                                     encoding=encodings[random.randint(1, len(encodings))])
+                                                     encoding=encodings[random.randint(0, len(encodings)-1)])
             db.session.add(url_decode_encode)
         db.session.commit()
         print(f'Added {urls_num} fake urls to the database with no parameters.')
@@ -219,7 +263,8 @@ def create_fake_urls(urls_num: int, url_params: bool = False, randomized_params:
 
         for i in range(int(urls_num)):
             random_utm = faker.bothify(text='utm_source=????&utm_medium=?????&utm_campaign=????_####&utm_content=?????')
-            url_decode_encode = UrlEncodeDecodeParse(raw_url=f'{faker.uri()}?{random_utm}',
+            url_decode_encode = UrlEncodeDecodeParse(user_id=user_id,
+                                                     raw_url=f'{faker.uri()}?{random_utm}',
                                                      encode_option=None,
                                                      encoding=None)
             db.session.add(url_decode_encode)
@@ -229,7 +274,8 @@ def create_fake_urls(urls_num: int, url_params: bool = False, randomized_params:
 
         for i in range(int(urls_num)):
             random_utm = faker.bothify(text='???_???=????&??????=?????&###_????=????_####&????###=?????')
-            url_decode_encode = UrlEncodeDecodeParse(raw_url=f'{faker.uri()}?{random_utm}',
+            url_decode_encode = UrlEncodeDecodeParse(user_id=user_id,
+                                                     raw_url=f'{faker.uri()}?{random_utm}',
                                                      encode_option=None,
                                                      encoding=None)
             db.session.add(url_decode_encode)
