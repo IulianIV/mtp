@@ -39,10 +39,10 @@ details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 # TODO add e-mail validation for accounts.
 # TODO have password fields be checked as is and when hashed.
 # TODO add UTM module from README.md
-# TODO determine the right way to show graphs. Using matplotlib requires 90% of times to save them as pictures/vectors
-#   and then save them which would require explicit exceptions from caching through HTTP headers if the graphs
-#   are dynamic. JS can be used to process data from a certain endpoint ar through web sockets and plot using, maybe
-#   d3.js or similar. Using d3.js will certainly make data way more dynamic and more user friendly. Look into that.
+# TODO Create user profile view
+# fixme Validation items should only be editable by an ADMIN or at least make sure that
+#   what should be unique stays unique
+# better-me get admin user by permission not by id "1" which just happens to be admin.
 
 # better-me Check coupling among all apps. There should be as little as possible functions with responsibilities outside
 #   their set scope.
