@@ -15,9 +15,6 @@ custom_protection = CustomCSRF()
 
 
 # TODO handle blog posts pagination. Maybe similar to the one introduced in the Budget App but with no tables.
-
-
-# TODO show creator of post by username not by author_id
 @bp.route('/')
 def index():
     posts = query_blog_posts()
@@ -53,10 +50,10 @@ def create():
     return render_template('blog/create.html', create_post_form=create_post_form)
 
 
-def get_post(post_id, check_author=True):
+def get_post(author_id, post_id, check_author=True):
     user_id = current_user.get_id()
 
-    post = query_blog_post(post_id)
+    post = query_blog_post(author_id, post_id)
 
     if post is None:
         abort(404, f'Post id {post_id} doesnt exist.')
@@ -66,13 +63,15 @@ def get_post(post_id, check_author=True):
     return post
 
 
+# TODO Check logic and functionality
 @bp.route('/<int:post_id>/update', methods=('GET', 'POST'))
 @login_required
 def update(post_id):
 
     update_form = UpdatePost()
+    user_id = current_user.get_id()
 
-    post = get_post(post_id)
+    post = get_post(user_id, post_id)
 
     # fixme find new method to show a preview of the previous
     #   posts` body. <textarea> does not seem to have this.
@@ -82,7 +81,7 @@ def update(post_id):
         title = update_form.update_title.data
         body = update_form.update_body.data
 
-        update_post(title, body, post.id)
+        update_post(user_id, title, body, post_id)
 
         return redirect(url_for('blog.index'))
 
@@ -94,10 +93,9 @@ def update(post_id):
 @bp.route('/<int:post_id>/delete', methods=('POST', 'GET'))
 @login_required
 def delete(post_id):
+    user_id = current_user.get_id()
 
-    get_post(post_id)
-
-    delete_post(post_id)
+    delete_post(user_id, post_id)
     db.session.commit()
 
     return redirect(url_for('blog.index'))

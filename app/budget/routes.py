@@ -1,6 +1,7 @@
 from flask import (
     redirect, render_template, request, url_for
 )
+from flask_login import current_user
 from forex_python.converter import CurrencyRates
 from wtforms.validators import ValidationError
 
@@ -15,33 +16,33 @@ custom_protection = CustomCSRF()
 currency = CurrencyRates()
 
 
-# TODO Change plot show up by using a JavaScript library
 # fixme as the view has grown in complexity it has become VERY slow
-# TODO port graphs to d3.js
+# TODO format dates to a more user-friendly format
 @bp.route('/')
 @login_required
 def summary():
+    user_id = current_user.get_id()
 
     now = datetime.now()
     display_date = now.strftime('%B, ') + now.strftime('%Y')
 
-    current_month_revenue_values = get_current_month_data()['revenue']
+    current_month_revenue_values = get_current_month_data(user_id)['revenue']
     total_current_month_revenue = sum(current_month_revenue_values[x][0] for x
                                       in range(len(current_month_revenue_values)))
 
-    current_month_expense_values = get_current_month_data()['expense']
+    current_month_expense_values = get_current_month_data(user_id)['expense']
     total_current_month_expense = sum(current_month_expense_values[x][0] for x
                                       in range(len(current_month_expense_values)))
 
-    ec_savings_total_value = sum([x.saving_value for x in get_savings_data()['ec']])
-    ed_savings_total_value = sum([x.saving_value for x in get_savings_data()['ed']])
-    if_savings_total_value = sum([x.saving_value for x in get_savings_data()['if']])
+    ec_savings_total_value = sum([x.saving_value for x in get_savings_data(user_id)['ec']])
+    ed_savings_total_value = sum([x.saving_value for x in get_savings_data(user_id)['ed']])
+    if_savings_total_value = sum([x.saving_value for x in get_savings_data(user_id)['if']])
     overall_savings_total = ec_savings_total_value + ed_savings_total_value + if_savings_total_value
 
-    current_month_general_summary = [x for x in get_current_month_summary()]
+    current_month_general_summary = [x for x in get_current_month_summary(user_id)]
 
-    category_frequency_plot(get_expense_count_by_category())
-    item_frequency_plot(get_expense_count_by_item())
+    category_frequency_plot(get_expense_count_by_category(user_id))
+    item_frequency_plot(get_expense_count_by_item(user_id))
 
     summary_data = {
         'date': display_date,
@@ -64,6 +65,7 @@ def summary():
 @bp.route('/new-expense-entry', methods=('GET', 'POST'))
 @login_required
 def add_expense_entry():
+    user_id = current_user.get_id()
     expense_form = forms.AddExpenseEntry()
     expense_entries = query_expense_entries()
 
@@ -75,10 +77,6 @@ def add_expense_entry():
     items_set = [x['items'] for x in items]
     expense_form.expense_item.choices = items_set
 
-    item_categories = query_validation_categories()
-    item_categories_set = [x['categories'] for x in item_categories]
-    expense_form.expense_category.choices = item_categories_set
-
     sources = query_validation_sources()
     sources_set = [x['sources'] for x in sources]
     expense_form.expense_source.choices = sources_set
@@ -88,12 +86,11 @@ def add_expense_entry():
         date = expense_form.expense_date.data
         item = expense_form.expense_item.data
         value = expense_form.expense_value.data
-        item_category = expense_form.expense_category.data
         source = expense_form.expense_source.data
 
         form_validated_message('All values validated!')
 
-        insert_expense(date, item, value, item_category, source)
+        insert_expense(user_id, date, item, value, source)
         db.session.commit()
 
         return redirect(url_for('budget.add_expense_entry'))
@@ -105,6 +102,7 @@ def add_expense_entry():
 @bp.route('/new-revenue-entry', methods=('GET', 'POST'))
 @login_required
 def add_revenue_entry():
+    user_id = current_user.get_id()
     revenue_form = forms.AddRevenueEntry()
     revenue_entries = query_revenue_entries()
 
@@ -124,7 +122,7 @@ def add_revenue_entry():
 
         form_validated_message('All values validated!')
 
-        insert_revenue(date, revenue, source)
+        insert_revenue(user_id, date, revenue, source)
         db.session.commit()
 
         return redirect(url_for('budget.add_revenue_entry'))
@@ -133,9 +131,11 @@ def add_revenue_entry():
                            table_counts=table_counts)
 
 
+# TODO FIX Validation something is not right about validation fields.
 @bp.route('/new-savings-entry', methods=('GET', 'POST'))
 @login_required
 def add_savings_entry():
+    user_id = current_user.get_id()
     savings_form = forms.AddSavingsEntry()
     savings_entries = query_savings_entries()
 
@@ -143,9 +143,9 @@ def add_savings_entry():
         'saving_count': get_savings_count()
     }
 
-    sources = query_validation_sources()
-    sources_set = [x['sources'] for x in sources]
-    savings_form.savings_source.choices = sources_set
+    accounts = query_validation_savings_accounts()
+    account_set = [x['saving_accounts'] for x in accounts]
+    savings_form.savings_account.choices = account_set
 
     reasons = query_validation_savings_reason()
     reasons_set = [x['saving_reason'] for x in reasons]
@@ -161,13 +161,13 @@ def add_savings_entry():
 
             date = savings_form.savings_date.data
             value = savings_form.savings_value.data
-            source = savings_form.savings_source.data
+            account = savings_form.savings_account.data
             reason = savings_form.savings_reason.data
             action = savings_form.savings_action.data
 
             form_validated_message('All values validated!')
 
-            insert_savings(date, value, source, reason, action)
+            insert_savings(user_id, date, value, account, reason, action)
             db.session.commit()
             return redirect(url_for('budget.add_savings_entry'))
 
@@ -237,13 +237,13 @@ def validation_items():
         item = items_form.item_value.data
         category = items_form.category_value.data
 
-        item_list = get_validation_item(item)
+        found_item = get_validation_item(item)
 
-        if item_list is not None and item in item_list:
+        if found_item:
 
-            form_error_message(f'The value you chose for item: "{item}" already exists')
+            form_error_message(f'The value you chose for item: "{found_item.items}" already exists')
 
-        elif item_list is None:
+        elif found_item is None:
 
             form_validated_message('Item value validated!')
             insert_validation_items(item, category)
@@ -552,9 +552,13 @@ def validation_reasons():
 @bp.route('/new-utilities-entry', methods=('GET', 'POST'))
 @login_required
 def add_utilities_entry():
-
+    user_id = current_user.get_id()
     utilities_form = forms.AddUtilitiesEntry()
     utilities_entries = query_utilities_entries()
+
+    budget_sources = query_validation_sources()
+    category_set = [(x['sources']) for x in budget_sources]
+    utilities_form.utilities_budget_sources.choices = category_set
 
     table_counts = {
         'utilities_count': get_utilities_count()
@@ -566,12 +570,13 @@ def add_utilities_entry():
     satellite = utilities_form.utilities_satellite.data
     maintenance = utilities_form.utilities_maintenance.data
     details = utilities_form.utilities_details.data
+    budget_source = utilities_form.utilities_budget_sources.data
 
     if utilities_form.is_submitted() and utilities_form.validate_on_submit():
 
         form_validated_message('All values validated!')
 
-        insert_utilities(date, rent, energy, satellite, maintenance, details)
+        insert_utilities(user_id, date, rent, energy, satellite, maintenance, details, budget_source)
         db.session.commit()
 
         return redirect(url_for('budget.add_utilities_entry'))
