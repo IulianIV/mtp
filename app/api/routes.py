@@ -1,6 +1,7 @@
 from flask import (
     request, redirect, url_for
 )
+from flask_login import current_user
 
 from app.api import bp
 from app.manager.db.db_interrogations import *
@@ -11,7 +12,6 @@ from app.manager.db.db_interrogations import *
 #   bypassing the functionality. Fix this.
 # better-me try to reduce cohesion of current function. A more dynamic if choice?
 #   anyhow, create an endpoint for utm-stats
-
 
 @bp.route('/data', methods=['GET'])
 def data():
@@ -25,27 +25,28 @@ def data():
     table_map = {
         '/budget/new-expense-entry': {
             'table': BudgetExpense,
-            'query': BudgetExpense.query,
+            'query': BudgetExpense.query.filter_by(user_id=current_user.get_id()),
             'sort_by': ['expense_date', 'expense_item', 'expense_value'],
             'default_sort': 'expense_date'
         },
         '/budget/new-revenue-entry': {
             'table': BudgetRevenue,
-            'query': BudgetRevenue.query,
+            'query': BudgetRevenue.query.filter_by(user_id=current_user.get_id()),
             'sort_by': ['revenue_date', 'revenue_value'],
             'default_sort': 'revenue_date'
         },
         '/budget/new-savings-entry': {
             'table': BudgetSaving,
-            'query': BudgetSaving.query,
+            'query': BudgetSaving.query.filter_by(user_id=current_user.get_id()),
             'sort_by': ['saving_date', 'saving_value'],
             'default_sort': 'saving_date'
         },
         '/budget/new-utilities-entry': {
             'table': BudgetUtilities,
-            'query': BudgetUtilities.query,
+            'query': BudgetUtilities.query.filter_by(user_id=current_user.get_id()),
             'sort_by': ['utilities_date', 'utilities_rent_value',
-                        'utilities_energy_value', 'utilities_satellite_value', 'utilities_maintenance_value'],
+                        'utilities_energy_value', 'utilities_satellite_value',
+                        'utilities_maintenance_value', 'budget_source'],
             'default_sort': 'utilities_date'
         }
     }
@@ -113,7 +114,8 @@ def data():
 
 @bp.route('/data/summary-graph/categories', methods=['GET'])
 def summary_graph_categories_data():
-    category_data = [x for x in get_expense_count_by_category()]
+    user_id = current_user.get_id()
+    category_data = [x for x in get_expense_count_by_category(user_id)]
 
     data_test = []
 
@@ -130,7 +132,9 @@ def summary_graph_categories_data():
 
 @bp.route('/data/summary-graph/items', methods=['GET'])
 def summary_graph_items_data():
-    items_data = [x for x in get_expense_count_by_item()]
+    user_id = current_user.get_id()
+
+    items_data = [x for x in get_expense_count_by_item(user_id)]
 
     data_test = []
 
