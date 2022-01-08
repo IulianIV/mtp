@@ -21,28 +21,32 @@ def insert_user(username: str, email: str, password: str):
     return db.session.add(user)
 
 
-def insert_expense(date: DateTime, item: str, value: str, item_category: str, source: str):
+def insert_expense(user: int, date: DateTime, item: str, value: str, source: str):
+
+    item_category = ValidationSavingItems.query.filter_by(items=item).first().category
+
     return db.session.add(
-        BudgetExpense(expense_date=date, expense_item=item, expense_value=value,
+        BudgetExpense(user_id=user, expense_date=date, expense_item=item, expense_value=value,
                       expense_item_category=item_category, expense_source=source))
 
 
-def insert_revenue(date: DateTime, revenue: str, source: str):
+def insert_revenue(user: int, date: DateTime, revenue: str, source: str):
     return db.session.add(
-        BudgetRevenue(revenue_date=date, revenue_value=revenue, revenue_source=source))
+        BudgetRevenue(user_id=user, revenue_date=date, revenue_value=revenue, revenue_source=source))
 
 
-def insert_savings(date: DateTime, value: str, source: str, reason: str, action: str):
+def insert_savings(user: int, date: DateTime, value: str, source: str, reason: str, action: str):
     return db.session.add(
-        BudgetSaving(saving_date=date, saving_value=value, saving_source=source, saving_reason=reason,
+        BudgetSaving(user_id=user, saving_date=date, saving_value=value, saving_source=source, saving_reason=reason,
                      saving_action=action))
 
 
-def insert_utilities(date: DateTime, rent: str, energy: str, satellite: str, maintenance: str, details: str):
+def insert_utilities(user: int, date: DateTime, rent: str, energy: str, satellite: str, maintenance: str, details: str,
+                     budget_source: str):
     return db.session.add(
-        BudgetUtilities(utilities_date=date, utilities_rent_value=rent, utilities_energy_value=energy,
+        BudgetUtilities(user_id=user, utilities_date=date, utilities_rent_value=rent, utilities_energy_value=energy,
                         utilities_satellite_value=satellite,
-                        utilities_maintenance_value=maintenance, utilities_info=details))
+                        utilities_maintenance_value=maintenance, utilities_info=details, budget_source=budget_source))
 
 
 def insert_validation_items(item: str, category: str):
@@ -78,8 +82,8 @@ def insert_post(title: str, body: str, author_id: str):
     return db.session.add(Post(title=title, body=body, author_id=author_id))
 
 
-def add_new_url(raw_url: str, encode_option: Union[str, None], encoding: Union[str, None]):
-    return db.session.add(UrlEncodeDecodeParse(raw_url=raw_url, encode_option=encode_option,
+def add_new_url(user: int, raw_url: str, encode_option: Union[str, None], encoding: Union[str, None]):
+    return db.session.add(UrlEncodeDecodeParse(user_id=user, raw_url=raw_url, encode_option=encode_option,
                                                encoding=encoding))
 
 
@@ -134,8 +138,8 @@ def query_validation_savings_action_types():
     return db.session.query(ValidationSavingAction.saving_action_type)
 
 
-def query_blog_post(post_id: str) -> str:
-    return Post.query.filter_by(id=post_id).first()
+def query_blog_post(author: str, post_id: str) -> str:
+    return Post.query.filter_by(author_id=author, id=post_id).first()
 
 
 def query_blog_posts() -> list:
@@ -219,29 +223,34 @@ def get_parsed_urls():
                                                   UrlEncodeDecodeParse.encoding == None))
 
 
-def get_current_month_data():
+def get_current_month_data(user: int):
     budget_totals = {
         'revenue': BudgetRevenue.query.
-            filter(extract('month', BudgetRevenue.revenue_date) == current_month).
-            filter(extract('year', BudgetRevenue.revenue_date) == current_year).
-            with_entities(BudgetRevenue.revenue_value).all(),
+        filter_by(user_id=user).
+        filter(extract('month', BudgetRevenue.revenue_date) == current_month).
+        filter(extract('year', BudgetRevenue.revenue_date) == current_year).
+        with_entities(BudgetRevenue.revenue_value).all(),
         'expense': BudgetExpense.query.
-            filter(extract('month', BudgetExpense.expense_date) == current_month).
-            filter(extract('year', BudgetExpense.expense_date) == current_year).
-            with_entities(BudgetExpense.expense_value).all()
+        filter_by(user_id=user).
+        filter(extract('month', BudgetExpense.expense_date) == current_month).
+        filter(extract('year', BudgetExpense.expense_date) == current_year).
+        with_entities(BudgetExpense.expense_value).all()
     }
 
     return budget_totals
 
 
-def get_savings_data():
+def get_savings_data(user: int):
     savings_totals = {
         'ec': BudgetSaving.query.
-            filter_by(saving_source='EC').all(),
+        filter_by(user_id=user).
+        filter_by(saving_source='EC').all(),
         'ed': BudgetSaving.query.
-            filter_by(saving_source='ED').all(),
+        filter_by(user_id=user).
+        filter_by(saving_source='ED').all(),
         'if': BudgetSaving.query.
-            filter_by(saving_source='IF').all(),
+        filter_by(user_id=user).
+        filter_by(saving_source='IF').all(),
     }
 
     return savings_totals
@@ -263,11 +272,12 @@ GROUP BY expense_date
 """
 
 
-def get_current_month_summary():
+def get_current_month_summary(user: int):
     current_month_summary = db.session. \
         query(BudgetExpense.id, BudgetExpense.expense_date, func.sum(BudgetExpense.expense_value),
               func.group_concat(BudgetExpense.expense_item.distinct()),
               func.group_concat(BudgetExpense.expense_item_category.distinct())). \
+        filter_by(user_id=user). \
         filter(extract('month', BudgetExpense.expense_date) == current_month). \
         filter(extract('year', BudgetExpense.expense_date) == current_year). \
         group_by(BudgetExpense.expense_date)
@@ -287,9 +297,10 @@ GROUP BY expense_item_category
 """
 
 
-def get_expense_count_by_category():
+def get_expense_count_by_category(user: int):
     category_count = db.session.query(func.count(BudgetExpense.id),
                                       BudgetExpense.expense_item_category). \
+        filter_by(user_id=user). \
         filter(extract('month', BudgetExpense.expense_date) == current_month). \
         filter(extract('year', BudgetExpense.expense_date) == current_year). \
         group_by(BudgetExpense.expense_item_category)
@@ -309,9 +320,10 @@ GROUP BY expense_item
 """
 
 
-def get_expense_count_by_item():
+def get_expense_count_by_item(user: int):
     item_count = db.session.query(func.count(BudgetExpense.id),
                                   BudgetExpense.expense_item). \
+        filter_by(user_id=user). \
         filter(extract('month', BudgetExpense.expense_date) == current_month). \
         filter(extract('year', BudgetExpense.expense_date) == current_year). \
         group_by(BudgetExpense.expense_item)
@@ -319,13 +331,34 @@ def get_expense_count_by_item():
     return item_count
 
 
+def get_validation_saving_sources() -> list:
+    return ValidationSavingSources.query.order_by(ValidationSavingSources.sources).all()
+
+
+def get_validation_saving_accounts() -> list:
+    return ValidationSavingAccount.query.order_by(ValidationSavingAccount.saving_accounts).all()
+
+
+def get_validation_saving_reasons() -> list:
+    return ValidationSavingReason.query.order_by(ValidationSavingReason.saving_reason).all()
+
+
+def get_validation_saving_action() -> list:
+    return ValidationSavingAction.query.order_by(ValidationSavingAction.saving_action_type).all()
+
+
+def get_validation_saving_items() -> list:
+    return ValidationSavingItems.query.order_by(ValidationSavingItems.items).all()
+
+
+
 """
 Database UPDATE queries section
 """
 
 
-def update_post(title: str, body: str, post_id: str):
-    post = Post.query.filter_by(id=post_id).first()
+def update_post(user: int, title: str, body: str, post_id: str):
+    post = Post.query.filter_by(id=post_id, author_id=user).first()
     post.title = title
     post.body = body
 
@@ -337,7 +370,7 @@ Database DELETE queries section
 """
 
 
-def delete_post(post_id: str):
-    Post.query.filter_by(id=post_id).delete()
+def delete_post(user: int, post_id: str):
+    Post.query.filter_by(author_id=user, id=post_id).delete()
 
     db.session.commit()
