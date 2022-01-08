@@ -41,9 +41,6 @@
                                                     {{ expense_form.expense_value.label(for='expense-form') }}
                                                 </th>
                                                 <th>
-                                                    {{ expense_form.expense_category.label(for='expense-form') }}
-                                                </th>
-                                                <th>
                                                     {{ expense_form.expense_source.label(for='expense-form') }}
                                                 </th>
                                             </tr>
@@ -61,10 +58,6 @@
                                                 <th>
                                                     {{ expense_form.expense_value(form='expense-form',
                                                     class='form-control py-4', placeholder="Ex.: 15.25") }}
-                                                </th>
-                                                <th>
-                                                    {{ expense_form.expense_category(form='expense-form',
-                                                    class='form-select py-4') }}
                                                 </th>
                                                 <th>
                                                     {{ expense_form.expense_source(form='expense-form',
