@@ -8,14 +8,12 @@ from app import db
 from app import login
 
 
-# TODO Add permissions Table nad migrate/upgrade
+# TODO Add permissions Table and migrate/upgrade
+# TODO add last_seen logic
 
 @login.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-# TODO add a "created at" field to the DB.
-# TODO change "posts" to "posts_id"
 
 
 class User(UserMixin, db.Model):
@@ -180,6 +178,7 @@ class BudgetUtilities(db.Model):
             'utilities_energy_value': self.utilities_energy_value,
             'utilities_satellite_value': self.utilities_satellite_value,
             'utilities_maintenance_value': self.utilities_maintenance_value,
+            'budget_source': self.budget_source,
             'utilities_info': self.utilities_info
         }
 
