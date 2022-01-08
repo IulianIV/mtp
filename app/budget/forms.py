@@ -1,9 +1,11 @@
 from datetime import datetime
+
 from flask_wtf import FlaskForm
-from app.manager.protection import NoFutureDates, CheckForNumber
 from wtforms.fields import DateField
 from wtforms.fields import SubmitField, StringField, SelectField, TextAreaField
 from wtforms.validators import DataRequired
+
+from app.manager.protection import NoFutureDates, CheckForNumber
 
 
 class AddExpenseEntry(FlaskForm):
@@ -11,7 +13,6 @@ class AddExpenseEntry(FlaskForm):
                              format='%Y-%m-%d', default=datetime.now())
     expense_item = SelectField(validators=[DataRequired()])
     expense_value = StringField(validators=[DataRequired(), CheckForNumber()])
-    expense_category = SelectField(validators=[DataRequired()])
     expense_source = SelectField(validators=[DataRequired()])
     submit_expense = SubmitField(validators=[DataRequired()])
 
@@ -28,7 +29,7 @@ class AddSavingsEntry(FlaskForm):
     savings_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
                              format='%Y-%m-%d', default=datetime.now())
     savings_value = StringField(validators=[DataRequired(), CheckForNumber()])
-    savings_source = SelectField(validators=[DataRequired()])
+    savings_account = SelectField(validators=[DataRequired()])
     savings_reason = SelectField(validators=[DataRequired()])
     savings_action = SelectField(validators=[DataRequired()])
     submit_savings = SubmitField()
@@ -42,6 +43,7 @@ class AddUtilitiesEntry(FlaskForm):
     utilities_satellite = StringField(validators=[DataRequired(), CheckForNumber()])
     utilities_maintenance = StringField(validators=[DataRequired(), CheckForNumber()])
     utilities_details = TextAreaField(validators=[DataRequired()])
+    utilities_budget_sources = SelectField(validators=[DataRequired()])
     submit_utilities = SubmitField()
 
 
@@ -74,4 +76,3 @@ class AddValidationActions(FlaskForm):
 class AddValidationReason(FlaskForm):
     reason_value = StringField(validators=[DataRequired()])
     submit_reason = SubmitField()
-
