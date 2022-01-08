@@ -25,6 +25,7 @@ def lifetime_expense():
 
 
 # better-me maybe find a better name for this function and its template?
+# TODO add a utilities table too
 @bp.route('/budget-tables')
 def budget_tables():
 
