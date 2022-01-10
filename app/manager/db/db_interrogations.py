@@ -240,6 +240,19 @@ def get_current_month_data(user: int):
     return budget_totals
 
 
+def get_current_month_mandatory_expense(user: int):
+
+    rent_utilities_total = sum(db.session.query(func.sum(BudgetUtilities.utilities_rent_value),
+                           func.sum(BudgetUtilities.utilities_satellite_value),
+                           func.sum(BudgetUtilities.utilities_energy_value),
+                           func.sum(BudgetUtilities.utilities_maintenance_value)).
+                           filter_by(user_id=user).
+                           filter(extract('month', BudgetUtilities.utilities_date) == current_month).
+                           filter(extract('year', BudgetUtilities.utilities_date) == current_year).all()[0])
+
+    return rent_utilities_total
+
+
 def get_savings_data(user: int):
     savings_totals = {
         'ec': BudgetSaving.query.
@@ -349,7 +362,6 @@ def get_validation_saving_action() -> list:
 
 def get_validation_saving_items() -> list:
     return ValidationSavingItems.query.order_by(ValidationSavingItems.items).all()
-
 
 
 """
