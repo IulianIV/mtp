@@ -5,7 +5,6 @@ from flask_login import current_user
 from forex_python.converter import CurrencyRates
 from wtforms.validators import ValidationError
 
-from app.analytics.utils import category_frequency_plot, item_frequency_plot
 from app.auth.routes import login_required
 from app.budget import bp
 from app.budget import forms
@@ -41,8 +40,9 @@ def summary():
 
     current_month_general_summary = [x for x in get_current_month_summary(user_id)]
 
-    category_frequency_plot(get_expense_count_by_category(user_id))
-    item_frequency_plot(get_expense_count_by_item(user_id))
+    current_month_useful_money = total_current_month_revenue - get_current_month_mandatory_expense(user_id)
+
+    current_month_spendable_money = total_current_month_revenue - total_current_month_expense
 
     summary_data = {
         'date': display_date,
@@ -56,7 +56,9 @@ def summary():
         'ed_savings_EUR': currency.convert('RON', 'EUR', ed_savings_total_value),
         'if_savings_EUR': currency.convert('RON', 'EUR', if_savings_total_value),
         'savings_total_EUR': currency.convert('RON', 'EUR', overall_savings_total),
-        'current_month_summary': current_month_general_summary
+        'current_month_summary': current_month_general_summary,
+        'current_month_useful_money': current_month_useful_money,
+        'current_month_spendable_money': current_month_spendable_money
     }
 
     return render_template('budget/summary.html', summary_data=summary_data)
