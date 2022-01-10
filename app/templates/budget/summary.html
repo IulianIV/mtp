@@ -36,7 +36,9 @@
                             <th class="h4 table-primary">RON {{
                                 '{:,}'.format(summary_data['current_month_total_revenue']) }}
                             </th>
-                            <th class="h4 table-primary">12345</th>
+                            <th class="h4 table-primary">RON {{
+                                '{:,}'.format(summary_data['current_month_useful_money']) }}
+                            </th>
                         </tr>
                         </tbody>
                     </table>
@@ -44,7 +46,7 @@
                         <thead>
                         <tr class="table-active">
                             <th>Total money spent this month</th>
-                            <th>Total spendable money for this month value for this month</th>
+                            <th>Total spendable money for this month</th>
                         </tr>
                         </thead>
                         <tbody class="post">
@@ -52,7 +54,8 @@
                             <th class="h4 table-danger">RON {{ '{:,}'.format(summary_data['current_month_total_expense']
                                 |round(2) ) }}
                             </th>
-                            <th class="h4 table-success">12345</th>
+                            <th class="h4 table-success">RON {{ '{:,}'.format(summary_data['current_month_spendable_money']
+                                |round(2) ) }}</th>
                         </tr>
                         </tbody>
                     </table>
