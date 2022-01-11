@@ -76,3 +76,15 @@ class AddValidationActions(FlaskForm):
 class AddValidationReason(FlaskForm):
     reason_value = StringField(validators=[DataRequired()])
     submit_reason = SubmitField()
+
+
+class UpdateUtilitiesEntry(FlaskForm):
+    update_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
+                               format='%Y-%m-%d', default=datetime.now())
+    update_rent = StringField(validators=[DataRequired(), CheckForNumber()])
+    update_energy = StringField(validators=[DataRequired(), CheckForNumber()])
+    update_satellite = StringField(validators=[DataRequired(), CheckForNumber()])
+    update_maintenance = StringField(validators=[DataRequired(), CheckForNumber()])
+    update_details = TextAreaField(validators=[DataRequired()])
+    update_budget_sources = SelectField(validators=[DataRequired()])
+    submit_update = SubmitField()
