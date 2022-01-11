@@ -47,6 +47,11 @@ details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 # better-me Check coupling among all apps. There should be as little as possible functions with responsibilities outside
 #   their set scope.
 
+# better-me Having a Edit Form pre-filled with the previous data to edit could be made by assigning the forms fields
+#   with db data i.e form.some_field.data = data_from_database --> insert this in template.
+#   after done you already have in a POST conditional a form_new_data = form.some_field.data which will contain either
+#   same or updated data. Anyways, that entry will get updated across all fields, even though some might remain the same
+
 
 def create_app(test_config=None):
 
