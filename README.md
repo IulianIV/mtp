@@ -4,9 +4,9 @@ The app itself will track everything I feel like keeping track of in the future.
 
 At the moment there are several modules implemented that are still a work in progress.
 1. **Budgeting app**:
-   1. Track Expenses;
-   2. Track Savings;
-   3. Track Revenue;
+   1. [x] Track Expenses;
+   2. [x] Track Savings;
+   3. [x] Track Revenue;
    4. Track Cards & Accounts;
    5. Reporting module Statistics & Forecasting.
 2. **Micro-blog app**:
@@ -56,7 +56,7 @@ _Based on the difficulty of the implementation some functionalities will be impl
 10. **E-book Manager** that connects to Calibre and sends books to kindle;
 11. Besides DB backup, **export everything as CSV files** as hard backups;
     1. These could be made with the logic to export them as ready queries that when added in a DB Manager they would autopopulate everything.
-12. Given a list of products and their attributes & sale date create **Related, Up and Cross Sells** associations;
+12. Given a list of products and their attributes & sale date create **Related, Up and Cross-Sells** associations;
 13. **Recommended products' algorithm** connected to the above sub-app.
 14. **User profile** They can see blog posts, privileges etc.
 15. **Marketing UTM Analyzer** based on the URLs parsed by the URL parser.
@@ -66,16 +66,9 @@ _Based on the difficulty of the implementation some functionalities will be impl
     2. Eventually, a module that handles custom marketing parameters should be added (maybe if the user selects if a UTL is deemed as marketing)
 
 General App Wide TODOs:
-1. [x] **Revamp the templating**:
-   1. [x] There should be a base template that contains the elements general to every app;
-   2. [x] Other templates dedicated to each app;
-   3. [x] Any other templates needed
-
-Templating revamping is necessary to reduce cohesion and coupling. At the moment
-the need to remove a button means that you have to modify almost all existing html templates.
 
 2. Make sure **SQLAlchemy is implemented everywhere** a database connection is needed.
-3. **Basic Multiple Users** Have databases populated with details from the currently logged-in user. Show data accordingly.
+3. [x] **Basic Multiple Users** Have databases populated with details from the currently logged-in user. Show data accordingly.
 4. **Add permissions**. What can a standard user do and what can an admin do?
    1. _Admin_: Can see and do everything;
    2. _Spectator_: Can only view;
