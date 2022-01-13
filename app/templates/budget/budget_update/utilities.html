@@ -1,0 +1,77 @@
+{% extends 'budget_base.html' %}
+{% block budget_data %}
+<div id="layoutAuthentication">
+    <div id="layoutAuthentication_content">
+        <main>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-5">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center font-weight-light my-4">Edit Utilities Entry</h3>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" id="update-utility-form"
+                                      action="{{ url_for('budget.update_utilities_entry', utility_id=utilities_entry.id) }}"
+                                      novalidate>
+                                    {{ utility_update_form.hidden_tag() }}
+                                    <div class="form-group">
+                                        {{ utility_update_form.update_date.label(class="small mb-1",
+                                        for="update-utility-form") }}
+                                        {{ utility_update_form.update_date(form='update-utility-form',
+                                        class="form-control py-4", placeholder="Entry date",
+                                        value=utilities_entries_data.utilities_date) }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ utility_update_form.update_rent.label(class="small mb-1",
+                                        for="update-utility-form") }}
+                                        {{ utility_update_form.update_rent(form='update-utility-form',
+                                        class='form-control py-4', placeholder="Enter rent value",
+                                        value=utilities_entries_data.utilities_rent_value) }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ utility_update_form.update_energy.label(class="small mb-1",
+                                        for="update-utility-form") }}
+                                        {{ utility_update_form.update_energy(form='update-utility-form',
+                                        class='form-control py-4', placeholder="Enter energy value",
+                                        value=utilities_entries_data.utilities_energy_value) }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ utility_update_form.update_satellite.label(class="small mb-1",
+                                        for="update-utility-form") }}
+                                        {{ utility_update_form.update_satellite(form='update-utility-form',
+                                        class='form-control py-4', placeholder="Enter satellite value",
+                                        value=utilities_entries_data.utilities_satellite_value) }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ utility_update_form.update_maintenance.label(class="small mb-1",
+                                        for="update-utility-form") }}
+                                        {{ utility_update_form.update_maintenance(form='update-utility-form',
+                                        class='form-control py-4', placeholder="Enter maintenance value",
+                                        value=utilities_entries_data.utilities_maintenance_value) }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ utility_update_form.update_details.label(class="small mb-1",
+                                        for="update-utility-form") }}
+                                        {{ utility_update_form.update_details(form='update-utility-form',
+                                        class='form-control py-4', placeholder="Enter details",
+                                        value=utilities_entries_data.utilities_info) }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ utility_update_form.submit_update(form='update-utility-form', class='btn
+                                        btn-primary',
+                                        value="Save") }}
+                                        <input class="btn btn-danger" type="submit" value="Delete"
+                                               onclick="return confirm('Are you sure?');"/>
+                                        <a class="btn btn-secondary" href="{{ url_for('budget.add_utilities_entry') }}">Cancel</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
