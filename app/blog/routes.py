@@ -1,5 +1,5 @@
 from flask import (
-    redirect, render_template, request, url_for
+    redirect, render_template, request
 )
 from flask_login import current_user
 from werkzeug.exceptions import abort
@@ -50,6 +50,7 @@ def create():
     return render_template('blog/create.html', create_post_form=create_post_form)
 
 
+# fixme Fix logic when someone accesses an post URL with a non-existent ID
 def get_post(author_id, post_id, check_author=True):
     user_id = current_user.get_id()
 
