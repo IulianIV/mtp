@@ -78,13 +78,42 @@ class AddValidationReason(FlaskForm):
     submit_reason = SubmitField()
 
 
+# has-dependency Applies to ALL Forms. All FORMS have SelectFields REMOVED.
+#  REMOVED update_budget_sources REGARDING budget/routes issue with prefilled form data
 class UpdateUtilitiesEntry(FlaskForm):
     update_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
-                               format='%Y-%m-%d', default=datetime.now())
+                            format='%Y-%m-%d', default=datetime.now())
     update_rent = StringField(validators=[DataRequired(), CheckForNumber()])
     update_energy = StringField(validators=[DataRequired(), CheckForNumber()])
     update_satellite = StringField(validators=[DataRequired(), CheckForNumber()])
     update_maintenance = StringField(validators=[DataRequired(), CheckForNumber()])
     update_details = TextAreaField(validators=[DataRequired()])
     update_budget_sources = SelectField(validators=[DataRequired()])
+    submit_update = SubmitField()
+
+
+class UpdateRevenueEntry(FlaskForm):
+    update_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
+                            format='%Y-%m-%d', default=datetime.now())
+    update_value = StringField(validators=[DataRequired(), CheckForNumber()])
+    update_sources = StringField(validators=[DataRequired(), CheckForNumber()])
+    submit_update = SubmitField()
+
+
+class UpdateExpenseEntry(FlaskForm):
+    update_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
+                            format='%Y-%m-%d', default=datetime.now())
+    update_item = SelectField(validators=[DataRequired()])
+    update_value = StringField(validators=[DataRequired(), CheckForNumber()])
+    update_source = SelectField(validators=[DataRequired()])
+    submit_update = SubmitField(validators=[DataRequired()])
+
+
+class UpdateSavingsEntry(FlaskForm):
+    update_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
+                            format='%Y-%m-%d', default=datetime.now())
+    update_value = StringField(validators=[DataRequired(), CheckForNumber()])
+    update_account = SelectField(validators=[DataRequired()])
+    update_reason = SelectField(validators=[DataRequired()])
+    update_action = SelectField(validators=[DataRequired()])
     submit_update = SubmitField()
