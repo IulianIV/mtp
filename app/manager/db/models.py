@@ -1,6 +1,7 @@
 from datetime import datetime
 from hashlib import md5
 
+from flask import url_for
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -10,6 +11,7 @@ from app import login
 
 # TODO Add permissions Table and migrate/upgrade
 # TODO add last_seen logic
+# TODO update ALL VARCHAR lengths. They are WAY too short now.
 
 @login.user_loader
 def load_user(user_id):
@@ -87,7 +89,12 @@ class BudgetRevenue(db.Model):
             'id': self.id,
             'revenue_date': formatted_date,
             'revenue_value': self.revenue_value,
-            'revenue_source': self.revenue_source
+            'revenue_source': self.revenue_source,
+            'entry_options': '<a href="'
+                             + url_for('budget.update_revenue_entries', revenue_id=self.id) +
+                             '"class="btn btn-primary">Edit</a>&nbsp;<a href="'
+                             + url_for('budget.delete_revenue_entries', revenue_id=self.id) +
+                             '" class="btn btn-danger">Delete</a>'
         }
 
 
@@ -118,7 +125,12 @@ class BudgetSaving(db.Model):
             'saving_value': self.saving_value,
             'saving_source': self.saving_source,
             'saving_reason': self.saving_reason,
-            'saving_action': self.saving_action
+            'saving_action': self.saving_action,
+            'entry_options': '<a href="'
+                             + url_for('budget.update_saving_entries', saving_id=self.id) +
+                             '"class="btn btn-primary">Edit</a>&nbsp;<a href="'
+                             + url_for('budget.delete_saving_entries', saving_id=self.id) +
+                             '" class="btn btn-danger">Delete</a>'
         }
 
 
@@ -147,7 +159,12 @@ class BudgetExpense(db.Model):
             'expense_item': self.expense_item,
             'expense_value': self.expense_value,
             'expense_item_category': self.expense_item_category,
-            'expense_source': self.expense_source
+            'expense_source': self.expense_source,
+            'entry_options': '<a href="'
+                             + url_for('budget.update_expense_entries', expense_id=self.id) +
+                             '"class="btn btn-primary">Edit</a>&nbsp;<a href="'
+                             + url_for('budget.delete_expense_entries', expense_id=self.id) +
+                             '" class="btn btn-danger">Delete</a>'
         }
 
 
@@ -179,7 +196,12 @@ class BudgetUtilities(db.Model):
             'utilities_satellite_value': self.utilities_satellite_value,
             'utilities_maintenance_value': self.utilities_maintenance_value,
             'budget_source': self.budget_source,
-            'utilities_info': self.utilities_info
+            'utilities_info': self.utilities_info,
+            'entry_options': '<a href="'
+                             + url_for('budget.update_utilities_entry', utility_id=self.id) +
+                             '"class="btn btn-primary">Edit</a>&nbsp;<a href="'
+                             + url_for('budget.delete_utilities_entry', utility_id=self.id) +
+                             '" class="btn btn-danger">Delete</a>'
         }
 
 
@@ -219,7 +241,7 @@ class ValidationSavingItems(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     budget_expense_id = db.relationship('BudgetExpense')
     category = db.Column(db.String(20), db.ForeignKey('saving_categories.categories'), nullable=False)
-    items = db.Column(db.String(20), nullable=False, unique=True)
+    items = db.Column(db.String(45), nullable=False, unique=True)
 
     def __repr__(self):
         return f'Saving items: {self.id}'
