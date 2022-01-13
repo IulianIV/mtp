@@ -1,19 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'budget_base.html' %}
 
-{% block meta %}
-<meta charset="utf-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-<meta name="description" content=""/>
-<meta name="author" content=""/>
 
-{% block title %}
-<title>MTP | Web App</title>
-{% endblock %}
-
-{% endblock %}
-
-{% block content %}
+{% block budget_data %}
 <div id="layoutBudgetIndex">
     <div id="layoutBudgetIndex_content">
         <main>
@@ -96,6 +84,8 @@
                                     {{ utilities_form.submit_utilities(form='utilities-form', value="Save", class="btn
                                     btn-primary") }}
                                     <a class="btn btn-danger" href="{{ url_for('budget.summary') }}">Cancel</a>
+                                    <a class="btn btn-info showTable">Show table</a>
+                                    <a class="btn btn-secondary hideTable" style="display: none;">Hide Table</a>
                                 </form>
                             </div>
                         </div>
@@ -105,7 +95,7 @@
         </main>
     </div>
 </div>
-<div class="card mb-4">
+<div class="card mb-4" style="display: none;">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
         <strong>Utilities Summary</strong> - {{ table_counts.get('utilities_count') }} entries
@@ -123,6 +113,7 @@
                     <th>Utilities Maintenance</th>
                     <th>Utilities Source</th>
                     <th>Utilities Details</th>
+                    <th>Entry Options</th>
                 </tr>
                 </thead>
                 <tbody class="post">
@@ -136,40 +127,55 @@
                     <th class="small mb-1">{{ entry['utilities_maintenance_value'] }}</th>
                     <th class="small mb-1">{{ entry['budget_source'] }}</th>
                     <th class="small mb-1">{{ entry['utilities_info'] }}</th>
+                    <th class="small mb-1"></th>
+
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
+
         </div>
     </div>
 </div>
 {% block scripts %}
 <script type="text/javascript">
     $(document).ready(function () {
-      $('#utilities-summary-table').DataTable({
-        serverSide: true,
-        ajax: {
-            url: '/api/data',
-            data: {
-                loc_path: (function(data) {
-                        data = window.location.pathname;
-                        return data;
-                        }())
-                }
-            },
-        columns: [
-          {data: "id", orderable: false},
-          {data: "utilities_date"},
-          {data: "utilities_rent_value"},
-          {data: "utilities_energy_value"},
-          {data: "utilities_satellite_value"},
-          {data: "utilities_maintenance_value"},
-          {data: "budget_source"},
-          {data: "utilities_info", orderable: false},
-        ],
-        });
-        });
+        $('a[class="btn btn-info showTable"]').click(function(){
+              $('div[class="card mb-4"]').show();
+              $('a[class="btn btn-secondary hideTable"]').show();
+              $('a[class="btn btn-info showTable"]').hide();
 
+                var table = $('#utilities-summary-table').DataTable({
+                serverSide: true,
+                ajax: {
+                    url: '/api/data',
+                    data: {
+                        loc_path: (function(data) {
+                                data = window.location.pathname;
+                                return data;
+                                }())
+                        }
+                    },
+                columns: [
+                  {data: "id", orderable: false},
+                  {data: "utilities_date"},
+                  {data: "utilities_rent_value"},
+                  {data: "utilities_energy_value"},
+                  {data: "utilities_satellite_value"},
+                  {data: "utilities_maintenance_value"},
+                  {data: "budget_source"},
+                  {data: "utilities_info", orderable: false},
+                  {data: "entry_options", orderable: false},
+                ],
+              });
+        });
+        $('a[class="btn btn-secondary hideTable"]').click(function(){
+            $('#utilities-summary-table').DataTable().destroy();
+            $('div[class="card mb-4"]').hide();
+            $('a[class="btn btn-secondary hideTable"]').hide();
+            $('a[class="btn btn-info showTable"]').show();
+        });
+    });
 
 </script>
 {% endblock %}

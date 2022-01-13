@@ -1,19 +1,6 @@
-{% extends 'base.html' %}
+{% extends 'budget_base.html' %}
 
-{% block meta %}
-<meta charset="utf-8"/>
-<meta content="IE=edge" http-equiv="X-UA-Compatible"/>
-<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
-<meta content="" name="description"/>
-<meta content="" name="author"/>
-
-{% block title %}
-<title>MTP | Web App</title>
-{% endblock %}
-
-{% endblock %}
-
-{% block content %}
+{% block budget_data %}
 <div id="layoutBudgetIndex">
     <div id="layoutBudgetIndex_content">
         <main>
@@ -63,6 +50,8 @@
                                     {{ revenue_form.submit_revenue(form='revenue-form', value="Save", class="btn
                                     btn-primary") }}
                                     <a class="btn btn-danger" href="{{ url_for('budget.summary') }}">Cancel</a>
+                                    <a class="btn btn-info showTable">Show table</a>
+                                    <a class="btn btn-secondary hideTable" style="display: none;">Hide Table</a>
                                 </form>
                             </div>
                         </div>
@@ -72,7 +61,7 @@
         </main>
     </div>
 </div>
-<div class="card mb-4">
+<div class="card mb-4" style="display: none;">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
         <strong>Revenue Summary</strong> - {{ table_counts.get('revenue_count') }} entries
@@ -86,6 +75,7 @@
                     <th>Revenue Date</th>
                     <th>Revenue Value</th>
                     <th>Revenue Source</th>
+                    <th>Entry Options</th>
                 </tr>
                 </thead>
                 <tbody class="post">
@@ -95,6 +85,7 @@
                     <th class="small mb-1">{{ entry['revenue_date'] }}</th>
                     <th class="small mb-1">{{ entry['revenue_value'] }}</th>
                     <th class="small mb-1">{{ entry['revenue_source'] }}</th>
+                    <th class="small mb-1"></th>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -105,26 +96,38 @@
 {% block scripts %}
 <script type="text/javascript">
     $(document).ready(function () {
-      $('#revenue-summary-table').DataTable({
-        serverSide: true,
-        ajax: {
-            url: '/api/data',
-            data: {
-                loc_path: (function(data) {
-                        data = window.location.pathname;
-                        return data;
-                        }())
-                }
-            },
-        columns: [
-          {data: "id", orderable: false},
-          {data: "revenue_date"},
-          {data: "revenue_value"},
-          {data: "revenue_source", orderable: false},
-        ],
-        });
-        });
+        $('a[class="btn btn-info showTable"]').click(function(){
+              $('div[class="card mb-4"]').show();
+              $('a[class="btn btn-secondary hideTable"]').show();
+              $('a[class="btn btn-info showTable"]').hide();
 
+                  var table = $('#revenue-summary-table').DataTable({
+                    serverSide: true,
+                    ajax: {
+                        url: '/api/data',
+                        data: {
+                            loc_path: (function(data) {
+                                    data = window.location.pathname;
+                                    return data;
+                                    }())
+                            }
+                        },
+                    columns: [
+                      {data: "id", orderable: false},
+                      {data: "revenue_date"},
+                      {data: "revenue_value"},
+                      {data: "revenue_source", orderable: false},
+                      {data: "entry_options", orderable: false},
+                    ],
+                    });
+        });
+        $('a[class="btn btn-secondary hideTable"]').click(function(){
+            $('#revenue-summary-table').DataTable().destroy();
+            $('div[class="card mb-4"]').hide();
+            $('a[class="btn btn-secondary hideTable"]').hide();
+            $('a[class="btn btn-info showTable"]').show();
+        });
+    });
 </script>
 {% endblock %}
 {% endblock %}

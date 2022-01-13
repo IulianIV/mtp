@@ -1,19 +1,6 @@
-{% extends 'base.html' %}
+{% extends 'budget_base.html' %}
 
-{% block meta %}
-<meta charset="utf-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-<meta name="description" content=""/>
-<meta name="author" content=""/>
-
-{% block title %}
-<title>MTP | Web App</title>
-{% endblock %}
-
-{% endblock %}
-
-{% block content %}
+{% block budget_data %}
 <div id="layoutBudgetIndex">
     <div id="layoutBudgetIndex_content">
         <main>
@@ -77,6 +64,8 @@
                                     {{ savings_form.submit_savings(form='savings-form', value="Save", class="btn
                                     btn-primary") }}
                                     <a class="btn btn-danger" href="{{ url_for('budget.summary') }}">Cancel</a>
+                                   <a class="btn btn-info showTable">Show table</a>
+                                    <a class="btn btn-secondary hideTable" style="display: none;">Hide Table</a>
                                 </form>
                             </div>
                         </div>
@@ -86,7 +75,7 @@
         </main>
     </div>
 </div>
-<div class="card mb-4">
+<div class="card mb-4" style="display: none;">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
         <strong>Savings Summary</strong> - {{ table_counts.get('saving_count') }} entries
@@ -102,6 +91,7 @@
                     <th>Savings Account</th>
                     <th>Savings Reason</th>
                     <th>Savings Action</th>
+                    <th>Entry Options</th>
                 </tr>
                 </thead>
                 <tbody class="post">
@@ -113,6 +103,7 @@
                     <th class="small mb-1">{{ entry['saving_source'] }}</th>
                     <th class="small mb-1">{{ entry['saving_reason'] }}</th>
                     <th class="small mb-1">{{ entry['saving_action'] }}</th>
+                    <th class="small mb-1"></th>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -123,7 +114,11 @@
 {% block scripts %}
 <script type="text/javascript">
     $(document).ready(function () {
-      $('#savings-summary-table').DataTable({
+        $('a[class="btn btn-info showTable"]').click(function(){
+              $('div[class="card mb-4"]').show();
+              $('a[class="btn btn-secondary hideTable"]').show();
+              $('a[class="btn btn-info showTable"]').hide();
+      var table = $('#savings-summary-table').DataTable({
         serverSide: true,
         ajax: {
             url: '/api/data',
@@ -141,9 +136,17 @@
           {data: "saving_source", orderable: false},
           {data: "saving_reason", orderable: false},
           {data: "saving_action", orderable: false},
+          {data: "entry_options", orderable: false}
         ],
         });
         });
+        $('a[class="btn btn-secondary hideTable"]').click(function(){
+            $('#savings-summary-table').DataTable().destroy();
+            $('div[class="card mb-4"]').hide();
+            $('a[class="btn btn-secondary hideTable"]').hide();
+            $('a[class="btn btn-info showTable"]').show();
+        });
+    });
 </script>
 {% endblock %}
 {% endblock %}
