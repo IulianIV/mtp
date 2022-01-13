@@ -10,6 +10,9 @@ DateTime = NewType('DateTime', datetime)
 current_month = datetime.now().month
 current_year = datetime.now().year
 
+# TODO Check all functions for possible DUPLICATES.
+# TODO Try to find a way to include them in more dynamic functions. Maybe circle back to classes in some cases?
+
 """
 Database INSERT queries section
 """
@@ -253,17 +256,18 @@ def get_current_month_mandatory_expense(user: int):
     return rent_utilities_total
 
 
+# fixme THIS might not be correct. Currently it only reports POSITIVE saving additions and ignores WITHDRAWALS
 def get_savings_data(user: int):
     savings_totals = {
         'ec': BudgetSaving.query.
         filter_by(user_id=user).
-        filter_by(saving_source='EC').all(),
+        filter_by(saving_source='EC').filter_by(saving_action='deposit').all(),
         'ed': BudgetSaving.query.
         filter_by(user_id=user).
-        filter_by(saving_source='ED').all(),
+        filter_by(saving_source='ED').filter_by(saving_action='deposit').all(),
         'if': BudgetSaving.query.
         filter_by(user_id=user).
-        filter_by(saving_source='IF').all(),
+        filter_by(saving_source='IF').filter_by(saving_action='deposit').all(),
     }
 
     return savings_totals
@@ -364,6 +368,38 @@ def get_validation_saving_items() -> list:
     return ValidationSavingItems.query.order_by(ValidationSavingItems.items).all()
 
 
+def query_utilities_entry(user_id: str, utility_id: str) -> str:
+    return BudgetUtilities.query.filter_by(user_id=user_id, id=utility_id).first()
+
+
+def query_utilities_entries_by_id(entry_id: int) -> list:
+    return BudgetUtilities.query.filter_by(id=entry_id).order_by(BudgetUtilities.utilities_date.desc()).first()
+
+
+def query_revenue_entry(user_id: str, revenue_id: str) -> str:
+    return BudgetRevenue.query.filter_by(user_id=user_id, id=revenue_id).first()
+
+
+def query_revenue_entries_by_id(entry_id: int) -> list:
+    return BudgetRevenue.query.filter_by(id=entry_id).order_by(BudgetRevenue.revenue_date.desc()).first()
+
+
+def query_expense_entry(user_id: str, expense_id: str) -> str:
+    return BudgetExpense.query.filter_by(user_id=user_id, id=expense_id).first()
+
+
+def query_expense_entries_by_id(entry_id: int) -> list:
+    return BudgetExpense.query.filter_by(id=entry_id).order_by(BudgetExpense.expense_date.desc()).first()
+
+
+def query_saving_entry(user_id: str, saving_id: str) -> str:
+    return BudgetSaving.query.filter_by(user_id=user_id, id=saving_id).first()
+
+
+def query_saving_entries_by_id(entry_id: int) -> list:
+    return BudgetSaving.query.filter_by(id=entry_id).order_by(BudgetSaving.saving_date.desc()).first()
+
+
 """
 Database UPDATE queries section
 """
@@ -377,6 +413,49 @@ def update_post(user: int, title: str, body: str, post_id: str):
     db.session.commit()
 
 
+# has-dependency APPLIES TO ALL "sources" FIELDS or fields fit for a SelectField class.
+#  to budget/routes prefilled form issue REMOVED budget_source UPDATE.
+def update_utility_entry(entry_id: int, user: int, date: DateTime, rent_value: int, energy_value: int,
+                         satellite_value: int, maintenance_value: int, details: str):
+
+    entry = BudgetUtilities.query.filter_by(id=entry_id, user_id=user).first()
+    entry.utilities_date = date
+    entry.utilities_rent_value = rent_value
+    entry.utilities_energy_value = energy_value
+    entry.utilities_satellite_value = satellite_value
+    entry.utilities_maintenance_value = maintenance_value
+    entry.utilities_info = details
+
+    db.session.commit()
+
+
+def update_revenue_entry(entry_id: int, user: int, date: DateTime, value: int):
+
+    entry = BudgetRevenue.query.filter_by(id=entry_id, user_id=user).first()
+    entry.utilities_date = date
+    entry.revenue_value = value
+
+    db.session.commit()
+
+
+def update_expense_entry(entry_id: int, user: int, date: DateTime, value: int):
+
+    entry = BudgetExpense.query.filter_by(id=entry_id, user_id=user).first()
+    entry.revenue_date = date
+    entry.revenue_value = value
+
+    db.session.commit()
+
+
+def update_saving_entry(entry_id: int, user: int, date: DateTime, value: int):
+
+    entry = BudgetSaving.query.filter_by(id=entry_id, user_id=user).first()
+    entry.saving_date = date
+    entry.saving_value = value
+
+    db.session.commit()
+
+
 """
 Database DELETE queries section
 """
@@ -384,5 +463,29 @@ Database DELETE queries section
 
 def delete_post(user: int, post_id: str):
     Post.query.filter_by(author_id=user, id=post_id).delete()
+
+    db.session.commit()
+
+
+def delete_utility_entry(entry_id: int, user: int):
+    BudgetUtilities.query.filter_by(id=entry_id, user_id=user).delete()
+
+    db.session.commit()
+
+
+def delete_revenue_entry(entry_id: int, user: int):
+    BudgetRevenue.query.filter_by(id=entry_id, user_id=user).delete()
+
+    db.session.commit()
+
+
+def delete_expense_entry(entry_id: int, user: int):
+    BudgetExpense.query.filter_by(id=entry_id, user_id=user).delete()
+
+    db.session.commit()
+
+
+def delete_saving_entry(entry_id: int, user: int):
+    BudgetSaving.query.filter_by(id=entry_id, user_id=user).delete()
 
     db.session.commit()
