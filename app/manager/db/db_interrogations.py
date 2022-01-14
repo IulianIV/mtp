@@ -101,15 +101,15 @@ def check_existing_user(username):
     return user
 
 
-def query_expense_entries() -> list:
+def query_expense_entries():
     return BudgetExpense.query.order_by(BudgetExpense.expense_date.desc())
 
 
-def query_revenue_entries() -> list:
+def query_revenue_entries():
     return BudgetRevenue.query.order_by(BudgetRevenue.revenue_date.desc())
 
 
-def query_savings_entries() -> list:
+def query_savings_entries():
     return BudgetSaving.query.order_by(BudgetSaving.saving_date.desc())
 
 
@@ -117,7 +117,7 @@ def query_validation_savings_reason():
     return db.session.query(ValidationSavingReason.saving_reason)
 
 
-def query_utilities_entries() -> list:
+def query_utilities_entries():
     return BudgetUtilities.query.order_by(BudgetUtilities.utilities_date.desc())
 
 
@@ -141,79 +141,79 @@ def query_validation_savings_action_types():
     return db.session.query(ValidationSavingAction.saving_action_type)
 
 
-def query_blog_post(author: str, post_id: str) -> str:
+def query_blog_post(author: str, post_id: str):
     return Post.query.filter_by(author_id=author, id=post_id).first()
 
 
-def query_blog_posts() -> list:
+def query_blog_posts():
     return Post.query.order_by(Post.created).all()
 
 
-def get_username_from_post_author(post_author_id: int) -> str:
+def get_username_from_post_author(post_author_id: int):
     return User.query.filter_by(id=post_author_id).first().username
 
 
-def get_user_from_post_author(post_author_id: int) -> str:
+def get_user_from_post_author(post_author_id: int):
     return User.query.filter_by(id=post_author_id).first()
 
 
-def get_validation_item(item_value: str) -> str:
+def get_validation_item(item_value: str):
     return ValidationSavingItems.query.filter_by(items=item_value).first()
 
 
-def get_validation_category(category_value: str) -> str:
+def get_validation_category(category_value: str):
     return ValidationSavingCategories.query.filter_by(categories=category_value).first()
 
 
-def get_validation_source(source_value: str) -> str:
+def get_validation_source(source_value: str):
     return ValidationSavingSources.query.filter_by(sources=source_value).first()
 
 
-def get_expense_count() -> int:
+def get_expense_count():
     return BudgetExpense.query.count()
 
 
-def get_revenue_count() -> int:
+def get_revenue_count():
     return BudgetRevenue.query.count()
 
 
-def get_savings_count() -> int:
+def get_savings_count():
     return BudgetSaving.query.count()
 
 
-def get_utilities_count() -> int:
+def get_utilities_count():
     return BudgetUtilities.query.count()
 
 
-def get_validation_categories_count() -> int:
+def get_validation_categories_count():
     return ValidationSavingCategories.query.count()
 
 
-def get_validation_items_count() -> int:
+def get_validation_items_count():
     return ValidationSavingItems.query.count()
 
 
-def get_validation_accounts_count() -> int:
+def get_validation_accounts_count():
     return ValidationSavingAccount.query.count()
 
 
-def get_validation_reason_count() -> int:
+def get_validation_reason_count():
     return ValidationSavingReason.query.count()
 
 
-def get_validation_sources_count() -> int:
+def get_validation_sources_count():
     return ValidationSavingSources.query.count()
 
 
-def get_validation_account(account_value: str) -> str:
+def get_validation_account(account_value: str):
     return ValidationSavingAccount.query.filter_by(saving_accounts=account_value).first()
 
 
-def get_validation_actions(action_value: str) -> str:
+def get_validation_actions(action_value: str):
     return ValidationSavingAction.query.filter_by(saving_action_type=action_value).first()
 
 
-def get_validation_reason(reason_value: str) -> str:
+def get_validation_reason(reason_value: str):
     return ValidationSavingReason.query.filter_by(saving_reason=reason_value).first()
 
     # PEP violation by comparing to None with equality operators, should be with 'is'
@@ -348,56 +348,40 @@ def get_expense_count_by_item(user: int):
     return item_count
 
 
-def get_validation_saving_sources() -> list:
+def get_validation_saving_sources():
     return ValidationSavingSources.query.order_by(ValidationSavingSources.sources).all()
 
 
-def get_validation_saving_accounts() -> list:
+def get_validation_saving_accounts():
     return ValidationSavingAccount.query.order_by(ValidationSavingAccount.saving_accounts).all()
 
 
-def get_validation_saving_reasons() -> list:
+def get_validation_saving_reasons():
     return ValidationSavingReason.query.order_by(ValidationSavingReason.saving_reason).all()
 
 
-def get_validation_saving_action() -> list:
+def get_validation_saving_action():
     return ValidationSavingAction.query.order_by(ValidationSavingAction.saving_action_type).all()
 
 
-def get_validation_saving_items() -> list:
+def get_validation_saving_items():
     return ValidationSavingItems.query.order_by(ValidationSavingItems.items).all()
 
 
-def query_utilities_entry(user_id: str, utility_id: str) -> str:
+def query_utilities_entry(user_id: str, utility_id: str):
     return BudgetUtilities.query.filter_by(user_id=user_id, id=utility_id).first()
 
 
-def query_utilities_entries_by_id(entry_id: int) -> list:
-    return BudgetUtilities.query.filter_by(id=entry_id).order_by(BudgetUtilities.utilities_date.desc()).first()
-
-
-def query_revenue_entry(user_id: str, revenue_id: str) -> str:
+def query_revenue_entry(user_id: str, revenue_id: str):
     return BudgetRevenue.query.filter_by(user_id=user_id, id=revenue_id).first()
 
 
-def query_revenue_entries_by_id(entry_id: int) -> list:
-    return BudgetRevenue.query.filter_by(id=entry_id).order_by(BudgetRevenue.revenue_date.desc()).first()
-
-
-def query_expense_entry(user_id: str, expense_id: str) -> str:
+def query_expense_entry(user_id: str, expense_id: str):
     return BudgetExpense.query.filter_by(user_id=user_id, id=expense_id).first()
 
 
-def query_expense_entries_by_id(entry_id: int) -> list:
-    return BudgetExpense.query.filter_by(id=entry_id).order_by(BudgetExpense.expense_date.desc()).first()
-
-
-def query_saving_entry(user_id: str, saving_id: str) -> str:
+def query_saving_entry(user_id: str, saving_id: str):
     return BudgetSaving.query.filter_by(user_id=user_id, id=saving_id).first()
-
-
-def query_saving_entries_by_id(entry_id: int) -> list:
-    return BudgetSaving.query.filter_by(id=entry_id).order_by(BudgetSaving.saving_date.desc()).first()
 
 
 """
@@ -413,10 +397,8 @@ def update_post(user: int, title: str, body: str, post_id: str):
     db.session.commit()
 
 
-# has-dependency APPLIES TO ALL "sources" FIELDS or fields fit for a SelectField class.
-#  to budget/routes prefilled form issue REMOVED budget_source UPDATE.
 def update_utility_entry(entry_id: int, user: int, date: DateTime, rent_value: int, energy_value: int,
-                         satellite_value: int, maintenance_value: int, details: str):
+                         satellite_value: int, maintenance_value: int, details: str, source: str):
 
     entry = BudgetUtilities.query.filter_by(id=entry_id, user_id=user).first()
     entry.utilities_date = date
@@ -425,33 +407,44 @@ def update_utility_entry(entry_id: int, user: int, date: DateTime, rent_value: i
     entry.utilities_satellite_value = satellite_value
     entry.utilities_maintenance_value = maintenance_value
     entry.utilities_info = details
+    entry.budget_source = source
 
     db.session.commit()
 
 
-def update_revenue_entry(entry_id: int, user: int, date: DateTime, value: int):
+def update_revenue_entry(entry_id: int, user: int, date: DateTime, value: int, source: str):
 
     entry = BudgetRevenue.query.filter_by(id=entry_id, user_id=user).first()
-    entry.utilities_date = date
-    entry.revenue_value = value
-
-    db.session.commit()
-
-
-def update_expense_entry(entry_id: int, user: int, date: DateTime, value: int):
-
-    entry = BudgetExpense.query.filter_by(id=entry_id, user_id=user).first()
     entry.revenue_date = date
     entry.revenue_value = value
+    entry.revenue_source = source
 
     db.session.commit()
 
 
-def update_saving_entry(entry_id: int, user: int, date: DateTime, value: int):
+def update_expense_entry(entry_id: int, user: int, date: DateTime, item: str, value: int, source: str):
+
+    entry = BudgetExpense.query.filter_by(id=entry_id, user_id=user).first()
+    entry.expense_date = date
+    entry.expense_item = item
+    entry.expense_value = value
+    entry.expense_source = source
+
+    item_category = ValidationSavingItems.query.filter_by(items=item).first().category
+
+    entry.expense_item_category = item_category
+
+    db.session.commit()
+
+
+def update_saving_entry(entry_id: int, user: int, date: DateTime, value: int, account: str, reason: str, action: str):
 
     entry = BudgetSaving.query.filter_by(id=entry_id, user_id=user).first()
     entry.saving_date = date
     entry.saving_value = value
+    entry.saving_source = account
+    entry.saving_reason = reason
+    entry.saving_action = action
 
     db.session.commit()
 
