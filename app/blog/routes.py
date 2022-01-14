@@ -77,6 +77,10 @@ def update(post_id):
     # fixme find new method to show a preview of the previous
     #   posts` body. <textarea> does not seem to have this.
 
+    if request.method == 'GET':
+        update_form.update_body.data = post.body
+        update_form.update_title.data = post.title
+
     if request.method == 'POST':
 
         title = update_form.update_title.data
