@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from flask import (
     redirect, render_template, request
 )
@@ -20,6 +18,8 @@ currency = CurrencyRates()
 # TODO format dates to a more user-friendly format
 # TODO Create a "transfer" view where you can initiate transfers between accounts - Spend -> saving and vice-versa.
 # TODO add a way to keep track of cards
+# TODO Make sure to add form_validation_error/success to all views.
+
 @bp.route('/')
 @login_required
 def summary():
@@ -87,7 +87,6 @@ def add_expense_entry():
     expense_form.expense_source.choices = sources_set
 
     if expense_form.is_submitted() and expense_form.validate_on_submit():
-
         date = expense_form.expense_date.data
         item = expense_form.expense_item.data
         value = expense_form.expense_value.data
@@ -100,7 +99,8 @@ def add_expense_entry():
 
         return redirect(url_for('budget.add_expense_entry'))
 
-    return render_template('budget/budget_entry/expense.html', expense_form=expense_form, expense_entries=expense_entries,
+    return render_template('budget/budget_entry/expense.html', expense_form=expense_form,
+                           expense_entries=expense_entries,
                            table_counts=table_counts)
 
 
@@ -120,7 +120,6 @@ def add_revenue_entry():
     revenue_form.revenue_source.choices = sources_set
 
     if revenue_form.is_submitted() and revenue_form.validate_on_submit():
-
         date = revenue_form.revenue_date.data
         revenue = revenue_form.revenue_value.data
         source = revenue_form.revenue_source.data
@@ -132,7 +131,8 @@ def add_revenue_entry():
 
         return redirect(url_for('budget.add_revenue_entry'))
 
-    return render_template('budget/budget_entry/revenue.html', revenue_form=revenue_form, revenue_entries=revenue_entries,
+    return render_template('budget/budget_entry/revenue.html', revenue_form=revenue_form,
+                           revenue_entries=revenue_entries,
                            table_counts=table_counts)
 
 
@@ -163,7 +163,6 @@ def add_savings_entry():
     if request.method == 'POST':
 
         if savings_form.is_submitted() and savings_form.validate_on_submit():
-
             date = savings_form.savings_date.data
             value = savings_form.savings_value.data
             account = savings_form.savings_account.data
@@ -178,7 +177,8 @@ def add_savings_entry():
 
         return redirect(url_for('budget.add_savings_entry'))
 
-    return render_template('budget/budget_entry/savings.html', savings_form=savings_form, savings_entries=savings_entries,
+    return render_template('budget/budget_entry/savings.html', savings_form=savings_form,
+                           savings_entries=savings_entries,
                            table_counts=table_counts)
 
 
@@ -578,7 +578,6 @@ def add_utilities_entry():
     budget_source = utilities_form.utilities_budget_sources.data
 
     if utilities_form.is_submitted() and utilities_form.validate_on_submit():
-
         form_validated_message('All values validated!')
 
         insert_utilities(user_id, date, rent, energy, satellite, maintenance, details, budget_source)
@@ -590,11 +589,6 @@ def add_utilities_entry():
                            utilities_form=utilities_form, table_counts=table_counts)
 
 
-# fixme add "budget_source" value to prefilled form --> APPLIES TO ALL SelectField objects.
-#   at the moment the option to modify budget_source if not accessible
-#   as far as StackOverflow says a custom WTForm class might be necessary.
-#   Current limitation are established because you can`t dynamically set with standard WTForms
-#   a "selected" attribute to a select.option value. Thus, a custom class may be the solution.
 # TODO maybe make a better implementation of the Budget Entry Edit/Delete functionality by two different scopes:
 #   1. The current model injects a HTML string when the query to the DataBase Model is made. Maybe something with
 #   less cohesion can be made?
@@ -608,11 +602,20 @@ def update_utilities_entry(utility_id):
     user_id = current_user.get_id()
 
     utilities_entry = query_utilities_entry(user_id, utility_id)
-    utilities_entries_data = query_utilities_entries_by_id(utility_id)
 
     budget_sources = query_validation_sources()
     sources_set = [(x['sources']) for x in budget_sources]
     utility_update_form.update_budget_sources.choices = sources_set
+
+    if request.method == 'GET':
+
+        utility_update_form.update_date.data = utilities_entry.utilities_date
+        utility_update_form.update_rent.data = utilities_entry.utilities_rent_value
+        utility_update_form.update_energy.data = utilities_entry.utilities_energy_value
+        utility_update_form.update_satellite.data = utilities_entry.utilities_satellite_value
+        utility_update_form.update_maintenance.data = utilities_entry.utilities_maintenance_value
+        utility_update_form.update_details.data = utilities_entry.utilities_info
+        utility_update_form.update_budget_sources.data = utilities_entry.budget_source
 
     if request.method == 'POST':
 
@@ -622,39 +625,45 @@ def update_utilities_entry(utility_id):
         satellite = utility_update_form.update_satellite.data
         maintenance = utility_update_form.update_maintenance.data
         details = utility_update_form.update_details.data
+        source = utility_update_form.update_budget_sources.data
 
-        update_utility_entry(utility_id, user_id, date, rent, energy, satellite, maintenance, details)
+        update_utility_entry(utility_id, user_id, date, rent, energy, satellite, maintenance, details, source)
 
         return redirect(url_for('budget.add_utilities_entry'))
 
     return render_template('budget/budget_update/utilities.html', utilities_entry=utilities_entry,
-                           utility_update_form=utility_update_form, utilities_entries_data=utilities_entries_data)
+                           utility_update_form=utility_update_form)
 
 
+# fixme apparently the form accepts future dates.
 @bp.route('/revenue-update/<int:revenue_id>', methods=('GET', 'POST'))
 @login_required
 def update_revenue_entries(revenue_id):
     revenue_update_form = forms.UpdateRevenueEntry()
     user_id = current_user.get_id()
 
-    revenue_entries = query_revenue_entry(user_id, revenue_id)
-    revenue_entries_data = query_revenue_entries_by_id(revenue_id)
+    revenue_entry = query_revenue_entry(user_id, revenue_id)
 
     revenue_sources = query_validation_sources()
     sources_set = [(x['sources']) for x in revenue_sources]
     revenue_update_form.update_sources.choices = sources_set
 
-    if request.method == 'POST':
+    if request.method == 'GET':
+        revenue_update_form.update_date.data = revenue_entry.revenue_date
+        revenue_update_form.update_value.data = revenue_entry.revenue_value
+        revenue_update_form.update_sources.data = revenue_entry.revenue_source
 
+    if request.method == 'POST':
         date = revenue_update_form.update_date.data
         value = revenue_update_form.update_value.data
+        source = revenue_update_form.update_sources.data
 
-        update_revenue_entry(revenue_id, user_id, date, value)
+        update_revenue_entry(revenue_id, user_id, date, value, source)
 
         return redirect(url_for('budget.add_revenue_entry'))
 
-    return render_template('budget/budget_update/revenue.html', revenue_entry=revenue_entries,
-                           revenue_update_form=revenue_update_form, revenue_entries_data=revenue_entries_data)
+    return render_template('budget/budget_update/revenue.html', revenue_entry=revenue_entry,
+                           revenue_update_form=revenue_update_form)
 
 
 @bp.route('/expense-update/<int:expense_id>', methods=('GET', 'POST'))
@@ -663,9 +672,7 @@ def update_expense_entries(expense_id):
     expense_update_form = forms.UpdateExpenseEntry()
     user_id = current_user.get_id()
 
-    expense_entries = query_expense_entry(user_id, expense_id)
-    # better-me aren't two so similar functions redundant in here? Applies to all other functions.
-    expense_entries_data = query_expense_entries_by_id(expense_id)
+    expense_entry = query_expense_entry(user_id, expense_id)
 
     expense_sources = query_validation_sources()
     sources_set = [(x['sources']) for x in expense_sources]
@@ -675,17 +682,24 @@ def update_expense_entries(expense_id):
     items_set = [(x['items']) for x in expense_items]
     expense_update_form.update_item.choices = items_set
 
+    if request.method == 'GET':
+        expense_update_form.update_date.data = expense_entry.expense_date
+        expense_update_form.update_item.data = expense_entry.expense_item
+        expense_update_form.update_value.data = expense_entry.expense_value
+        expense_update_form.update_source.data = expense_entry.expense_source
+
     if request.method == 'POST':
-
         date = expense_update_form.update_date.data
+        item = expense_update_form.update_item.data
         value = expense_update_form.update_value.data
+        source = expense_update_form.update_source.data
 
-        update_expense_entry(expense_id, user_id, date, value)
+        update_expense_entry(expense_id, user_id, date, item, value, source)
 
         return redirect(url_for('budget.add_expense_entry'))
 
-    return render_template('budget/budget_update/expense.html', expense_entry=expense_entries,
-                           expense_update_form=expense_update_form, expense_entries_data=expense_entries_data)
+    return render_template('budget/budget_update/expense.html', expense_entry=expense_entry,
+                           expense_update_form=expense_update_form)
 
 
 @bp.route('/saving-update/<int:saving_id>', methods=('GET', 'POST'))
@@ -694,8 +708,7 @@ def update_saving_entries(saving_id):
     saving_update_form = forms.UpdateSavingsEntry()
     user_id = current_user.get_id()
 
-    saving_entries = query_saving_entry(user_id, saving_id)
-    saving_entries_data = query_saving_entries_by_id(saving_id)
+    saving_entry = query_saving_entry(user_id, saving_id)
 
     saving_actions = query_validation_savings_action_types()
     actions_set = [(x['saving_action_type']) for x in saving_actions]
@@ -709,17 +722,26 @@ def update_saving_entries(saving_id):
     account_set = [(x['saving_accounts']) for x in saving_accounts]
     saving_update_form.update_account.choices = account_set
 
-    if request.method == 'POST':
+    if request.method == 'GET':
+        saving_update_form.update_date.data = saving_entry.saving_date
+        saving_update_form.update_value.data = saving_entry.saving_value
+        saving_update_form.update_account.data = saving_entry.saving_source
+        saving_update_form.update_reason.data = saving_entry.saving_reason
+        saving_update_form.update_action.data = saving_entry.saving_action
 
+    if request.method == 'POST':
         date = saving_update_form.update_date.data
         value = saving_update_form.update_value.data
+        account = saving_update_form.update_account.data
+        reason = saving_update_form.update_reason.data
+        action = saving_update_form.update_action.data
 
-        update_saving_entry(saving_id, user_id, date, value)
+        update_saving_entry(saving_id, user_id, date, value, account, reason, action)
 
         return redirect(url_for('budget.add_savings_entry'))
 
-    return render_template('budget/budget_update/saving.html', saving_entry=saving_entries,
-                           saving_update_form=saving_update_form, saving_entries_data=saving_entries_data)
+    return render_template('budget/budget_update/saving.html', saving_entry=saving_entry,
+                           saving_update_form=saving_update_form)
 
 
 @bp.route('/utilities-delete/<int:utility_id>', methods=('POST', 'GET'))
@@ -764,5 +786,3 @@ def delete_saving_entries(saving_id):
     db.session.commit()
 
     return redirect(url_for('budget.add_savings_entry'))
-
-
