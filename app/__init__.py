@@ -47,6 +47,8 @@ details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 # better-me Check coupling among all apps. There should be as little as possible functions with responsibilities outside
 #   their set scope.
 
+# TODO check what happens when URLs such as Update/Delete are accessed without an account and protect those views.
+
 
 def create_app(test_config=None):
 
