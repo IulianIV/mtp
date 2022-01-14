@@ -43,8 +43,6 @@
                                     <div class="form-group">
                                         {{ update_form.submit_update(form='update-form', class='btn btn-primary',
                                         value="Save") }}
-                                        <input class="btn btn-danger" type="submit" value="Delete"
-                                               onclick="return confirm('Are you sure?');"/>
                                         <a class="btn btn-secondary" href="{{ url_for('blog.index') }}">Cancel</a>
                                     </div>
                                 </form>
