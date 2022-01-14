@@ -19,22 +19,36 @@
                                         {{ saving_update_form.update_date.label(class="small mb-1",
                                         for="update-saving-form") }}
                                         {{ saving_update_form.update_date(form='update-saving-form',
-                                        class="form-control py-4", placeholder="Entry date",
-                                        value=saving_entries_data.saving_date) }}
+                                        class="form-control py-4", placeholder="Entry date") }}
                                     </div>
                                     <div class="form-group">
                                         {{ saving_update_form.update_value.label(class="small mb-1",
                                         for="update-saving-form") }}
                                         {{ saving_update_form.update_value(form='update-saving-form',
-                                        class='form-control py-4', placeholder="Enter value",
-                                        value=saving_entries_data.saving_value) }}
+                                        class='form-control py-4', placeholder="Enter value") }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ saving_update_form.update_account.label(class="small mb-1",
+                                        for="update-saving-form") }}
+                                        {{ saving_update_form.update_account(form='update-saving-form',
+                                        class='form-control py-4', placeholder="Enter account") }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ saving_update_form.update_reason.label(class="small mb-1",
+                                        for="update-saving-form") }}
+                                        {{ saving_update_form.update_reason(form='update-saving-form',
+                                        class='form-control py-4', placeholder="Enter reason") }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ saving_update_form.update_action.label(class="small mb-1",
+                                        for="update-saving-form") }}
+                                        {{ saving_update_form.update_action(form='update-saving-form',
+                                        class='form-control py-4', placeholder="Enter action") }}
                                     </div>
                                     <div class="form-group">
                                         {{ saving_update_form.submit_update(form='update-saving-form', class='btn
                                         btn-primary',
                                         value="Save") }}
-                                        <input class="btn btn-danger" type="submit" value="Delete"
-                                               onclick="return confirm('Are you sure?');"/>
                                         <a class="btn btn-secondary" href="{{ url_for('budget.add_savings_entry') }}">Cancel</a>
                                     </div>
                                 </form>

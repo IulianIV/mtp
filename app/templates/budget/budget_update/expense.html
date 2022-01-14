@@ -19,22 +19,30 @@
                                         {{ expense_update_form.update_date.label(class="small mb-1",
                                         for="update-expense-form") }}
                                         {{ expense_update_form.update_date(form='update-expense-form',
-                                        class="form-control py-4", placeholder="Entry date",
-                                        value=expense_entries_data.expense_date) }}
+                                        class="form-control py-4", placeholder="Entry date") }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ expense_update_form.update_item.label(class="small mb-1",
+                                        for="update-expense-form") }}
+                                        {{ expense_update_form.update_item(form='update-expense-form',
+                                        class="form-control py-4", placeholder="Entry item") }}
                                     </div>
                                     <div class="form-group">
                                         {{ expense_update_form.update_value.label(class="small mb-1",
                                         for="update-expense-form") }}
                                         {{ expense_update_form.update_value(form='update-expense-form',
-                                        class='form-control py-4', placeholder="Enter value",
-                                        value=expense_entries_data.expense_value) }}
+                                        class='form-control py-4', placeholder="Enter value") }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ expense_update_form.update_source.label(class="small mb-1",
+                                        for="update-expense-form") }}
+                                        {{ expense_update_form.update_source(form='update-expense-form',
+                                        class='form-control py-4', placeholder="Enter source") }}
                                     </div>
                                     <div class="form-group">
                                         {{ expense_update_form.submit_update(form='update-expense-form', class='btn
                                         btn-primary',
                                         value="Save") }}
-                                        <input class="btn btn-danger" type="submit" value="Delete"
-                                               onclick="return confirm('Are you sure?');"/>
                                         <a class="btn btn-secondary" href="{{ url_for('budget.add_expense_entry') }}">Cancel</a>
                                     </div>
                                 </form>

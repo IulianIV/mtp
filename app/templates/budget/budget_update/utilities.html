@@ -19,50 +19,48 @@
                                         {{ utility_update_form.update_date.label(class="small mb-1",
                                         for="update-utility-form") }}
                                         {{ utility_update_form.update_date(form='update-utility-form',
-                                        class="form-control py-4", placeholder="Entry date",
-                                        value=utilities_entries_data.utilities_date) }}
+                                        class="form-control py-4", placeholder="Entry date") }}
                                     </div>
                                     <div class="form-group">
                                         {{ utility_update_form.update_rent.label(class="small mb-1",
                                         for="update-utility-form") }}
                                         {{ utility_update_form.update_rent(form='update-utility-form',
-                                        class='form-control py-4', placeholder="Enter rent value",
-                                        value=utilities_entries_data.utilities_rent_value) }}
+                                        class='form-control py-4', placeholder="Enter rent value") }}
                                     </div>
                                     <div class="form-group">
                                         {{ utility_update_form.update_energy.label(class="small mb-1",
                                         for="update-utility-form") }}
                                         {{ utility_update_form.update_energy(form='update-utility-form',
-                                        class='form-control py-4', placeholder="Enter energy value",
-                                        value=utilities_entries_data.utilities_energy_value) }}
+                                        class='form-control py-4', placeholder="Enter energy value") }}
                                     </div>
                                     <div class="form-group">
                                         {{ utility_update_form.update_satellite.label(class="small mb-1",
                                         for="update-utility-form") }}
                                         {{ utility_update_form.update_satellite(form='update-utility-form',
-                                        class='form-control py-4', placeholder="Enter satellite value",
-                                        value=utilities_entries_data.utilities_satellite_value) }}
+                                        class='form-control py-4', placeholder="Enter satellite value") }}
                                     </div>
                                     <div class="form-group">
                                         {{ utility_update_form.update_maintenance.label(class="small mb-1",
                                         for="update-utility-form") }}
                                         {{ utility_update_form.update_maintenance(form='update-utility-form',
-                                        class='form-control py-4', placeholder="Enter maintenance value",
-                                        value=utilities_entries_data.utilities_maintenance_value) }}
+                                        class='form-control py-4', placeholder="Enter maintenance value") }}
                                     </div>
                                     <div class="form-group">
                                         {{ utility_update_form.update_details.label(class="small mb-1",
                                         for="update-utility-form") }}
                                         {{ utility_update_form.update_details(form='update-utility-form',
-                                        class='form-control py-4', placeholder="Enter details",
-                                        value=utilities_entries_data.utilities_info) }}
+                                        class='form-control py-4', placeholder="Enter details") }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ utility_update_form.update_budget_sources.label(class="small mb-1",
+                                        for="update-utility-form") }}
+                                        {{ utility_update_form.update_budget_sources(form='update-utility-form',
+                                        class='form-control py-4', placeholder="Enter source") }}
                                     </div>
                                     <div class="form-group">
                                         {{ utility_update_form.submit_update(form='update-utility-form', class='btn
                                         btn-primary',
                                         value="Save") }}
-                                        <input class="btn btn-danger" type="submit" value="Delete"
-                                               onclick="return confirm('Are you sure?');"/>
                                         <a class="btn btn-secondary" href="{{ url_for('budget.add_utilities_entry') }}">Cancel</a>
                                     </div>
                                 </form>
