@@ -8,6 +8,9 @@ from wtforms.validators import DataRequired
 from app.manager.protection import NoFutureDates, CheckForNumber
 
 
+# fixme check all validators. Some Select Text Fields have "CheckForNumber()" validators that don't even do their job.
+
+
 class AddExpenseEntry(FlaskForm):
     expense_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
                              format='%Y-%m-%d', default=datetime.now())
@@ -78,8 +81,6 @@ class AddValidationReason(FlaskForm):
     submit_reason = SubmitField()
 
 
-# has-dependency Applies to ALL Forms. All FORMS have SelectFields REMOVED.
-#  REMOVED update_budget_sources REGARDING budget/routes issue with prefilled form data
 class UpdateUtilitiesEntry(FlaskForm):
     update_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
                             format='%Y-%m-%d', default=datetime.now())
@@ -96,7 +97,7 @@ class UpdateRevenueEntry(FlaskForm):
     update_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
                             format='%Y-%m-%d', default=datetime.now())
     update_value = StringField(validators=[DataRequired(), CheckForNumber()])
-    update_sources = StringField(validators=[DataRequired(), CheckForNumber()])
+    update_sources = SelectField(validators=[DataRequired(), CheckForNumber()])
     submit_update = SubmitField()
 
 
