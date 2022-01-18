@@ -113,8 +113,49 @@
         </div>
     </div>
 </div>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table mr-1"></i>
+        Savings - {{ table_counts.get('utilities_count') }} entries
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="summary-utilities-table" width="100%" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Utilities Date</th>
+                    <th>Utilities Rent Value</th>
+                    <th>Utilities Energy Value</th>
+                    <th>Utilities Satellite Value</th>
+                    <th>Utilities Maintenance Value</th>
+                    <th>Utilities Info</th>
+                    <th>Utilities Source</th>
+                </tr>
+                </thead>
+                <tbody class="post">
+                {% for entry in budget_queries['utilities_entries'] %}
+                <tr>
+                    <th class="small mb-1">{{ entry['id'] }}</th>
+                    <th class="small mb-1">{{ entry['utilities_date'] }}</th>
+                    <th class="small mb-1">{{ entry['utilities_rent_value'] }}</th>
+                    <th class="small mb-1">{{ entry['utilities_energy_value'] }}</th>
+                    <th class="small mb-1">{{ entry['utilities_satellite_value'] }}</th>
+                    <th class="small mb-1">{{ entry['utilities_maintenance_value'] }}</th>
+                    <th class="small mb-1">{{ entry['utilities_info'] }}</th>
+                    <th class="small mb-1">{{ entry['budget_source'] }}</th>
+
+
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 {% block scripts %}
- <script>
+<script>
     $(document).ready(function () {
       $('#summary-expense-table').DataTable({
         serverSide: true,
@@ -170,7 +211,30 @@
         ],
         });
         });
- </script>
+        $(document).ready(function () {
+      $('#summary-utilities-table').DataTable({
+        serverSide: true,
+        ajax: {
+            url: '/api/data',
+            data: {
+                loc_path: '/budget/new_utilities_entry'
+                }
+            },
+        columns: [
+          {data: "id", orderable: false},
+          {data: "utilities_date"},
+          {data: "utilities_rent_value"},
+          {data: "utilities_energy_value"},
+          {data: "utilities_satellite_value"},
+          {data: "utilities_maintenance_value"},
+          {data: "utilities_info", orderable: false},
+          {data: "budget_source", orderable: false},
+
+        ],
+        });
+        });
+
+</script>
 {% endblock %}
 
 
