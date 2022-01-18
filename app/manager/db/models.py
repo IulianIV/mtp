@@ -195,8 +195,8 @@ class BudgetUtilities(db.Model):
             'utilities_energy_value': self.utilities_energy_value,
             'utilities_satellite_value': self.utilities_satellite_value,
             'utilities_maintenance_value': self.utilities_maintenance_value,
-            'budget_source': self.budget_source,
             'utilities_info': self.utilities_info,
+            'budget_source': self.budget_source,
             'entry_options': '<a href="'
                              + url_for('budget.update_utilities_entry', utility_id=self.id) +
                              '"class="btn btn-primary">Edit</a>&nbsp;<a href="'
