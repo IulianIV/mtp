@@ -1,7 +1,7 @@
 import functools
 
 from flask import (
-    redirect, render_template, url_for
+    redirect, render_template
 )
 from flask_login import login_user, current_user, logout_user
 

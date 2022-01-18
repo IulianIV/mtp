@@ -17,7 +17,7 @@ custom_protection = CustomCSRF()
 # TODO handle blog posts pagination. Maybe similar to the one introduced in the Budget App but with no tables.
 @bp.route('/')
 def index():
-    posts = query_blog_posts()
+    posts = query_blog_posts(author=current_user.get_id())
     return render_template('blog/index.html', posts=posts, author_name=get_username_from_post_author,
                            user=get_user_from_post_author)
 

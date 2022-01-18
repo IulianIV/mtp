@@ -72,10 +72,10 @@ def summary():
 def add_expense_entry():
     user_id = current_user.get_id()
     expense_form = forms.AddExpenseEntry()
-    expense_entries = query_expense_entries()
+    expense_entries = query_expense_entries(user_id=user_id)
 
     table_counts = {
-        'expense_count': get_expense_count()
+        'expense_count': get_expense_count(user_id=current_user.get_id())
     }
 
     items = query_validation_items()
@@ -109,10 +109,10 @@ def add_expense_entry():
 def add_revenue_entry():
     user_id = current_user.get_id()
     revenue_form = forms.AddRevenueEntry()
-    revenue_entries = query_revenue_entries()
+    revenue_entries = query_revenue_entries(user_id=current_user.get_id())
 
     table_counts = {
-        'revenue_count': get_revenue_count()
+        'revenue_count': get_revenue_count(user_id=current_user.get_id())
     }
 
     sources = query_validation_sources()
@@ -142,10 +142,10 @@ def add_revenue_entry():
 def add_savings_entry():
     user_id = current_user.get_id()
     savings_form = forms.AddSavingsEntry()
-    savings_entries = query_savings_entries()
+    savings_entries = query_savings_entries(user_id=current_user.get_id())
 
     table_counts = {
-        'saving_count': get_savings_count()
+        'saving_count': get_savings_count(user_id=current_user.get_id())
     }
 
     accounts = query_validation_savings_accounts()
@@ -559,14 +559,14 @@ def validation_reasons():
 def add_utilities_entry():
     user_id = current_user.get_id()
     utilities_form = forms.AddUtilitiesEntry()
-    utilities_entries = query_utilities_entries()
+    utilities_entries = query_utilities_entries(user_id=current_user.get_id())
 
     budget_sources = query_validation_sources()
     budget_sources_set = [(x['sources']) for x in budget_sources]
     utilities_form.utilities_budget_sources.choices = budget_sources_set
 
     table_counts = {
-        'utilities_count': get_utilities_count()
+        'utilities_count': get_utilities_count(user_id=current_user.get_id())
     }
 
     date = utilities_form.utilities_date.data
