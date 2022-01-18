@@ -1,5 +1,5 @@
 from flask import (
-    request, redirect, url_for
+    request, redirect
 )
 from flask_login import current_user
 
@@ -41,12 +41,14 @@ def data():
             'sort_by': ['saving_date', 'saving_value'],
             'default_sort': 'saving_date'
         },
-        '/budget/new-utilities-entry': {
+        # better-me this seems so show the whole number of entries from the table, from all users.
+        #   filtering doesn't seem to help.
+        '/budget/new_utilities_entry': {
             'table': BudgetUtilities,
             'query': BudgetUtilities.query.filter_by(user_id=current_user.get_id()),
             'sort_by': ['utilities_date', 'utilities_rent_value',
                         'utilities_energy_value', 'utilities_satellite_value',
-                        'utilities_maintenance_value', 'budget_source'],
+                        'utilities_maintenance_value'],
             'default_sort': 'utilities_date'
         }
     }
@@ -61,21 +63,21 @@ def data():
                 BudgetExpense.expense_date.like(f'%{search}%'),
                 BudgetExpense.expense_item.like(f'%{search}%'),
                 BudgetExpense.expense_item_category.like(f'%{search}%')
-            ))
+            )).filter_by(user_id=current_user.get_id())
         elif current_loc == '/budget/new-revenue-entry':
             query = query.filter(db.or_(
                 BudgetRevenue.revenue_date.like(f'%{search}%')
-            ))
+            )).filter_by(user_id=current_user.get_id())
         elif current_loc == '/budget/new-savings-entry':
             query = query.filter(db.or_(
                 BudgetSaving.saving_date.like(f'%{search}%'),
                 BudgetSaving.saving_reason.like(f'%{search}%')
-            ))
+            )).filter_by(user_id=current_user.get_id())
         elif current_loc == '/budget/new_utilities_entry':
             query = query.filter(db.or_(
                 BudgetUtilities.utilities_date.like(f'%{search}%'),
                 BudgetUtilities.utilities_info.like(f'%{search}%')
-            ))
+            )).filter(BudgetUtilities.user_id == current_user.get_id())
 
     total_filtered = query.count()
 
@@ -96,18 +98,18 @@ def data():
         order.append(col)
         i += 1
     if order:
-        query = query.order_by(*order)
+        query = query.filter_by(user_id=current_user.get_id()).order_by(*order)
 
     # pagination
     start = request.args.get('start', type=int)
     length = request.args.get('length', type=int)
-    query = query.offset(start).limit(length)
+    query = query.filter_by(user_id=current_user.get_id()).offset(start).limit(length)
 
     # response
     return {
         'data': [items.to_dict() for items in query],
         'recordsFiltered': total_filtered,
-        'recordsTotal': table_map[current_loc]['table'].query.count(),
+        'recordsTotal': table_map[current_loc]['table'].query.filter_by(user_id=current_user.get_id()).count(),
         'draw': request.args.get('draw', type=int)
     }
 
@@ -117,16 +119,16 @@ def summary_graph_categories_data():
     user_id = current_user.get_id()
     category_data = [x for x in get_expense_count_by_category(user_id)]
 
-    data_test = []
+    categories_data = []
 
     count = [int(x[0]) for x in category_data]
     categories = [x[1] for x in category_data]
 
     for item in range(len(categories)):
-        data_test.append({'group': '{}'.format(categories[item]), 'value': '{}'.format(count[item])})
+        categories_data.append({'group': '{}'.format(categories[item]), 'value': '{}'.format(count[item])})
 
     return {
-        'data': data_test
+        'data': categories_data
     }
 
 
@@ -134,16 +136,16 @@ def summary_graph_categories_data():
 def summary_graph_items_data():
     user_id = current_user.get_id()
 
-    items_data = [x for x in get_expense_count_by_item(user_id)]
+    item_data = [x for x in get_expense_count_by_item(user_id)]
 
-    data_test = []
+    items_data = []
 
-    count = [int(x[0]) for x in items_data]
-    items = [x[1] for x in items_data]
+    count = [int(x[0]) for x in item_data]
+    items = [x[1] for x in item_data]
 
     for item in range(len(items)):
-        data_test.append({'group': '{}'.format(items[item]), 'value': '{}'.format(count[item])})
+        items_data.append({'group': '{}'.format(items[item]), 'value': '{}'.format(count[item])})
 
     return {
-        'data': data_test
+        'data': items_data
     }
