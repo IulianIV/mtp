@@ -101,24 +101,24 @@ def check_existing_user(username):
     return user
 
 
-def query_expense_entries():
-    return BudgetExpense.query.order_by(BudgetExpense.expense_date.desc())
+def query_expense_entries(user_id: int):
+    return BudgetExpense.query.filter_by(user_id=user_id).order_by(BudgetExpense.expense_date.desc())
 
 
-def query_revenue_entries():
-    return BudgetRevenue.query.order_by(BudgetRevenue.revenue_date.desc())
+def query_revenue_entries(user_id: int):
+    return BudgetRevenue.query.filter_by(user_id=user_id).order_by(BudgetRevenue.revenue_date.desc())
 
 
-def query_savings_entries():
-    return BudgetSaving.query.order_by(BudgetSaving.saving_date.desc())
+def query_savings_entries(user_id: int):
+    return BudgetSaving.query.filter_by(user_id=user_id).order_by(BudgetSaving.saving_date.desc())
 
 
 def query_validation_savings_reason():
     return db.session.query(ValidationSavingReason.saving_reason)
 
 
-def query_utilities_entries():
-    return BudgetUtilities.query.order_by(BudgetUtilities.utilities_date.desc())
+def query_utilities_entries(user_id: int):
+    return BudgetUtilities.query.filter_by(user_id=user_id).order_by(BudgetUtilities.utilities_date.desc())
 
 
 def query_validation_items():
@@ -145,8 +145,8 @@ def query_blog_post(author: str, post_id: str):
     return Post.query.filter_by(author_id=author, id=post_id).first()
 
 
-def query_blog_posts():
-    return Post.query.order_by(Post.created).all()
+def query_blog_posts(author: str):
+    return Post.query.filter_by(author_id=author).order_by(Post.created).all()
 
 
 def get_username_from_post_author(post_author_id: int):
@@ -169,20 +169,20 @@ def get_validation_source(source_value: str):
     return ValidationSavingSources.query.filter_by(sources=source_value).first()
 
 
-def get_expense_count():
-    return BudgetExpense.query.count()
+def get_expense_count(user_id: int):
+    return BudgetExpense.query.filter_by(user_id=user_id).count()
 
 
-def get_revenue_count():
-    return BudgetRevenue.query.count()
+def get_revenue_count(user_id: int):
+    return BudgetRevenue.query.filter_by(user_id=user_id).count()
 
 
-def get_savings_count():
-    return BudgetSaving.query.count()
+def get_savings_count(user_id: int):
+    return BudgetSaving.query.filter_by(user_id=user_id).count()
 
 
-def get_utilities_count():
-    return BudgetUtilities.query.count()
+def get_utilities_count(user_id: int):
+    return BudgetUtilities.query.filter_by(user_id=user_id).count()
 
 
 def get_validation_categories_count():
@@ -221,8 +221,8 @@ def get_validation_reason(reason_value: str):
     #   it is using magic methods (operator overloading) to generate sql constructs
 
 
-def get_parsed_urls():
-    return UrlEncodeDecodeParse.query.filter(and_(UrlEncodeDecodeParse.encode_option == None,
+def get_parsed_urls(user_id: int):
+    return UrlEncodeDecodeParse.query.filter_by(user_id=user_id).filter(and_(UrlEncodeDecodeParse.encode_option == None,
                                                   UrlEncodeDecodeParse.encoding == None))
 
 
