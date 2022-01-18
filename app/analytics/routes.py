@@ -2,6 +2,7 @@ from urllib.parse import parse_qs, urlparse
 
 import pandas as pd
 from flask import render_template
+from flask_login import current_user
 
 from app.analytics import bp
 from app.manager.db.db_interrogations import *
@@ -12,7 +13,7 @@ from app.manager.db.db_interrogations import *
 
 @bp.route('/')
 def lifetime_expense():
-    expense_raw_data = query_expense_entries()
+    expense_raw_data = query_expense_entries(user_id=current_user.get_id())
 
     expense_dict = {'expense_value': [expense.expense_value for expense in expense_raw_data]}
 
@@ -24,21 +25,22 @@ def lifetime_expense():
     return render_template('analytics/analytics.html')
 
 
-# better-me maybe find a better name for this function and its template?
 # TODO add a utilities table too
 @bp.route('/budget-tables')
 def budget_tables():
 
     budget_queries = {
-        'expense_entries': query_expense_entries(),
-        'revenue_entries': query_revenue_entries(),
-        'savings_entries': query_savings_entries(),
+        'expense_entries': query_expense_entries(user_id=current_user.get_id()),
+        'revenue_entries': query_revenue_entries(user_id=current_user.get_id()),
+        'savings_entries': query_savings_entries(user_id=current_user.get_id()),
+        'utilities_entries': query_utilities_entries(user_id=current_user.get_id()),
 
     }
     table_counts = {
-            'expense_count': get_expense_count(),
-            'revenue_count': get_revenue_count(),
-            'savings_count': get_savings_count()
+            'expense_count': get_expense_count(user_id=current_user.get_id()),
+            'revenue_count': get_revenue_count(user_id=current_user.get_id()),
+            'savings_count': get_savings_count(user_id=current_user.get_id()),
+            'utilities_count': get_utilities_count(user_id=current_user.get_id())
         }
 
     validation_counts = {
@@ -55,7 +57,7 @@ def budget_tables():
 
 @bp.route('/utm-stats')
 def utm_stats():
-    raw_entries = get_parsed_urls()
+    raw_entries = get_parsed_urls(user_id=current_user.get_id())
     num_of_params = []
     most_params = 0
     all_values_dict = {'date': [], 'url': [], 'qs': [], 'netloc': []}
