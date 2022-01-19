@@ -43,7 +43,7 @@ def data():
         },
         # better-me this seems so show the whole number of entries from the table, from all users.
         #   filtering doesn't seem to help.
-        '/budget/new_utilities_entry': {
+        '/budget/new-utilities-entry': {
             'table': BudgetUtilities,
             'query': BudgetUtilities.query.filter_by(user_id=current_user.get_id()),
             'sort_by': ['utilities_date', 'utilities_rent_value',
@@ -73,7 +73,7 @@ def data():
                 BudgetSaving.saving_date.like(f'%{search}%'),
                 BudgetSaving.saving_reason.like(f'%{search}%')
             )).filter_by(user_id=current_user.get_id())
-        elif current_loc == '/budget/new_utilities_entry':
+        elif current_loc == '/budget/new-utilities-entry':
             query = query.filter(db.or_(
                 BudgetUtilities.utilities_date.like(f'%{search}%'),
                 BudgetUtilities.utilities_info.like(f'%{search}%')
