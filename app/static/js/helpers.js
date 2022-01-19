@@ -1,5 +1,4 @@
 // Show/Hide EUR Preview jQuery
-// TODO add all jQuery related/AJAX/JS in here or relevant JS files
 $(document).ready(function(){
   $('button[name="show_eurview"]').click(function(){
     $('tr[class="table-primary eurview"]').show();
@@ -14,6 +13,7 @@ $(document).ready(function(){
   });
 });
 
+// enable bootstrap tooltips
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()
 })
