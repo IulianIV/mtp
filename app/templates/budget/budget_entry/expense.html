@@ -105,41 +105,6 @@
     </div>
 </div>
 {% block scripts %}
-<script type="text/javascript">
-        $(document).ready(function () {
-        $('a[class="btn btn-info showTable"]').click(function(){
-              $('div[class="card mb-4"]').show();
-              $('a[class="btn btn-secondary hideTable"]').show();
-              $('a[class="btn btn-info showTable"]').hide();
-      var table = $('#expense-summary-table').DataTable({
-        serverSide: true,
-        ajax: {
-            url: '/api/data',
-            data: {
-                loc_path: (function(data) {
-                        data = window.location.pathname;
-                        return data;
-                        }())
-                }
-            },
-        columns: [
-          {data: "id", orderable: false},
-          {data: "expense_date"},
-          {data: "expense_item"},
-          {data: "expense_value"},
-          {data: "expense_item_category", orderable: false},
-          {data: "expense_source", orderable: false},
-          {data: "entry_options", orderable: false},
-        ],
-        });
-        });
-        $('a[class="btn btn-secondary hideTable"]').click(function(){
-            $('#expense-summary-table').DataTable().destroy();
-            $('div[class="card mb-4"]').hide();
-            $('a[class="btn btn-secondary hideTable"]').hide();
-            $('a[class="btn btn-info showTable"]').show();
-        });
-    });
-</script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/tables.js') }}"></script>
 {% endblock %}
 {% endblock %}

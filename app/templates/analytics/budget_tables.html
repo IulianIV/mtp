@@ -13,14 +13,15 @@
 
 {% endblock %}
 
-
 {% block content %}
 <div class="card mb-4">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
         Expense - {{ table_counts.get('expense_count') }} entries
+        <a class="btn btn-info showTableExpense">Show table</a>
+        <a class="btn btn-secondary hideTableExpense" style="display: none;">Hide Table</a>
     </div>
-    <div class="card-body">
+    <div class="card-body expense" style="display: none;">
         <div class="table-responsive">
             <table class="table table-bordered" id="summary-expense-table" width="100%" cellspacing="0">
                 <thead>
@@ -53,8 +54,10 @@
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
         Revenue - {{ table_counts.get('revenue_count') }} entries
+        <a class="btn btn-info showTableRevenue">Show table</a>
+        <a class="btn btn-secondary hideTableRevenue" style="display: none;">Hide Table</a>
     </div>
-    <div class="card-body">
+    <div class="card-body revenue" style="display: none;">
         <div class="table-responsive">
             <table class="table table-bordered" id="summary-revenue-table" width="100%" cellspacing="0">
                 <thead>
@@ -83,8 +86,10 @@
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
         Savings - {{ table_counts.get('savings_count') }} entries
+        <a class="btn btn-info showTableSavings">Show table</a>
+        <a class="btn btn-secondary hideTableSavings" style="display: none;">Hide Table</a>
     </div>
-    <div class="card-body">
+    <div class="card-body savings" style="display: none;">
         <div class="table-responsive">
             <table class="table table-bordered" id="summary-savings-table" width="100%" cellspacing="0">
                 <thead>
@@ -116,9 +121,11 @@
 <div class="card mb-4">
     <div class="card-header">
         <i class="fas fa-table mr-1"></i>
-        Savings - {{ table_counts.get('utilities_count') }} entries
+        Utilities - {{ table_counts.get('utilities_count') }} entries
+        <a class="btn btn-info showTableUtilities">Show table</a>
+        <a class="btn btn-secondary hideTableUtilities" style="display: none;">Hide Table</a>
     </div>
-    <div class="card-body">
+    <div class="card-body utilities" style="display: none;">
         <div class="table-responsive">
             <table class="table table-bordered" id="summary-utilities-table" width="100%" cellspacing="0">
                 <thead>
@@ -144,98 +151,17 @@
                     <th class="small mb-1">{{ entry['utilities_maintenance_value'] }}</th>
                     <th class="small mb-1">{{ entry['utilities_info'] }}</th>
                     <th class="small mb-1">{{ entry['budget_source'] }}</th>
-
-
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
+
     </div>
 </div>
 
 {% block scripts %}
-<script>
-    $(document).ready(function () {
-      $('#summary-expense-table').DataTable({
-        serverSide: true,
-        ajax: {
-            url: '/api/data',
-            data: {
-                loc_path: '/budget/new-expense-entry'
-                }
-            },
-        columns: [
-          {data: "id", orderable: false},
-          {data: "expense_date"},
-          {data: "expense_item"},
-          {data: "expense_value"},
-          {data: "expense_item_category", orderable: false},
-          {data: "expense_source", orderable: false},
-        ],
-        });
-        });
-    $(document).ready(function () {
-      $('#summary-revenue-table').DataTable({
-        serverSide: true,
-        ajax: {
-            url: '/api/data',
-            data: {
-                loc_path: '/budget/new-revenue-entry'
-                }
-            },
-        columns: [
-          {data: "id", orderable: false},
-          {data: "revenue_date"},
-          {data: "revenue_value"},
-          {data: "revenue_source", orderable: false},
-        ],
-        });
-        });
-    $(document).ready(function () {
-      $('#summary-savings-table').DataTable({
-        serverSide: true,
-        ajax: {
-            url: '/api/data',
-            data: {
-                loc_path: '/budget/new-savings-entry'
-                }
-            },
-        columns: [
-          {data: "id", orderable: false},
-          {data: "saving_date"},
-          {data: "saving_value"},
-          {data: "saving_source", orderable: false},
-          {data: "saving_reason", orderable: false},
-          {data: "saving_action", orderable: false},
-        ],
-        });
-        });
-        $(document).ready(function () {
-      $('#summary-utilities-table').DataTable({
-        serverSide: true,
-        ajax: {
-            url: '/api/data',
-            data: {
-                loc_path: '/budget/new_utilities_entry'
-                }
-            },
-        columns: [
-          {data: "id", orderable: false},
-          {data: "utilities_date"},
-          {data: "utilities_rent_value"},
-          {data: "utilities_energy_value"},
-          {data: "utilities_satellite_value"},
-          {data: "utilities_maintenance_value"},
-          {data: "utilities_info", orderable: false},
-          {data: "budget_source", orderable: false},
-
-        ],
-        });
-        });
-
-</script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/tables.js') }}"></script>
 {% endblock %}
-
 
 {% endblock %}

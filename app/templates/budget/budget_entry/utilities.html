@@ -138,45 +138,6 @@
     </div>
 </div>
 {% block scripts %}
-<script type="text/javascript">
-    $(document).ready(function () {
-        $('a[class="btn btn-info showTable"]').click(function(){
-              $('div[class="card mb-4"]').show();
-              $('a[class="btn btn-secondary hideTable"]').show();
-              $('a[class="btn btn-info showTable"]').hide();
-
-                var table = $('#utilities-summary-table').DataTable({
-                serverSide: true,
-                ajax: {
-                    url: '/api/data',
-                    data: {
-                        loc_path: (function(data) {
-                                data = window.location.pathname;
-                                return data;
-                                }())
-                        }
-                    },
-                columns: [
-                  {data: "id", orderable: false},
-                  {data: "utilities_date"},
-                  {data: "utilities_rent_value"},
-                  {data: "utilities_energy_value"},
-                  {data: "utilities_satellite_value"},
-                  {data: "utilities_maintenance_value"},
-                  {data: "budget_source"},
-                  {data: "utilities_info", orderable: false},
-                  {data: "entry_options", orderable: false},
-                ],
-              });
-        });
-        $('a[class="btn btn-secondary hideTable"]').click(function(){
-            $('#utilities-summary-table').DataTable().destroy();
-            $('div[class="card mb-4"]').hide();
-            $('a[class="btn btn-secondary hideTable"]').hide();
-            $('a[class="btn btn-info showTable"]').show();
-        });
-    });
-
-</script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/tables.js') }}"></script>
 {% endblock %}
 {% endblock %}
