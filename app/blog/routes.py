@@ -8,8 +8,7 @@ from app.auth.routes import login_required
 from app.blog import bp
 from app.blog.forms import AddPost, UpdatePost
 from app.manager.db.db_interrogations import *
-from app.manager.protection import CustomCSRF
-from app.manager.protection import form_validated_message, form_error_message
+from app.manager.helpers import form_validated_message, form_error_message, CustomCSRF
 
 custom_protection = CustomCSRF()
 
@@ -50,7 +49,6 @@ def create():
     return render_template('blog/create.html', create_post_form=create_post_form)
 
 
-# fixme Fix logic when someone accesses an post URL with a non-existent ID
 def get_post(author_id, post_id, check_author=True):
     user_id = current_user.get_id()
 
@@ -73,9 +71,6 @@ def update(post_id):
     user_id = current_user.get_id()
 
     post = get_post(user_id, post_id)
-
-    # fixme find new method to show a preview of the previous
-    #   posts` body. <textarea> does not seem to have this.
 
     if request.method == 'GET':
         update_form.update_body.data = post.body

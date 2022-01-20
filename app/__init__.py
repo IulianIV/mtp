@@ -21,7 +21,8 @@ toolbar = DebugToolbarExtension()
 # better-me Add a way to switch databases (switch from production to testing)
 #   think about how to version a test db.
 # TODO Upon choosing a test database, a initialization will autofill with fake data.
-"""
+# TODO Fix this CLI implementation confusion.
+""" 
  there seems to be some confusion on how CLI are implemented.
 @click.command() coupled with @with_appcontext is for situation when the flask.cli built-in method is not used.
 @blueprint_name.cli.command() is the flask.cli built-in method.
@@ -29,7 +30,7 @@ Which is better, why does the latter work only if implemented by the formers met
 
 details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 
-"""  # TODO Fix this CLI implementation confusion.
+"""
 # TODO Post Image in DataBase
 #   if no image is provided randomly generate one (avatar & post alike)
 #   all should be deletable/editable. If on edit a image is deleted and no other is provided, generate a random one.
@@ -43,11 +44,12 @@ details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 # fixme Validation items should only be editable by an ADMIN or at least make sure that
 #   what should be unique stays unique
 # better-me get admin user by permission not by id "1" which just happens to be admin.
-
 # better-me Check coupling among all apps. There should be as little as possible functions with responsibilities outside
 #   their set scope.
-
 # TODO check what happens when URLs such as Update/Delete are accessed without an account and protect those views.
+# TODO add at template return level fail safe "or_404" functionality.
+# TODO Add Logging, Error Logging, Error Handlers, Exception Handlers and Custom Error Pages
+#   see: https://flask.palletsprojects.com/en/2.0.x/errorhandling/
 
 
 def create_app(test_config=None):

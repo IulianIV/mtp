@@ -5,7 +5,7 @@ from wtforms.fields import DateField
 from wtforms.fields import SubmitField, StringField, SelectField, TextAreaField
 from wtforms.validators import DataRequired
 
-from app.manager.protection import NoFutureDates, CheckForNumber
+from app.manager.helpers import NoFutureDates, CheckForNumber
 
 
 # fixme check all validators. Some Select Text Fields have "CheckForNumber()" validators that don't even do their job.

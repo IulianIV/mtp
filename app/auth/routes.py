@@ -8,7 +8,7 @@ from flask_login import login_user, current_user, logout_user
 from app.auth import bp
 from app.auth.forms import LoginForm, RegisterForm
 from app.manager.db.db_interrogations import *
-from app.manager.protection import form_validated_message, form_error_message
+from app.manager.helpers import form_validated_message, form_error_message
 
 
 @bp.route('/register', methods=('GET', 'POST'))

@@ -3,14 +3,14 @@ import random
 import click
 from faker import Faker
 from flask import (
-    redirect, render_template, request, url_for
+    redirect, render_template, request
 )
 from flask_login import current_user
 
 from app.auth.routes import login_required
 from app.manager import tests_bp
 from app.manager.db.db_interrogations import *
-from app.manager.protection import form_validated_message, form_error_message, check_range
+from app.manager.helpers import form_validated_message, form_error_message, check_range
 from app.manager.tests.forms import AddFakes
 from app.webtools.routes import encodings
 

@@ -9,7 +9,7 @@ from app.auth.routes import login_required
 from app.budget import bp
 from app.budget import forms
 from app.manager.db.db_interrogations import *
-from app.manager.protection import CustomCSRF, form_validated_message, form_error_message
+from app.manager.helpers import CustomCSRF, form_validated_message, form_error_message
 
 custom_protection = CustomCSRF()
 currency = CurrencyRates()
@@ -17,7 +17,6 @@ currency = CurrencyRates()
 
 # TODO format dates to a more user-friendly format
 # TODO Create a "transfer" view where you can initiate transfers between accounts - Spend -> saving and vice-versa.
-# TODO add a way to keep track of cards
 # TODO Make sure to add form_validation_error/success to all views.
 
 @bp.route('/')
@@ -136,7 +135,6 @@ def add_revenue_entry():
                            table_counts=table_counts)
 
 
-# TODO FIX Validation something is not right about validation fields.
 @bp.route('/new-savings-entry', methods=('GET', 'POST'))
 @login_required
 def add_savings_entry():
@@ -594,7 +592,7 @@ def add_utilities_entry():
 #   less cohesion can be made?
 #   2. Add a general function that handles addition/deletion more dynamically.
 #   i.e. eventually remove having 5 different "update" and "delete" functions for each budget entry.
-# TODO ad is_validated() and or is_submitted() conditional in IF clause.
+# TODO add is_validated() and/or is_submitted() conditional in IF clause.
 @bp.route('/utilities-update/<int:utility_id>', methods=('GET', 'POST'))
 @login_required
 def update_utilities_entry(utility_id):

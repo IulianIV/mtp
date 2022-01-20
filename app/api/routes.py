@@ -10,8 +10,6 @@ from app.manager.db.db_interrogations import *
 # fixme it is now basically inaccessible form the FE.
 #   accessing the /api/data URL with '?loc_path="{url_from_table_map_encoded}"' renders the page as it triggers and
 #   bypassing the functionality. Fix this.
-# better-me try to reduce cohesion of current function. A more dynamic if choice?
-#   anyhow, create an endpoint for utm-stats
 
 @bp.route('/data', methods=['GET'])
 def data():
@@ -41,8 +39,6 @@ def data():
             'sort_by': ['saving_date', 'saving_value'],
             'default_sort': 'saving_date'
         },
-        # better-me this seems so show the whole number of entries from the table, from all users.
-        #   filtering doesn't seem to help.
         '/budget/new-utilities-entry': {
             'table': BudgetUtilities,
             'query': BudgetUtilities.query.filter_by(user_id=current_user.get_id()),

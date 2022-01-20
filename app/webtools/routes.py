@@ -7,14 +7,13 @@ from flask import (
 
 from app.auth.routes import login_required
 from app.manager.db.db_interrogations import *
-from app.manager.protection import form_validated_message, form_error_message
+from app.manager.helpers import form_validated_message, form_error_message
 from app.webtools import bp, forms
 
 # TODO Add a UTM interpreter for in-database URLs and metric/statistics to that.
 #   can and should be located in the reporting & statistics app and here only have a link to it.
 # TODO automatically validate URLs as TRUE at column level "is_marketing" if it contains any UTM parameter.
 #   if is_marketing, split and send to UTM analyzer.
-# TODO add the foreign key functionality in here too
 
 encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', 'cp500', 'cp720', 'cp737', 'cp775',
              'cp850', 'cp852', 'cp855', 'cp856', 'cp857', 'cp858', 'cp860', 'cp861', 'cp862', 'cp863', 'cp864',
@@ -112,7 +111,7 @@ def url_encode_decode_parse():
 
 
 # TODO will check a URL, return its HTTP response, generate a preview, read and print OpenGraph data and preview it
-#   for multiple social media websites and print JSON-LD schema if present and the type fo structured data it holds.
+#   for multiple social media websites and print JSON-LD schema if present and the type of structured data it holds.
 @bp.route('/url-checker', methods=('GET', 'POST'))
 @login_required
 def url_checker():

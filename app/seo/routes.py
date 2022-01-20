@@ -1,7 +1,8 @@
 from flask import request, send_from_directory, render_template
-from app.seo import bp
+
 from app import current_app
 from app.auth.routes import login_required
+from app.seo import bp
 
 
 @bp.route('/robots.txt')
@@ -10,11 +11,11 @@ def static_from_root():
     return send_from_directory(current_app.static_folder, request.path[1:])
 
 
-@bp.route('/error/401', methods=('GET',))
+@bp.route('/error/401')
 @login_required
 def error_401():
     pass
-    return render_template('errors/401.html')
+    return render_template('errors/401.html'), 404
 
 
 @bp.route('/error/404', methods=('GET',))

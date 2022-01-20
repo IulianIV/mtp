@@ -10,7 +10,6 @@ DateTime = NewType('DateTime', datetime)
 current_month = datetime.now().month
 current_year = datetime.now().year
 
-# TODO Check all functions for possible DUPLICATES.
 # TODO Try to find a way to include them in more dynamic functions. Maybe circle back to classes in some cases?
 
 """
@@ -170,7 +169,7 @@ def get_validation_source(source_value: str):
 
 
 def get_expense_count(user_id: int):
-    return BudgetExpense.query.filter_by(user_id=user_id).count()
+    return BudgetRevenue.query.filter_by(user_id=user_id).count()
 
 
 def get_revenue_count(user_id: int):

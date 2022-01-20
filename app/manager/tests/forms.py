@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from app.manager.protection import CheckForNumber
 from wtforms.fields import SubmitField, TextAreaField, SelectField, BooleanField
 from wtforms.validators import DataRequired
+
+from app.manager.helpers import CheckForNumber
 
 
 class AddFakes(FlaskForm):

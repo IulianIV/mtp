@@ -25,7 +25,6 @@ def lifetime_expense():
     return render_template('analytics/analytics.html')
 
 
-# TODO add a utilities table too
 @bp.route('/budget-tables')
 def budget_tables():
 
