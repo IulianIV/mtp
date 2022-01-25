@@ -33,7 +33,7 @@
                 </div>
                 <div class="card-body" style="overflow-y: auto">
                     <h4 class="card-title">{{ post.title }}</h4>
-                    <p class="card-text">{{ post.body }}</p>
+                    <p class="card-text">{{ post.body | safe }}
                     <p class="card-text">by {{ author_name(post.author_id) }} on {{ post.created.strftime('%Y-%m-%d')
                         }}</p>
                 </div>
@@ -58,5 +58,4 @@
         {% endfor %}
     </div>
 </div>
-
 {% endblock %}
