@@ -5,13 +5,16 @@ from flask import url_for
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app import db
-from app import login
-
+from app import login, db
 
 # TODO Add permissions Table and migrate/upgrade
 # TODO add last_seen logic
 # TODO update ALL VARCHAR lengths. They are WAY too short now.
+
+user_id_fk = 'user.id'
+saving_sources_fk = 'saving_sources.sources'
+fe_date_format = '%Y-%m-%d'
+
 
 @login.user_loader
 def load_user(user_id):
@@ -33,7 +36,6 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     posts = db.relationship('Post', lazy='dynamic')
     last_seen = db.Column(db.DateTime, default=datetime.utcnow())
-    # permissions = db.Column(db.Integer, nullable=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -52,7 +54,7 @@ class User(UserMixin, db.Model):
 class UserProfile(db.Model):
     __tablename__ = 'user_profile'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(user_id_fk), nullable=False, unique=True)
     bio = db.Column(db.String(12), unique=False, nullable=True)
     avatar = db.Column(db.String(256), unique=False, nullable=True)
 
@@ -72,10 +74,10 @@ class Post(db.Model):
 class BudgetRevenue(db.Model):
     __tablename__ = 'budget_revenue'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey(user_id_fk))
     revenue_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     revenue_value = db.Column(db.Float, nullable=False)
-    revenue_source = db.Column(db.String(20), db.ForeignKey('saving_sources.sources'), nullable=False)
+    revenue_source = db.Column(db.String(20), db.ForeignKey(saving_sources_fk), nullable=False)
 
     def __repr__(self):
         return f'Budget revenue ID: {self.id}'
@@ -83,7 +85,7 @@ class BudgetRevenue(db.Model):
     def to_dict(self):
 
         entry_date = self.revenue_date
-        formatted_date = entry_date.strftime('%Y-%m-%d')
+        formatted_date = entry_date.strftime(fe_date_format)
 
         return {
             'id': self.id,
@@ -101,7 +103,7 @@ class BudgetRevenue(db.Model):
 class BudgetSaving(db.Model):
     __tablename__ = 'budget_saving'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey(user_id_fk))
     saving_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     saving_value = db.Column(db.Float, nullable=False)
     saving_source = db.Column(db.String(20), db.ForeignKey('savings_accounts.saving_accounts'), nullable=False,
@@ -117,7 +119,7 @@ class BudgetSaving(db.Model):
     def to_dict(self):
 
         entry_date = self.saving_date
-        formatted_date = entry_date.strftime('%Y-%m-%d')
+        formatted_date = entry_date.strftime(fe_date_format)
 
         return {
             'id': self.id,
@@ -137,13 +139,13 @@ class BudgetSaving(db.Model):
 class BudgetExpense(db.Model):
     __tablename__ = 'budget_expense'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey(user_id_fk))
     expense_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     expense_item = db.Column(db.String(20), db.ForeignKey('saving_items.items'), nullable=False)
     expense_value = db.Column(db.Float, nullable=False)
     expense_item_category = db.Column(db.String(20), db.ForeignKey('saving_categories.categories'),
                                       nullable=False)
-    expense_source = db.Column(db.String(20), db.ForeignKey('saving_sources.sources'), nullable=False)
+    expense_source = db.Column(db.String(20), db.ForeignKey(saving_sources_fk), nullable=False)
 
     def __repr__(self):
         return f'Budget expense ID: {self.id}'
@@ -151,7 +153,7 @@ class BudgetExpense(db.Model):
     def to_dict(self):
 
         entry_date = self.expense_date
-        formatted_date = entry_date.strftime('%Y-%m-%d')
+        formatted_date = entry_date.strftime(fe_date_format)
 
         return {
             'id': self.id,
@@ -171,14 +173,14 @@ class BudgetExpense(db.Model):
 class BudgetUtilities(db.Model):
     __tablename__ = 'budget_utilities'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey(user_id_fk))
     utilities_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     utilities_rent_value = db.Column(db.Float, nullable=False)
     utilities_energy_value = db.Column(db.Float, nullable=False)
     utilities_satellite_value = db.Column(db.Float, nullable=False)
     utilities_maintenance_value = db.Column(db.Float, nullable=False)
     utilities_info = db.Column(db.Text, nullable=False)
-    budget_source = db.Column(db.String(20), db.ForeignKey('saving_sources.sources'))
+    budget_source = db.Column(db.String(20), db.ForeignKey(saving_sources_fk))
 
     def __repr__(self):
         return f'Budget utilities id: {self.id}'
@@ -186,7 +188,7 @@ class BudgetUtilities(db.Model):
     def to_dict(self):
 
         entry_date = self.utilities_date
-        formatted_date = entry_date.strftime('%Y-%m-%d')
+        formatted_date = entry_date.strftime(fe_date_format)
 
         return {
             'id': self.id,
@@ -272,7 +274,7 @@ class ValidationSavingSources(db.Model):
 class UrlEncodeDecodeParse(db.Model):
     __tablename__ = 'url_encode_decode_parse'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey(user_id_fk))
     url_date = db.Column(db.Date, index=True, nullable=False, default=datetime.utcnow)
     raw_url = db.Column(db.String(1000), nullable=False)
     encode_option = db.Column(db.String(10))

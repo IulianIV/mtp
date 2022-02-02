@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+
 from flask import current_app
 
 # has-dependency to-be deprecated file. Useful for generating graphs. Now they are implemented

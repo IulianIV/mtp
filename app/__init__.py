@@ -50,6 +50,8 @@ details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 # TODO add at template return level fail safe "or_404" functionality.
 # TODO Add Logging, Error Logging, Error Handlers, Exception Handlers and Custom Error Pages
 #   see: https://flask.palletsprojects.com/en/2.0.x/errorhandling/
+# TODO Split JS scripts and only add them where needed.
+#   e.g.: the Blog view does not need to load the d3.js script
 
 
 def create_app(test_config=None):
@@ -102,9 +104,6 @@ def create_app(test_config=None):
 
     from app.seo import bp as seo_bp
     app.register_blueprint(seo_bp)
-
-    # from app.dataflow import bp as dataflow_bp
-    # app.register_blueprint(dataflow_bp)
 
     from app.webtools import bp as webtools_bp
     app.register_blueprint(webtools_bp)
