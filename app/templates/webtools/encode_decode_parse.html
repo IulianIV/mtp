@@ -1,146 +1,149 @@
 {% extends 'base.html' %}
 
 {% block meta %}
-<meta charset="utf-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-<meta name="description" content=""/>
-<meta name="author" content=""/>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
 
-{% block title %}
-<title>MTP | Web App</title>
-{% endblock %}
+    {% block title %}
+        <title>MTP | Web App</title>
+    {% endblock %}
 
 {% endblock %}
 
 {% block content %}
-<div id="layoutAuthentication">
-    <div id="layoutAuthentication_content">
-        <main>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-5">
-                        <div class="card shadow-lg border-0 rounded-lg mt-5">
-                            <div class="card-header"><h3 class="text-center font-weight-light my-4">Decode/Encode
-                                URL</h3>
-                            </div>
-                            <div class="card-body">
-                                <form id="url-coder-parser-form" action="{{ url_for('webtools.url_encode_decode_parse') }}"
-                                      method="post">
-                                    {{ coder_parser_form.hidden_tag() }}
-                                    <div class="form-group">
-                                        {{ coder_parser_form.url_field.label(class='form-check-label') }}
-                                        {{ coder_parser_form.url_field(form='url-coder-parser-form', class='form-control py-4') }}
-                                    </div>
-                                    <div class="form-check">
-                                        {{ coder_parser_form.encode(form='url-coder-parser-form', class='small mb-1') }}
-                                        {{ coder_parser_form.encode.label(class='form-check-label') }}
-                                    </div>
-                                    <div class="form-check">
-                                        {{ coder_parser_form.decode(form='url-coder-parser-form', class='small mb-1') }}
-                                        {{ coder_parser_form.decode.label(class='form-check-label') }}
-                                    </div>
-                                    <div class="form-group">
-                                        {{ coder_parser_form.select_encoding.label(form='url-coder-parser-form',
-                                        class='form-check-label') }}
-                                        {{ coder_parser_form.select_encoding(for="url-coder-parser-form", class="form-select
-                                        form-select-sm") }}
-                                    </div>
-                                    {{ coder_parser_form.encode_decode(form='url-coder-parser-form', class='btn btn-primary') }}
-                                    {{ coder_parser_form.parse(form='url-coder-parser-form', class='btn btn-primary') }}
-                                    <a class="btn btn-danger"
-                                       href="{{ url_for('webtools.url_encode_decode_parse') }}">Cancel</a>
-                                </form>
-                                {% if result_url %}
-                                <div class="form-group">
-                                    <strong><label>Result URL</label></strong>
-                                    <textarea class="form-control" rows="3">{{ result_url }}</textarea>
+    <div id="layoutAuthentication">
+        <div id="layoutAuthentication_content">
+            <main>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-5">
+                            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                <div class="card-header"><h3 class="text-center font-weight-light my-4" id="parser">
+                                    Decode/Encode
+                                    URL</h3>
                                 </div>
-                                {% endif %}
+                                <div class="card-body">
+                                    <form id="url-coder-parser-form"
+                                          action="{{ url_for('webtools.url_encode_decode_parse') }}"
+                                          method="post">
+                                        {{ coder_parser_form.hidden_tag() }}
+                                        <div class="form-group">
+                                            {{ coder_parser_form.url_field.label(class='form-check-label') }}
+                                            {{ coder_parser_form.url_field(form='url-coder-parser-form', class='form-control py-4') }}
+                                        </div>
+                                        <div class="form-check">
+                                            {{ coder_parser_form.encode(form='url-coder-parser-form', class='small mb-1') }}
+                                            {{ coder_parser_form.encode.label(class='form-check-label') }}
+                                        </div>
+                                        <div class="form-check">
+                                            {{ coder_parser_form.decode(form='url-coder-parser-form', class='small mb-1') }}
+                                            {{ coder_parser_form.decode.label(class='form-check-label') }}
+                                        </div>
+                                        <div class="form-group">
+                                            {{ coder_parser_form.select_encoding.label(form='url-coder-parser-form',
+                                        class='form-check-label') }}
+                                            {{ coder_parser_form.select_encoding(for="url-coder-parser-form", class="form-select
+                                        form-select-sm") }}
+                                        </div>
+                                        {{ coder_parser_form.encode_decode(form='url-coder-parser-form', class='btn btn-primary') }}
+                                        {{ coder_parser_form.parse(form='url-coder-parser-form', class='btn btn-primary') }}
+                                        <a class="btn btn-danger"
+                                           href="{{ url_for('webtools.url_encode_decode_parse') }}">Cancel</a>
+                                    </form>
+                                    {% if result_url %}
+                                        <div class="form-group">
+                                            <strong><label for="url-coder-parser-form">Result URL</label></strong>
+                                            <textarea id="url-coder-parser-form" class="form-control"
+                                                      rows="3">{{ result_url }}</textarea>
+                                        </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
-    </div>
-</div>
-{% if parsed_url[0] != '' %}
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="url-parts" width="100%" cellspacing="0">
-                <thead>
-                <tr>
-                    <th colspan="2">URL Parts</th>
-                </tr>
-                </thead>
-                <tbody class="post">
-                <tr>
-                    <td class="small mb-1"><strong>Scheme:</strong></td>
-                    <td class="small mb-1">{{ parsed_url[0].scheme }}</td>
-                </tr>
-                <tr>
-                    <td class="small mb-1"><strong>Netloc:</strong></td>
-                    <td class="small mb-1">{{ parsed_url[0].netloc }}</td>
-                </tr>
-                <tr>
-                    <td class="small mb-1"><strong>Path:</strong></td>
-                    <td class="small mb-1">{{ parsed_url[0].path }}</td>
-                </tr>
-                <tr>
-                    <td class="small mb-1"><strong>Params:</strong></td>
-                    <td class="small mb-1">{{ parsed_url[0].params }}</td>
-                </tr>
-                <tr>
-                    <td class="small mb-1"><strong>Fragment:</strong></td>
-                    <td class="small mb-1">{{ parsed_url[0].fragment }}</td>
-                </tr>
-                <tr>
-                    <td class="small mb-1"><strong>Username:</strong></td>
-                    <td class="small mb-1">{{ parsed_url[0].username }}</td>
-                </tr>
-                <tr>
-                    <td class="small mb-1"><strong>Password:</strong></td>
-                    <td class="small mb-1">{{ parsed_url[0].password }}</td>
-                </tr>
-                <tr>
-                    <td class="small mb-1"><strong>Port:</strong></td>
-                    <td class="small mb-1">{{ parsed_url[0].port }}</td>
-                </tr>
-                <tr>
-                    <td class="small mb-1"><strong>URL parameters (encoded):</strong></td>
-                    <td class="small mb-1">{{ parsed_url[0].query }}</td>
-                </tr>
-                </tbody>
-            </table>
+            </main>
         </div>
-        {% if parsed_url[1] != '' %}
-        <div class="table-responsive">
-            <table class="table table-bordered" id="url-parameters" width="100%" cellspacing="0">
-                <thead>
-                <tr>
-                    <th colspan="2">URL Parameters Splitter</th>
-                </tr>
-                </thead>
-                <tbody class="post">
-                <tr>
-                    <td class="small mb-1"><strong>URL Parameters (decoded):</strong></td>
-                    <td class="small mb-1">{{ parsed_url[1] }}</td>
+    </div>
+    {% if parsed_url[0] != '' %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="url-parts" aria-describedby="parser">
+                        <thead>
+                        <tr>
+                            <th colspan="2" scope="colgroup">URL Parts</th>
+                        </tr>
+                        </thead>
+                        <tbody class="post">
+                        <tr>
+                            <td class="small mb-1"><strong>Scheme:</strong></td>
+                            <td class="small mb-1">{{ parsed_url[0].scheme }}</td>
+                        </tr>
+                        <tr>
+                            <td class="small mb-1"><strong>Netloc:</strong></td>
+                            <td class="small mb-1">{{ parsed_url[0].netloc }}</td>
+                        </tr>
+                        <tr>
+                            <td class="small mb-1"><strong>Path:</strong></td>
+                            <td class="small mb-1">{{ parsed_url[0].path }}</td>
+                        </tr>
+                        <tr>
+                            <td class="small mb-1"><strong>Params:</strong></td>
+                            <td class="small mb-1">{{ parsed_url[0].params }}</td>
+                        </tr>
+                        <tr>
+                            <td class="small mb-1"><strong>Fragment:</strong></td>
+                            <td class="small mb-1">{{ parsed_url[0].fragment }}</td>
+                        </tr>
+                        <tr>
+                            <td class="small mb-1"><strong>Username:</strong></td>
+                            <td class="small mb-1">{{ parsed_url[0].username }}</td>
+                        </tr>
+                        <tr>
+                            <td class="small mb-1"><strong>Password:</strong></td>
+                            <td class="small mb-1">{{ parsed_url[0].password }}</td>
+                        </tr>
+                        <tr>
+                            <td class="small mb-1"><strong>Port:</strong></td>
+                            <td class="small mb-1">{{ parsed_url[0].port }}</td>
+                        </tr>
+                        <tr>
+                            <td class="small mb-1"><strong>URL parameters (encoded):</strong></td>
+                            <td class="small mb-1">{{ parsed_url[0].query }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                {% if parsed_url[1] != '' %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="url-parameters" aria-describedby="parser">
+                            <thead>
+                            <tr>
+                                <th colspan="2" scope="colgroup">URL Parameters Splitter</th>
+                            </tr>
+                            </thead>
+                            <tbody class="post">
+                            <tr>
+                                <td class="small mb-1"><strong>URL Parameters (decoded):</strong></td>
+                                <td class="small mb-1">{{ parsed_url[1] }}</td>
 
-                {% for parameter, values in parsed_url[2].items() %}
-                <tr>
-                    <td class="small mb-1"><strong>{{ parameter }}</strong></td>
-                    {% for value in values %}
-                    <td class="small mb-1">{{ value }}</td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                                {% for parameter, values in parsed_url[2].items() %}
+                                    <tr>
+                                        <td class="small mb-1"><strong>{{ parameter }}</strong></td>
+                                        {% for value in values %}
+                                            <td class="small mb-1">{{ value }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-        {% endif %}
-    </div>
-</div>
-{% endif %}
+    {% endif %}
 {% endblock %}

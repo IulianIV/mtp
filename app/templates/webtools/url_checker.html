@@ -1,53 +1,55 @@
 {% extends 'base.html' %}
 
 {% block meta %}
-<meta charset="utf-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-<meta name="description" content=""/>
-<meta name="author" content=""/>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
 
-{% block title %}
-<title>MTP | Web App</title>
-{% endblock %}
+    {% block title %}
+        <title>MTP | Web App</title>
+    {% endblock %}
 
 {% endblock %}
 
 {% block content %}
-<div id="layoutAuthentication">
-    <div id="layoutAuthentication_content">
-        <main>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-5">
-                        <div class="card shadow-lg border-0 rounded-lg mt-5">
-                            <div class="card-header"><h3 class="text-center font-weight-light my-4">Decode/Encode
-                                URL</h3>
-                            </div>
-                            <div class="card-body">
-                                <form id="url-coder-parser-form" action="{{ url_for('webtools.url_encode_decode_parse') }}"
-                                      method="post">
+    <div id="layoutAuthentication">
+        <div id="layoutAuthentication_content">
+            <main>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-5">
+                            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                <div class="card-header"><h3 class="text-center font-weight-light my-4">Decode/Encode
+                                    URL</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form id="url-coder-parser-form"
+                                          action="{{ url_for('webtools.url_encode_decode_parse') }}"
+                                          method="post">
 
+                                        <div class="form-group">
+                                            <label class="form-check-label"> URl Field Label </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <label class="form-check-label"> URl Preview Choice </label>
+                                        </div>
+                                        <label class="form-check-label"> URl Check Button </label>
+                                        <a class="btn btn-danger"
+                                           href="{{ url_for('webtools.url_checker') }}">Cancel</a>
+                                    </form>
                                     <div class="form-group">
-                                        <label class="form-check-label"> URl Field Label </label>
+                                        <strong><label for="url-coder-parser-form">Preview Group</label></strong>
+                                        <textarea id="url-coder-parser-form" class="form-control"
+                                                  rows="3">Preview</textarea>
                                     </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label"> URl Preview Choice </label>
-                                    </div>
-                                    <label class="form-check-label"> URl Check Button </label>
-                                    <a class="btn btn-danger"
-                                       href="{{ url_for('webtools.url_checker') }}">Cancel</a>
-                                </form>
-                                <div class="form-group">
-                                    <strong><label>Preview Group</label></strong>
-                                    <textarea class="form-control" rows="3">Preview</textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
-</div>
 {% endblock %}

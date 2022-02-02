@@ -2,28 +2,39 @@
 
 {% block budget_data %}
 <div class="card mb-4">
-    <div class="card-header">
-        <i class="fas fa-table mr-1"></i>
+    <div class="card-header" id="entries-descriptor">
         Validation Entries
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <table class="table table-bordered" id="dataTable" aria-describedby="entries-descriptor">
                 <thead>
                 <tr>
-                    <th>Items</th>
-                    <th>Categories</th>
-                    <th>Sources</th>
-                    <th>Accounts</th>
-                    <th>Actions</th>
-                    <th>Reason</th>
+                    <th scope="col">
+                        <label for="items">Items</label>
+                    </th>
+                    <th scope="col">
+                        <label for="categories">Categories</label>
+                    </th>
+                    <th scope="col">
+                        <label for="sources">Sources</label>
+                    </th>
+                    <th scope="col">
+                        <label for="accounts">Accounts</label>
+                    </th>
+                    <th scope="col">
+                        <label for="actions">Actions</label>
+                    </th>
+                    <th scope="col">
+                        <label for="reason">Reason</label>
+                    </th>
                 </tr>
                 </thead>
 
                 <tbody>
                 <tr>
                     <td>
-                        <select class="form-select py-1">
+                        <select name="items" id="items" class="form-select py-1">
                             {% for item in validation_entries['validation_items'] %}
                             <option>
                                 {{ item['items'] }}
@@ -32,7 +43,7 @@
                         </select>
                     </td>
                     <td>
-                        <select class="form-select py-1">
+                        <select name="categories" id="categories" class="form-select py-1">
                             {% for category in validation_entries['validation_categories'] %}
                             <option>
                                 {{ category['categories'] }}
@@ -41,7 +52,7 @@
                         </select>
                     </td>
                     <td>
-                        <select class="form-select py-1">
+                        <select name="sources" id="sources" class="form-select py-1">
                             {% for source in validation_entries['validation_sources'] %}
                             <option>
                                 {{ source['sources'] }}
@@ -50,7 +61,7 @@
                         </select>
                     </td>
                      <td>
-                        <select class="form-select py-1">
+                        <select name="accounts" id="accounts" class="form-select py-1">
                             {% for account in validation_entries['validation_accounts'] %}
                             <option>
                                 {{ account['saving_accounts'] }}
@@ -59,7 +70,7 @@
                         </select>
                     </td>
                     <td>
-                        <select class="form-select py-1">
+                        <select name="actions" id="actions" class="form-select py-1">
                             {% for action in validation_entries['validation_action_types'] %}
                             <option>
                                 {{ action['saving_action_type'] }}
@@ -69,7 +80,7 @@
 
                     </td>
                     <td>
-                        <select class="form-select py-1">
+                        <select name="reason" id="reason" class="form-select py-1">
                             {% for reason in validation_entries['validation_reasons'] %}
                             <option>
                                 {{ reason['saving_reason'] }}
@@ -91,7 +102,7 @@
                     <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
-                                <h3 class="text-center font-weight-light my-4">
+                                <h3 class="text-center font-weight-light my-4" id="item-validation-descriptor">
                                     Add new Item validation entry
                                 </h3>
                             </div>
@@ -100,24 +111,23 @@
                                       method="post">
                                     {{ categories_form.hidden_tag() }}
                                     <div class="table-responsive">
-                                        <table class="table table-bordered" id="dataTable-1" width="100%"
-                                               cellspacing="0">
+                                        <table class="table table-bordered" id="dataTable-1" aria-describedby="item-validation-descriptor">
                                             <thead>
                                             <tr>
-                                                <th style="font-weight= bold;">
-                                                    {{ items_form.item_value.label(for='savings-form') }}
+                                                <th style="font-weight: bold;" scope="col">
+                                                    {{ items_form.item_value.label(for='items-form') }}
                                                 </th>
-                                                <th>
-                                                    {{ items_form.category_value.label(for='savings-form') }}
+                                                <th scope="col">
+                                                    {{ items_form.category_value.label(for='items-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
-                                                <th>
+                                                <th scope="row">
                                                     {{ items_form.item_value(form='items-form', class='form-control py-4', placeholder="Ex.: Books") }}
                                                 </th>
-                                                <th>
+                                                <th scope="row">
                                                     {{ items_form.category_value(form='items-form', class='form-select py-4') }}
                                                 </th>
                                             </tr>
@@ -133,7 +143,7 @@
                     <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
-                                <h3 class="text-center font-weight-light my-4">
+                                <h3 class="text-center font-weight-light my-4" id="category-validation-descriptor">
                                     Add new Category validation entry
                                 </h3>
                             </div>
@@ -142,18 +152,17 @@
                                       method="post">
                                     {{ categories_form.hidden_tag() }}
                                     <div class="table-responsive">
-                                        <table class="table table-bordered" id="dataTable-2" width="100%"
-                                               cellspacing="0">
+                                        <table class="table table-bordered" id="dataTable-2" aria-describedby="category-validation-descriptor">
                                             <thead>
                                             <tr>
-                                                <th>
+                                                <th scope="col">
                                                     {{ categories_form.category_value.label(for='categories-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
-                                                <th>
+                                                <th scope="row">
                                                     {{ categories_form.category_value(form='categories-form',
                                                     class="form-control py-4", placeholder="Ex.: Shopping") }}
                                                 </th>
@@ -170,7 +179,7 @@
                     <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
-                                <h3 class="text-center font-weight-light my-4">
+                                <h3 class="text-center font-weight-light my-4" id="sources-validation-descriptor">
                                     Add new Sources validation entry
                                 </h3>
                             </div>
@@ -179,18 +188,17 @@
                                       method="post">
                                     {{ sources_form.hidden_tag() }}
                                     <div class="table-responsive">
-                                        <table class="table table-bordered" id="dataTable-3" width="100%"
-                                               cellspacing="0">
+                                        <table class="table table-bordered" id="dataTable-3" aria-describedby="sources-validation-descriptor">
                                             <thead>
                                             <tr>
-                                                <th style="font-weight= bold;">
+                                                <th style="font-weight: bold;" scope="col">
                                                     {{ sources_form.source_value.label(for='sources-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
-                                                <th>
+                                                <th scope="row">
                                                     {{ sources_form.source_value(form='sources-form',
                                                     class="form-control py-4", placeholder="Ex.: Savings EC") }}
                                                 </th>
@@ -207,7 +215,7 @@
                     <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
-                                <h3 class="text-center font-weight-light my-4">
+                                <h3 class="text-center font-weight-light my-4" id="accounts-validation-descriptor">
                                     Add new Accounts validation entry
                                 </h3>
                             </div>
@@ -216,18 +224,17 @@
                                       method="post">
                                     {{ accounts_form.hidden_tag() }}
                                     <div class="table-responsive">
-                                        <table class="table table-bordered" id="dataTable-4" width="100%"
-                                               cellspacing="0">
+                                        <table class="table table-bordered" id="dataTable-4" aria-describedby="accounts-validation-descriptor">
                                             <thead>
                                             <tr>
-                                                <th style="font-weight= bold;">
+                                                <th style="font-weight: bold;" scope="col">
                                                     {{ accounts_form.account_value.label(for='accounts-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
-                                                <th>
+                                                <th scope="row">
                                                     {{ accounts_form.account_value(form='accounts-form',
                                                     class="form-control py-4", placeholder="Ex.: EC") }}
                                                 </th>
@@ -244,7 +251,7 @@
                     <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
-                                <h3 class="text-center font-weight-light my-4">
+                                <h3 class="text-center font-weight-light my-4" id="actions-validation-descriptor">
                                     Add new Actions validation entry
                                 </h3>
                             </div>
@@ -253,18 +260,17 @@
                                       method="post">
                                     {{ actions_form.hidden_tag() }}
                                     <div class="table-responsive">
-                                        <table class="table table-bordered" id="dataTable-5" width="100%"
-                                               cellspacing="0">
+                                        <table class="table table-bordered" id="dataTable-5" aria-describedby="actions-validation-descriptor">
                                             <thead>
                                             <tr>
-                                                <th style="font-weight= bold;">
+                                                <th style="font-weight: bold;" scope="col">
                                                     {{ actions_form.action_value.label(for='actions-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
-                                                <th>
+                                                <th scope="row">
                                                     {{ actions_form.action_value(form='actions-form',
                                                     class="form-control py-4", placeholder="Ex.: Deposit") }}
                                                 </th>
@@ -281,7 +287,7 @@
                     <div class="col-bdgt-1-valid">
                         <div class="card shadow-lg border-0 rounded-lg mt-5">
                             <div class="card-header">
-                                <h3 class="text-center font-weight-light my-4">
+                                <h3 class="text-center font-weight-light my-4" id="reason-validation-descriptor">
                                     Add new Reason validation entry
                                 </h3>
                             </div>
@@ -290,18 +296,17 @@
                                       method="post">
                                     {{ reasons_form.hidden_tag() }}
                                     <div class="table-responsive">
-                                        <table class="table table-bordered" id="dataTable-6" width="100%"
-                                               cellspacing="0">
+                                        <table class="table table-bordered" id="dataTable-6" aria-describedby="reason-validation-descriptor">
                                             <thead>
                                             <tr>
-                                                <th style="font-weight= bold;">
+                                                <th style="font-weight: bold;" scope="col">
                                                     {{ reasons_form.reason_value.label(for='actions-form') }}
                                                 </th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr>
-                                                <th>
+                                                <th scope="row">
                                                     {{ reasons_form.reason_value(form='reasons-form',
                                                     class="form-control py-4", placeholder="Ex.: Charity") }}
                                                 </th>

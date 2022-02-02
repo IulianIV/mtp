@@ -1,167 +1,163 @@
 {% extends 'base.html' %}
 
 {% block meta %}
-<meta charset="utf-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-<meta name="description" content=""/>
-<meta name="author" content=""/>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
 
-{% block title %}
-<title>MTP | Web App</title>
-{% endblock %}
+    {% block title %}
+        <title>MTP | Web App</title>
+    {% endblock %}
 
 {% endblock %}
 
 {% block content %}
-<div class="card mb-4">
-    <div class="card-header">
-        <i class="fas fa-table mr-1"></i>
-        Expense - {{ table_counts.get('expense_count') }} entries
-        <a class="btn btn-info showTableExpense">Show table</a>
-        <a class="btn btn-secondary hideTableExpense" style="display: none;">Hide Table</a>
-    </div>
-    <div class="card-body expense" style="display: none;">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="summary-expense-table" width="100%" cellspacing="0">
-                <thead>
-                <tr>
-                    <th>id</th>
-                    <th>Expense Date</th>
-                    <th>Expense Item</th>
-                    <th>Expense Value</th>
-                    <th>Expense Category</th>
-                    <th>Expense Source</th>
-                </tr>
-                </thead>
-                <tbody class="post">
-                {% for entry in budget_queries['expense_entries'] %}
-                <tr>
-                    <th class="small mb-1">{{ entry['id'] }}</th>
-                    <th class="small mb-1">{{ entry['expense_date'] }}</th>
-                    <th class="small mb-1">{{ entry['expense_item'] }}</th>
-                    <th class="small mb-1">{{ entry['expense_value'] }}</th>
-                    <th class="small mb-1">{{ entry['expense_item_category'] }}</th>
-                    <th class="small mb-1">{{ entry['expense_source'] }}</th>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="card mb-4">
+        <div class="card-header" id="expense">
+            Expense - {{ table_counts.get('expense_count') }} entries
+            <a class="btn btn-info showTableExpense">Show table</a>
+            <a class="btn btn-secondary hideTableExpense" style="display: none;">Hide Table</a>
+        </div>
+        <div class="card-body expense" style="display: none;">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="summary-expense-table" aria-describedby="expense">
+                    <thead>
+                    <tr>
+                        <th scope="col">id</th>
+                        <th scope="col">Expense Date</th>
+                        <th scope="col">Expense Item</th>
+                        <th scope="col">Expense Value</th>
+                        <th scope="col">Expense Category</th>
+                        <th scope="col">Expense Source</th>
+                    </tr>
+                    </thead>
+                    <tbody class="post">
+                    {% for entry in budget_queries['expense_entries'] %}
+                        <tr>
+                            <th class="small mb-1" scope="row">{{ entry['id'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['expense_date'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['expense_item'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['expense_value'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['expense_item_category'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['expense_source'] }}</th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-<div class="card mb-4">
-    <div class="card-header">
-        <i class="fas fa-table mr-1"></i>
-        Revenue - {{ table_counts.get('revenue_count') }} entries
-        <a class="btn btn-info showTableRevenue">Show table</a>
-        <a class="btn btn-secondary hideTableRevenue" style="display: none;">Hide Table</a>
-    </div>
-    <div class="card-body revenue" style="display: none;">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="summary-revenue-table" width="100%" cellspacing="0">
-                <thead>
-                <tr>
-                    <th>id</th>
-                    <th>Revenue Date</th>
-                    <th>Revenue Value</th>
-                    <th>Revenue Source</th>
-                </tr>
-                </thead>
-                <tbody class="post">
-                {% for entry in budget_queries['revenue_entries'] %}
-                <tr>
-                    <th class="small mb-1">{{ entry['id'] }}</th>
-                    <th class="small mb-1">{{ entry['revenue_date'] }}</th>
-                    <th class="small mb-1">{{ entry['revenue_value'] }}</th>
-                    <th class="small mb-1">{{ entry['revenue_source'] }}</th>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="card mb-4">
+        <div class="card-header" id="revenue">
+            Revenue - {{ table_counts.get('revenue_count') }} entries
+            <a class="btn btn-info showTableRevenue">Show table</a>
+            <a class="btn btn-secondary hideTableRevenue" style="display: none;">Hide Table</a>
+        </div>
+        <div class="card-body revenue" style="display: none;">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="summary-revenue-table" aria-describedby="revenue">
+                    <thead>
+                    <tr>
+                        <th scope="col">id</th>
+                        <th scope="col">Revenue Date</th>
+                        <th scope="col">Revenue Value</th>
+                        <th scope="col">Revenue Source</th>
+                    </tr>
+                    </thead>
+                    <tbody class="post">
+                    {% for entry in budget_queries['revenue_entries'] %}
+                        <tr>
+                            <th class="small mb-1" scope="row">{{ entry['id'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['revenue_date'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['revenue_value'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['revenue_source'] }}</th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-<div class="card mb-4">
-    <div class="card-header">
-        <i class="fas fa-table mr-1"></i>
-        Savings - {{ table_counts.get('savings_count') }} entries
-        <a class="btn btn-info showTableSavings">Show table</a>
-        <a class="btn btn-secondary hideTableSavings" style="display: none;">Hide Table</a>
-    </div>
-    <div class="card-body savings" style="display: none;">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="summary-savings-table" width="100%" cellspacing="0">
-                <thead>
-                <tr>
-                    <th>id</th>
-                    <th>Savings Date</th>
-                    <th>Savings Value</th>
-                    <th>Savings Source</th>
-                    <th>Savings Reason</th>
-                    <th>Savings Action</th>
-                </tr>
-                </thead>
-                <tbody class="post">
-                {% for entry in budget_queries['savings_entries'] %}
-                <tr>
-                    <th class="small mb-1">{{ entry['id'] }}</th>
-                    <th class="small mb-1">{{ entry['saving_date'] }}</th>
-                    <th class="small mb-1">{{ entry['saving_value'] }}</th>
-                    <th class="small mb-1">{{ entry['saving_source'] }}</th>
-                    <th class="small mb-1">{{ entry['saving_reason'] }}</th>
-                    <th class="small mb-1">{{ entry['saving_action'] }}</th>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="card mb-4">
+        <div class="card-header" id="savings">
+            Savings - {{ table_counts.get('savings_count') }} entries
+            <a class="btn btn-info showTableSavings">Show table</a>
+            <a class="btn btn-secondary hideTableSavings" style="display: none;">Hide Table</a>
+        </div>
+        <div class="card-body savings" style="display: none;">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="summary-savings-table" aria-describedby="savings">
+                    <thead>
+                    <tr>
+                        <th scope="col">id</th>
+                        <th scope="col">Savings Date</th>
+                        <th scope="col">Savings Value</th>
+                        <th scope="col">Savings Source</th>
+                        <th scope="col">Savings Reason</th>
+                        <th scope="col">Savings Action</th>
+                    </tr>
+                    </thead>
+                    <tbody class="post">
+                    {% for entry in budget_queries['savings_entries'] %}
+                        <tr>
+                            <th class="small mb-1" scope="row">{{ entry['id'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['saving_date'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['saving_value'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['saving_source'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['saving_reason'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['saving_action'] }}</th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-<div class="card mb-4">
-    <div class="card-header">
-        <i class="fas fa-table mr-1"></i>
-        Utilities - {{ table_counts.get('utilities_count') }} entries
-        <a class="btn btn-info showTableUtilities">Show table</a>
-        <a class="btn btn-secondary hideTableUtilities" style="display: none;">Hide Table</a>
-    </div>
-    <div class="card-body utilities" style="display: none;">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="summary-utilities-table" width="100%" cellspacing="0">
-                <thead>
-                <tr>
-                    <th>id</th>
-                    <th>Utilities Date</th>
-                    <th>Utilities Rent Value</th>
-                    <th>Utilities Energy Value</th>
-                    <th>Utilities Satellite Value</th>
-                    <th>Utilities Maintenance Value</th>
-                    <th>Utilities Info</th>
-                    <th>Utilities Source</th>
-                </tr>
-                </thead>
-                <tbody class="post">
-                {% for entry in budget_queries['utilities_entries'] %}
-                <tr>
-                    <th class="small mb-1">{{ entry['id'] }}</th>
-                    <th class="small mb-1">{{ entry['utilities_date'] }}</th>
-                    <th class="small mb-1">{{ entry['utilities_rent_value'] }}</th>
-                    <th class="small mb-1">{{ entry['utilities_energy_value'] }}</th>
-                    <th class="small mb-1">{{ entry['utilities_satellite_value'] }}</th>
-                    <th class="small mb-1">{{ entry['utilities_maintenance_value'] }}</th>
-                    <th class="small mb-1">{{ entry['utilities_info'] }}</th>
-                    <th class="small mb-1">{{ entry['budget_source'] }}</th>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="card mb-4">
+        <div class="card-header" id="utilities">
+            Utilities - {{ table_counts.get('utilities_count') }} entries
+            <a class="btn btn-info showTableUtilities">Show table</a>
+            <a class="btn btn-secondary hideTableUtilities" style="display: none;">Hide Table</a>
         </div>
+        <div class="card-body utilities" style="display: none;">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="summary-utilities-table" aria-describedby="utilities">
+                    <thead>
+                    <tr>
+                        <th scope="col">id</th>
+                        <th scope="col">Utilities Date</th>
+                        <th scope="col">Utilities Rent Value</th>
+                        <th scope="col">Utilities Energy Value</th>
+                        <th scope="col">Utilities Satellite Value</th>
+                        <th scope="col">Utilities Maintenance Value</th>
+                        <th scope="col">Utilities Info</th>
+                        <th scope="col">Utilities Source</th>
+                    </tr>
+                    </thead>
+                    <tbody class="post">
+                    {% for entry in budget_queries['utilities_entries'] %}
+                        <tr>
+                            <th class="small mb-1" scope="row">{{ entry['id'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['utilities_date'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['utilities_rent_value'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['utilities_energy_value'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['utilities_satellite_value'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['utilities_maintenance_value'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['utilities_info'] }}</th>
+                            <th class="small mb-1" scope="row">{{ entry['budget_source'] }}</th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
+        </div>
     </div>
-</div>
 
-{% block scripts %}
-<script type="text/javascript" src="{{ url_for('static', filename='js/tables.js') }}"></script>
-{% endblock %}
+    {% block scripts %}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/tables.js') }}"></script>
+    {% endblock %}
 
 {% endblock %}

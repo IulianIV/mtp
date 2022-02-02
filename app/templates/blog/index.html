@@ -1,61 +1,61 @@
 {% extends 'base.html' %}
 
 {% block meta %}
-<!--suppress GrazieInspection -->
-<meta charset="utf-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-<meta name="description" content=""/>
-<meta name="author" content=""/>
+    <!--suppress GrazieInspection -->
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
 
-{% block title %}
-<title>MTP | Web App</title>
-{% endblock %}
+    {% block title %}
+        <title>MTP | Web App</title>
+    {% endblock %}
 
 {% endblock %}
 
 {% block content %}
-<div class="container-for-posts">
-    <div class="row pt-5-for-posts m-auto">
-        {% for post in posts %}
-        <div class="col-md-6 col-lg-4 pb-3">
-            <div class="card card-custom bg-white border-white border-0" style="height: 450px">
-                <div class="card-custom-img"
-                     style="background-image: url(http://res.cloudinary.com/d3/image/upload/c_scale,q_auto:good,w_1110/trianglify-v1-cs85g_cc5d2i.jpg);"></div>
-                <div class="card-custom-avatar">
-                    {% if not current_user.is_anonymous %}
-                    <img class="img-fluid" src="{{ user(post.author_id).avatar(200) }}" alt="Avatar"/>
-                    {% else %}
-                    <img class="img-fluid"
-                         src="http://res.cloudinary.com/d3/image/upload/c_pad,g_center,h_200,q_auto:eco,w_200/bootstrap-logo_u3c8dx.jpg"
-                         alt="Avatar"/>
-                    {% endif %}
+    <div class="container-for-posts">
+        <div class="row pt-5-for-posts m-auto">
+            {% for post in posts %}
+                <div class="col-md-6 col-lg-4 pb-3">
+                    <div class="card card-custom bg-white border-white border-0" style="height: 450px">
+                        <div class="card-custom-img"
+                             style="background-image: url(https://res.cloudinary.com/d3/image/upload/c_scale,q_auto:good,w_1110/trianglify-v1-cs85g_cc5d2i.jpg);"></div>
+                        <div class="card-custom-avatar">
+                            {% if not current_user.is_anonymous %}
+                                <img class="img-fluid" src="{{ user(post.author_id).avatar(200) }}" alt="Avatar"/>
+                            {% else %}
+                                <img class="img-fluid"
+                                     src="https://res.cloudinary.com/d3/image/upload/c_pad,g_center,h_200,q_auto:eco,w_200/bootstrap-logo_u3c8dx.jpg"
+                                     alt="Avatar"/>
+                            {% endif %}
+                        </div>
+                        <div class="card-body" style="overflow-y: auto">
+                            <h4 class="card-title">{{ post.title }}</h4>
+                            <p class="card-text">{{ post.body | safe }}
+                            <p class="card-text">by {{ author_name(post.author_id) }}
+                                on {{ post.created.strftime('%Y-%m-%d') }}</p>
+                        </div>
+                        {% if current_user.id == post.author_id %}
+                            <div class="card-footer" style="background: inherit; border-color: inherit;">
+                                <a href="{{ url_for('blog.update', post_id=post.id) }}" class="btn btn-primary">Edit</a>
+                                <a href="{{ url_for('blog.delete', post_id=post.id) }}" class="btn btn-outline-danger">Delete</a>
+                            </div>
+                        {% elif not current_user.is_authenticated %}
+                            <div class="card-footer" style="background: inherit; border-color: inherit;">
+                                <a href="{{ url_for('auth.login') }}" class="text text-danger">Editable by
+                                    <strong>{{ author_name(post.author_id) }}</strong> (login)</a>
+                            </div>
+                        {% else %}
+                            <div class="card-footer" style="background: inherit; border-color: inherit;">
+                                <a href="{{ url_for('auth.logout') }}" class="text text-danger">Editable by
+                                    <strong>{{ author_name(post.author_id) }}</strong> (logout)</a>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="card-body" style="overflow-y: auto">
-                    <h4 class="card-title">{{ post.title }}</h4>
-                    <p class="card-text">{{ post.body | safe }}
-                    <p class="card-text">by {{ author_name(post.author_id) }} on {{ post.created.strftime('%Y-%m-%d')
-                        }}</p>
-                </div>
-                {% if current_user.id == post.author_id %}
-                <div class="card-footer" style="background: inherit; border-color: inherit;">
-                    <a href="{{ url_for('blog.update', post_id=post.id) }}" class="btn btn-primary">Edit</a>
-                    <a href="{{ url_for('blog.delete', post_id=post.id) }}" class="btn btn-outline-danger">Delete</a>
-                </div>
-                {% elif not current_user.is_authenticated %}
-                <div class="card-footer" style="background: inherit; border-color: inherit;">
-                    <a href="{{ url_for('auth.login') }}" class="text text-danger">Editable by <strong>{{
-                        author_name(post.author_id) }}</strong> (login)</a>
-                </div>
-                {% else %}
-                <div class="card-footer" style="background: inherit; border-color: inherit;">
-                    <a href="{{ url_for('auth.logout') }}" class="text text-danger">Editable by <strong>{{
-                        author_name(post.author_id) }}</strong> (logout)</a>
-                </div>
-                {% endif %}
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
-</div>
 {% endblock %}

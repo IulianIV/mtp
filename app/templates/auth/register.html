@@ -1,50 +1,50 @@
 {% extends 'auth_base.html' %}
 
 {% block head %}
-<meta charset="utf-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-<meta name="description" content="" />
-<meta name="author" content="" />
-<title>{% block title %}Register{% endblock %}</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>{% block title %}Register{% endblock %}</title>
 {% endblock %}
 
 
 {% block form_content %}
-<div class="card-header"><h3 class="text-center font-weight-light my-4">Create Account</h3></div>
-<div class="card-body">
-    {% if current_user.is_anonymous %}
-    <form method="post" id="register-form" action="{{ url_for('auth.register') }}" novalidate>
-        {{ register_form.hidden_tag() }}
-        <div class="form-group">
-            {{ register_form.username.label(class="small mb-1", for="username") }}
-            {{ register_form.username(size=32, form='register-form', class='form-control py-4', type='username', id='username', placeholder='Enter username...') }}
-        </div>
-        <div class="form-group">
-            {{ register_form.email.label(class="small mb-1", for="email") }}
-            {{ register_form.email(form='register-form', class='form-control py-4', type='email', id='email', placeholder='Enter email...') }}
-        </div>
-        <div class="form-row">
-            <div class="col-md-6">
+    <div class="card-header"><h3 class="text-center font-weight-light my-4">Create Account</h3></div>
+    <div class="card-body">
+        {% if current_user.is_anonymous %}
+            <form method="post" id="register-form" action="{{ url_for('auth.register') }}" novalidate>
+                {{ register_form.hidden_tag() }}
                 <div class="form-group">
-                {{ register_form.password.label(class="small mb-1", for="password") }}
-                {{ register_form.password(size=32, form='register-form', class='form-control py-4', type='password', id='password', placeholder='Enter password...') }}
+                    {{ register_form.username.label(class="small mb-1", for="username") }}
+                    {{ register_form.username(size=32, form='register-form', class='form-control py-4', type='username', id='username', placeholder='Enter username...') }}
                 </div>
-            </div>
-            <div class="col-md-6">
                 <div class="form-group">
-                    {{ register_form.password_retype.label(class="small mb-1", for="inputConfirmPassword") }}
-                    {{ register_form.password_retype(size=32, form='register-form', class='form-control py-4', type='password', id='inputConfirmPassword', placeholder='Re-enter password...') }}
+                    {{ register_form.email.label(class="small mb-1", for="email") }}
+                    {{ register_form.email(form='register-form', class='form-control py-4', type='email', id='email', placeholder='Enter email...') }}
                 </div>
+                <div class="form-row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ register_form.password.label(class="small mb-1", for="password") }}
+                            {{ register_form.password(size=32, form='register-form', class='form-control py-4', type='password', id='password', placeholder='Enter password...') }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ register_form.password_retype.label(class="small mb-1", for="inputConfirmPassword") }}
+                            {{ register_form.password_retype(size=32, form='register-form', class='form-control py-4', type='password', id='inputConfirmPassword', placeholder='Re-enter password...') }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0">
+                    {{ register_form.submit(class="btn btn-primary", type="submit", value="Register") }}
+                </div>
+            </form>
             </div>
-        </div>
-        <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0">
-            {{ register_form.submit(class="btn btn-primary", type="submit", value="Register") }}
-        </div>
-    </form>
-</div>
-<div class="card-footer text-center">
-    <div class="small"><a href="{{ url_for('auth.login') }}">Have an account? Go to login</a></div>
-</div>
-{% endif %}
+            <div class="card-footer text-center">
+                <div class="small"><a href="{{ url_for('auth.login') }}">Have an account? Go to login</a></div>
+            </div>
+        {% endif %}
 {% endblock %}

@@ -5,9 +5,9 @@
     {% endblock %}
     {# Testing conditional debugging #}
     {% if config['DEBUG'] %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     {% else %}
-    <link rel="stylesheet" href="https://tech-biomed.com/mtp_static/styles.css">
+        <link rel="stylesheet" href="https://tech-biomed.com/mtp_static/styles.css">
     {% endif %}
     {# end of conditional debugging #}
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon2.ico') }}">
@@ -23,15 +23,16 @@
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="https://d3js.org/d3.v4.js"></script>
-    <script src="https://cdn.tiny.cloud/1/3zytifr1jyvctllisq76frmluwr9gfbau6qk7036f22i6qv4/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/3zytifr1jyvctllisq76frmluwr9gfbau6qk7036f22i6qv4/tinymce/5/tinymce.min.js"
+            referrerpolicy="origin"></script>
 
 </head>
 <body class="sb-nav-fixed">
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     {% if not current_user.is_anonymous %}
-    <a class="navbar-brand" href="{{ url_for('index')}}">Welcome, {{ current_user.username }}!</a>
+        <a class="navbar-brand" href="{{ url_for('index') }}">Welcome, {{ current_user.username }}!</a>
     {% else %}
-    <a class="navbar-brand" href="{{ url_for('index')}}">Welcome, Anonymous!</a>
+        <a class="navbar-brand" href="{{ url_for('index') }}">Welcome, Anonymous!</a>
     {% endif %}
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
@@ -41,90 +42,90 @@
                     Profile
                 </a>
                 {% if current_user.is_anonymous %}
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownProfile">
-                    <a class="dropdown-item" href="{{ url_for('auth.login') }}">Login</a>
-                    <a class="dropdown-item" href="{{ url_for('auth.register') }}">Register</a>
-                </div>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownProfile">
+                        <a class="dropdown-item" href="{{ url_for('auth.login') }}">Login</a>
+                        <a class="dropdown-item" href="{{ url_for('auth.register') }}">Register</a>
+                    </div>
                 {% elif not current_user.is_anonymous %}
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a>
-                </div>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a>
+                    </div>
                 {% endif %}
             </li>
             {% if not current_user.is_anonymous %}
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBlog" role="button"
-                   data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false">
-                    Blog
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownBlog">
-                    <a class="dropdown-item" href="{{ url_for('blog.create') }}">Create Post</a>
-                </div>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBudget" role="button"
-                   data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false">
-                    Budget
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownBudget">
-                    <a class="dropdown-item" href="{{ url_for('budget.summary') }}">Summary</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
-                    <a class="dropdown-item" href="{{ url_for('budget.add_expense_entry') }}">Add New
-                        Expense</a>
-                    <a class="dropdown-item" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
-                    <a class="dropdown-item" href="{{ url_for('budget.add_utilities_entry') }}">Add
-                        Utilities</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ url_for('budget.validation') }}">See Validation</a>
-                </div>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownWebtools" role="button"
-                   data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false">
-                    Webtools
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownWebtools">
-                    <a class="dropdown-item" href="{{ url_for('webtools.url_encode_decode_parse') }}">URL
-                        Encoder/Decoder & Parse</a>
-                    <a class="dropdown-item" href="{{ url_for('webtools.url_checker') }}">URL Checker</a>
-                </div>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAnalytics" role="button"
-                   data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false">
-                    Analytics
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownAnalytics">
-                    <a class="dropdown-item" href="{{ url_for('analytics.lifetime_expense') }}">Reporting (temp)</a>
-                    <a class="dropdown-item" href="{{ url_for('analytics.budget_tables') }}">Budget Tables</a>
-                    <a class="dropdown-item" href="{{ url_for('analytics.utm_analyzer') }}">UTM Analyzer (for
-                        testing)</a>
-                    <a class="dropdown-item" href="{{ url_for('analytics.utm_stats') }}">Parsed URLs Parameters &
-                        Values</a>
-                    <a class="dropdown-item" href="#">Statistics</a>
-                </div>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownManager" role="button"
-                   data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false">
-                    Manager
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownManager">
-                    <a class="dropdown-item" href="{{ url_for('manager-tests.add_fakes') }}">Faker</a>
-                    <a class="dropdown-item" href="#">Data flow</a>
-                    <a class="dropdown-item" href="#">API Data & Calls</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ url_for('seo.error_401') }}">401 Error Page</a>
-                    <a class="dropdown-item" href="{{ url_for('seo.error_404') }}">404 Error Page</a>
-                    <a class="dropdown-item" href="{{ url_for('seo.error_500') }}">500 Error Page</a>
-                </div>
-            </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBlog" role="button"
+                       data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        Blog
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownBlog">
+                        <a class="dropdown-item" href="{{ url_for('blog.create') }}">Create Post</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBudget" role="button"
+                       data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        Budget
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownBudget">
+                        <a class="dropdown-item" href="{{ url_for('budget.summary') }}">Summary</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
+                        <a class="dropdown-item" href="{{ url_for('budget.add_expense_entry') }}">Add New
+                            Expense</a>
+                        <a class="dropdown-item" href="{{ url_for('budget.add_savings_entry') }}">Add Savings</a>
+                        <a class="dropdown-item" href="{{ url_for('budget.add_utilities_entry') }}">Add
+                            Utilities</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('budget.validation') }}">See Validation</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownWebtools" role="button"
+                       data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        Webtools
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownWebtools">
+                        <a class="dropdown-item" href="{{ url_for('webtools.url_encode_decode_parse') }}">URL
+                            Encoder/Decoder & Parse</a>
+                        <a class="dropdown-item" href="{{ url_for('webtools.url_checker') }}">URL Checker</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAnalytics" role="button"
+                       data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        Analytics
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownAnalytics">
+                        <a class="dropdown-item" href="{{ url_for('analytics.lifetime_expense') }}">Reporting (temp)</a>
+                        <a class="dropdown-item" href="{{ url_for('analytics.budget_tables') }}">Budget Tables</a>
+                        <a class="dropdown-item" href="{{ url_for('analytics.utm_analyzer') }}">UTM Analyzer (for
+                            testing)</a>
+                        <a class="dropdown-item" href="{{ url_for('analytics.utm_stats') }}">Parsed URLs Parameters &
+                            Values</a>
+                        <a class="dropdown-item" href="#">Statistics</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownManager" role="button"
+                       data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        Manager
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownManager">
+                        <a class="dropdown-item" href="{{ url_for('manager-tests.add_fakes') }}">Faker</a>
+                        <a class="dropdown-item" href="#">Data flow</a>
+                        <a class="dropdown-item" href="#">API Data & Calls</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('seo.error_401') }}">401 Error Page</a>
+                        <a class="dropdown-item" href="{{ url_for('seo.error_404') }}">404 Error Page</a>
+                        <a class="dropdown-item" href="{{ url_for('seo.error_500') }}">500 Error Page</a>
+                    </div>
+                </li>
             {% endif %}
         </ul>
     </div>
@@ -136,29 +137,29 @@
                 <div class="row">
                     {% with no_errors = get_flashed_messages(category_filter=["validated"]), errors =
                     get_flashed_messages(category_filter=["error"]) %}
-                    {% if no_errors %}
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card bg-success text-white mb-4">
-                            <div class="card-body">Success</div>
-                            <div class="card-footer d-flex align-items-center justify-content-between">
-                                {% for msg in no_errors %}
-                                <p class="small text-white stretched-link">{{ msg }}</p>
-                                {% endfor %}
+                        {% if no_errors %}
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card bg-success text-white mb-4">
+                                    <div class="card-body">Success</div>
+                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                        {% for msg in no_errors %}
+                                            <p class="small text-white stretched-link">{{ msg }}</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    {% elif errors %}
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card bg-danger text-white mb-4">
-                            <div class="card-body">Error messages</div>
-                            <div class="card-footer d-flex align-items-center justify-content-between">
-                                {% for msg in errors %}
-                                <p class="small text-white stretched-link">{{ msg }}</p>
-                                {% endfor %}
+                        {% elif errors %}
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card bg-danger text-white mb-4">
+                                    <div class="card-body">Error messages</div>
+                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                        {% for msg in errors %}
+                                            <p class="small text-white stretched-link">{{ msg }}</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    {% endif %}
+                        {% endif %}
                     {% endwith %}
                 </div>
                 {% block content %}

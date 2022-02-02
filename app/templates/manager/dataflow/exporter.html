@@ -1,21 +1,21 @@
 {% extends 'base.html' %}
 
 {% block meta %}
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
 
     {% block title %}
-    <title>MTP | Web App</title>
+        <title>MTP | Web App</title>
     {% endblock %}
 
 {% endblock %}
 
 {% block header %}
-<h1 class="mt-4">Export Dashboard</h1>
-<!--
+    <h1 class="mt-4">Export Dashboard</h1>
+    <!--
     <ol class="breadcrumb mb-4">
         {% if g.user %}
         <li>
@@ -27,119 +27,121 @@
 {% endblock %}
 
 {% block cards %}
-<div class="row">
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-success text-white mb-4">
-            <div class="card-body">Table info</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#"></a>
-<!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">Table info</div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#"></a>
+                    <!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">Error messages</div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    {% for message in get_flashed_messages() %}
+                        <a class="small text-white stretched-link" href="#">{{ message }}</a>
+                    {% endfor %}
+                    <!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-danger text-white mb-4">
-            <div class="card-body">Error messages</div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                {% for message in get_flashed_messages() %}
-                    <a class="small text-white stretched-link" href="#">{{ message }}</a>
-                {% endfor %}
-<!--                <div class="small text-white"><i class="fas fa-angle-right"></i></div>-->
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block content %}
-<div id="layoutBudgetIndex">
-            <div id="layoutBudgetIndex_content">
-                <main>
-                    <div class="container">
-                        <div class="row justify-content-center">
-                            <div class="col-bdgt-1">
-                                <div class="card shadow-lg border-0 rounded-lg mt-5">
-                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Export values</h3></div>
-                                    <div class="card-body">
-                                      <form method="post" id="expense-form">
-<!-- a form.csrf token was inserted here -->
+    <div id="layoutBudgetIndex">
+        <div id="layoutBudgetIndex_content">
+            <main>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-bdgt-1">
+                            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                <div class="card-header"><h3 class="text-center font-weight-light my-4">Export
+                                    values</h3></div>
+                                <div class="card-body">
+                                    <form method="post" id="expense-form">
+                                        <!-- a form.csrf token was inserted here -->
                                         <div class="table-responsive">
-                                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                            <table class="table table-bordered" id="dataTable" width="100%"
+                                                   cellspacing="0">
                                                 <thead>
-                                                    <tr>
-                                                        <th style="font-weight= bold;">
-                                                            <label>Date</label>
-                                                        </th>
-                                                        <th>
-                                                            <label>Item</label>
-                                                        </th>
-                                                        <th>
-                                                            <label>Value</label>
-                                                        </th>
-                                                        <th>
-                                                            <label>Category</label>
-                                                        </th>
-                                                        <th>
-                                                            <label>Source</label>
-                                                        </th>
-                                                    </tr>
+                                                <tr>
+                                                    <th style="font-weight= bold;">
+                                                        <label>Date</label>
+                                                    </th>
+                                                    <th>
+                                                        <label>Item</label>
+                                                    </th>
+                                                    <th>
+                                                        <label>Value</label>
+                                                    </th>
+                                                    <th>
+                                                        <label>Category</label>
+                                                    </th>
+                                                    <th>
+                                                        <label>Source</label>
+                                                    </th>
+                                                </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <th>
-                                                        </th>
-                                                        <th>
-                                                        </th>
-                                                        <th>
-                                                        </th>
-                                                        <th>
-                                                        </th>
-                                                        <th>
-                                                        </th>
-                                                    </tr>
+                                                <tr>
+                                                    <th>
+                                                    </th>
+                                                    <th>
+                                                    </th>
+                                                    <th>
+                                                    </th>
+                                                    <th>
+                                                    </th>
+                                                    <th>
+                                                    </th>
+                                                </tr>
                                                 </tbody>
                                             </table>
                                         </div>
-                                          <a class="btn btn-danger" href="{{ url_for('budget.summary') }}">Cancel</a>
-                                      </form>
-                                    </div>
+                                        <a class="btn btn-danger" href="{{ url_for('budget.summary') }}">Cancel</a>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-                  </div>
-                </main>
-            </div>
-</div>
-<div class="card mb-4">
-    <div class="card-header">
-        <i class="fas fa-table mr-1"></i>
-        Expense Summary
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable2" width="100%" cellspacing="0">
-              <thead>
-                <tr>
-                    <th>id</th>
-                    <th>Expense Date</th>
-                    <th>Expense Item</th>
-                    <th>Expense Value</th>
-                    <th>Expense Category</th>
-                    <th>Expense Source</th>
-                </tr>
-              </thead>
-              <tbody class="post">
-                <tr>
-                    <th class="small mb-1">Da</th>
-                    <th class="small mb-1">Da</th>
-                    <th class="small mb-1">Da</th>
-                    <th class="small mb-1">Da</th>
-                    <th class="small mb-1">Da</th>
-                    <th class="small mb-1">Da</th>
-                </tr>
-              </tbody>
-            </table>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
-</div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table mr-1"></i>
+            Expense Summary
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable2" width="100%" cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>Expense Date</th>
+                        <th>Expense Item</th>
+                        <th>Expense Value</th>
+                        <th>Expense Category</th>
+                        <th>Expense Source</th>
+                    </tr>
+                    </thead>
+                    <tbody class="post">
+                    <tr>
+                        <th class="small mb-1">Da</th>
+                        <th class="small mb-1">Da</th>
+                        <th class="small mb-1">Da</th>
+                        <th class="small mb-1">Da</th>
+                        <th class="small mb-1">Da</th>
+                        <th class="small mb-1">Da</th>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 {% endblock %}
