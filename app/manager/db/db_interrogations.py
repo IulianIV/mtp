@@ -1,8 +1,14 @@
+from datetime import datetime
 from typing import NewType, Union
 
 from sqlalchemy import and_, extract, func
 
-from app.manager.db.models import *
+from app import db
+from app.manager.db.models import (
+    User, UrlEncodeDecodeParse, BudgetExpense, BudgetRevenue, BudgetUtilities,
+    BudgetSaving, ValidationSavingSources, ValidationSavingAccount, ValidationSavingReason, ValidationSavingItems,
+    ValidationSavingAction, ValidationSavingCategories, Post
+)
 
 # Type hinting
 DateTime = NewType('DateTime', datetime)
@@ -144,8 +150,8 @@ def query_blog_post(author: str, post_id: str):
     return Post.query.filter_by(author_id=author, id=post_id).first()
 
 
-def query_blog_posts(author: str):
-    return Post.query.filter_by(author_id=author).order_by(Post.created).all()
+def query_blog_posts():
+    return Post.query.order_by(Post.created).all()
 
 
 def get_username_from_post_author(post_author_id: int):
@@ -245,12 +251,12 @@ def get_current_month_data(user: int):
 def get_current_month_mandatory_expense(user: int):
 
     rent_utilities_total = sum(db.session.query(func.sum(BudgetUtilities.utilities_rent_value),
-                           func.sum(BudgetUtilities.utilities_satellite_value),
-                           func.sum(BudgetUtilities.utilities_energy_value),
-                           func.sum(BudgetUtilities.utilities_maintenance_value)).
-                           filter_by(user_id=user).
-                           filter(extract('month', BudgetUtilities.utilities_date) == current_month).
-                           filter(extract('year', BudgetUtilities.utilities_date) == current_year).all()[0])
+                            func.sum(BudgetUtilities.utilities_satellite_value),
+                            func.sum(BudgetUtilities.utilities_energy_value),
+                            func.sum(BudgetUtilities.utilities_maintenance_value)).
+                            filter_by(user_id=user).
+                            filter(extract('month', BudgetUtilities.utilities_date) == current_month).
+                            filter(extract('year', BudgetUtilities.utilities_date) == current_year).all()[0])
 
     return rent_utilities_total
 
@@ -272,22 +278,6 @@ def get_savings_data(user: int):
     return savings_totals
 
 
-"""
-Raw database query - useful in tests.
-
-SELECT
-id, expense_date, SUM(expense_value),
-GROUP_CONCAT(DISTINCT(expense_item)) AS Items,
-GROUP_CONCAT(DISTINCT(expense_item_category)) AS Categories
-FROM
-budget_expense
-WHERE strftime('%Y', expense_date) = '2018'
-AND strftime('%m', expense_date) = '04'
-GROUP BY expense_date
-
-"""
-
-
 def get_current_month_summary(user: int):
     current_month_summary = db.session. \
         query(BudgetExpense.id, BudgetExpense.expense_date, func.sum(BudgetExpense.expense_value),
@@ -301,18 +291,6 @@ def get_current_month_summary(user: int):
     return current_month_summary
 
 
-"""
-SELECT
-COUNT(id) AS 'Number of #',
-expense_item_category as Category
-FROM
-budget_expense
-WHERE strftime('%Y', expense_date) = '2020'
-AND strftime('%m', expense_date) = '09'
-GROUP BY expense_item_category
-"""
-
-
 def get_expense_count_by_category(user: int):
     category_count = db.session.query(func.count(BudgetExpense.id),
                                       BudgetExpense.expense_item_category). \
@@ -322,18 +300,6 @@ def get_expense_count_by_category(user: int):
         group_by(BudgetExpense.expense_item_category)
 
     return category_count
-
-
-"""
-SELECT
-COUNT(id) AS 'Number of #',
-expense_item as Item
-FROM
-budget_expense
-WHERE strftime('%Y', expense_date) = '2022'
-AND strftime('%m', expense_date) = '01'
-GROUP BY expense_item
-"""
 
 
 def get_expense_count_by_item(user: int):
