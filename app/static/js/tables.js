@@ -1,6 +1,6 @@
 // Budget Revenue DataTables function
-$(document).ready(function() {
-    $('a[class="btn btn-info showTable"]').click(function() {
+$(document).ready(function () {
+    $('a[class="btn btn-info showTable"]').click(function () {
         $('div[class="card mb-4"]').show();
         $('a[class="btn btn-secondary hideTable"]').show();
         $('a[class="btn btn-info showTable"]').hide();
@@ -10,16 +10,16 @@ $(document).ready(function() {
             ajax: {
                 url: '/api/data',
                 data: {
-                    loc_path: (function(data) {
+                    loc_path: (function (data) {
                         data = window.location.pathname;
                         return data;
                     }())
                 }
             },
             columns: [{
-                    data: "id",
-                    orderable: false
-                },
+                data: "id",
+                orderable: false
+            },
                 {
                     data: "revenue_date"
                 },
@@ -37,7 +37,7 @@ $(document).ready(function() {
             ],
         });
     });
-    $('a[class="btn btn-secondary hideTable"]').click(function() {
+    $('a[class="btn btn-secondary hideTable"]').click(function () {
         $('#revenue-summary-table').DataTable().destroy();
         $('div[class="card mb-4"]').hide();
         $('a[class="btn btn-secondary hideTable"]').hide();
@@ -47,8 +47,8 @@ $(document).ready(function() {
 
 
 // Budget Expense DataTables function.
-$(document).ready(function() {
-    $('a[class="btn btn-info showTable"]').click(function() {
+$(document).ready(function () {
+    $('a[class="btn btn-info showTable"]').click(function () {
         $('div[class="card mb-4"]').show();
         $('a[class="btn btn-secondary hideTable"]').show();
         $('a[class="btn btn-info showTable"]').hide();
@@ -57,16 +57,16 @@ $(document).ready(function() {
             ajax: {
                 url: '/api/data',
                 data: {
-                    loc_path: (function(data) {
+                    loc_path: (function (data) {
                         data = window.location.pathname;
                         return data;
                     }())
                 }
             },
             columns: [{
-                    data: "id",
-                    orderable: false
-                },
+                data: "id",
+                orderable: false
+            },
                 {
                     data: "expense_date"
                 },
@@ -91,7 +91,7 @@ $(document).ready(function() {
             ],
         });
     });
-    $('a[class="btn btn-secondary hideTable"]').click(function() {
+    $('a[class="btn btn-secondary hideTable"]').click(function () {
         $('#expense-summary-table').DataTable().destroy();
         $('div[class="card mb-4"]').hide();
         $('a[class="btn btn-secondary hideTable"]').hide();
@@ -100,8 +100,8 @@ $(document).ready(function() {
 });
 
 // Budget Savings DataTables function
-$(document).ready(function() {
-    $('a[class="btn btn-info showTable"]').click(function() {
+$(document).ready(function () {
+    $('a[class="btn btn-info showTable"]').click(function () {
         $('div[class="card mb-4"]').show();
         $('a[class="btn btn-secondary hideTable"]').show();
         $('a[class="btn btn-info showTable"]').hide();
@@ -110,16 +110,16 @@ $(document).ready(function() {
             ajax: {
                 url: '/api/data',
                 data: {
-                    loc_path: (function(data) {
+                    loc_path: (function (data) {
                         data = window.location.pathname;
                         return data;
                     }())
                 }
             },
             columns: [{
-                    data: "id",
-                    orderable: false
-                },
+                data: "id",
+                orderable: false
+            },
                 {
                     data: "saving_date"
                 },
@@ -145,7 +145,7 @@ $(document).ready(function() {
             ],
         });
     });
-    $('a[class="btn btn-secondary hideTable"]').click(function() {
+    $('a[class="btn btn-secondary hideTable"]').click(function () {
         $('#savings-summary-table').DataTable().destroy();
         $('div[class="card mb-4"]').hide();
         $('a[class="btn btn-secondary hideTable"]').hide();
@@ -155,8 +155,8 @@ $(document).ready(function() {
 
 
 // Budget Utilities DataTables function
-$(document).ready(function() {
-    $('a[class="btn btn-info showTable"]').click(function() {
+$(document).ready(function () {
+    $('a[class="btn btn-info showTable"]').click(function () {
         $('div[class="card mb-4"]').show();
         $('a[class="btn btn-secondary hideTable"]').show();
         $('a[class="btn btn-info showTable"]').hide();
@@ -166,16 +166,16 @@ $(document).ready(function() {
             ajax: {
                 url: '/api/data',
                 data: {
-                    loc_path: (function(data) {
+                    loc_path: (function (data) {
                         data = window.location.pathname;
                         return data;
                     }())
                 }
             },
             columns: [{
-                    data: "id",
-                    orderable: false
-                },
+                data: "id",
+                orderable: false
+            },
                 {
                     data: "utilities_date"
                 },
@@ -205,7 +205,7 @@ $(document).ready(function() {
             ],
         });
     });
-    $('a[class="btn btn-secondary hideTable"]').click(function() {
+    $('a[class="btn btn-secondary hideTable"]').click(function () {
         $('#utilities-summary-table').DataTable().destroy();
         $('div[class="card mb-4"]').hide();
         $('a[class="btn btn-secondary hideTable"]').hide();
@@ -215,10 +215,10 @@ $(document).ready(function() {
 
 
 // Budget Tables DataTables function
-$(document).ready(function() {
+$(document).ready(function () {
 
-    $(document).ready(function() {
-        $('a[class="btn btn-info showTableExpense"]').click(function() {
+    $(document).ready(function () {
+        $('a[class="btn btn-info showTableExpense"]').click(function () {
             $('div[class="card-body expense"]').show();
             $('a[class="btn btn-secondary hideTableExpense"]').show();
             $('a[class="btn btn-info showTableExpense"]').hide();
@@ -231,9 +231,9 @@ $(document).ready(function() {
                     }
                 },
                 columns: [{
-                        data: "id",
-                        orderable: false
-                    },
+                    data: "id",
+                    orderable: false
+                },
                     {
                         data: "expense_date"
                     },
@@ -254,7 +254,7 @@ $(document).ready(function() {
                 ],
             });
         });
-        $('a[class="btn btn-secondary hideTableExpense"]').click(function() {
+        $('a[class="btn btn-secondary hideTableExpense"]').click(function () {
             $('#summary-expense-table').DataTable().destroy();
             $('div[class="card-body expense"]').hide();
             $('a[class="btn btn-secondary hideTableExpense"]').hide();
@@ -262,8 +262,8 @@ $(document).ready(function() {
         });
     });
 
-    $(document).ready(function() {
-        $('a[class="btn btn-info showTableRevenue"]').click(function() {
+    $(document).ready(function () {
+        $('a[class="btn btn-info showTableRevenue"]').click(function () {
             $('div[class="card-body revenue"]').show();
             $('a[class="btn btn-secondary hideTableRevenue"]').show();
             $('a[class="btn btn-info showTableRevenue"]').hide();
@@ -276,9 +276,9 @@ $(document).ready(function() {
                     }
                 },
                 columns: [{
-                        data: "id",
-                        orderable: false
-                    },
+                    data: "id",
+                    orderable: false
+                },
                     {
                         data: "revenue_date"
                     },
@@ -292,7 +292,7 @@ $(document).ready(function() {
                 ],
             });
         });
-        $('a[class="btn btn-secondary hideTableRevenue"]').click(function() {
+        $('a[class="btn btn-secondary hideTableRevenue"]').click(function () {
             $('#summary-revenue-table').DataTable().destroy();
             $('div[class="card-body revenue"]').hide();
             $('a[class="btn btn-secondary hideTableRevenue"]').hide();
@@ -300,8 +300,8 @@ $(document).ready(function() {
         });
     });
 
-    $(document).ready(function() {
-        $('a[class="btn btn-info showTableSavings"]').click(function() {
+    $(document).ready(function () {
+        $('a[class="btn btn-info showTableSavings"]').click(function () {
             $('div[class="card-body savings"]').show();
             $('a[class="btn btn-secondary hideTableSavings"]').show();
             $('a[class="btn btn-info showTableSavings"]').hide();
@@ -314,9 +314,9 @@ $(document).ready(function() {
                     }
                 },
                 columns: [{
-                        data: "id",
-                        orderable: false
-                    },
+                    data: "id",
+                    orderable: false
+                },
                     {
                         data: "saving_date"
                     },
@@ -338,7 +338,7 @@ $(document).ready(function() {
                 ],
             });
         });
-        $('a[class="btn btn-secondary hideTableSavings"]').click(function() {
+        $('a[class="btn btn-secondary hideTableSavings"]').click(function () {
             $('#summary-savings-table').DataTable().destroy();
             $('div[class="card-body savings"]').hide();
             $('a[class="btn btn-secondary hideTableSavings"]').hide();
@@ -346,8 +346,8 @@ $(document).ready(function() {
         });
     });
 
-    $(document).ready(function() {
-        $('a[class="btn btn-info showTableUtilities"]').click(function() {
+    $(document).ready(function () {
+        $('a[class="btn btn-info showTableUtilities"]').click(function () {
             $('div[class="card-body utilities"]').show();
             $('a[class="btn btn-secondary hideTableUtilities"]').show();
             $('a[class="btn btn-info showTableUtilities"]').hide();
@@ -360,9 +360,9 @@ $(document).ready(function() {
                     }
                 },
                 columns: [{
-                        data: "id",
-                        orderable: false
-                    },
+                    data: "id",
+                    orderable: false
+                },
                     {
                         data: "utilities_date"
                     },
@@ -390,7 +390,7 @@ $(document).ready(function() {
                 ],
             });
         });
-        $('a[class="btn btn-secondary hideTableUtilities"]').click(function() {
+        $('a[class="btn btn-secondary hideTableUtilities"]').click(function () {
             $('#summary-utilities-table').DataTable().destroy();
             $('div[class="card-body utilities"]').hide();
             $('a[class="btn btn-secondary hideTableUtilities"]').hide();
