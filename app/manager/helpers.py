@@ -2,8 +2,17 @@ import secrets
 from datetime import datetime
 
 from flask import Flask, flash
-from flask_wtf import CSRFProtect
 from wtforms.validators import ValidationError
+
+app_endpoints = {
+    'revenue_entry_endpoint': 'budget.add_revenue_entry',
+    'expense_entry_endpoint': 'budget.add_expense_entry',
+    'savings_entry_endpoint': 'budget.add_savings_entry',
+    'validation_endpoint': 'budget.validation',
+    'utilities_entry_endpoint': 'budget.add_utilities_entry',
+    'blog_index': 'blog.index',
+    'login': 'auth.login'
+}
 
 
 class CustomCSRF:
@@ -13,8 +22,6 @@ class CustomCSRF:
         app = Flask(__name__)
 
         app.config['SECRET_KEY'] = f'{secrets.token_hex(16)}'
-
-        csrf_token = CSRFProtect(app)
 
 
 def form_validated_message(validation_msg, category='validated'):
@@ -74,3 +81,18 @@ def check_range(ranged_faker_func):
             return ranged_faker_func(args[0])
 
     return wrapper
+
+
+# Used in api/routes to transform a specific database query into a JSON file
+def expense_count_to_json(data_list: list) -> dict:
+    items_data = []
+
+    count = [int(x[0]) for x in data_list]
+    items = [x[1] for x in data_list]
+
+    for item in range(len(items)):
+        items_data.append({'group': '{}'.format(items[item]), 'value': '{}'.format(count[item])})
+
+    return {
+        'data': items_data
+    }

@@ -5,8 +5,11 @@ from flask import (
     render_template, request
 )
 
+from app import db
 from app.auth.routes import login_required
-from app.manager.db.db_interrogations import *
+from app.manager.db.db_interrogations import (
+    add_new_url,
+)
 from app.manager.helpers import form_validated_message, form_error_message
 from app.webtools import bp, forms
 

@@ -5,7 +5,11 @@ from flask import render_template
 from flask_login import current_user
 
 from app.analytics import bp
-from app.manager.db.db_interrogations import *
+from app.manager.db.db_interrogations import (
+    query_expense_entries, query_revenue_entries, query_savings_entries, query_utilities_entries,
+    get_expense_count, get_revenue_count, get_savings_count, get_utilities_count,
+    get_validation_accounts_count, get_validation_reason_count, get_validation_items_count,
+    get_validation_categories_count, get_validation_sources_count, get_parsed_urls)
 
 
 # TODO Add DataTables filtering to utm-stats table.

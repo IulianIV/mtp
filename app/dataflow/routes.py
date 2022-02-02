@@ -1,9 +1,10 @@
 from flask import (
     render_template, )
-from flask_wtf import FlaskForm
-from app.auth.routes import login_required
 from flask_dropzone import Dropzone
+from flask_wtf import FlaskForm
 from wtforms.fields import SubmitField
+
+from app.auth.routes import login_required
 from app.dataflow import bp
 
 

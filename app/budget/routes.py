@@ -1,18 +1,45 @@
+from datetime import datetime
+from typing import Dict, Any
+
 from flask import (
-    redirect, render_template, request
+    redirect, render_template, request, url_for
 )
 from flask_login import current_user
 from forex_python.converter import CurrencyRates
 from wtforms.validators import ValidationError
 
+from app import db
 from app.auth.routes import login_required
 from app.budget import bp
 from app.budget import forms
-from app.manager.db.db_interrogations import *
-from app.manager.helpers import CustomCSRF, form_validated_message, form_error_message
+from app.manager.db.db_interrogations import (
+    get_current_month_data, get_savings_data, get_current_month_mandatory_expense, get_current_month_summary,
+    query_expense_entries, get_expense_count, query_validation_items, query_validation_sources, insert_expense,
+    query_revenue_entries, get_revenue_count, insert_revenue, query_savings_entries, get_savings_count,
+    query_validation_savings_accounts, query_validation_savings_reason, query_validation_savings_action_types,
+    insert_savings, query_validation_categories, get_validation_item, insert_validation_items, get_validation_category,
+    insert_validation_categories, get_validation_source, insert_validation_sources, get_validation_account,
+    insert_validation_accounts, get_validation_actions, insert_validation_actions, get_validation_reason,
+    insert_validation_reasons, query_utilities_entries, get_utilities_count, insert_utilities, query_utilities_entry,
+    update_utility_entry, query_revenue_entry, update_revenue_entry, query_expense_entry, update_expense_entry,
+    query_saving_entry, update_saving_entry, delete_utility_entry, delete_revenue_entry, delete_expense_entry,
+    delete_saving_entry
+)
+from app.manager.helpers import CustomCSRF, form_validated_message, form_error_message, app_endpoints
 
 custom_protection = CustomCSRF()
 currency = CurrencyRates()
+validation_confirm = 'All values validated!'
+
+revenue_entry_endpoint = app_endpoints['revenue_entry_endpoint']
+expense_entry_endpoint = app_endpoints['expense_entry_endpoint']
+savings_entry_endpoint = app_endpoints['savings_entry_endpoint']
+validation_entry_endpoint = app_endpoints['validation_endpoint']
+utilities_entry_endpoint = app_endpoints['utilities_entry_endpoint']
+
+budget_template_endpoints = {
+    'budget_validation': 'budget/validation.html'
+}
 
 
 # TODO format dates to a more user-friendly format
@@ -91,12 +118,12 @@ def add_expense_entry():
         value = expense_form.expense_value.data
         source = expense_form.expense_source.data
 
-        form_validated_message('All values validated!')
+        form_validated_message(validation_confirm)
 
         insert_expense(user_id, date, item, value, source)
         db.session.commit()
 
-        return redirect(url_for('budget.add_expense_entry'))
+        return redirect(url_for(expense_entry_endpoint))
 
     return render_template('budget/budget_entry/expense.html', expense_form=expense_form,
                            expense_entries=expense_entries,
@@ -123,12 +150,12 @@ def add_revenue_entry():
         revenue = revenue_form.revenue_value.data
         source = revenue_form.revenue_source.data
 
-        form_validated_message('All values validated!')
+        form_validated_message(validation_confirm)
 
         insert_revenue(user_id, date, revenue, source)
         db.session.commit()
 
-        return redirect(url_for('budget.add_revenue_entry'))
+        return redirect(url_for(revenue_entry_endpoint))
 
     return render_template('budget/budget_entry/revenue.html', revenue_form=revenue_form,
                            revenue_entries=revenue_entries,
@@ -167,23 +194,27 @@ def add_savings_entry():
             reason = savings_form.savings_reason.data
             action = savings_form.savings_action.data
 
-            form_validated_message('All values validated!')
+            form_validated_message(validation_confirm)
 
             insert_savings(user_id, date, value, account, reason, action)
             db.session.commit()
-            return redirect(url_for('budget.add_savings_entry'))
+            return redirect(url_for(savings_entry_endpoint))
 
-        return redirect(url_for('budget.add_savings_entry'))
+        return redirect(url_for(savings_entry_endpoint))
 
     return render_template('budget/budget_entry/savings.html', savings_form=savings_form,
                            savings_entries=savings_entries,
                            table_counts=table_counts)
 
 
+# TODO Try to separate all duplicate code from here.
+#   Current problem resides at the Form Initialization level
+#   Can't get context to push.
 @bp.route('/validation', methods=('GET', 'POST'))
 @login_required
 def validation():
-    validation_entries = {
+    # noinspection PyShadowingNames
+    validation_entries: Dict[str, Any] = {
         'validation_items': query_validation_items(),
         'validation_categories': query_validation_categories(),
         'validation_sources': query_validation_sources(),
@@ -203,7 +234,7 @@ def validation():
     category_set = [(x['categories']) for x in categories]
     items_form.category_value.choices = category_set
 
-    return render_template('budget/validation.html', validation_entries=validation_entries,
+    return render_template(budget_template_endpoints['budget_validation'], validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -215,7 +246,8 @@ def validation():
 @bp.route('/validation/items', methods=('GET', 'POST'))
 @login_required
 def validation_items():
-    validation_entries = {
+    # noinspection PyShadowingNames
+    validation_entries: Dict[str, Any] = {
         'validation_items': query_validation_items(),
         'validation_categories': query_validation_categories(),
         'validation_sources': query_validation_sources(),
@@ -252,16 +284,16 @@ def validation_items():
             insert_validation_items(item, category)
             db.session.commit()
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
     elif not items_form.validate_on_submit():
 
         if items_form.item_value.data:
             ValidationError(message=form_error_message('Item Value field only accepts letters and spaces.'))
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
-    return render_template('budget/validation.html', validation_entries=validation_entries,
+    return render_template(budget_template_endpoints['budget_validation'], validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -273,7 +305,8 @@ def validation_items():
 @bp.route('/validation/category', methods=('GET', 'POST'))
 @login_required
 def validation_categories():
-    validation_entries = {
+    # noinspection PyShadowingNames
+    validation_entries: Dict[str, Any] = {
         'validation_items': query_validation_items(),
         'validation_categories': query_validation_categories(),
         'validation_sources': query_validation_sources(),
@@ -298,30 +331,21 @@ def validation_categories():
 
         category_list = get_validation_category(categories)
 
-        # fixme repair the login. ATM it throws an
-        #  TypeError: argument of type 'ValidationSavingCategories' is not iterable
-
-        # if category_list is not None and categories in category_list:
-        #
-        #     form_error_message(f'The value you chose for category: "{categories}" already exists')
-
-        # fixme was a `elif` previous to TypeError.
-
         if category_list is None:
             form_validated_message('Category value validated!')
             insert_validation_categories(categories)
             db.session.commit()
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
     elif not categories_form.validate_on_submit():
 
         if categories_form.category_value.data:
             ValidationError(message=form_error_message('Category Value field only accepts letters and spaces.'))
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
-    return render_template('budget/validation.html', validation_entries=validation_entries,
+    return render_template(budget_template_endpoints['budget_validation'], validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -333,7 +357,8 @@ def validation_categories():
 @bp.route('/validation/sources', methods=('GET', 'POST'))
 @login_required
 def validation_sources():
-    validation_entries = {
+    # noinspection PyShadowingNames
+    validation_entries: Dict[str, Any] = {
         'validation_items': query_validation_items(),
         'validation_categories': query_validation_categories(),
         'validation_sources': query_validation_sources(),
@@ -367,16 +392,16 @@ def validation_sources():
             insert_validation_sources(sources)
             db.session.commit()
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
     elif not sources_form.validate_on_submit():
 
         if sources_form.source_value.data:
             ValidationError(message=form_error_message('Sources Value field only accepts letters and spaces.'))
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
-    return render_template('budget/validation.html', validation_entries=validation_entries,
+    return render_template(budget_template_endpoints['budget_validation'], validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -388,7 +413,8 @@ def validation_sources():
 @bp.route('/validation/accounts', methods=('GET', 'POST'))
 @login_required
 def validation_accounts():
-    validation_entries = {
+    # noinspection PyShadowingNames
+    validation_entries: Dict[str, Any] = {
         'validation_items': query_validation_items(),
         'validation_categories': query_validation_categories(),
         'validation_sources': query_validation_sources(),
@@ -422,16 +448,16 @@ def validation_accounts():
             insert_validation_accounts(accounts)
             db.session.commit()
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
     elif not accounts_form.validate_on_submit():
 
         if accounts_form.account_value.data:
             ValidationError(message=form_error_message('Account Value field only accepts letters and spaces.'))
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
-    return render_template('budget/validation.html', validation_entries=validation_entries,
+    return render_template(budget_template_endpoints['budget_validation'], validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -443,7 +469,8 @@ def validation_accounts():
 @bp.route('/validation/actions', methods=('GET', 'POST'))
 @login_required
 def validation_actions():
-    validation_entries = {
+    # noinspection PyShadowingNames
+    validation_entries: Dict[str, Any] = {
         'validation_items': query_validation_items(),
         'validation_categories': query_validation_categories(),
         'validation_sources': query_validation_sources(),
@@ -479,16 +506,16 @@ def validation_actions():
             insert_validation_actions(actions)
             db.session.commit()
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
     elif not actions_form.validate_on_submit():
 
         if actions_form.action_value.data:
             ValidationError(message=form_error_message('Action Value field only accepts letters and spaces.'))
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
-    return render_template('budget/validation.html', validation_entries=validation_entries,
+    return render_template(budget_template_endpoints['budget_validation'], validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -500,7 +527,8 @@ def validation_actions():
 @bp.route('/validation/reasons', methods=('GET', 'POST'))
 @login_required
 def validation_reasons():
-    validation_entries = {
+    # noinspection PyShadowingNames
+    validation_entries: Dict[str, Any] = {
         'validation_items': query_validation_items(),
         'validation_categories': query_validation_categories(),
         'validation_sources': query_validation_sources(),
@@ -534,16 +562,16 @@ def validation_reasons():
             insert_validation_reasons(reasons)
             db.session.commit()
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
     elif not reasons_form.validate_on_submit():
 
         if reasons_form.reason_value.data:
             ValidationError(message=form_error_message('Reason Value field only accepts letters and spaces.'))
 
-        return redirect(url_for('budget.validation'))
+        return redirect(url_for(validation_entry_endpoint))
 
-    return render_template('budget/validation.html', validation_entries=validation_entries,
+    return render_template(budget_template_endpoints['budget_validation'], validation_entries=validation_entries,
                            items_form=items_form,
                            categories_form=categories_form,
                            sources_form=sources_form,
@@ -576,12 +604,12 @@ def add_utilities_entry():
     budget_source = utilities_form.utilities_budget_sources.data
 
     if utilities_form.is_submitted() and utilities_form.validate_on_submit():
-        form_validated_message('All values validated!')
+        form_validated_message(validation_confirm)
 
         insert_utilities(user_id, date, rent, energy, satellite, maintenance, details, budget_source)
         db.session.commit()
 
-        return redirect(url_for('budget.add_utilities_entry'))
+        return redirect(url_for(utilities_entry_endpoint))
 
     return render_template('budget/budget_entry/utilities.html', utilities_entries=utilities_entries,
                            utilities_form=utilities_form, table_counts=table_counts)
@@ -627,7 +655,7 @@ def update_utilities_entry(utility_id):
 
         update_utility_entry(utility_id, user_id, date, rent, energy, satellite, maintenance, details, source)
 
-        return redirect(url_for('budget.add_utilities_entry'))
+        return redirect(url_for(utilities_entry_endpoint))
 
     return render_template('budget/budget_update/utilities.html', utilities_entry=utilities_entry,
                            utility_update_form=utility_update_form)
@@ -658,7 +686,7 @@ def update_revenue_entries(revenue_id):
 
         update_revenue_entry(revenue_id, user_id, date, value, source)
 
-        return redirect(url_for('budget.add_revenue_entry'))
+        return redirect(url_for(revenue_entry_endpoint))
 
     return render_template('budget/budget_update/revenue.html', revenue_entry=revenue_entry,
                            revenue_update_form=revenue_update_form)
@@ -694,7 +722,7 @@ def update_expense_entries(expense_id):
 
         update_expense_entry(expense_id, user_id, date, item, value, source)
 
-        return redirect(url_for('budget.add_expense_entry'))
+        return redirect(url_for(expense_entry_endpoint))
 
     return render_template('budget/budget_update/expense.html', expense_entry=expense_entry,
                            expense_update_form=expense_update_form)
@@ -750,7 +778,7 @@ def delete_utilities_entry(utility_id):
     delete_utility_entry(utility_id, user_id)
     db.session.commit()
 
-    return redirect(url_for('budget.add_utilities_entry'))
+    return redirect(url_for(utilities_entry_endpoint))
 
 
 @bp.route('/revenue-delete/<int:revenue_id>', methods=('POST', 'GET'))
@@ -761,7 +789,7 @@ def delete_revenue_entries(revenue_id):
     delete_revenue_entry(revenue_id, user_id)
     db.session.commit()
 
-    return redirect(url_for('budget.add_revenue_entry'))
+    return redirect(url_for(revenue_entry_endpoint))
 
 
 @bp.route('/expense-delete/<int:expense_id>', methods=('POST', 'GET'))
@@ -772,7 +800,7 @@ def delete_expense_entries(expense_id):
     delete_expense_entry(expense_id, user_id)
     db.session.commit()
 
-    return redirect(url_for('budget.add_expense_entry'))
+    return redirect(url_for(expense_entry_endpoint))
 
 
 @bp.route('/saving-delete/<int:saving_id>', methods=('POST', 'GET'))

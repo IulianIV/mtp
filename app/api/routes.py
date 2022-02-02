@@ -1,10 +1,13 @@
 from flask import (
-    request, redirect
+    request, redirect, url_for
 )
 from flask_login import current_user
 
+from app import db
 from app.api import bp
-from app.manager.db.db_interrogations import *
+from app.manager.db.db_interrogations import get_expense_count_by_category, get_expense_count_by_item
+from app.manager.db.models import BudgetExpense, BudgetRevenue, BudgetSaving, BudgetUtilities
+from app.manager.helpers import expense_count_to_json
 
 
 # fixme it is now basically inaccessible form the FE.
@@ -113,19 +116,10 @@ def data():
 @bp.route('/data/summary-graph/categories', methods=['GET'])
 def summary_graph_categories_data():
     user_id = current_user.get_id()
+
     category_data = [x for x in get_expense_count_by_category(user_id)]
 
-    categories_data = []
-
-    count = [int(x[0]) for x in category_data]
-    categories = [x[1] for x in category_data]
-
-    for item in range(len(categories)):
-        categories_data.append({'group': '{}'.format(categories[item]), 'value': '{}'.format(count[item])})
-
-    return {
-        'data': categories_data
-    }
+    return expense_count_to_json(category_data)
 
 
 @bp.route('/data/summary-graph/items', methods=['GET'])
@@ -134,14 +128,4 @@ def summary_graph_items_data():
 
     item_data = [x for x in get_expense_count_by_item(user_id)]
 
-    items_data = []
-
-    count = [int(x[0]) for x in item_data]
-    items = [x[1] for x in item_data]
-
-    for item in range(len(items)):
-        items_data.append({'group': '{}'.format(items[item]), 'value': '{}'.format(count[item])})
-
-    return {
-        'data': items_data
-    }
+    return expense_count_to_json(item_data)

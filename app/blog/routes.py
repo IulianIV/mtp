@@ -1,22 +1,31 @@
 from flask import (
-    redirect, render_template, request
+    redirect, render_template, request, url_for
 )
 from flask_login import current_user
 from werkzeug.exceptions import abort
 
+from app import db
 from app.auth.routes import login_required
 from app.blog import bp
 from app.blog.forms import AddPost, UpdatePost
-from app.manager.db.db_interrogations import *
-from app.manager.helpers import form_validated_message, form_error_message, CustomCSRF
+from app.manager.db.db_interrogations import (
+    query_blog_posts, get_username_from_post_author, get_user_from_post_author, insert_post, query_blog_post,
+    update_post, delete_post
+)
+from app.manager.helpers import form_validated_message, form_error_message, CustomCSRF, app_endpoints
 
 custom_protection = CustomCSRF()
+blog_index_entrypoint = app_endpoints['blog_index']
 
 
+# TODO add edited info. New field in database and update on edit/save
 # TODO handle blog posts pagination. Maybe similar to the one introduced in the Budget App but with no tables.
+# TODO Add Post Carousel. Split each slide to 4 posts.
+#   Show Arrows and Indicators. Indicators should be as many slides there are.
+# TODO if you want to add filtering/sorting the above proposed carousel implementation might not be so good.
 @bp.route('/')
 def index():
-    posts = query_blog_posts(author=current_user.get_id())
+    posts = query_blog_posts()
     return render_template('blog/index.html', posts=posts, author_name=get_username_from_post_author,
                            user=get_user_from_post_author)
 
@@ -44,7 +53,7 @@ def create():
         else:
             insert_post(title, body, user_id)
             db.session.commit()
-            return redirect(url_for('blog.index'))
+            return redirect(url_for(blog_index_entrypoint))
 
     return render_template('blog/create.html', create_post_form=create_post_form)
 
@@ -66,7 +75,6 @@ def get_post(author_id, post_id, check_author=True):
 @bp.route('/<int:post_id>/update', methods=('GET', 'POST'))
 @login_required
 def update(post_id):
-
     update_form = UpdatePost()
     user_id = current_user.get_id()
 
@@ -77,13 +85,12 @@ def update(post_id):
         update_form.update_title.data = post.title
 
     if request.method == 'POST':
-
         title = update_form.update_title.data
         body = update_form.update_body.data
 
         update_post(user_id, title, body, post_id)
 
-        return redirect(url_for('blog.index'))
+        return redirect(url_for(blog_index_entrypoint))
 
     return render_template('blog/update.html', post=post, update_form=update_form)
 
@@ -98,4 +105,4 @@ def delete(post_id):
     delete_post(user_id, post_id)
     db.session.commit()
 
-    return redirect(url_for('blog.index'))
+    return redirect(url_for(blog_index_entrypoint))
