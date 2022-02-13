@@ -86,8 +86,8 @@ def insert_validation_reasons(reasons: str):
     return db.session.add(ValidationSavingReason(saving_reason=reasons))
 
 
-def insert_post(title: str, body: str, author_id: str):
-    return db.session.add(Post(title=title, body=body, author_id=author_id))
+def insert_post(title: str, body: str, author_id: str, post_image_name: str):
+    return db.session.add(Post(title=title, body=body, author_id=author_id, post_image_name=post_image_name))
 
 
 def add_new_url(user: int, raw_url: str, encode_option: Union[str, None], encoding: Union[str, None]):
