@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 
-from wtforms.fields import StringField, TextAreaField, SubmitField
+from wtforms.fields import StringField, TextAreaField, SubmitField, HiddenField
 from wtforms.validators import DataRequired
 
 # TODO add a post title 30 char limit
@@ -8,12 +8,13 @@ from wtforms.validators import DataRequired
 
 
 class AddPost(FlaskForm):
-    post_title = StringField('Post title', validators=[DataRequired()])
-    post_body = TextAreaField('Post body', validators=[DataRequired()])
+    post_title = StringField('Title', validators=[DataRequired()])
+    post_body = TextAreaField('Body', validators=[DataRequired()])
+    image_uuid = HiddenField('Image UUID', validators=[DataRequired()])
     submit_post = SubmitField()
 
 
 class UpdatePost(FlaskForm):
-    update_title = StringField('Post title', validators=[DataRequired()])
-    update_body = TextAreaField('Post body', validators=[DataRequired()])
+    update_title = StringField('Update title', validators=[DataRequired()])
+    update_body = TextAreaField('Update body', validators=[DataRequired()])
     submit_update = SubmitField()
