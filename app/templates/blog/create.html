@@ -26,6 +26,10 @@
                                     Post</h3>
                                 </div>
                                 <div class="card-body">
+
+                                    <div class="small mb-1">Image</div>
+                                    <div class="dropzone" id="dropzone">
+                                    </div>
                                     <form method="post" id="post-form" action="{{ url_for('blog.create') }}" novalidate>
                                         {{ create_post_form.hidden_tag() }}
                                         <div class="form-group">
@@ -49,5 +53,6 @@
     </div>
     {% block scripts %}
         <script type="text/javascript" src="{{ url_for('static', filename='js/wysiwyg_editor.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/helpers.js') }}"></script>
     {% endblock %}
 {% endblock %}
