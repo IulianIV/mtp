@@ -14,6 +14,12 @@ app_endpoints = {
     'login': 'auth.login'
 }
 
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.split('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 class CustomCSRF:
 
