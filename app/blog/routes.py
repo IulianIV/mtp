@@ -23,6 +23,17 @@ blog_index_entrypoint = app_endpoints['blog_index']
 # TODO Add Post Carousel. Split each slide to 4 posts.
 #   Show Arrows and Indicators. Indicators should be as many slides there are.
 # TODO if you want to add filtering/sorting the above proposed carousel implementation might not be so good.
+# TODO add Post Image upload functionality. Upload images by button, drag-and-drop.
+#   preview images after upload. When creating a post have a default image shown. On hover show a greyed watermark
+#   suggesting you can upload. Show a thumbnail that says you can upload.
+#   upon upload store physically in folder. If the picture is changed delete old one and replace with new.
+#   if on image selection they change mind and what to upload a different one, what is the solution?
+#   how can the image be previewed as is without it being uploaded?
+# TODO add image edit/replace functionality to edit post.
+# TODO add data base query that on post creation add a image path file, if default send directly to default image.
+# TODO add database query to delete post image after post is deleted.
+# TODO add helper functions for image_naming, image_move do right folder, image_query, image_clean
+#   and a function to make sure there are no duplicates.
 @bp.route('/')
 def index():
     posts = query_blog_posts()
@@ -39,22 +50,25 @@ def create():
     error = None
 
     # better-me improve the post creation functionality
-    if create_post_form.is_submitted() and create_post_form.validate_on_submit():
+    if request.method == 'POST':
 
-        title = create_post_form.post_title.data
-        body = create_post_form.post_body.data
+        if create_post_form.is_submitted() and create_post_form.validate_on_submit():
 
-        form_validated_message(f'Post with title {title} has been generated!')
+            title = create_post_form.post_title.data
+            body = create_post_form.post_body.data
+            image_uuid = create_post_form.image_uuid.data
 
-        if not title:
-            error = 'Title is required.'
-        if error is not None:
-            form_error_message(f'{error}')
-        else:
-            insert_post(title, body, user_id)
-            db.session.commit()
-            return redirect(url_for(blog_index_entrypoint))
+            image_name = image_uuid + ".jpg"
 
+            if not title:
+                error = 'Title is required.'
+            if error is not None:
+                form_error_message(f'{error}')
+            else:
+                insert_post(title, body, user_id, image_name)
+                db.session.commit()
+                form_validated_message(f'Post with title {title} has been generated!')
+        return redirect(url_for(blog_index_entrypoint))
     return render_template('blog/create.html', create_post_form=create_post_form)
 
 
