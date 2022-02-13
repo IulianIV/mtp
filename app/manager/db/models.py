@@ -66,6 +66,7 @@ class Post(db.Model):
     created = db.Column(db.Date, nullable=False, default=datetime.utcnow)
     title = db.Column(db.String(90), nullable=False, index=True)
     body = db.Column(db.Text, nullable=False)
+    post_image_name = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
         return f'Post title: {self.title}'
