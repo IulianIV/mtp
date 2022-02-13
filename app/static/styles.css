@@ -142,6 +142,15 @@ div.custom-container { /* Custom Addition */
   height: 100px;
 }
 
+.dz-max-files-reached {
+  pointer-events: none;
+  cursor: default;
+}
+
+#dropzone {
+  border: 2px dotted rgb(52 58 64);
+}
+
 /* Custom Addition End <-- */
 
 abbr[title],
