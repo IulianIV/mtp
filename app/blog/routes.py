@@ -12,7 +12,8 @@ from app.manager.db.db_interrogations import (
     query_blog_posts, get_username_from_post_author, get_user_from_post_author, insert_post, query_blog_post,
     update_post, delete_post
 )
-from app.manager.helpers import form_validated_message, form_error_message, CustomCSRF, app_endpoints
+from app.manager.helpers import form_validated_message, form_error_message, CustomCSRF, app_endpoints, \
+    delete_post_image, post_image_rename
 
 custom_protection = CustomCSRF()
 blog_index_entrypoint = app_endpoints['blog_index']
@@ -58,7 +59,10 @@ def create():
             body = create_post_form.post_body.data
             image_uuid = create_post_form.image_uuid.data
 
-            image_name = image_uuid + ".jpg"
+            if image_uuid != '':
+                image_name = post_image_rename(image_uuid)
+            else:
+                image_name = None
 
             if not title:
                 error = 'Title is required.'
@@ -72,6 +76,7 @@ def create():
     return render_template('blog/create.html', create_post_form=create_post_form)
 
 
+# better-me Maybe move this from here? Replace with a query in db_interrogations.py?
 def get_post(author_id, post_id, check_author=True):
     user_id = current_user.get_id()
 
@@ -86,6 +91,7 @@ def get_post(author_id, post_id, check_author=True):
 
 
 # TODO Check logic and functionality
+# TODO add a way to delete post images on request.
 @bp.route('/<int:post_id>/update', methods=('GET', 'POST'))
 @login_required
 def update(post_id):
@@ -101,8 +107,22 @@ def update(post_id):
     if request.method == 'POST':
         title = update_form.update_title.data
         body = update_form.update_body.data
+        image_uuid = update_form.image_uuid.data
 
-        update_post(user_id, title, body, post_id)
+        if image_uuid != '':
+            image_name = post_image_rename(image_uuid)
+        else:
+            image_name = None
+
+        current_post_image = post.post_image_name
+
+        if current_post_image and image_name is not None:
+            delete_post_image(current_post_image)
+            update_post(user_id, title, body, post_id, image_name)
+        elif current_post_image is None and image_name is not None:
+            update_post(user_id, title, body, post_id, image_name)
+        else:
+            update_post(user_id, title, body, post_id, current_post_image)
 
         return redirect(url_for(blog_index_entrypoint))
 
@@ -115,6 +135,10 @@ def update(post_id):
 @login_required
 def delete(post_id):
     user_id = current_user.get_id()
+
+    post = get_post(user_id, post_id)
+
+    delete_post_image(post.post_image_name)
 
     delete_post(user_id, post_id)
     db.session.commit()
