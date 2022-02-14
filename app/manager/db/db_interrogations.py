@@ -86,7 +86,7 @@ def insert_validation_reasons(reasons: str):
     return db.session.add(ValidationSavingReason(saving_reason=reasons))
 
 
-def insert_post(title: str, body: str, author_id: str, post_image_name: str):
+def insert_post(title: str, body: str, author_id: str, post_image_name: Union[None, str]):
     return db.session.add(Post(title=title, body=body, author_id=author_id, post_image_name=post_image_name))
 
 
@@ -354,10 +354,11 @@ Database UPDATE queries section
 """
 
 
-def update_post(user: int, title: str, body: str, post_id: str):
+def update_post(user: int, title: str, body: str, post_id: str, image_name: Union[None, str]):
     post = Post.query.filter_by(id=post_id, author_id=user).first()
     post.title = title
     post.body = body
+    post.post_image_name = image_name
 
     db.session.commit()
 
