@@ -1,8 +1,11 @@
+import os
 import secrets
 from datetime import datetime
 
 from flask import Flask, flash
 from wtforms.validators import ValidationError
+
+from app import Config
 
 app_endpoints = {
     'revenue_entry_endpoint': 'budget.add_revenue_entry',
@@ -19,6 +22,28 @@ ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
 
 def allowed_file(filename):
     return '.' in filename and filename.split('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def delete_post_image(image_name):
+    root_path = Config.POST_IMAGE_UPLOAD_PATH
+    post_image_path = os.path.join(root_path, image_name)
+
+    os.remove(post_image_path)
+
+    if os.path.exists(post_image_path):
+        return "Image deletion failed."
+    else:
+        return "Image successfully removed."
+
+
+def post_image_rename(image_uuid):
+    image_name = image_uuid
+    image_extension = '.jpg'
+
+    renamed_image = image_name + image_extension
+
+    return renamed_image
+
 
 
 class CustomCSRF:
