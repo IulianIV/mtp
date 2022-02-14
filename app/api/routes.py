@@ -12,7 +12,7 @@ from app import db
 from app.api import bp
 from app.manager.db.db_interrogations import get_expense_count_by_category, get_expense_count_by_item
 from app.manager.db.models import BudgetExpense, BudgetRevenue, BudgetSaving, BudgetUtilities
-from app.manager.helpers import expense_count_to_json, allowed_file, form_validated_message, form_error_message
+from app.manager.helpers import expense_count_to_json, allowed_file, form_error_message
 
 
 # fixme it is now basically inaccessible form the FE.
@@ -144,23 +144,20 @@ def save_post_image():
 
         renamed_file = uploaded_image_uuid + ".jpg"
 
-        print(renamed_file)
-
         file.filename = renamed_file
         renamed_file = secure_filename(file.filename)
 
         if file and allowed_file(renamed_file):
             file.save(os.path.join(r'D:\Projects\Programming\python\Proiecte Python\mtp\app\uploads\post', renamed_file))
-
-            form_validated_message('File successfully uploaded ' + renamed_file + ' to the database!')
         else:
             form_error_message('Invalid Upload only jpeg')
 
     return json.dumps(200)
 
+
 # TODO Accessing this endpoint with an existing image downloads the image but displays 404
 #   should show the image.
 @bp.route('/post/image/load/<path:filename>')
 def load_post_image(filename):
-    print(Config.POST_IMAGE_UPLOAD_PATH, filename)
+
     return send_from_directory(Config.POST_IMAGE_UPLOAD_PATH, filename, as_attachment=True)
