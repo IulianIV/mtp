@@ -38,6 +38,11 @@ $("div#dropzone").dropzone({
             let acceptedFile = dropzone.getAcceptedFiles()[0];
             document.getElementById("image_uuid").value = acceptedFile.upload.uuid;
         });
+
+        $('input[id="submit_update"]').click(function () {
+            let acceptedFile = dropzone.getAcceptedFiles()[0];
+            document.getElementById("image_uuid").value = acceptedFile.upload.uuid;
+        });
     }
 });
 
