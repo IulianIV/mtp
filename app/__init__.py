@@ -52,6 +52,10 @@ details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 #   see: https://flask.palletsprojects.com/en/2.0.x/errorhandling/
 # TODO Split JS scripts and only add them where needed.
 #   e.g.: the Blog view does not need to load the d3.js script
+# TODO add a script that checks if the images from the uploads/post/ folder are found in the database.
+#   if not found delete.
+# TODO add more validation to image upload:
+#   Max Files size, max resolution, only certain file types. resize image on upload.
 
 
 def create_app(test_config=None):
