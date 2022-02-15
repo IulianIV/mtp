@@ -2,11 +2,14 @@ import os
 import secrets
 from datetime import datetime
 
+import requests
 from flask import Flask, flash
 from wtforms.validators import ValidationError
 
 from app import Config
 
+# used across many routs. Greatly helps with code cohesion. This enables a way to male sure there are no duplicate
+# constants across the application
 app_endpoints = {
     'revenue_entry_endpoint': 'budget.add_revenue_entry',
     'expense_entry_endpoint': 'budget.add_expense_entry',
@@ -18,12 +21,15 @@ app_endpoints = {
 }
 
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
+GTM_ROOT = 'https://www.googletagmanager.com/gtm.js?id='
 
 
+# checks if the given filename has an extension found within the allowed filetypes.
 def allowed_file(filename):
     return '.' in filename and filename.split('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+# handles deletion of images from the uploads folder on post deletion
 def delete_post_image(image_name):
     root_path = Config.POST_IMAGE_UPLOAD_PATH
     post_image_path = os.path.join(root_path, image_name)
@@ -36,6 +42,7 @@ def delete_post_image(image_name):
         return "Image successfully removed."
 
 
+# needed to rename images that are uploaded via dropzone.js
 def post_image_rename(image_uuid):
     image_name = image_uuid
     image_extension = '.jpg'
@@ -45,7 +52,7 @@ def post_image_rename(image_uuid):
     return renamed_image
 
 
-
+# custom security token
 class CustomCSRF:
 
     def __init__(self):
@@ -55,6 +62,8 @@ class CustomCSRF:
         app.config['SECRET_KEY'] = f'{secrets.token_hex(16)}'
 
 
+# better-me maybe add this as a class rather than functions?
+# custom error flashing that enables flashing of certain error types
 def form_validated_message(validation_msg, category='validated'):
     return flash(validation_msg, category)
 
@@ -63,6 +72,8 @@ def form_error_message(error_msg, category='error'):
     return flash(error_msg, category)
 
 
+# custom form validator that checks if the input date is not set in the future relative to the present date
+# this avoids the situations where entries could be saved "in the future"
 class NoFutureDates(object):
     def __init__(self, message=None):
         if not message:
@@ -80,6 +91,7 @@ class NoFutureDates(object):
             raise ValidationError(form_error_message(self.message))
 
 
+# custom form validator that checks whether the input is a number
 class CheckForNumber(object):
 
     def __init__(self, message=None):
@@ -98,6 +110,7 @@ class CheckForNumber(object):
             raise ValidationError(form_error_message(self.message))
 
 
+# Used in faker functionality to check that given input is indeed range type
 def check_range(ranged_faker_func):
 
     def wrapper(*args):
@@ -127,3 +140,43 @@ def expense_count_to_json(data_list: list) -> dict:
     return {
         'data': items_data
     }
+
+
+# downloads a gtm script by giving a GTM Container ID
+def download_gtm_container_from_url(file_path: os.PathLike, container_id: str):
+    local_filename = os.path.join(file_path, container_id + ".js")
+
+    script_url = GTM_ROOT + container_id
+    # NOTE the stream=True parameter below
+    with requests.get(script_url, stream=True) as r:
+        r.raise_for_status()
+        with open(local_filename, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                # If you have chunk encoded response uncomment if
+                # and set chunk_size parameter to None.
+                # if chunk:
+                f.write(chunk)
+
+    return local_filename
+
+
+# checks for the existence of a GTM Script
+def check_for_script(container_id: str):
+    local_script_filename = os.path.join(Config.GTM_SPY_UPLOAD_PATH, container_id + '.js')
+
+    if os.path.exists(local_script_filename):
+        return True
+    else:
+        return False
+
+# returns a path for an existing GTM script
+def get_existing_gtm_script(container_id: str):
+    if check_for_script(container_id):
+        return os.path.join(Config.GTM_SPY_UPLOAD_PATH, container_id + '.js')
+    else:
+        return 'This container script was not found. Maybe download it?'
+
+
+# generates a URL for the given container ID
+def get_container_url(container_id: str):
+    return GTM_ROOT + container_id
