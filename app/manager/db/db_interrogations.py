@@ -349,6 +349,22 @@ def query_saving_entry(user_id: str, saving_id: str):
     return BudgetSaving.query.filter_by(user_id=user_id, id=saving_id).first()
 
 
+def check_current_month_data(user: int):
+
+    current_month_revenue = BudgetRevenue.query.filter_by(user_id=user).\
+        filter(extract('month', BudgetRevenue.revenue_date) == current_month).\
+        filter(extract('year', BudgetRevenue.revenue_date) == current_year).first()
+
+    current_month_expense = BudgetExpense.query.filter_by(user_id=user).\
+        filter(extract('month', BudgetExpense.expense_date) == current_month).\
+        filter(extract('year', BudgetExpense.expense_date) == current_year).first()
+
+    if not current_month_revenue or not current_month_expense:
+        return False
+    else:
+        return True
+
+
 """
 Database UPDATE queries section
 """
