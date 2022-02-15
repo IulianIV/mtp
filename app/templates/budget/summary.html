@@ -4,226 +4,242 @@
     <div class="row">
         <div class="col-lg-6 mb-4">
             <div class="card text-center">
-                <div class="card-header" id="monthly-summary">
-                    Current month summary
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">{{ summary_data['date'] }}</h3>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-sm" id="summary-table-1"
-                               aria-describedby="monthly-summary">
-                            <thead>
-                            <tr class="table-active">
-                                <th scope="col">Total value for this month</th>
-                                <th scope="col">Total useful value for this month</th>
-                            </tr>
-                            </thead>
-                            <tbody class="post">
-                            <tr>
-                                <th class="h4 table-primary" data-toggle="tooltip" data-placement="bottom"
-                                    title="All revenue summed" scope="row">
-                                    RON {{ '{:,}'.format(summary_data['current_month_total_revenue']) }}
-                                </th>
-                                <th class="h4 table-primary" data-toggle="tooltip" data-placement="bottom"
-                                    title="Revenue - Cost of Rent & Utilities" scope="row">
-                                    RON {{ '{:,}'.format(summary_data['current_month_useful_money']) }}
-                                </th>
-                            </tr>
-                            </tbody>
-                        </table>
-                        <table class="table table-bordered table-sm" id="summary-table-2"
-                               aria-describedby="monthly-summary">
-                            <thead>
-                            <tr class="table-active">
-                                <th scope="col">Total money spent this month</th>
-                                <th scope="col">Total spendable money for this month</th>
-                            </tr>
-                            </thead>
-                            <tbody class="post">
-                            <tr>
-                                <th class="h4 table-danger" data-toggle="tooltip" data-placement="bottom"
-                                    title="Overall expense summed" scope="row">
-                                    RON {{ '{:,}'.format(summary_data['current_month_total_expense']
-                                |round(2) ) }}
-                                </th>
-                                <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
-                                    title="Overall Revenue - Overall Expense" scope="row">RON {{ '{:,}'.format(summary_data['current_month_spendable_money']
-                                |round(2) ) }}
-                                </th>
-                            </tr>
-                            </tbody>
-                        </table>
-                        <button type="button" class="btn btn-secondary" onclick="update(category_data.responseJSON.data)
-">Expense by Category
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="update(item_data.responseJSON.data)
-">Expense by Item
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div id="my_dataviz"></div>
-        </div>
-        <div class="col-lg-6 mb-4">
-            <div class="card text-center">
-                <div class="card-header" id="saving-summary">
-                    Saving Summary
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-sm" id="summary-table-4"
-                               aria-describedby="saving-summary">
-                            <thead>
-                            <tr class="table-active">
-                                <th scope="col">EC Account</th>
-                                <th scope="col">ED Account</th>
-                                <th scope="col">IF Account</th>
-                                <th scope="col">Revolut Vault</th>
-                            </tr>
-                            </thead>
-                            <tbody class="post">
-                            <tr>
-                                <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
-                                    title="All money in EC Account Summed" scope="row">RON {{ '{:,}'.format(summary_data['ec_savings']
-                                |round(2) ) }}
-                                </th>
-                                <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
-                                    title="All money in ED Account Summed" scope="row">RON {{ '{:,}'.format(summary_data['ed_savings']
-                                |float|round(2)
-                                ) }}
-                                </th>
-                                <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
-                                    title="All money in IF Account Summed" scope="row">RON {{ '{:,}'.format(summary_data['if_savings']
-                                |round(2) ) }}
-                                </th>
-                                <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
-                                    title="All money in Revolut Vault Summed" scope="row">TBA
-                                </th>
-                            </tr>
-                            <tr class="table-active">
-                                <th colspan="4" scope="colgroup">Total Savings</th>
-                            </tr>
-                            <tr class="table-danger">
-                                <th colspan="4" class="h4" data-toggle="tooltip" data-placement="bottom"
-                                    title="Overall Summed Savings" scope="rowgroup">RON {{ '{:,}'.format(summary_data['savings_total']
-                                |round(2) ) }}
-                                </th>
-                            </tr>
-                            <tr class="table-warning">
-                                <th colspan="3" scope="colgroup">EUR Quick View</th>
-                                <th scope="rowgroup">
-                                    <button type="button" class="btn btn-secondary btn-sm" name="show_eurview">Show
-                                    </button>
-                                    <button type="button" class="btn btn-secondary btn-sm" name="hide_eurview"
-                                            style="display: none;">Hide
-                                    </button>
-                                </th>
-                            </tr>
-                            <tr class="table-primary eurview" style="display: none;">
-                                <th colspan="3" class="text-left" scope="colgroup">EC Account</th>
-                                <th colspan="3" class="h4 table-success" scope="rowgroup">€ {{ '{:,}'.format(summary_data['ec_savings_EUR']
-                                |float|round(2)
-                                ) }}
-                                </th>
-                            </tr>
-                            <tr class="table-primary eurview" style="display: none;">
-                                <th colspan="3" class="text-left" scope="colgroup">ED Account</th>
-                                <th colspan="3" class="h4 table-success" scope="rowgroup">€ {{ '{:,}'.format(summary_data['ed_savings_EUR']
-                                |float|round(2)
-                                ) }}
-                                </th>
-                            </tr>
-                            <tr class="table-primary eurview" style="display: none;">
-                                <th colspan="3" class="text-left" scope="colgroup">IF Account</th>
-                                <th colspan="3" class="h4 table-success" scope="rowgroup">€ {{ '{:,}'.format(summary_data['if_savings_EUR']
-                                |float|round(2)
-                                ) }}
-                                </th>
-                            </tr>
-                            <tr class="table-primary eurview" style="display: none;">
-                                <th colspan="3" class="text-left" scope="colgroup">Revolut Vault Account</th>
-                                <th colspan="3" class="h4 table-success" scope="rowgroup">TBA
-                                </th>
-                            </tr>
-                            <tr class="table-primary eurview" style="display: none;">
-                                <th colspan="3" class="text-left" scope="colgroup">Total Savings Account</th>
-                                <th colspan="3" class="h4 table-success" scope="rowgroup">
-                                    € {{ '{:,}'.format(summary_data['savings_total_EUR'] |round(2) ) }}
-                                </th>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="card text-center">
-                    <div class="card-header" id="cashflow">
-                        Cash Flow
+                {% if summary_data['current_month_exists'] %}
+                    <div class="card-header" id="monthly-summary">
+                        Current month summary
                     </div>
                     <div class="card-body">
+                        <h3 class="card-title">{{ summary_data['date'] }}</h3>
                         <div class="table-responsive">
-                            <table class="table table-bordered table-sm" id="summary-table-5"
-                                   aria-describedby="cashflow">
+                            <table class="table table-bordered table-sm" id="summary-table-1"
+                                   aria-describedby="monthly-summary">
                                 <thead>
                                 <tr class="table-active">
-                                    <th scope="col">Bank</th>
-                                    <th scope="col">Revolut</th>
-                                    <th scope="col">Cash</th>
+                                    <th scope="col">Total value for this month</th>
+                                    <th scope="col">Total useful value for this month</th>
                                 </tr>
                                 </thead>
                                 <tbody class="post">
                                 <tr>
-                                    <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
-                                        title="Overall money available in Bank" scope="row">TBA
+                                    <th class="h4 table-primary" data-toggle="tooltip" data-placement="bottom"
+                                        title="All revenue summed" scope="row">
+                                        RON {{ '{:,}'.format(summary_data['current_month_total_revenue']) }}
                                     </th>
-                                    <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
-                                        title="Overall money available on Revolut" scope="row">TBA
-                                    </th>
-                                    <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
-                                        title="Overall cash money" scope="row">TBA
+                                    <th class="h4 table-primary" data-toggle="tooltip" data-placement="bottom"
+                                        title="Revenue - Cost of Rent & Utilities" scope="row">
+                                        RON {{ '{:,}'.format(summary_data['current_month_useful_money']) }}
                                     </th>
                                 </tr>
                                 </tbody>
                             </table>
+                            <table class="table table-bordered table-sm" id="summary-table-2"
+                                   aria-describedby="monthly-summary">
+                                <thead>
+                                <tr class="table-active">
+                                    <th scope="col">Total money spent this month</th>
+                                    <th scope="col">Total spendable money for this month</th>
+                                </tr>
+                                </thead>
+                                <tbody class="post">
+                                <tr>
+                                    <th class="h4 table-danger" data-toggle="tooltip" data-placement="bottom"
+                                        title="Overall expense summed" scope="row">
+                                        RON {{ '{:,}'.format(summary_data['current_month_total_expense']
+                                |round(2) ) }}
+                                    </th>
+                                    <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
+                                        title="Overall Revenue - Overall Expense" scope="row">RON {{ '{:,}'.format(summary_data['current_month_spendable_money']
+                                |round(2) ) }}
+                                    </th>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn btn-secondary" onclick="update(category_data.responseJSON.data)
+">Expense by Category
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="update(item_data.responseJSON.data)
+">Expense by Item
+                            </button>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card mb-4">
-        <div class="card text-center">
-            <div class="card-header" id="expense-summary">
-                This month expenses summarized
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-sm" id="summary-table-3"
-                           aria-describedby="expense-summary">
-                        <thead>
-                        <tr class="table-success">
-                            <th scope="col">Date</th>
-                            <th scope="col">Total Spent</th>
-                            <th scope="col">Items</th>
-                            <th scope="col">Category</th>
-                        </tr>
-                        </thead>
-                        <tbody class="post">
-                        {% for entry in summary_data['current_month_summary'] %}
-                            <tr>
-                                <th class="table-primary" scope="row">{{ entry[1].strftime('%A, %B %d') }}</th>
-                                <th class="table-warning" scope="row">{{ entry[2] }}</th>
-                                <th class="table-warning" scope="row">{{ entry[3] }}</th>
-                                <th class="table-warning" scope="row">{{ entry[4] }}</th>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% block scripts %}
-        <script type="text/javascript" src="{{ url_for('static', filename='js/helpers.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/graphs.js') }}"></script>
-    {% endblock %}
+                    </div>
+                    <div id="my_dataviz"></div>
+                    </div>
+                    <div class="col-lg-6 mb-4">
+                        <div class="card text-center">
+                            <div class="card-header" id="saving-summary">
+                                Saving Summary
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm" id="summary-table-4"
+                                           aria-describedby="saving-summary">
+                                        <thead>
+                                        <tr class="table-active">
+                                            <th scope="col">EC Account</th>
+                                            <th scope="col">ED Account</th>
+                                            <th scope="col">IF Account</th>
+                                            <th scope="col">Revolut Vault</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody class="post">
+                                        <tr>
+                                            <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
+                                                title="All money in EC Account Summed" scope="row">RON {{ '{:,}'.format(summary_data['ec_savings']
+                                |round(2) ) }}
+                                            </th>
+                                            <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
+                                                title="All money in ED Account Summed" scope="row">RON {{ '{:,}'.format(summary_data['ed_savings']
+                                |float|round(2)
+                                ) }}
+                                            </th>
+                                            <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
+                                                title="All money in IF Account Summed" scope="row">RON {{ '{:,}'.format(summary_data['if_savings']
+                                |round(2) ) }}
+                                            </th>
+                                            <th class="h4 table-success" data-toggle="tooltip" data-placement="bottom"
+                                                title="All money in Revolut Vault Summed" scope="row">TBA
+                                            </th>
+                                        </tr>
+                                        <tr class="table-active">
+                                            <th colspan="4" scope="colgroup">Total Savings</th>
+                                        </tr>
+                                        <tr class="table-danger">
+                                            <th colspan="4" class="h4" data-toggle="tooltip" data-placement="bottom"
+                                                title="Overall Summed Savings" scope="rowgroup">RON {{ '{:,}'.format(summary_data['savings_total']
+                                |round(2) ) }}
+                                            </th>
+                                        </tr>
+                                        <tr class="table-warning">
+                                            <th colspan="3" scope="colgroup">EUR Quick View</th>
+                                            <th scope="rowgroup">
+                                                <button type="button" class="btn btn-secondary btn-sm"
+                                                        name="show_eurview">Show
+                                                </button>
+                                                <button type="button" class="btn btn-secondary btn-sm"
+                                                        name="hide_eurview"
+                                                        style="display: none;">Hide
+                                                </button>
+                                            </th>
+                                        </tr>
+                                        <tr class="table-primary eurview" style="display: none;">
+                                            <th colspan="3" class="text-left" scope="colgroup">EC Account</th>
+                                            <th colspan="3" class="h4 table-success" scope="rowgroup">€ {{ '{:,}'.format(summary_data['ec_savings_EUR']
+                                |float|round(2)
+                                ) }}
+                                            </th>
+                                        </tr>
+                                        <tr class="table-primary eurview" style="display: none;">
+                                            <th colspan="3" class="text-left" scope="colgroup">ED Account</th>
+                                            <th colspan="3" class="h4 table-success" scope="rowgroup">€ {{ '{:,}'.format(summary_data['ed_savings_EUR']
+                                |float|round(2)
+                                ) }}
+                                            </th>
+                                        </tr>
+                                        <tr class="table-primary eurview" style="display: none;">
+                                            <th colspan="3" class="text-left" scope="colgroup">IF Account</th>
+                                            <th colspan="3" class="h4 table-success" scope="rowgroup">€ {{ '{:,}'.format(summary_data['if_savings_EUR']
+                                |float|round(2)
+                                ) }}
+                                            </th>
+                                        </tr>
+                                        <tr class="table-primary eurview" style="display: none;">
+                                            <th colspan="3" class="text-left" scope="colgroup">Revolut Vault Account
+                                            </th>
+                                            <th colspan="3" class="h4 table-success" scope="rowgroup">TBA
+                                            </th>
+                                        </tr>
+                                        <tr class="table-primary eurview" style="display: none;">
+                                            <th colspan="3" class="text-left" scope="colgroup">Total Savings Account
+                                            </th>
+                                            <th colspan="3" class="h4 table-success" scope="rowgroup">
+                                                € {{ '{:,}'.format(summary_data['savings_total_EUR'] |round(2) ) }}
+                                            </th>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card text-center">
+                                <div class="card-header" id="cashflow">
+                                    Cash Flow
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-sm" id="summary-table-5"
+                                               aria-describedby="cashflow">
+                                            <thead>
+                                            <tr class="table-active">
+                                                <th scope="col">Bank</th>
+                                                <th scope="col">Revolut</th>
+                                                <th scope="col">Cash</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="post">
+                                            <tr>
+                                                <th class="h4 table-success" data-toggle="tooltip"
+                                                    data-placement="bottom"
+                                                    title="Overall money available in Bank" scope="row">TBA
+                                                </th>
+                                                <th class="h4 table-success" data-toggle="tooltip"
+                                                    data-placement="bottom"
+                                                    title="Overall money available on Revolut" scope="row">TBA
+                                                </th>
+                                                <th class="h4 table-success" data-toggle="tooltip"
+                                                    data-placement="bottom"
+                                                    title="Overall cash money" scope="row">TBA
+                                                </th>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card text-center">
+                            <div class="card-header" id="expense-summary">
+                                This month expenses summarized
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm" id="summary-table-3"
+                                           aria-describedby="expense-summary">
+                                        <thead>
+                                        <tr class="table-success">
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Total Spent</th>
+                                            <th scope="col">Items</th>
+                                            <th scope="col">Category</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody class="post">
+                                        {% for entry in summary_data['current_month_summary'] %}
+                                            <tr>
+                                                <th class="table-primary"
+                                                    scope="row">{{ entry[1].strftime('%A, %B %d') }}</th>
+                                                <th class="table-warning" scope="row">{{ entry[2] }}</th>
+                                                <th class="table-warning" scope="row">{{ entry[3] }}</th>
+                                                <th class="table-warning" scope="row">{{ entry[4] }}</th>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% block scripts %}
+                        <script type="text/javascript" src="{{ url_for('static', filename='js/helpers.js') }}"></script>
+                        <script type="text/javascript" src="{{ url_for('static', filename='js/graphs.js') }}"></script>
+                    {% endblock %}
+                {% else %}
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <h3 class="card-title">There is no data for the current month</h3>
+                        </div>
+                    </div>
+                {% endif %}
 {% endblock %}
