@@ -20,7 +20,7 @@
             {% for post in posts %}
                 <div class="col-md-6 col-lg-4 pb-3">
                     <div class="card card-custom bg-white border-white border-0" style="height: 450px">
-                    {% if post.post_image_name %}
+                    {% if post.post_image_name and not current_user.is_anonymous %}
                         <div class="card-custom-img"
                              style="background-image: url({{ url_for('api.load_post_image', filename=post.post_image_name) }})"></div>
                         <div class="card-custom-avatar">
