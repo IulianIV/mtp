@@ -23,7 +23,7 @@ from app.manager.db.db_interrogations import (
     insert_validation_reasons, query_utilities_entries, get_utilities_count, insert_utilities, query_utilities_entry,
     update_utility_entry, query_revenue_entry, update_revenue_entry, query_expense_entry, update_expense_entry,
     query_saving_entry, update_saving_entry, delete_utility_entry, delete_revenue_entry, delete_expense_entry,
-    delete_saving_entry
+    delete_saving_entry, check_current_month_data
 )
 from app.manager.helpers import CustomCSRF, form_validated_message, form_error_message, app_endpoints
 
@@ -42,7 +42,6 @@ budget_template_endpoints = {
 }
 
 
-# TODO format dates to a more user-friendly format
 # TODO Create a "transfer" view where you can initiate transfers between accounts - Spend -> saving and vice-versa.
 # TODO Make sure to add form_validation_error/success to all views.
 
@@ -51,44 +50,53 @@ budget_template_endpoints = {
 def summary():
     user_id = current_user.get_id()
 
-    now = datetime.now()
-    display_date = now.strftime('%B, ') + now.strftime('%Y')
+    current_month_exists = check_current_month_data(user_id)
 
-    current_month_revenue_values = get_current_month_data(user_id)['revenue']
-    total_current_month_revenue = sum(current_month_revenue_values[x][0] for x
-                                      in range(len(current_month_revenue_values)))
+    if current_month_exists:
 
-    current_month_expense_values = get_current_month_data(user_id)['expense']
-    total_current_month_expense = sum(current_month_expense_values[x][0] for x
-                                      in range(len(current_month_expense_values)))
+        now = datetime.now()
+        display_date = now.strftime('%B, ') + now.strftime('%Y')
 
-    ec_savings_total_value = sum([x.saving_value for x in get_savings_data(user_id)['ec']])
-    ed_savings_total_value = sum([x.saving_value for x in get_savings_data(user_id)['ed']])
-    if_savings_total_value = sum([x.saving_value for x in get_savings_data(user_id)['if']])
-    overall_savings_total = ec_savings_total_value + ed_savings_total_value + if_savings_total_value
+        current_month_revenue_values = get_current_month_data(user_id)['revenue']
+        total_current_month_revenue = sum(current_month_revenue_values[x][0] for x
+                                          in range(len(current_month_revenue_values)))
 
-    current_month_general_summary = [x for x in get_current_month_summary(user_id)]
+        current_month_expense_values = get_current_month_data(user_id)['expense']
+        total_current_month_expense = sum(current_month_expense_values[x][0] for x
+                                          in range(len(current_month_expense_values)))
 
-    current_month_useful_money = total_current_month_revenue - get_current_month_mandatory_expense(user_id)
+        ec_savings_total_value = sum([x.saving_value for x in get_savings_data(user_id)['ec']])
+        ed_savings_total_value = sum([x.saving_value for x in get_savings_data(user_id)['ed']])
+        if_savings_total_value = sum([x.saving_value for x in get_savings_data(user_id)['if']])
+        overall_savings_total = ec_savings_total_value + ed_savings_total_value + if_savings_total_value
 
-    current_month_spendable_money = total_current_month_revenue - total_current_month_expense
+        current_month_general_summary = [x for x in get_current_month_summary(user_id)]
 
-    summary_data = {
-        'date': display_date,
-        'current_month_total_revenue': total_current_month_revenue,
-        'current_month_total_expense': total_current_month_expense,
-        'ec_savings': ec_savings_total_value,
-        'ed_savings': ed_savings_total_value,
-        'if_savings': if_savings_total_value,
-        'savings_total': overall_savings_total,
-        'ec_savings_EUR': currency.convert('RON', 'EUR', ec_savings_total_value),
-        'ed_savings_EUR': currency.convert('RON', 'EUR', ed_savings_total_value),
-        'if_savings_EUR': currency.convert('RON', 'EUR', if_savings_total_value),
-        'savings_total_EUR': currency.convert('RON', 'EUR', overall_savings_total),
-        'current_month_summary': current_month_general_summary,
-        'current_month_useful_money': current_month_useful_money,
-        'current_month_spendable_money': current_month_spendable_money
-    }
+        current_month_useful_money = total_current_month_revenue - get_current_month_mandatory_expense(user_id)
+
+        current_month_spendable_money = total_current_month_revenue - total_current_month_expense
+
+        summary_data = {
+            'current_month_exists': current_month_exists,
+            'date': display_date,
+            'current_month_total_revenue': total_current_month_revenue,
+            'current_month_total_expense': total_current_month_expense,
+            'ec_savings': ec_savings_total_value,
+            'ed_savings': ed_savings_total_value,
+            'if_savings': if_savings_total_value,
+            'savings_total': overall_savings_total,
+            'ec_savings_EUR': currency.convert('RON', 'EUR', ec_savings_total_value),
+            'ed_savings_EUR': currency.convert('RON', 'EUR', ed_savings_total_value),
+            'if_savings_EUR': currency.convert('RON', 'EUR', if_savings_total_value),
+            'savings_total_EUR': currency.convert('RON', 'EUR', overall_savings_total),
+            'current_month_summary': current_month_general_summary,
+            'current_month_useful_money': current_month_useful_money,
+            'current_month_spendable_money': current_month_spendable_money
+        }
+    else:
+        summary_data = {
+            'current_month_exists': current_month_exists
+        }
 
     return render_template('budget/summary.html', summary_data=summary_data)
 
