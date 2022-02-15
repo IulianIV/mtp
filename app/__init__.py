@@ -31,11 +31,6 @@ Which is better, why does the latter work only if implemented by the formers met
 details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 
 """
-# TODO Post Image in DataBase
-#   if no image is provided randomly generate one (avatar & post alike)
-#   all should be deletable/editable. If on edit a image is deleted and no other is provided, generate a random one.
-#   Same for user creation. Can be added an Image. If none, generate.
-#   Images should have requirements for upload for posting.
 # TODO add a password reset form and password request form.
 # TODO add e-mail validation for accounts.
 # TODO have password fields be checked as is and when hashed.
