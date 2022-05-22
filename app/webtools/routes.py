@@ -4,6 +4,7 @@ from urllib.parse import quote, unquote, urlparse, parse_qs
 from flask import (
     render_template, request
 )
+from flask_login import current_user
 
 from app import db
 from app.auth.routes import login_required
@@ -34,6 +35,8 @@ encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', '
 @bp.route('/url-encode-decode-parser', methods=('GET', 'POST'))
 @login_required
 def url_encode_decode_parse():
+
+    user_id = current_user.get_id()
 
     coder_parser_form = forms.EncodeDecodeParse()
     validated = False
@@ -66,7 +69,7 @@ def url_encode_decode_parse():
                     form_error_message(f'Your URL contains unsupported characters for {selected_encoding} encoding.')
                 else:
                     validated = True
-                    add_new_url(url_field, 'encode', selected_encoding)
+                    add_new_url(user_id, url_field, 'encode', selected_encoding)
                     db.session.commit()
                     form_validated_message('URL successfully encoded.')
 
@@ -79,12 +82,12 @@ def url_encode_decode_parse():
                     form_error_message('The decode encountered a UTF-8 error. All occurrences of "_#_" in your result '
                                        'represent characters that have thrown the error.')
                     validated = True
-                    add_new_url(url_field, decode, selected_encoding)
+                    add_new_url(user_id, url_field, decode, selected_encoding)
                     db.session.commit()
                 else:
                     form_validated_message('URL successfully decoded.')
                     validated = True
-                    add_new_url(url_field, 'decode', selected_encoding)
+                    add_new_url(user_id, url_field, 'decode', selected_encoding)
                     db.session.commit()
 
         # TODO add advanced query parsing with the ability to choose encoding (from already existing form)
@@ -100,7 +103,7 @@ def url_encode_decode_parse():
 
             raw_url_query = parse_qs(parsed_url.query)
 
-            add_new_url(url_to_split, None, None)
+            add_new_url(user_id, url_to_split, None, None)
             db.session.commit()
 
             form_validated_message('URL parsed successfully!')
