@@ -155,3 +155,7 @@ hello.py
 /migrations/
 /app/uploads/post/
 /app/uploads/gtm_scripts/
+/app/static/js/js_debug/
+/app/static/graphs/
+/private_key.ppk
+/public_key.pub
