@@ -4,8 +4,13 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
+    SECRET_KEY = os.urandom(32)
+    FLASK_APP = 'mtp'
+    FLASK_ENV = 'development'
+    DEBUG = True
 
     if basedir == '/home/maiels/mtp':
+
         db_u = 'maiels'
         db_p = '4ytgM2KEAjvSWwaLR57r'
         db_h = 'maiels.mysql.pythonanywhere-services.com'
@@ -18,6 +23,7 @@ class Config:
         POST_IMAGE_UPLOAD_PATH = os.path.join(basedir, 'app\\uploads\\post\\')
         GTM_SPY_DOWNLOAD_PATH = os.path.join(basedir, 'app\\uploads\\gtm_scripts')
     else:
+
         SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:admin@localhost/mtp'
         SQLALCHEMY_TRACK_MODIFICATIONS = False
         DEBUG_TB_PROFILER_ENABLED = True
