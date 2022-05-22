@@ -159,3 +159,4 @@ hello.py
 /app/static/graphs/
 /private_key.ppk
 /public_key.pub
+config.py
