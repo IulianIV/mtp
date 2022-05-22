@@ -3,7 +3,7 @@ import random
 import click
 from faker import Faker
 from flask import (
-    redirect, render_template, request
+    redirect, render_template, request, url_for
 )
 from flask_login import current_user
 
