@@ -14,7 +14,7 @@ class Config:
     DEBUG_TB_PROFILER_ENABLED = True
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     POST_IMAGE_UPLOAD_PATH = os.path.join(basedir, 'app\\uploads\\post\\')
-    GTM_SPY_UPLOAD_PATH = os.path.join(basedir, 'app\\uploads\\gtm_scripts')
+    GTM_SPY_DOWNLOAD_PATH = os.path.join(basedir, 'app\\uploads\\gtm_scripts')
 
 
 
