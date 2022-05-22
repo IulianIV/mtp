@@ -2,7 +2,6 @@ import os
 import secrets
 from datetime import datetime
 
-import requests
 from flask import Flask, flash
 from wtforms.validators import ValidationError
 
@@ -21,7 +20,6 @@ app_endpoints = {
 }
 
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
-GTM_ROOT = 'https://www.googletagmanager.com/gtm.js?id='
 
 
 # checks if the given filename has an extension found within the allowed filetypes.
@@ -140,43 +138,3 @@ def expense_count_to_json(data_list: list) -> dict:
     return {
         'data': items_data
     }
-
-
-# downloads a gtm script by giving a GTM Container ID
-def download_gtm_container_from_url(file_path: os.PathLike, container_id: str):
-    local_filename = os.path.join(file_path, container_id + ".js")
-
-    script_url = GTM_ROOT + container_id
-    # NOTE the stream=True parameter below
-    with requests.get(script_url, stream=True) as r:
-        r.raise_for_status()
-        with open(local_filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                # If you have chunk encoded response uncomment if
-                # and set chunk_size parameter to None.
-                # if chunk:
-                f.write(chunk)
-
-    return local_filename
-
-
-# checks for the existence of a GTM Script
-def check_for_script(container_id: str):
-    local_script_filename = os.path.join(Config.GTM_SPY_UPLOAD_PATH, container_id + '.js')
-
-    if os.path.exists(local_script_filename):
-        return True
-    else:
-        return False
-
-# returns a path for an existing GTM script
-def get_existing_gtm_script(container_id: str):
-    if check_for_script(container_id):
-        return os.path.join(Config.GTM_SPY_UPLOAD_PATH, container_id + '.js')
-    else:
-        return 'This container script was not found. Maybe download it?'
-
-
-# generates a URL for the given container ID
-def get_container_url(container_id: str):
-    return GTM_ROOT + container_id
