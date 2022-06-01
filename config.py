@@ -7,7 +7,7 @@ class Config:
     SECRET_KEY = os.urandom(32)
     FLASK_APP = 'mtp'
     FLASK_ENV = 'development'
-    DEBUG = True
+    DEBUG = False
 
     if basedir == '/home/maiels/mtp':
 
@@ -22,6 +22,8 @@ class Config:
         DEBUG_TB_PROFILER_ENABLED = True
         POST_IMAGE_UPLOAD_PATH = os.path.join(basedir, 'app/uploads/post/')
         GTM_SPY_DOWNLOAD_PATH = os.path.join(basedir, 'app/uploads/gtm_scripts')
+
+        DEBUG = True
     else:
 
         SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:admin@localhost/mtp'
