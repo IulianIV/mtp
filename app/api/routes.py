@@ -1,7 +1,6 @@
 import json
 import os
 
-import git
 from flask import (
     request, redirect, url_for, send_from_directory
 )
@@ -162,16 +161,3 @@ def save_post_image():
 def load_post_image(filename):
 
     return send_from_directory(Config.POST_IMAGE_UPLOAD_PATH, filename, as_attachment=True)
-
-# Takes care of synchronising the main/origin branch from GitHub to PythonAnywhere
-@bp.route('/update-server', methods=['POST'])
-def update_server():
-    if request.method == 'POST':
-        repository = git.Repo('/home/maiels/mtp/.git')
-        origin = repository.remotes.origin
-
-        origin.pull()
-
-        return 'Updated MTP Successfully', 200
-    else:
-        return 'Wrong event type', 400
