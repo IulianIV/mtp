@@ -16,6 +16,7 @@ from app.manager.helpers import form_validated_message, form_error_message, Cust
 
 custom_protection = CustomCSRF()
 blog_index_entrypoint = app_endpoints['blog_index']
+login_endpoint = app_endpoints['login']
 
 
 # TODO add edited info. New field in database and update on edit/save
@@ -25,6 +26,8 @@ blog_index_entrypoint = app_endpoints['blog_index']
 # TODO if you want to add filtering/sorting the above proposed carousel implementation might not be so good.
 @bp.route('/')
 def index():
+    if not current_user.is_authenticated:
+        return redirect(url_for(login_endpoint))
     posts = query_blog_posts()
     return render_template('blog/index.html', posts=posts, author_name=get_username_from_post_author,
                            user=get_user_from_post_author)
