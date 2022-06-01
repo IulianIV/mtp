@@ -23,7 +23,6 @@ class Config:
         POST_IMAGE_UPLOAD_PATH = os.path.join(basedir, 'app/uploads/post/')
         GTM_SPY_DOWNLOAD_PATH = os.path.join(basedir, 'app/uploads/gtm_scripts')
 
-        DEBUG = True
     else:
 
         SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:admin@localhost/mtp'
@@ -32,6 +31,8 @@ class Config:
         DEBUG_TB_INTERCEPT_REDIRECTS = False
         POST_IMAGE_UPLOAD_PATH = os.path.join(basedir, 'app\\uploads\\post\\')
         GTM_SPY_DOWNLOAD_PATH = os.path.join(basedir, 'app\\uploads\\gtm_scripts')
+
+        DEBUG = True
 
 
 

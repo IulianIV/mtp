@@ -21,8 +21,8 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     # temporary added in deployment version to remove ability to register
-    else:
-        return redirect(url_for('index'))
+    # else:
+    #     return redirect(url_for('index'))
 
     register_form = RegisterForm()
 
