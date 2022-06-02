@@ -160,3 +160,6 @@ hello.py
 /private_key.ppk
 /public_key.pub
 config.py
+/node_modules/
+/node_files/test_mjml.mjml
+/package-lock.json
