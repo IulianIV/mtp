@@ -10231,7 +10231,7 @@ body {
   z-index: 1039;
 }
 .sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
-  width: 225px;
+  width: 80px;
   height: 100vh;
   z-index: 1038;
 }
@@ -10243,7 +10243,7 @@ body {
 }
 .sb-nav-fixed #layoutSidenav #layoutSidenav_content {
   /* padding-left: 225px; Custom removed to fit new design scheme */
-  top: 56px;
+  top: 100px;
 }
 
 #layoutError {

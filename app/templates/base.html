@@ -7,7 +7,7 @@
     {% if config['DEBUG'] %}
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     {% else %}
-        <link rel="stylesheet" href="https://tech-biomed.com/mtp_static/styles.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     {% endif %}
     {# end of conditional debugging #}
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon2.ico') }}">
