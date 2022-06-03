@@ -148,7 +148,7 @@ def save_post_image():
         renamed_file = secure_filename(file.filename)
 
         if file and allowed_file(renamed_file):
-            file.save(os.path.join(r'D:\Projects\Programming\python\Proiecte Python\mtp\app\uploads\post', renamed_file))
+            file.save(os.path.join(Config.POST_IMAGE_UPLOAD_PATH, renamed_file))
         else:
             form_error_message('Invalid Upload only jpeg')
 
