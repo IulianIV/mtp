@@ -18,6 +18,14 @@ custom_protection = CustomCSRF()
 blog_index_entrypoint = app_endpoints['blog_index']
 login_endpoint = app_endpoints['login']
 
+# fixme Adding posts with Faker does not add images. Post deletion relies on also deleting an image.
+#   If there is no image for said post, skip image check and delete the database entry.
+#   Same situation if the image name from the server somehow got renamed other than what it is in the database.
+
+# TODO Create a cleanup script that checks if the image names in the database exist in the server folder structure.
+#   if they are not found, update the database with NULL at the image column.
+#   On post image load or deletion, if NULL skip image check and delete post.
+
 
 # TODO add edited info. New field in database and update on edit/save
 # TODO handle blog posts pagination. Maybe similar to the one introduced in the Budget App but with no tables.
