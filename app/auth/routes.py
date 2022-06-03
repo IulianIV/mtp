@@ -59,7 +59,8 @@ def register():
 def login():
 
     if current_user.is_authenticated:
-        return redirect(url_for('/'))
+        form_error_message('You are already logged in.')
+        return redirect(url_for('index'))
 
     login_form = LoginForm()
 
