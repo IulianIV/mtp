@@ -10,22 +10,18 @@ At the moment there are several modules implemented that are still a work in pro
    4. Track Cards & Accounts;
    5. Reporting module Statistics & Forecasting.
 2. **Micro-blog app**:
-   1. Small prototype that is a twitter clone but with some personal touches;
-   2. Just for fun. Doesn't have any real usage.
+   1. Just for fun. Doesn't have any real usage.
 3. **Health Tracking app**:
    1. Weight tracker;
    2. Training tracker;
    3. Strength and performance tracker.
 4. **Media Collection**:
-   1. Seen Movies and TV Shows;
-   2. Seen Anime;
-   3. Read Books;
-   4. Games played.
+   1. Seen Movies & TV Shows;
+   2. Read Books;
+   3. Games played.
 5. **Marketing Tools**:
    1. GTM Container Spy;
-      1. _this might end up being a module itself_.
    2. Google Geolocation feed manipulator;
-      1. _an example of this was created in sheets_ (not efficient enough though).
    3. ***Others will be added***
 
 There are several smaller functionalities that are to be implemented for ease of usage.
@@ -51,7 +47,6 @@ _Based on the difficulty of the implementation some functionalities will be impl
    3. Print the OpenGraph Snippet and Preview for multiple social media accounts;
       1. if chosen preview should be in a prompt;
    4. Print JSON-LD schema and the schema name, if exists.
-8. **Work Tools** - such as Catalog Management and Automations;
 9. **Google Sheets and Excel Integrations**;
 10. **E-book Manager** that connects to Calibre and sends books to kindle;
 11. Besides DB backup, **export everything as CSV files** as hard backups;
@@ -61,39 +56,13 @@ _Based on the difficulty of the implementation some functionalities will be impl
 14. **User profile** They can see blog posts, privileges etc.
 15. **Marketing UTM Analyzer** based on the URLs parsed by the URL parser.
     1. a URL is parsed there and checked if you want to add it to the UTm analyzer. Upon "yes" it will get passed to a database.
-    A better explanation to the functionality can be viewed as a template, check --> [this URL](http://127.0.0.1:5000/analytics/utm-analyzer-template) (TO BE MOVED FROM HERE TO OWN MODULE).
     This analysis should be done only on URLs that contain UTM tags. The stats reporting for URL reports a general overview, this will be more specific.
-    2. Eventually, a module that handles custom marketing parameters should be added (maybe if the user selects if a UTL is deemed as marketing)
-
-General App Wide TODOs:
-
-2. Make sure **SQLAlchemy is implemented everywhere** a database connection is needed.
-3. [x] **Basic Multiple Users** Have databases populated with details from the currently logged-in user. Show data accordingly.
-4. **Add permissions**. What can a standard user do and what can an admin do?
-   1. _Admin_: Can see and do everything;
-   2. _Spectator_: Can only view;
-   3. _Editor_: Can't see and use unit tests, dataflow;
-5. **Revamp the authentication logic**.
-   1. User login;
-   2. User logout;
-   3. User forgot password;
-   4. User Registering.
-6. **E-mail notifications** and e-mail management (for authentication purposes and newsletters)
-7. Try implementing **class abstraction** where necessary.
-8. Add a "help me/about" section in the menu with general info.
-
+    2. Eventually, a module that handles custom marketing parameters should be added (maybe if the user selects if a UTL is deemed as marketing
 
 # App Structure
 
 The app is structured using Flask Factory with Blueprints for the possibility to seamlessly create new apps.
 Using Blueprints also improves portability. 
-
-The disadvantage is that it more than often has circular import issues.
-More than often, circular imports can be fixed by not calling a package or functionality before it has been successfully loaded
-(this is more likely to throw a `app out of context` error).
-
-In certain cases (more often that necessary) imports can be added at the end of the file.
-(this is not a PEP recommendation, but it is accepted when absolutely necessary)
 
 The project is structured the following way:
 * Project folder-
@@ -127,4 +96,5 @@ Project folder
 ├───app_name.py
 ├───setup.py
 ├───README.md
+├───Other files...
 ```
