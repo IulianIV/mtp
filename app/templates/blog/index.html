@@ -40,7 +40,7 @@
                         <div class="card-body" style="overflow-y: auto">
                             <h4 class="card-title">{{ post.title }}</h4>
                             <p class="card-text">{{ post.body | safe }}
-                            <p class="card-text">by {{ author_name(post.author_id) }}
+                            <p class="card-text">by <strong>{{ author_name(post.author_id) }}</strong>
                                 on {{ post.created.strftime('%Y-%m-%d') }}</p>
                         </div>
                         {% if current_user.id == post.author_id %}

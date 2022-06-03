@@ -26,6 +26,9 @@ login_endpoint = app_endpoints['login']
 #   if they are not found, update the database with NULL at the image column.
 #   On post image load or deletion, if NULL skip image check and delete post.
 
+# fixme Apparently, starting a post, adding an image and then cancelling the post creation still saves the image
+#   To avoid overcomplication, upon post cancelling grab the image uuid then delete it from the server files.
+
 
 # TODO add edited info. New field in database and update on edit/save
 # TODO handle blog posts pagination. Maybe similar to the one introduced in the Budget App but with no tables.
