@@ -23,7 +23,7 @@ toolbar = DebugToolbarExtension()
 # TODO Upon choosing a test database, a initialization will autofill with fake data.
 # TODO Fix this CLI implementation confusion.
 
-""" 
+"""
  there seems to be some confusion on how CLI are implemented.
 @click.command() coupled with @with_appcontext is for situation when the flask.cli built-in method is not used.
 @blueprint_name.cli.command() is the flask.cli built-in method.
@@ -33,13 +33,11 @@ details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 
 """
 # TODO add a password reset form and password request form.
-# TODO add e-mail validation for accounts.
 # TODO have password fields be checked as is and when hashed.
 # TODO add UTM module from README.md
 # TODO Create user profile view
 # fixme Validation items should only be editable by an ADMIN or at least make sure that
 #   what should be unique stays unique
-# better-me get admin user by permission not by id "1" which just happens to be admin.
 # better-me Check coupling among all apps. There should be as little as possible functions with responsibilities outside
 #   their set scope.
 # TODO check what happens when URLs such as Update/Delete are accessed without an account and protect those views.
@@ -52,8 +50,6 @@ details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 #   if not found delete.
 # TODO add more validation to image upload:
 #   Max Files size, max resolution, only certain file types. resize image on upload.
-
-# fixme Oare nu ar fi mai bine sa mut continutul de aici in fisierul mtp.py?
 
 
 def create_app(test_config=None):
