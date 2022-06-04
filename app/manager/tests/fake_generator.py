@@ -15,12 +15,6 @@ from app.manager.tests.forms import AddFakes
 from app.webtools.routes import encodings
 
 
-# TODO Validation for ranges added. Research if custom validation through WTForms would be better. Whilst with this
-#   you learned about decorators
-# TODO Add date-time choice for test value insertion
-# TODO Convert Form Range field to Int field or string field. Or at least STRIP field and permit only
-#   certain types of data.
-
 @tests_bp.route('/tests/fake-data-generator', methods=('GET', 'POST'))
 @login_required
 def add_fakes():
@@ -237,8 +231,6 @@ def create_fake_validation(validation_entries: int):
     return validation_entries
 
 
-# better-me even though it works, this does not cover the both True values selection situation. Create some escape
-#  conditional.
 def create_fake_urls(urls_num: int, url_params: bool = False, randomized_params: bool = False):
     """Generate fake expense entries."""
     faker = Faker()

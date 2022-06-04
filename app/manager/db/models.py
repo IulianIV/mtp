@@ -7,8 +7,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import login, db
 
-# TODO Add permissions Table and migrate/upgrade
-# TODO add last_seen logic
 # TODO update ALL VARCHAR lengths. They are WAY too short now.
 
 user_id_fk = 'user.id'

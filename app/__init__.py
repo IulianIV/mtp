@@ -18,8 +18,6 @@ migrate = Migrate()
 login = LoginManager()
 toolbar = DebugToolbarExtension()
 
-# better-me Add a way to switch databases (switch from production to testing)
-#   think about how to version a test db.
 # TODO Upon choosing a test database, a initialization will autofill with fake data.
 # TODO Fix this CLI implementation confusion.
 
@@ -32,29 +30,9 @@ Which is better, why does the latter work only if implemented by the formers met
 details: https://flask.palletsprojects.com/en/2.0.x/cli/#custom-commands
 
 """
-# TODO add a password reset form and password request form.
-# TODO add e-mail validation for accounts.
 # TODO have password fields be checked as is and when hashed.
-# TODO add UTM module from README.md
-# TODO Create user profile view
-# fixme Validation items should only be editable by an ADMIN or at least make sure that
-#   what should be unique stays unique
-# better-me get admin user by permission not by id "1" which just happens to be admin.
 # better-me Check coupling among all apps. There should be as little as possible functions with responsibilities outside
 #   their set scope.
-# TODO check what happens when URLs such as Update/Delete are accessed without an account and protect those views.
-# TODO add at template return level fail safe "or_404" functionality.
-# TODO Add Logging, Error Logging, Error Handlers, Exception Handlers and Custom Error Pages
-#   see: https://flask.palletsprojects.com/en/2.0.x/errorhandling/
-# TODO Split JS scripts and only add them where needed.
-#   e.g.: the Blog view does not need to load the d3.js script
-# TODO add a script that checks if the images from the uploads/post/ folder are found in the database.
-#   if not found delete.
-# TODO add more validation to image upload:
-#   Max Files size, max resolution, only certain file types. resize image on upload.
-
-# fixme Oare nu ar fi mai bine sa mut continutul de aici in fisierul mtp.py?
-
 
 def create_app(test_config=None):
 

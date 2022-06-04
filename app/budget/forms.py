@@ -8,9 +8,6 @@ from wtforms.validators import DataRequired
 from app.manager.helpers import NoFutureDates, CheckForNumber
 
 
-# fixme check all validators. Some Select Text Fields have "CheckForNumber()" validators that don't even do their job.
-
-
 class AddExpenseEntry(FlaskForm):
     expense_date = DateField(validators=[DataRequired(), NoFutureDates(message='You can not set a future date.')],
                              format='%Y-%m-%d', default=datetime.now())

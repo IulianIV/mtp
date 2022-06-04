@@ -19,11 +19,6 @@ blog_index_entrypoint = app_endpoints['blog_index']
 login_endpoint = app_endpoints['login']
 
 
-# TODO add edited info. New field in database and update on edit/save
-# TODO handle blog posts pagination. Maybe similar to the one introduced in the Budget App but with no tables.
-# TODO Add Post Carousel. Split each slide to 4 posts.
-#   Show Arrows and Indicators. Indicators should be as many slides there are.
-# TODO if you want to add filtering/sorting the above proposed carousel implementation might not be so good.
 @bp.route('/')
 def index():
     if not current_user.is_authenticated:
@@ -66,7 +61,6 @@ def create():
     return render_template('blog/create.html', create_post_form=create_post_form)
 
 
-# TODO add a way to delete post images on request.
 @bp.route('/<int:post_id>/update', methods=('GET', 'POST'))
 @login_required
 def update(post_id):
@@ -104,8 +98,6 @@ def update(post_id):
     return render_template('blog/update.html', post=post, update_form=update_form)
 
 
-# better-me Add conditional that logged in user can only delete his own posts.
-#   FE wise the button is not accessible but if they access by URL any post can be deleted.
 @bp.route('/<int:post_id>/delete', methods=('POST', 'GET'))
 @login_required
 def delete(post_id):

@@ -15,10 +15,6 @@ from app.manager.db.models import BudgetExpense, BudgetRevenue, BudgetSaving, Bu
 from app.manager.helpers import expense_count_to_json, allowed_file, form_error_message
 
 
-# fixme it is now basically inaccessible form the FE.
-#   accessing the /api/data URL with '?loc_path="{url_from_table_map_encoded}"' renders the page as it triggers and
-#   bypassing the functionality. Fix this.
-
 @bp.route('/data', methods=['GET'])
 def data():
 
@@ -155,8 +151,6 @@ def save_post_image():
     return json.dumps(200)
 
 
-# TODO Accessing this endpoint with an existing image downloads the image but displays 404
-#   should show the image.
 @bp.route('/post/image/load/<path:filename>')
 def load_post_image(filename):
 

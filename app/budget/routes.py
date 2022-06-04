@@ -42,9 +42,6 @@ budget_template_endpoints = {
 }
 
 
-# TODO Create a "transfer" view where you can initiate transfers between accounts - Spend -> saving and vice-versa.
-# TODO Make sure to add form_validation_error/success to all views.
-
 @bp.route('/')
 @login_required
 def summary():
@@ -669,7 +666,6 @@ def update_utilities_entry(utility_id):
                            utility_update_form=utility_update_form)
 
 
-# fixme apparently the form accepts future dates.
 @bp.route('/revenue-update/<int:revenue_id>', methods=('GET', 'POST'))
 @login_required
 def update_revenue_entries(revenue_id):

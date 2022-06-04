@@ -16,7 +16,6 @@ DateTime = NewType('DateTime', datetime)
 current_month = datetime.now().month
 current_year = datetime.now().year
 
-# TODO Try to find a way to include them in more dynamic functions. Maybe circle back to classes in some cases?
 
 """
 Database INSERT queries section
@@ -261,7 +260,6 @@ def get_current_month_mandatory_expense(user: int):
     return rent_utilities_total
 
 
-# fixme THIS might not be correct. Currently it only reports POSITIVE saving additions and ignores WITHDRAWALS
 def get_savings_data(user: int):
     savings_totals = {
         'ec': BudgetSaving.query.

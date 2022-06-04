@@ -12,9 +12,6 @@ from app.manager.db.db_interrogations import (
     get_validation_categories_count, get_validation_sources_count, get_parsed_urls)
 
 
-# TODO Add DataTables filtering to utm-stats table.
-
-
 @bp.route('/')
 def lifetime_expense():
     expense_raw_data = query_expense_entries(user_id=current_user.get_id())
@@ -84,7 +81,6 @@ def utm_stats():
                            most_params=most_params)
 
 
-# fixme To be removed in the future when module is implemented. Exists only for communication purposes
 @bp.route('/utm-analyzer-template')
 def utm_analyzer():
 

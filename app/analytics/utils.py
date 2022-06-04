@@ -3,10 +3,6 @@ import numpy as np
 
 from flask import current_app
 
-# has-dependency to-be deprecated file. Useful for generating graphs. Now they are implemented
-#  through d3.js for flexibility.
-
-
 def category_frequency_plot(values):
 
     plot_values = values
