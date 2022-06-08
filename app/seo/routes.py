@@ -16,7 +16,7 @@ def gtm_spy():
     macro_func = spy.get_functions(spy.tags)
     print(macro_func)
     print(spy.container)
-
+    print(container_url)
 
     return render_template('seo/gtm_spy.html', model_gtm_path=container_url)
 
