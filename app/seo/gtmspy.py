@@ -35,18 +35,16 @@ def check_for_container(method: Callable):
 
 class GTMSpy(object):
 
-    def __init__(self, container_id: str):
-        self._root_path = CONTAINER_SAVE_PATH
-        self._id = container_id
-        self._url = GTM_ROOT + container_id
-        self._full_container: dict = self.container_to_json()
-        self._root_property: str = list(self._full_container.keys())[0]
-        self._usable_container: dict = self._full_container[self._root_property]
-        self._version: str = self.version
-        self._macros: Union[str, Generator] = self.macros
-        self._tags: Union[str, Generator] = self.tags
-        self._predicates: Union[str, Generator] = self.predicates
-        self._rules: Union[str, Generator] = self.rules
+    _root_path = CONTAINER_SAVE_PATH
+
+    def __init__(self, container_id: str, website: str = None):
+        if website is None:
+            self._id = container_id
+            self._full_container: dict = self.container_to_json()
+            self._usable_container: dict = self._full_container[self.container_root]
+            self._version: str = self.version
+        else:
+            pass
 
     # checks for the existence of a GTM Script
     @staticmethod
@@ -118,21 +116,32 @@ class GTMSpy(object):
 
             return container_json
 
+    def find_container(self, website_url: str) -> str:
+
+        request = requests.get(website_url)
+        website_contentes = request.text
+
+        pass
+
     @property
     def id(self):
         return self._id
 
     @property
     def url(self):
-        return self._url
+        url = GTM_ROOT + self._id
+        return url
 
     @property
     def full_container(self):
         return self._full_container
 
     @property
-    def root_property(self):
-        return self._root_property
+    def container_root(self):
+
+        root: str = list(self._full_container.keys())[0]
+
+        return root
 
     @property
     def container(self):
@@ -146,29 +155,33 @@ class GTMSpy(object):
 
     @property
     def macros(self):
-        self._macros = self.container_info('macros')
 
-        return self._macros
+        macros = self.container_info('macros')
+
+        return macros
 
     @property
     def predicates(self):
-        self._predicates = self.container_info('predicates')
 
-        return self._predicates
+        predicates = self.container_info('predicates')
+
+        return predicates
 
     @property
     def rules(self):
-        self._rules = self.container_info('rules')
 
-        return self._rules
+        rules = self.container_info('rules')
+
+        return rules
 
     @property
     def tags(self):
-        self._tags = self.container_info('tags')
+        tags = self.container_info('tags')
 
-        return self._tags
+        return tags
 
     def __repr__(self):
         return f'====== GTM SPY OBJECT ======\n' \
                f'Container ID: {self._id}\n' \
-               f'Container URL: {self._url}\n'
+               f'Container version: {self._version}' \
+               f'Container URL: {self.url}\n'
