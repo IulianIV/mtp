@@ -49,25 +49,29 @@ def selenium_try(page_url):
     print(script_tags)
 
 
-def easy_find(page_url: str):
-    container_id = ''
-    container_url = ''
+def id_easy_find(page_url: str):
 
-    regexp: list = [r'googletagmanager', r'GTM\-[A-Z]+']
-
-    r_url = re.compile(regexp[0])
-    r_id = re.compile(regexp[1])
+    r_id = re.compile(r'GTM-[A-Z0-9]+')
 
     request_page = requests.get(page_url)
     page_content = request_page.content
 
     soup = BeautifulSoup(page_content, 'html.parser')
-    get_scripts = soup.find_all('script')
+    find_scripts = soup.find_all('script')
 
-    get_url = list(filter(lambda s: re.match(regexp[0], s), get_scripts))
+    get_script = list(filter(lambda s: re.search(r_id, s.text), find_scripts))
 
-    print(get_url)
+    try:
+        container_id = re.search(r_id, get_script[0].text).group()
+    except IndexError:
+        cookie_blocked = True
+        print('Most likely blocked by cookies. Finding the container ID when cookies are necessary usually requires'
+              'Javascript rendering. Doing so implies using Selenium WebDriver.')
+
+        return cookie_blocked
+
+    return container_id
 
 
 if __name__ == '__main__':
-    easy_find(url)
+    id_easy_find('https://pce.ro/')
