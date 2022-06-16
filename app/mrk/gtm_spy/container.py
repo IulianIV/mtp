@@ -33,7 +33,7 @@ def check_for_container(method: Callable):
     return wrapper
 
 
-class GTMSpy(object):
+class Container(object):
 
     _root_path = CONTAINER_SAVE_PATH
 
@@ -56,7 +56,7 @@ class GTMSpy(object):
             return True
         else:
             print('Given script ID is not present in root folder. Attempting download...')
-            return GTMSpy.download_gtm_container_from_url(CONTAINER_SAVE_PATH, container_id)
+            return Container.download_gtm_container_from_url(CONTAINER_SAVE_PATH, container_id)
 
     # downloads a gtm script by giving a GTM Container ID
     @staticmethod
@@ -79,7 +79,7 @@ class GTMSpy(object):
     # returns a path for an existing GTM script
     @staticmethod
     def get_existing_gtm_script(container_id) -> Union[PathLike, str]:
-        if GTMSpy.check_for_script(container_id):
+        if Container.check_for_script(container_id):
             return os.path.join(CONTAINER_SAVE_PATH, container_id + '.js')
         else:
             return 'This container script was not found. Maybe download it?..'
@@ -116,11 +116,7 @@ class GTMSpy(object):
 
             return container_json
 
-    def find_container(self, website_url: str) -> str:
-
-        request = requests.get(website_url)
-        website_contentes = request.text
-
+    def find_container(self, website_url: str):
         pass
 
     @property
