@@ -3,22 +3,6 @@ from flask import request, send_from_directory, render_template
 from app import current_app
 from app.auth.routes import login_required
 from app.seo import bp
-from app.seo.gtmspy import GTMSpy
-
-model_gtm_id = 'GTM-T7MRFWX'
-
-
-@bp.route('/gtm-spy', methods=('GET', 'POST'))
-def gtm_spy():
-
-    spy = GTMSpy(model_gtm_id)
-    container_url = spy.url
-    macro_func = spy.get_functions(spy.tags)
-    print(macro_func)
-    print(spy.container)
-    print(container_url)
-
-    return render_template('seo/gtm_spy.html', model_gtm_path=container_url)
 
 
 @bp.route('/robots.txt')
