@@ -1,48 +1,43 @@
 import json
 import os
 from os import PathLike
-from typing import Union, Generator, List, Callable
+from typing import Generator, Callable, Union, List, Set
 
 import requests
 
+from app.manager.errors import SectionIndexError
 from app.manager.helpers import Config
-
-CONTAINER_ID: str = 'id'
-CONTAINER_URL: str = 'url'
-CONTAINER_VERSION: str = 'version'
-CONTAINER_MACROS: str = 'macros'
-CONTAINER_TAGS: str = 'tags'
-CONTAINER_PREDICATES: str = 'predicates'
-CONTAINER_RULES: str = 'rules'
-
-CONTAINER_SECTIONS: List[str] = [CONTAINER_ID, CONTAINER_URL, CONTAINER_VERSION, CONTAINER_MACROS,
-                                 CONTAINER_TAGS, CONTAINER_PREDICATES, CONTAINER_RULES]
+from .types import (SECTIONS, CONTAINER_ID, CONTAINER, CONTAINER_VERSION, CONTAINER_SECTION_CONTENTS,
+                    GTM_CONTAINER_URL, ROOT, ITEM_PROPERTY, SECTION_ITEM)
 
 CONTAINER_SAVE_PATH: PathLike = Config.GTM_SPY_DOWNLOAD_PATH
 
-GTM_ROOT = 'https://www.googletagmanager.com/gtm.js?id='
+GTM_URL_ROOT: str = 'https://www.googletagmanager.com/gtm.js?id='
+
+# TODO All typing has to be refactored. Pay attention to typing hints on function arguments - they must hint
+#   towards what type of data to give not what type is expected to find in the GTM Container. At function return
+#   seems to be fine.
 
 
-def check_for_container(method: Callable):
-    def wrapper(self, section):
-        if section in CONTAINER_SECTIONS:
+def check_for_container(method: Callable) -> Union[Callable, TypeError]:
+    def wrapper(self, section: SECTIONS):
+        if section in SECTIONS:
             return method(self, section)
         else:
-            raise TypeError(f'Not in sections list. Accepted sections are: {CONTAINER_SECTIONS}')
+            raise SectionIndexError(f'Not in sections list. Accepted sections are: {SECTIONS}')
 
     return wrapper
 
 
 class Container(object):
-
     _root_path = CONTAINER_SAVE_PATH
 
     def __init__(self, container_id: str, website: str = None):
         if website is None:
-            self._id = container_id
-            self._full_container: dict = self.container_to_json()
-            self._usable_container: dict = self._full_container[self.container_root]
-            self._version: str = self.version
+            self._id: CONTAINER_ID = container_id
+            self._full_container: CONTAINER = self.container_to_json()
+            self._usable_container: CONTAINER = self._full_container[self.container_root]
+            self._version: CONTAINER_VERSION = self.version
         else:
             pass
 
@@ -60,10 +55,10 @@ class Container(object):
 
     # downloads a gtm script by giving a GTM Container ID
     @staticmethod
-    def download_gtm_container_from_url(file_path: os.PathLike, container_id: str) -> str:
+    def download_gtm_container_from_url(file_path: os.PathLike, container_id: CONTAINER_ID) -> str:
         local_filename = os.path.join(file_path, container_id + ".js")
 
-        script_url = GTM_ROOT + container_id
+        script_url = GTM_URL_ROOT + container_id
         # NOTE the stream=True parameter below
         with requests.get(script_url, stream=True) as r:
             r.raise_for_status()
@@ -78,39 +73,68 @@ class Container(object):
 
     # returns a path for an existing GTM script
     @staticmethod
-    def get_existing_gtm_script(container_id) -> Union[PathLike, str]:
+    def get_existing_gtm_script(container_id: CONTAINER_ID) -> Union[PathLike, str]:
         if Container.check_for_script(container_id):
             return os.path.join(CONTAINER_SAVE_PATH, container_id + '.js')
         else:
             return 'This container script was not found. Maybe download it?..'
 
-    def get_functions(self, container_section: Generator) -> List:
-        functions = []
+    # Creates a list from the given section of all the values found for key 'function'
+    # fixme Fix situations when an item does not contain given property.
+    #   Basically fix "KeyError" errors. What to do when a section doesn't have that property at all?
+    #   analyze this functionality
+    @staticmethod
+    def get_section_properties_values(container_section: CONTAINER_SECTION_CONTENTS, section_item_property: ITEM_PROPERTY) -> List:
+        properties = list()
         iter_arg = iter(container_section)
 
         while True:
             try:
-                function = next(iter_arg)
-                functions.append(function['function'])
+                item_property = next(iter_arg)
+                properties.append(item_property[section_item_property])
             except StopIteration:
                 break
-        return functions
+        return properties
+
+    # Creates a list of the dictionary keys found within the given argument
+    # fixme What happens when a List or empty section is passed?
+    @staticmethod
+    def available_item_properties(section_item: SECTION_ITEM) -> List[str]:
+
+        properties = [key for key in section_item.keys()]
+
+        return properties
+
+    # fixme What happens when a List or empty section is passed?
+    @staticmethod
+    def get_section_properties(container_section: CONTAINER_SECTION_CONTENTS) -> Set:
+        overall_properties = list()
+
+        for item in container_section:
+            for key in item.keys():
+                overall_properties.append(key)
+
+        final_properties = set(overall_properties)
+
+        return final_properties
+
+    def find(self, container_section: CONTAINER_SECTION_CONTENTS):
+        pass
 
     @check_for_container
-    def container_info(self, section: CONTAINER_SECTIONS) -> Union[str, Generator]:
+    def section_contents(self, section: CONTAINER_SECTION_CONTENTS) -> Union[str, Generator]:
 
         container_section = self._usable_container[section]
 
         return container_section
 
-    def container_to_json(self) -> Union[dict, str]:
+    def container_to_json(self) -> CONTAINER_SECTION_CONTENTS:
 
         with open(self.get_existing_gtm_script(self._id)) as container_script:
-
             data = container_script.read()
 
             container_data = data[data.find('var data = {'):data.find('/*')]
-            container_data = container_data[container_data.find('{'):container_data.rfind('}')+1]
+            container_data = container_data[container_data.find('{'):container_data.rfind('}') + 1]
 
             container_json = json.loads(container_data)
 
@@ -120,16 +144,16 @@ class Container(object):
         pass
 
     @property
-    def id(self):
+    def id(self) -> CONTAINER_ID:
         return self._id
 
     @property
-    def url(self):
-        url = GTM_ROOT + self._id
+    def url(self) -> GTM_CONTAINER_URL:
+        url = GTM_URL_ROOT + self._id
         return url
 
     @property
-    def full_container(self):
+    def full_container(self) -> CONTAINER:
         return self._full_container
 
     @property
@@ -144,40 +168,59 @@ class Container(object):
         return self._usable_container
 
     @property
-    def version(self):
-        self._version = self.container_info('version')
+    def version(self) -> CONTAINER_VERSION:
+        self._version = self.section_contents(ROOT['VERSION'])
 
         return self._version
 
     @property
-    def macros(self):
+    def macros(self) -> CONTAINER_SECTION_CONTENTS:
 
-        macros = self.container_info('macros')
+        macros = self.section_contents('macros')
 
         return macros
 
     @property
-    def predicates(self):
+    def predicates(self) -> CONTAINER_SECTION_CONTENTS:
 
-        predicates = self.container_info('predicates')
+        predicates = self.section_contents('predicates')
 
         return predicates
 
     @property
-    def rules(self):
+    def rules(self) -> CONTAINER_SECTION_CONTENTS:
 
-        rules = self.container_info('rules')
+        rules = self.section_contents('rules')
 
         return rules
 
     @property
-    def tags(self):
-        tags = self.container_info('tags')
+    def tags(self) -> CONTAINER_SECTION_CONTENTS:
+        tags = self.section_contents('tags')
 
         return tags
 
+    @property
+    def runtime(self) -> CONTAINER_SECTION_CONTENTS:
+        runtime = self.section_contents('runtime')
+
+        return runtime
+
+    @property
+    def permissions(self) -> CONTAINER_SECTION_CONTENTS:
+        permissions = self.section_contents('permissions')
+
+        return permissions
+
     def __repr__(self):
-        return f'====== GTM SPY OBJECT ======\n' \
-               f'Container ID: {self._id}\n' \
-               f'Container version: {self._version}' \
-               f'Container URL: {self.url}\n'
+        return \
+            f'''
+                ====== GTM CONTAINER ======
+                Container ID: {self._id}
+                Container version: {self._version}
+                Container URL: {self.url}
+                
+                ==========================
+                
+                
+            '''
