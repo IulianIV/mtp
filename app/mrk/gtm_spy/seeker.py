@@ -30,7 +30,6 @@ def selenium_find_id(page_url):
     page = browser.page_source
 
     soup = BeautifulSoup(page, 'html.parser')
-
     script_tag_source = soup.find_all('script', {'src': re.compile(r'gtm\.js\?')})[0]['src']
 
     container_id = re.search(r'id=([A-Z-]+)', script_tag_source).group(1)

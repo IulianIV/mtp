@@ -26,4 +26,3 @@ SECTIONS: CONTAINER_SECTIONS = [ROOT['VERSION'], ROOT['MACROS'],
 
 SECTION_ITEM = Union[dict, List]
 ITEM_PROPERTY = Union[int, str, bool, List]
-
