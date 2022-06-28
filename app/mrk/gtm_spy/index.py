@@ -134,17 +134,17 @@ triggers_index: NAME_INDEX = {
 
 evaluations_index: NAME_INDEX = {
     '_cn': {'title': "contains", 'exportTitle': "CONTAINS"},
-    '_css': {'title': "matches css selector", 'exportTitle': "CSS'_SELECTOR'"},
-    '_ew': {'title': "ends with", 'exportTitle': "ENDS'_WITH'"},
+    '_css': {'title': "matches css selector", 'exportTitle': "CSS_SELECTOR'"},
+    '_ew': {'title': "ends with", 'exportTitle': "ENDS_WITH'"},
     '_eq': {'title': "equals", 'exportTitle': "EQUALS"},
-    '_ge': {'title': ">=", 'exportTitle': "GREATER'_OR_EQUALS'"},
+    '_ge': {'title': ">=", 'exportTitle': "GREATER_OR_EQUALS'"},
     '_gt': {'title': ">", 'exportTitle': "GREATER"},
-    '_le': {'title': "<=", 'exportTitle': "LESS'_OR_EQUALS'"},
+    '_le': {'title': "<=", 'exportTitle': "LESS_OR_EQUALS'"},
     '_lt': {'title': "<", 'exportTitle': "LESS"},
     '_lc': {'title': "later"},
-    '_re': {'title': "matches regex", 'exportTitle': "MATCH'_REGEX'"},
-    '_sw': {'title': "starts with", 'exportTitle': "STARTS'_WITH'"},
-    '_um': {'title': "url matches", 'exportTitle': "URL'_MATCHES'"}
+    '_re': {'title': "matches regex", 'exportTitle': "MATCH_REGEX'"},
+    '_sw': {'title': "starts with", 'exportTitle': "STARTS_WITH'"},
+    '_um': {'title': "url matches", 'exportTitle': "URL_MATCHES'"}
 }
 
 dlvBuiltins_index: NAME_INDEX = {
