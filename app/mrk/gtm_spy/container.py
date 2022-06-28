@@ -7,12 +7,14 @@ import requests
 
 from app.manager.errors import SectionIndexError
 from app.manager.helpers import Config
+from .index import evaluations_index, dlvBuiltins_index
 from .types import (SECTIONS, CONTAINER_ID, CONTAINER, CONTAINER_VERSION, CONTAINER_SECTION_CONTENTS,
                     GTM_CONTAINER_URL, ROOT, ITEM_PROPERTY, SECTION_ITEM)
 
 CONTAINER_SAVE_PATH: PathLike = Config.GTM_SPY_DOWNLOAD_PATH
 
 GTM_URL_ROOT: str = 'https://www.googletagmanager.com/gtm.js?id='
+
 
 # TODO All typing has to be refactored. Pay attention to typing hints on function arguments - they must hint
 #   towards what type of data to give not what type is expected to find in the GTM Container. At function return
@@ -84,7 +86,8 @@ class Container(object):
     #   Basically fix "KeyError" errors. What to do when a section doesn't have that property at all?
     #   analyze this functionality
     @staticmethod
-    def get_section_properties_values(container_section: CONTAINER_SECTION_CONTENTS, section_item_property: ITEM_PROPERTY) -> List:
+    def get_section_properties_values(container_section: CONTAINER_SECTION_CONTENTS,
+                                      section_item_property: ITEM_PROPERTY) -> List:
         properties = list()
         iter_arg = iter(container_section)
 
@@ -212,7 +215,57 @@ class Container(object):
 
         return permissions
 
-    def __repr__(self):
+    # Finds the ID of the macro given in the function argument and displays it if chosen.
+    def process_macro(self, macro):
+        try:
+            macro_literal = self.macros[macro[1]]
+            return macro_literal
+        except IndexError:
+            return 'Provide a macro index that exists'
+
+    def _is_macro(self, macro):
+        if len(macro) < 2 or len(macro) > 2:
+            return False
+        elif macro[0] == 'macro' or macro[1] is int:
+            return True
+        else:
+            try:
+                _ = self.macros[macro[1]]
+                return True
+            except IndexError:
+                return False
+
+    def process_predicate(self, predicate_index, detailed=False):
+        eval_indexes = evaluations_index
+        dlv_indexes = dlvBuiltins_index
+        predicates = self.predicates
+
+        try:
+            predicate_evaluator = predicates[predicate_index]['function']
+            predicate_evaluated = predicates[predicate_index]['arg0']
+            predicate_against = predicates[predicate_index]['arg1']
+
+            if not detailed:
+                return f'Predicate index {predicate_index} states that {predicate_evaluated} should evaluate as ' \
+                       f'"{predicate_evaluator}" against "{predicate_against}"'
+            else:
+                predicate_evaluator = [eval_indexes[predicate_evaluator]['title'], eval_indexes[predicate_evaluator]['exportTitle']]
+
+                if self._is_macro(predicate_evaluated):
+                    predicate_evaluated = self.process_macro(predicate_evaluated)
+
+                try:
+                    predicate_against = dlv_indexes[predicate_against]['title']
+                except KeyError:
+                    predicate_against = predicates[predicate_index]['arg1']
+
+                return f'Predicate index {predicate_index} states that \n{predicate_evaluated}\nshould evaluate as' \
+                       f' {predicate_evaluator[0]} ({predicate_evaluator[1]}) against "{predicate_against}"'
+
+        except IndexError:
+            return 'Provide a predicate index that exists'
+
+    def __str__(self):
         return \
             f'''
                 ====== GTM CONTAINER ======
