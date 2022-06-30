@@ -1,5 +1,7 @@
+import copy
 import json
 import os
+import re
 from os import PathLike
 from typing import Generator, Callable, Union, List, Set
 
@@ -37,7 +39,9 @@ class Container(object):
     def __init__(self, container_id: str, website: str = None):
         if website is None:
             self._id: CONTAINER_ID = container_id
+            # _full_container also hold 'resource' and 'runtime' data
             self._full_container: CONTAINER = self.container_to_json()
+            # _usable_container only hold 'version' and literal container data ('macros', 'tags', 'predicates', 'rules')
             self._usable_container: CONTAINER = self._full_container[self.container_root]
             self._version: CONTAINER_VERSION = self.version
         else:
@@ -159,6 +163,7 @@ class Container(object):
     def full_container(self) -> CONTAINER:
         return self._full_container
 
+    # basically references the 'resource' part of the container
     @property
     def container_root(self):
 
@@ -217,13 +222,16 @@ class Container(object):
 
     # Finds the ID of the macro given in the function argument and displays it if chosen.
     def process_macro(self, macro):
-        try:
-            macro_literal = self.macros[macro[1]]
-            return macro_literal
-        except IndexError:
-            return 'Provide a macro index that exists'
+        if self._is_macro(macro):
+            try:
+                macro_literal = self.macros[macro[1]]
+                return macro_literal
+            except IndexError:
+                return 'Provide a macro index that exists'
 
     def _is_macro(self, macro):
+        if type(macro) is not list:
+            return False
         if len(macro) < 2 or len(macro) > 2:
             return False
         elif macro[0] == 'macro' or macro[1] is int:
@@ -249,7 +257,8 @@ class Container(object):
                 return f'Predicate index {predicate_index} states that {predicate_evaluated} should evaluate as ' \
                        f'"{predicate_evaluator}" against "{predicate_against}"'
             else:
-                predicate_evaluator = [eval_indexes[predicate_evaluator]['title'], eval_indexes[predicate_evaluator]['exportTitle']]
+                predicate_evaluator = [eval_indexes[predicate_evaluator]['title'],
+                                       eval_indexes[predicate_evaluator]['exportTitle']]
 
                 if self._is_macro(predicate_evaluated):
                     predicate_evaluated = self.process_macro(predicate_evaluated)
@@ -264,6 +273,95 @@ class Container(object):
 
         except IndexError:
             return 'Provide a predicate index that exists'
+
+    # Handles the assignment of the 'if', 'unless' and 'blocking' clauses to the tags referenced in the 'add' section
+    #   of the 'rules' item.
+    #   Creates a new 'tags' section that contains a '_conditions' item for every eligible tag.
+    #   _conditions contains the literal rule found in 'rules' i.e. {['if', 2, 3], ['unless', 4, 5]}
+
+    """
+    Rule example:
+    [
+        [
+            ['if', 1], ['unless', 0], ['add', 2]
+        ],
+        [
+            ['if', 1, 2], ['add', 3, 5, 8]
+        ]
+    ]
+    
+    """
+
+    def process_rules(self):
+        process_container = copy.deepcopy(self._usable_container)
+
+        popper = ['version', 'macros', 'predicates']
+
+        for pop in popper:
+            process_container.pop(pop)
+
+        tags = process_container['tags']
+        rules = process_container['rules']
+
+        conditions = []
+        condition = []
+        targets = []
+
+        for rl_set, index in zip(rules, range(0, len(rules))):
+            for rls in rl_set:
+                if re.search('if|unless', rls[0]):
+                    condition.append(rls)
+                else:
+                    targets.append(rls)
+            conditions.insert(index, list(condition))
+            condition.clear()
+
+        for x in range(0, len(targets)):
+            for tag_index in targets[x][1:]:
+                tags[tag_index]['_conditions'] = conditions[x]
+
+        return process_container
+
+    def process_mapping(self, container_mapping, process_macro=False, key_name=None, value_name=None):
+
+        useful_map = container_mapping[1:]
+        map_dict = {}
+
+        if key_name is None and value_name is None:
+            key = 'key'
+            value = 'value'
+        else:
+            key = key_name
+            value = value_name
+
+        for item in useful_map:
+            index = useful_map.index(item)
+            try:
+                map_key = item.index(key) + 1
+                map_value = item.index(value) + 1
+            except ValueError:
+                print('Seems like the list contains non-standard key-value naming.\n'
+                      'Attempting to find naming...')
+                if container_mapping[0] == 'list':
+                    print('Seems to be a valid map. Continuing...')
+                    key = container_mapping[index][1]
+                    value = container_mapping[index][3]
+                map_key = item.index(key) + 1
+                map_value = item.index(value) + 1
+
+            if process_macro and self._is_macro(item[map_key]):
+                proc_macro = self.process_macro(item[map_key])
+                map_dict[f'{key}_{index}'] = proc_macro
+            else:
+                map_dict[f'{key}_{index}'] = item[map_key]
+
+            if process_macro and self._is_macro(item[map_value]):
+                proc_macro = self.process_macro(item[map_value])
+                map_dict[f'{value}_{index}'] = proc_macro
+            else:
+                map_dict[f'{value}_{index}'] = item[map_value]
+
+        return map_dict
 
     def __str__(self):
         return \
