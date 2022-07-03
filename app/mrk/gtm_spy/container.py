@@ -287,7 +287,6 @@ class Container(object):
 
         return permissions
 
-
     def process_macro(self, macro):
         """
         Processes the given "macro" list and displays its contents.
@@ -341,6 +340,7 @@ class Container(object):
             Type 7: bool, int, regular string
             Type 8: string with macros included
     """
+    # fixme Not done. Has to be finished
     def process_type(self, property_value):
 
         """
@@ -351,36 +351,97 @@ class Container(object):
         :param property_value: Any value of a property belonging to any section from the container
         :return: Parameter value GTMSpy type
         """
+        real_type = type(property_value)
 
-        pass
+        # determines if type is bool
+        if real_type is bool:
+            return bool
 
-    def process_trigger_group(self):
+        # determines if type is int
+        if real_type is int:
+            return int
+
+        # determines multiple sequence types
+        if real_type is list and len(property_value) >= 2:
+
+            # determines if type is macro
+            if property_value[0] == 'macro' and property_value[1] is int:
+                return 'macro'
+
+            # determines if type is template
+            if property_value[0] == 'template':
+                return 'template'
+
+            # determines if type is mapping
+            if property_value[0] == 'list' and property_value[1] is list and property_value[1][0] == 'map':
+                return 'mapping'
+
+            # determines if type is escape
+            if property_value[0] == 'escape' and self.process_type(property_value[1]) == 'macro':
+                return 'escape'
+
+        # determines if type is map
+        if real_type is list and len(property_value) == 1 and property_value[0] == 'map':
+            return 'map'
+
+        # determines if type is trigger_group
+        if real_type is list and property_value[0] == 'list':
+            if len(property_value) == 1:
+                return 'empty trigger group'
+            elif len(property_value) >= 2 and property_value[1] is str and '_' in property_value[1]:
+                return 'trigger group'
+
+        # determines multiple string types
+        if real_type is str and re.match(r'^\(\^\$\|\(\(\^\|,\)[0-9_]+\(\$\|,\)\)\)$', property_value):
+            return 'RegEx'
+
+    def process_trigger_group(self, tag):
         """
-        Processes trigger groups. Tags titled as "__tg" which
-        contain tag ids referenced as "31742945_23_21". Naming method which is also found in
-        regex expressions ina  container.
-        What does "31742945", "23" and "21" mean?
+        To be detailed. A rough detail on how it works can be found in UpNote and app.diagrams.net
 
         :return:
         """
-        pass
 
-    def process_regex(self):
+        if 'vtp_triggerIds' in tag:
+            if type(tag['vtp_triggerIds']) is list and len(tag['vtp_triggerIds']) > 1:
+                print(tag)
+            elif type(tag['vtp_triggerIds']) is list and len(tag['vtp_triggerIds']) == 1:
+                return 'empty trigger group'
+
+        return tag
+
+    def process_escape(self, escape):
         """
-        processes a regular expression found in a container or other container properties.
+        Processes a list type and pretty prints it.
+        Example: ["escape", ["macro", 24], 8, 16]
 
         :return:
+        :rtype:
         """
-        pass
+        macro_index = escape[1][1]
 
-    def process_container_string(self):
-        """
-        processes a container specific string whihc is unicode encoded that might also contain
-        '["macro", 5]' elements which need to be processed.
+        macros = self.macros
+        macro = macros[macro_index]
 
-        :return:
-        """
-        pass
+        return macro
+
+    def process_template(self, template):
+        valid_type = self.process_type(template)
+        new_string = ''
+
+        if valid_type != 'template':
+            return None
+
+        if len(template) == 2:
+            return template
+        else:
+            for x in range(1, len(template)):
+                if self.process_type(template[x]) == 'escape':
+                    escaped = self.process_escape(template[x])
+                    new_string += str(escaped)
+
+                new_string += template[x]
+            return new_string
 
     def process_predicate(self, predicate_index, detailed=False):
         """
@@ -420,20 +481,6 @@ class Container(object):
 
         except IndexError:
             return 'Provide a predicate index that exists'
-
-
-    """
-    Rule example:
-    [
-        [
-            ['if', 1], ['unless', 0], ['add', 2]
-        ],
-        [
-            ['if', 1, 2], ['add', 3, 5, 8]
-        ]
-    ]
-    
-    """
 
     def process_rules(self):
         """
