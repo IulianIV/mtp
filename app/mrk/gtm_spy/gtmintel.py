@@ -27,6 +27,11 @@ GTM_URL_ROOT: str = 'https://www.googletagmanager.com/gtm.js?id='
 #         available_item_properties()
 #         get_section_properties()
 
+# TODO This class only parses and returns raw GTM data, creates a final, structured and readable GTM container
+#   which can be represented in the front-end
+#   Another separate functionality has to be created that parses the final container against the index
+#   to pretty print all data.
+
 def check_for_container(method: Callable) -> Union[Callable, TypeError]:
     def wrapper(self, section: SECTIONS):
         if section in SECTIONS:
@@ -37,7 +42,7 @@ def check_for_container(method: Callable) -> Union[Callable, TypeError]:
     return wrapper
 
 
-class Container(object):
+class GTMIntel(object):
     _root_path = CONTAINER_SAVE_PATH
 
     def __init__(self, container_id: str, website: str = None):
@@ -66,7 +71,7 @@ class Container(object):
             return True
         else:
             print('Given script ID is not present in root folder. Attempting download...')
-            return Container.download_gtm_container_from_url(CONTAINER_SAVE_PATH, container_id)
+            return GTMIntel.download_gtm_container_from_url(CONTAINER_SAVE_PATH, container_id)
 
     @staticmethod
     def download_gtm_container_from_url(file_path: os.PathLike, container_id: CONTAINER_ID) -> str:
@@ -100,7 +105,7 @@ class Container(object):
         :param container_id: CONTAINER_ID string object
         :return: Pathlike container file location
         """
-        if Container.check_for_script(container_id):
+        if GTMIntel.check_for_script(container_id):
             return os.path.join(CONTAINER_SAVE_PATH, container_id + '.js')
         else:
             return 'This container script was not found. Maybe download it?..'
@@ -395,6 +400,11 @@ class Container(object):
         if real_type is str and re.match(r'^\(\^\$\|\(\(\^\|,\)[0-9_]+\(\$\|,\)\)\)$', property_value):
             return 'RegEx'
 
+    # better-me document some steps for parsing a trigger group.
+    #   Another custom dict should be added inside the 'tags' section which contains all containing
+    #   tag ids (tag_id) with their linked rules.
+    #   The Trigger group itself if triggered by user-given GTM Conditions and actually triggers when
+    #   user-given conditions are met AND all other triggers fired.
     def process_trigger_group(self, tag):
         """
         To be detailed. A rough detail on how it works can be found in UpNote and app.diagrams.net
