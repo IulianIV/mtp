@@ -4008,6 +4008,24 @@ input[type=button].btn-block {
   background-color: #fff;
   border-color: #dee2e6 #dee2e6 #fff;
 }
+
+.nav-link.gtmspy-link { /* Custom Addition */
+    color: #343a40 !important;
+    font-size: 1.2rem;
+}
+
+a.gtmspy-link { /* Custom Addition */
+  color: rgb(35, 89, 13) !important;
+  text-decoration: none;
+}
+
+.bg-spygreen {
+  background-color: rgba(53, 139, 18, 0.37) !important;
+  border-radius: 12px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 .nav-tabs .dropdown-menu {
   margin-top: -1px;
   border-top-left-radius: 0;
