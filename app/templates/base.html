@@ -103,7 +103,7 @@
                         Marketing Tools
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownWebtools">
-                        <a class="dropdown-item" href="{{ url_for('mrk.gtm_spy') }}">GTM Spy</a>
+                        <a class="dropdown-item" href="{{ url_for('mrk.gtm_intel') }}">GTM Spy</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
@@ -145,38 +145,36 @@
 <div id="layoutSidenav">
     <div id="layoutSidenav_content">
         <main>
-            <div class="container-fluid">
-                <div class="row">
-                    {% with no_errors = get_flashed_messages(category_filter=["validated"]), errors =
-                    get_flashed_messages(category_filter=["error"]) %}
-                        {% if no_errors %}
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card bg-success text-white mb-4">
-                                    <div class="card-body">Success</div>
-                                    <div class="card-footer d-flex align-items-center justify-content-between">
-                                        {% for msg in no_errors %}
-                                            <p class="small text-white stretched-link">{{ msg }}</p>
-                                        {% endfor %}
-                                    </div>
+            <div class="row">
+                {% with no_errors = get_flashed_messages(category_filter=["validated"]), errors =
+                get_flashed_messages(category_filter=["error"]) %}
+                    {% if no_errors %}
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card bg-success text-white mb-4">
+                                <div class="card-body">Success</div>
+                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                    {% for msg in no_errors %}
+                                        <p class="small text-white stretched-link">{{ msg }}</p>
+                                    {% endfor %}
                                 </div>
                             </div>
-                        {% elif errors %}
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card bg-danger text-white mb-4">
-                                    <div class="card-body">Error messages</div>
-                                    <div class="card-footer d-flex align-items-center justify-content-between">
-                                        {% for msg in errors %}
-                                            <p class="small text-white stretched-link">{{ msg }}</p>
-                                        {% endfor %}
-                                    </div>
+                        </div>
+                    {% elif errors %}
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card bg-danger text-white mb-4">
+                                <div class="card-body">Error messages</div>
+                                <div class="card-footer d-flex align-items-center justify-content-between">
+                                    {% for msg in errors %}
+                                        <p class="small text-white stretched-link">{{ msg }}</p>
+                                    {% endfor %}
                                 </div>
                             </div>
-                        {% endif %}
-                    {% endwith %}
-                </div>
-                {% block content %}
-                {% endblock %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
             </div>
+            {% block content %}
+            {% endblock %}
         </main>
         <footer class="py-4 bg-light mt-auto">
             <div class="container-fluid">
