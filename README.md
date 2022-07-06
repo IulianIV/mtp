@@ -1,6 +1,6 @@
 # MTP
 
-Can be accesed at: [prower.ro](prower.ro).
+Can be accesed at: [prower.ro](https://www.prower.ro).
 
 The app itself will track everything I feel like keeping track of in the future.
 
