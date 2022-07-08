@@ -1,6 +1,4 @@
-from .types import NAME_INDEX
-
-tags_index: NAME_INDEX = {
+tags_index = {
     '__paused': {
         'title': 'Paused Tag',
         'nameProperty': 'vtp_originalTagType',
@@ -91,7 +89,7 @@ tags_index: NAME_INDEX = {
     '__pntr': {'title': 'Pinterest'}
 }
 
-macros_index: NAME_INDEX = {
+macros_index = {
     '__k': {'title': '1st Party Cookie', 'nameProperty': 'vtp_name'},
     '__c': {'title': 'Constant', 'nameProperty': 'vtp_value'},
     '__ctv': {'title': 'Container Version', 'isBuiltIn': not False, 'pill': 'primary'},
@@ -112,7 +110,7 @@ macros_index: NAME_INDEX = {
     '__cid': {'title': 'Container ID', 'pill': 'primary', 'isBuiltIn': not False}
 }
 
-triggers_index: NAME_INDEX = {
+triggers_index = {
     '__evl': {'title': "Element Visibility", 'pill': "primary", 'exportType': "ELEMENT_VISIBILITY"},
     '__cl': {'title': "Click", 'pill': "primary", 'exportType': "CLICK"},
     '__fsl': {'title': "Form Submit", 'pill': "primary", 'exportType': "FORM_SUBMISSION"},
@@ -132,7 +130,7 @@ triggers_index: NAME_INDEX = {
     '__tg': {'title': "Trigger Group", 'pill': "secondary", 'exportType': "TRIGGER_GROUP"}
 }
 
-evaluations_index: NAME_INDEX = {
+evaluations_index = {
     '_cn': {'title': "contains", 'exportTitle': "CONTAINS"},
     '_css': {'title': "matches css selector", 'exportTitle': "CSS_SELECTOR'"},
     '_ew': {'title': "ends with", 'exportTitle': "ENDS_WITH'"},
@@ -147,7 +145,7 @@ evaluations_index: NAME_INDEX = {
     '_um': {'title': "url matches", 'exportTitle': "URL_MATCHES'"}
 }
 
-dlvBuiltins_index: NAME_INDEX = {
+dlvBuiltins_index = {
     "gtm.element": {'title': "Click Element"},
     "gtm.elementClasses": {'title': "Click Classes"},
     "gtm.elementId": {'title': "Click ID"},
@@ -176,4 +174,6 @@ dlvBuiltins_index: NAME_INDEX = {
     "gtm.visibleRatio": {'title': "Element Visibility Ratio"},
     "gtm.visibleTime": {'title': "Element Visibility Time"}
 }
+
+skip_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function']
 
