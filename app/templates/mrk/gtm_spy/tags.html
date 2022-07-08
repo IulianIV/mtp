@@ -92,49 +92,6 @@
                                     </button>
                                 </th>
                             </tr>
-
-                            <div class="modal fade" id="{{ tag['title'] | replace(' ', '') + loop.index | string }}"
-                                 tabindex="-1" role="dialog"
-                                 aria-labelledby="{{ tag['title'] | replace(' ', '') + loop.index | string }}"
-                                 aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title"
-                                                id="{{ tag['title'] | replace(' ', '') + loop.index | string }}">Tag
-                                                details</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="container-fluid">
-                                                <div class="row">
-                                                    <div class="col-sm-9">
-                                                        <strong>Key list</strong>
-                                                    <hr/>
-                                                        <div class="row">
-                                                            {% for key in tag.keys() %}
-                                                                <div class="col-8 col-sm-6">
-                                                                    {{ key }}
-                                                                </div>
-                                                                <div class="col-4 col-sm-6">
-                                                                    {{ tag[key] }}
-                                                                </div>
-                                                            {% endfor %}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
-                                            </button>
-                                            <button type="button" class="btn btn-primary">Save changes</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         {% endfor %}
                         </tbody>
                     </table>
@@ -142,7 +99,56 @@
             </div>
         </main>
     </div>
+
+    {% for tag in tag_list %}
+        <div class="modal fade" id="{{ tag['title'] | replace(' ', '') + loop.index | string }}"
+             tabindex="-1" role="dialog"
+             aria-labelledby="{{ tag['title'] | replace(' ', '') + loop.index | string }}"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"
+                            id="{{ tag['title'] | replace(' ', '') + loop.index | string }}">Tag
+                            details</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <strong>Key list</strong>
+                                    <hr/>
+                                    <div class="row">
+                                        {% for key in tag.keys() %}
+                                            <div class="col-8 col-sm-6">
+                                                {{ key }}
+                                            </div>
+                                            <div class="col-4 col-sm-6">
+                                                {{ tag[key] }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                        </button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+
     {% block scripts %}
         <script type="text/javascript" src="{{ url_for('static', filename='js/GTM-T7MRFWX.js') }}"></script>
     {% endblock %}
+
+
 {% endblock %}
