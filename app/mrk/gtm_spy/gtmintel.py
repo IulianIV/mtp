@@ -2,6 +2,7 @@ import copy
 import json
 import os
 import re
+from copy import deepcopy
 from os import PathLike
 from typing import Generator, Callable, Union, List, Set
 
@@ -9,13 +10,26 @@ import requests
 
 from app.manager.errors import SectionIndexError
 from app.manager.helpers import Config
-from .index import evaluations_index, dlvBuiltins_index
-from .types import (SECTIONS, CONTAINER_ID, CONTAINER, CONTAINER_VERSION, CONTAINER_SECTION_CONTENTS,
-                    GTM_CONTAINER_URL, ROOT, ITEM_PROPERTY, SECTION_ITEM)
+from .index import evaluations_index, dlvBuiltins_index, macros_index
+from .lurker import find_in_index
 
 CONTAINER_SAVE_PATH: PathLike = Config.GTM_SPY_DOWNLOAD_PATH
 
 GTM_URL_ROOT: str = 'https://www.googletagmanager.com/gtm.js?id='
+
+ROOT = {
+    'VERSION': 'version',
+    'MACROS': 'macros',
+    'TAGS': 'tags',
+    'PREDICATES': 'predicates',
+    'RULES': 'rules',
+    'RUNTIME': 'runtime',
+    'PERMISSIONS': 'permissions'
+}
+
+SECTIONS = [ROOT['VERSION'], ROOT['MACROS'],
+            ROOT['TAGS'], ROOT['PREDICATES'], ROOT['RULES'],
+            ROOT['RUNTIME'], ROOT['PERMISSIONS']]
 
 
 # TODO All typing has to be refactored. Pay attention to typing hints on function arguments - they must hint
@@ -47,17 +61,19 @@ class GTMIntel(object):
 
     def __init__(self, container_id: str, website: str = None):
         if website is None:
-            self._id: CONTAINER_ID = container_id
+            self._id = container_id
             # _full_container also hold 'resource' and 'runtime' data
-            self._full_container: CONTAINER = self.container_to_json()
+            self._full_container = self.container_to_json()
+            # the preserve the integrity of the original container, we will be working on a copy.
+            self._working_container = deepcopy(self._full_container)
             # _usable_container only hold 'version' and literal container data ('macros', 'tags', 'predicates', 'rules')
-            self._usable_container: CONTAINER = self._full_container[self.container_root]
-            self._version: CONTAINER_VERSION = self.version
+            self._usable_container = self._working_container[self.container_root]
+            self._version = self.version
         else:
             pass
 
     @staticmethod
-    def check_for_script(container_id: CONTAINER_ID) -> Union[bool, str]:
+    def check_for_script(container_id: str) -> Union[bool, str]:
         """
         Checks whether the given GTM Script ID is saved as a file in the root system path
 
@@ -74,7 +90,7 @@ class GTMIntel(object):
             return GTMIntel.download_gtm_container_from_url(CONTAINER_SAVE_PATH, container_id)
 
     @staticmethod
-    def download_gtm_container_from_url(file_path: os.PathLike, container_id: CONTAINER_ID) -> str:
+    def download_gtm_container_from_url(file_path: os.PathLike, container_id: str) -> str:
         """
         Downloads and saves a GTM Container in the given path.
 
@@ -98,7 +114,7 @@ class GTMIntel(object):
         return local_filename
 
     @staticmethod
-    def get_existing_gtm_script(container_id: CONTAINER_ID) -> Union[PathLike, str]:
+    def get_existing_gtm_script(container_id: str) -> Union[PathLike, str]:
         """
         Finds the local file path from a given Container ID, if it exists.
 
@@ -115,8 +131,8 @@ class GTMIntel(object):
     #   Basically fix "KeyError" errors. What to do when a section doesn't have that property at all?
     #   analyze this functionality
     @staticmethod
-    def get_section_properties_values(container_section: CONTAINER_SECTION_CONTENTS,
-                                      section_item_property: ITEM_PROPERTY) -> List:
+    def get_section_properties_values(container_section: str,
+                                      section_item_property: str) -> List:
         """
         From the given section name, creates a list of all the values of the given property name
 
@@ -137,7 +153,7 @@ class GTMIntel(object):
 
     # fixme What happens when a List or empty section is passed?
     @staticmethod
-    def available_item_properties(section_item: SECTION_ITEM) -> List[str]:
+    def available_item_properties(section_item: str) -> List[str]:
         """
         Creates a list of the available properties from a given section
 
@@ -151,7 +167,7 @@ class GTMIntel(object):
 
     # fixme What happens when a List or empty section is passed?
     @staticmethod
-    def get_section_properties(container_section: CONTAINER_SECTION_CONTENTS) -> Set:
+    def get_section_properties(container_section: str) -> Set:
         """
         When a certain code smell will be fixed this will be detailed
 
@@ -168,7 +184,7 @@ class GTMIntel(object):
 
         return final_properties
 
-    def find(self, container_section: CONTAINER_SECTION_CONTENTS):
+    def find(self, container_section: list):
         """
         Empty because it awaits development
 
@@ -178,7 +194,7 @@ class GTMIntel(object):
         pass
 
     @check_for_container
-    def section_contents(self, section: CONTAINER_SECTION_CONTENTS) -> Union[str, Generator]:
+    def section_contents(self, section: list) -> Union[str, Generator]:
         """
         Get the content of the given section
 
@@ -190,7 +206,7 @@ class GTMIntel(object):
 
         return container_section
 
-    def container_to_json(self) -> CONTAINER_SECTION_CONTENTS:
+    def container_to_json(self) -> dict:
         """
         Converts a given container to JSON
 
@@ -218,17 +234,17 @@ class GTMIntel(object):
         pass
 
     @property
-    def id(self) -> CONTAINER_ID:
+    def id(self) -> str:
         return self._id
 
     @property
-    def url(self) -> GTM_CONTAINER_URL:
+    def url(self) -> str:
         url = GTM_URL_ROOT + self._id
         return url
 
     @property
-    def full_container(self) -> CONTAINER:
-        return self._full_container
+    def full_container(self) -> dict:
+        return self._working_container
 
     @property
     def container_root(self):
@@ -238,7 +254,7 @@ class GTMIntel(object):
         :return: 'resource' contents
         """
 
-        root: str = list(self._full_container.keys())[0]
+        root: str = list(self._working_container.keys())[0]
 
         return root
 
@@ -247,47 +263,47 @@ class GTMIntel(object):
         return self._usable_container
 
     @property
-    def version(self) -> CONTAINER_VERSION:
+    def version(self) -> str:
 
         self._version = self.section_contents(ROOT['VERSION'])
 
         return self._version
 
     @property
-    def macros(self) -> CONTAINER_SECTION_CONTENTS:
+    def macros(self) -> list:
 
         macros = self.section_contents('macros')
 
         return macros
 
     @property
-    def predicates(self) -> CONTAINER_SECTION_CONTENTS:
+    def predicates(self) -> list:
 
         predicates = self.section_contents('predicates')
 
         return predicates
 
     @property
-    def rules(self) -> CONTAINER_SECTION_CONTENTS:
+    def rules(self) -> list:
 
         rules = self.section_contents('rules')
 
         return rules
 
     @property
-    def tags(self) -> CONTAINER_SECTION_CONTENTS:
+    def tags(self) -> list:
         tags = self.section_contents('tags')
 
         return tags
 
     @property
-    def runtime(self) -> CONTAINER_SECTION_CONTENTS:
+    def runtime(self) -> list:
         runtime = self.section_contents('runtime')
 
         return runtime
 
     @property
-    def permissions(self) -> CONTAINER_SECTION_CONTENTS:
+    def permissions(self) -> list:
         permissions = self.section_contents('permissions')
 
         return permissions
@@ -370,7 +386,7 @@ class GTMIntel(object):
         if real_type is list and len(property_value) >= 2:
 
             # determines if type is macro
-            if property_value[0] == 'macro' and property_value[1] is int:
+            if property_value[0] == 'macro' and type(property_value[1]) is int:
                 return 'macro'
 
             # determines if type is template
@@ -378,7 +394,7 @@ class GTMIntel(object):
                 return 'template'
 
             # determines if type is mapping
-            if property_value[0] == 'list' and property_value[1] is list and property_value[1][0] == 'map':
+            if property_value[0] == 'list' and type(property_value[1]) is list and property_value[1][0] == 'map':
                 return 'mapping'
 
             # determines if type is escape
@@ -393,7 +409,7 @@ class GTMIntel(object):
         if real_type is list and property_value[0] == 'list':
             if len(property_value) == 1:
                 return 'empty trigger group'
-            elif len(property_value) >= 2 and property_value[1] is str and '_' in property_value[1]:
+            elif len(property_value) >= 2 and type(property_value[1]) is str and '_' in property_value[1]:
                 return 'trigger group'
 
         # determines multiple string types
@@ -581,6 +597,27 @@ class GTMIntel(object):
                 map_dict[f'{value}_{index}'] = item[map_value]
 
         return map_dict
+
+    def create_macro_container(self):
+
+        macros = []
+
+        original_macros = self.macros
+
+        for macro in original_macros:
+            temp_dict = {}
+            macro_name = macro['function']
+            index_details = find_in_index(macro_name, macros_index)
+            for key, value in macro.items():
+                temp_dict[key] = value
+                temp_dict = {**temp_dict, **index_details}
+
+            macros.append(temp_dict)
+
+        print(macros)
+
+        return macros
+
 
     def __str__(self):
         return \
