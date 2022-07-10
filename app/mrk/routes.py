@@ -1,11 +1,12 @@
 from flask import render_template
 
+from app.auth.routes import login_required
 from app.mrk import bp
 from app.mrk.gtm_spy.gtmintel import GTMIntel
-from app.mrk.gtm_spy.index import tags_index, skip_macro_keys, macros_index
+from app.mrk.gtm_spy.index import skip_macro_keys, macros_index, skip_tag_keys, code_snippet_properties
 from app.mrk.gtm_spy.lurker import find_in_index
 
-model_gtm_id = 'GTM-T7MRFWX'
+model_gtm_id = r'GTM-T7MRFWX'
 
 spy = GTMIntel(model_gtm_id)
 container_url = spy.url
@@ -17,6 +18,7 @@ container_version = spy.version
 
 
 @bp.route('/gtm-spy', methods=('GET', 'POST'))
+@login_required
 def gtm_intel():
 
 
@@ -25,23 +27,36 @@ def gtm_intel():
                            gtm_id=container_id, version=container_version)
 
 
-# fixme this error passes silently. Deal with KeyError cases.
 @bp.route('/gtm-spy/tags', methods=('GET', 'POST'))
+@login_required
 def gtm_intel_tags():
-    tags = spy.tags
-    tag_list = []
 
-    for tag in tags:
-        try:
-            tag_list.append(find_in_index(tag['function'], tags_index))
-        except KeyError:
-            continue
+    tags = spy.create_tag_container()
+    variables = spy.create_macro_container()
+
+    find_index = find_in_index
+    type_check = spy.process_type
+    get_macro = spy.process_macro
+    process_mapping = spy.process_mapping
+
+    code_snippets = code_snippet_properties
+    skip_keys_tags = skip_tag_keys
+    skip_keys_macro = skip_macro_keys
+
+    macro_index = macros_index
+
+    for tag in spy.tags:
+        spy.process_teardown_setup(tag)
 
     return render_template('mrk/gtm_spy/tags.html', model_gtm_path=container_url,
-                           gtm_id=container_id, version=container_version, tag_list=tag_list)
+                           gtm_id=container_id, version=container_version, tag_list=tags,
+                           skip_tag_keys=skip_keys_tags, code_snippets=code_snippets, type_check=type_check,
+                           find_index=find_index, get_macro=get_macro, macros_index=macro_index,
+                           variables=variables, process_mapping=process_mapping)
 
 
 @bp.route('/gtm-spy/variables', methods=('GET', 'POST'))
+@login_required
 def gtm_intel_variables():
 
     variables = spy.create_macro_container()
