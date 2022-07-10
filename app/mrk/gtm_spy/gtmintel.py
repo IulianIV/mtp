@@ -121,7 +121,6 @@ class GTMIntel(object):
         else:
             return 'This container script was not found. Maybe download it?..'
 
-
     # fixme Fix situations when an item does not contain given property.
     #   Basically fix "KeyError" errors. What to do when a section doesn't have that property at all?
     #   analyze this functionality
@@ -327,6 +326,7 @@ class GTMIntel(object):
         :param property_value: Any value of a property belonging to any section from the container
         :return: Parameter value GTMSpy type
         """
+
         real_type = type(property_value)
 
         # determines if type is bool
@@ -365,7 +365,7 @@ class GTMIntel(object):
             return 'map'
 
         # determines if type is trigger_group
-        if real_type is list and property_value[0] == 'list':
+        if real_type is list and len(property_value) != 0 and property_value[0] == 'list':
             if len(property_value) == 1:
                 return 'empty trigger group'
             elif len(property_value) >= 2 and type(property_value[1]) is str and '_' in property_value[1]:
@@ -467,55 +467,74 @@ class GTMIntel(object):
         except IndexError:
             return 'Provide a predicate index that exists'
 
-
+    # better-me For the sake of running functionality, this parses the tag container more or less than 3 times.
+    #   its time complexity is a bitch. Try to refine the process and make it better/faster.
     def process_rules(self):
-        """
-        Handles the assignment of the 'if', 'unless' and 'blocking' clauses
-        to the tags referenced in the 'add' section of the 'rules' item.
-        Creates a new 'tags' section that contains a '_conditions' item for every eligible tag.
-        _conditions contains the literal rule found in 'rules' i.e. {['if', 2, 3], ['unless', 4, 5]}
-
-
-        :return: A new tag section updated with triggering rules
-        """
         process_container = self._usable_container
 
         tags = process_container['tags']
         rules = process_container['rules']
 
+        for tag in tags:
+            tag['_conditions'] = list()
+            tag['_blocking'] = list()
+
         conditions = []
         condition = []
         targets = []
 
-        # needed in parsing duplicate tag rules
-        _target_set = set()
-        duplicate_rule = []
-        unique_rule = []
+        blocks = []
+        block = []
+        block_targets = []
 
         for rl_set, index in zip(rules, range(0, len(rules))):
-            for rls in rl_set:
-                if re.search('if|unless', rls[0]):
-                    condition.append(rls)
-                else:
-                    targets.append(rls)
 
-            conditions.insert(index, list(condition))
-            condition.clear()
+            trigg_cond = re.compile('if|unless')
+
+            rule_types = [x[0] for x in rl_set]
+
+            if 'block' not in rule_types:
+                for rls in rl_set:
+                    if re.search(trigg_cond, rls[0]):
+                        condition.append(rls)
+                    elif re.search('add', rls[0]):
+                        targets.append(rls)
+
+                conditions.insert(index, list(condition))
+                condition.clear()
+
+            if 'block' in rule_types and 'add' not in rule_types:
+                for rls in rl_set:
+                    if re.search(trigg_cond, rls[0]):
+                        block.append(rls)
+                    elif re.search('block', rls[0]):
+                        block_targets.append(rls)
+
+                blocks.insert(index, list(block))
+                block.clear()
+
+            if 'add' in rule_types and 'block' in rule_types:
+                for rls in rl_set:
+                    if re.search(trigg_cond, rls[0]):
+                        block.append(rls)
+                        condition.append(rls)
+                    elif re.search('block', rls[0]):
+                        block_targets.append(rls)
+                    elif re.search('add', rls[0]):
+                        targets.append(rls)
+
+                blocks.insert(index, list(block))
+                conditions.insert(index, list(condition))
+                block.clear()
+                condition.clear()
 
         for x in range(0, len(targets)):
             for tag_index in targets[x][1:]:
-                # evaluates if the previous rule target contains same targets as current
-                # this means a tag as divided rule targets.
-                if tag_index in targets[x-1][1:]:
+                tags[tag_index]['_conditions'].append(conditions[x])
 
-                    for rule in conditions[x] + conditions[x-1]:
-                        duplicate_rule += rule
-
-                    unique_rule = [x for x in duplicate_rule if x not in _target_set and (_target_set.add(x) or True)]
-
-                    tags[tag_index]['_conditions'] = unique_rule
-                else:
-                    tags[tag_index]['_conditions'] = conditions[x]
+        for _x in range(0, len(block_targets)):
+            for _tag_index in block_targets[_x][1:]:
+                tags[_tag_index]['_blocking'].append(blocks[_x])
 
         return process_container['tags']
 
