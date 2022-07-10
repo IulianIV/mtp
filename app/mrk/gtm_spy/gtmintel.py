@@ -1,19 +1,17 @@
-import copy
 import json
 import os
 import re
 from copy import deepcopy
-from os import PathLike
 from typing import Generator, Callable, Union, List, Set
 
 import requests
 
 from app.manager.errors import SectionIndexError
 from app.manager.helpers import Config
-from .index import evaluations_index, dlvBuiltins_index, macros_index
+from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags
 from .lurker import find_in_index
 
-CONTAINER_SAVE_PATH: PathLike = Config.GTM_SPY_DOWNLOAD_PATH
+CONTAINER_SAVE_PATH: os.PathLike = Config.GTM_SPY_DOWNLOAD_PATH
 
 GTM_URL_ROOT: str = 'https://www.googletagmanager.com/gtm.js?id='
 
@@ -32,9 +30,6 @@ SECTIONS = [ROOT['VERSION'], ROOT['MACROS'],
             ROOT['RUNTIME'], ROOT['PERMISSIONS']]
 
 
-# TODO All typing has to be refactored. Pay attention to typing hints on function arguments - they must hint
-#   towards what type of data to give not what type is expected to find in the GTM Container. At function return
-#   seems to be fine.
 # fixme These need to be re-documented and re-defined or refactored to hint towards the correct functionality
 #   At the moment it is not clear what each function does
 #         get_section_properties_values()
@@ -114,7 +109,7 @@ class GTMIntel(object):
         return local_filename
 
     @staticmethod
-    def get_existing_gtm_script(container_id: str) -> Union[PathLike, str]:
+    def get_existing_gtm_script(container_id: str) -> Union[os.PathLike, str]:
         """
         Finds the local file path from a given Container ID, if it exists.
 
@@ -315,53 +310,13 @@ class GTMIntel(object):
         :param macro: ["macro", 5]
         :return: Container like object. Any given "macros" section value at the given macro index.
         """
-        if self._is_macro(macro):
+        if self.process_type(macro) == 'macro':
             try:
                 macro_literal = self.macros[macro[1]]
                 return macro_literal
             except IndexError:
                 return 'Provide a macro index that exists'
 
-    def _is_macro(self, macro):
-        """
-        Deprecation warning: This will be removed as soon as "process_type" is developed
-
-        Determines whether a given property value is indeed a macro
-
-        :param macro: ["macro", 5]
-        :return: True or False if given data is a valid macro or not
-        """
-        if type(macro) is not list:
-            return False
-        if len(macro) < 2 or len(macro) > 2:
-            return False
-        elif macro[0] == 'macro' or macro[1] is int:
-            return True
-        else:
-            try:
-                _ = self.macros[macro[1]]
-                return True
-            except IndexError:
-                return False
-
-    # better-me To have this properly implemented several custom types would have to be created
-    """
-    This function would analyze and determine the type of such possbile parameters. This is a 
-        non-exhaustive list:
-            Type 1 :["list",
-                       ["map", "keyz", "lookup_input", "value", "lookup_output"],
-                       ["map", "keyd", "lookup_input", "value", ["macro", 5]],
-                       ["map", "keyr", ["macro", 9], "value", "lookup_output"]
-                       ]
-            Type 2: ["list", "31742945_23_21", "31742945_23_22"]
-            Type 3: ["list", ["tag", 0, 0]]
-            Type 4: ["map"]
-            Type 5: "\u003Cscript type="text/gtmscript"\u003Ewindow.$zopim|"
-            Type 6: ["macro", 8]
-            Type 7: bool, int, regular string
-            Type 8: string with macros included
-    """
-    # fixme Not done. Has to be finished
     def process_type(self, property_value):
 
         """
@@ -400,6 +355,10 @@ class GTMIntel(object):
             # determines if type is escape
             if property_value[0] == 'escape' and self.process_type(property_value[1]) == 'macro':
                 return 'escape'
+
+            # determines if type is gtm_firing_sequence
+            if property_value[0] == 'list' and type(property_value[1]) is list and property_value[1][0] == 'tag':
+                return 'sequence'
 
         # determines if type is map
         if real_type is list and len(property_value) == 1 and property_value[0] == 'map':
@@ -494,7 +453,7 @@ class GTMIntel(object):
                 predicate_evaluator = [eval_indexes[predicate_evaluator]['title'],
                                        eval_indexes[predicate_evaluator]['exportTitle']]
 
-                if self._is_macro(predicate_evaluated):
+                if self.process_type(predicate_evaluated) == 'macro':
                     predicate_evaluated = self.process_macro(predicate_evaluated)
 
                 try:
@@ -508,6 +467,7 @@ class GTMIntel(object):
         except IndexError:
             return 'Provide a predicate index that exists'
 
+
     def process_rules(self):
         """
         Handles the assignment of the 'if', 'unless' and 'blocking' clauses
@@ -515,14 +475,10 @@ class GTMIntel(object):
         Creates a new 'tags' section that contains a '_conditions' item for every eligible tag.
         _conditions contains the literal rule found in 'rules' i.e. {['if', 2, 3], ['unless', 4, 5]}
 
+
         :return: A new tag section updated with triggering rules
         """
-        process_container = copy.deepcopy(self._usable_container)
-
-        popper = ['version', 'macros', 'predicates']
-
-        for pop in popper:
-            process_container.pop(pop)
+        process_container = self._usable_container
 
         tags = process_container['tags']
         rules = process_container['rules']
@@ -531,20 +487,37 @@ class GTMIntel(object):
         condition = []
         targets = []
 
+        # needed in parsing duplicate tag rules
+        _target_set = set()
+        duplicate_rule = []
+        unique_rule = []
+
         for rl_set, index in zip(rules, range(0, len(rules))):
             for rls in rl_set:
                 if re.search('if|unless', rls[0]):
                     condition.append(rls)
                 else:
                     targets.append(rls)
+
             conditions.insert(index, list(condition))
             condition.clear()
 
         for x in range(0, len(targets)):
             for tag_index in targets[x][1:]:
-                tags[tag_index]['_conditions'] = conditions[x]
+                # evaluates if the previous rule target contains same targets as current
+                # this means a tag as divided rule targets.
+                if tag_index in targets[x-1][1:]:
 
-        return process_container
+                    for rule in conditions[x] + conditions[x-1]:
+                        duplicate_rule += rule
+
+                    unique_rule = [x for x in duplicate_rule if x not in _target_set and (_target_set.add(x) or True)]
+
+                    tags[tag_index]['_conditions'] = unique_rule
+                else:
+                    tags[tag_index]['_conditions'] = conditions[x]
+
+        return process_container['tags']
 
     def process_mapping(self, container_mapping, process_macro=False, key_name=None, value_name=None):
         """
@@ -584,19 +557,79 @@ class GTMIntel(object):
                 map_key = item.index(key) + 1
                 map_value = item.index(value) + 1
 
-            if process_macro and self._is_macro(item[map_key]):
+            if process_macro and self.process_type(item[map_key]) == 'macro':
                 proc_macro = self.process_macro(item[map_key])
                 map_dict[f'{key}_{index}'] = proc_macro
             else:
                 map_dict[f'{key}_{index}'] = item[map_key]
 
-            if process_macro and self._is_macro(item[map_value]):
+            if process_macro and self.process_type(item[map_value]) == 'macro':
                 proc_macro = self.process_macro(item[map_value])
                 map_dict[f'{value}_{index}'] = proc_macro
             else:
                 map_dict[f'{value}_{index}'] = item[map_value]
 
         return map_dict
+
+    def process_teardown_setup(self, tag):
+        """
+        Processes tag properties defined as: 'teardown_tags', 'setup_tags'. The structure is the same for both.
+        setup_tags: ["list", ["tag", 7, 0]] or ["list", ["tag", 7, 1]]
+        teardown_tags: ["list", ["tag", 8, 0]] or  ["list", ["tag", 8, 2]]
+
+        setup_tags: basically says to fire a tag (tag index 7) BEFORE the current tag fires (at trigger time first
+            trigger the mentioned tag, not the current one). If the second value is '1' it states that the current tag
+            should not be fired if tag index 7 fails or is paused.
+            If second value is '0' basically states to fire it regardless.
+        teardown_tags: basically says to fire a tag (tag index 8) AFTER the current tag fires (right after triggering
+            and firing the current trigger, fire the referenced tag). If the second value is '2' it states that the
+            referenced tag should not be fired if the current tag fails or is paused.
+            If second value is '0' basically states to fire it regardless
+
+        :return:
+        :rtype:
+        """
+        _sequence = {}
+        tags = self.tags
+
+        for key in tag:
+            if self.process_type(tag[key]) == 'sequence':
+                sequence_literal = tag[key][1]
+                if key == 'setup_tags':
+                    _sequence['before'] = tags[sequence_literal[1]]['function']
+                    _sequence['before_index'] = sequence_literal[1]
+                    if sequence_literal[2] == 0:
+                        _sequence['before_conditional'] = False
+
+                    if sequence_literal[2] == 1:
+                        _sequence['before_conditional'] = True
+
+                if key == 'teardown_tags':
+                    _sequence['after'] = tags[sequence_literal[1]]['function']
+                    _sequence['after_index'] = sequence_literal[1]
+                    if sequence_literal[2] == 0:
+                        _sequence['after_conditional'] = False
+
+                    if sequence_literal[2] == 2:
+                        _sequence['after_conditional'] = True
+
+        return _sequence
+
+    # TODO Finish this processing functionality
+    def process_metadata(self):
+        """
+        Some tags, if configured so, have a filled metadata property:
+        ["map", "metadata_key", "metadata_value", "metadata_key_2", "metadata_value_2",
+        "key_for_tag_name", "Custom Image"]
+        If not filled it just shows as metadata: ["map"]
+
+        It behaves as follows: if "include tag name" is checked it prints both last 2 values fot he list,
+            the penultimate item being mandatory if the conditions is checked. The last item is the tag name.
+        Every other data inbetween that and "map" is the literal table of key-value pairs to be added as tag metadata.
+
+        :return:
+        :rtype:
+        """
 
     def create_macro_container(self):
 
@@ -614,10 +647,28 @@ class GTMIntel(object):
 
             macros.append(temp_dict)
 
-        print(macros)
-
         return macros
 
+    def create_tag_container(self):
+
+        tags = []
+
+        rules_tagged = self.process_rules()
+
+        for tag in rules_tagged:
+            temp_dict = {}
+            tag_name = tag['function']
+            temp_dict['_sequence'] = self.process_teardown_setup(tag)
+            if tag_name not in triggers_not_tags:
+                index_details = find_in_index(tag_name, tags_index)
+
+                for key, value in tag.items():
+                    temp_dict[key] = value
+                    temp_dict = {**temp_dict, **index_details}
+
+                tags.append(temp_dict)
+
+        return tags
 
     def __str__(self):
         return \
