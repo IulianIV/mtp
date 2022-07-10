@@ -176,4 +176,6 @@ dlvBuiltins_index = {
 }
 
 skip_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function']
-
+skip_tag_keys = ['pill', 'property', 'nameProperty', 'title', 'function', 'infoKey', 'teardown_tags', 'setup_tags', '_sequence']
+triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl']
+code_snippet_properties = ['vtp_html', 'vtp_javascript']
