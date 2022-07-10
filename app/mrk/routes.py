@@ -41,12 +41,8 @@ def gtm_intel_tags():
 
     code_snippets = code_snippet_properties
     skip_keys_tags = skip_tag_keys
-    skip_keys_macro = skip_macro_keys
 
     macro_index = macros_index
-
-    for tag in spy.tags:
-        spy.process_teardown_setup(tag)
 
     return render_template('mrk/gtm_spy/tags.html', model_gtm_path=container_url,
                            gtm_id=container_id, version=container_version, tag_list=tags,
