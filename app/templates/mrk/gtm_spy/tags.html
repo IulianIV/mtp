@@ -80,12 +80,13 @@
                         <thead>
                         <tr>
                             <th scope="col">Tag name</th>
-                            <th scope="col">Sequencing</th>
+                            <th scope="col" colspan="2">Sequencing</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for tag in tag_list %}
                             <tr>
+                                <!-- Tag list start -->
                                 <th scope="row">
                                     {% if 'pill' in tag %}
                                         <button type="button" class="btn btn-{{ tag['pill'] }}" data-toggle="modal"
@@ -102,71 +103,178 @@
                                         <span class="badge badge-success">{{ tag[tag['nameProperty']] }}</span>
                                     {% endif %}
                                 </th>
+                                <!-- Tag list end -->
+                                <!-- Sequence list start -->
+                                <!-- Sequence 'before' start -->
                                 <th scope="row" style="font-weight: normal">
-                                    {% if '_sequence' in tag and tag['_sequence'] %}
-                                        <p class="text-left">Tag
-                                            {% if 'pill' in tag %}
-                                                <button type="button" class="btn btn-{{ tag['pill'] }}"
-                                                        data-toggle="modal"
-                                                        data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
-                                                    {{ tag_list[tag['_sequence']['after_index']]['title'] }}
-                                                </button>
-                                            {% else %}
-                                                <button type="button" class="btn btn-secondary" data-toggle="modal"
-                                                        data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
-                                                    {{ tag_list[tag['_sequence']['after_index']]['title'] }}
-                                                </button>
-                                            {% endif %} wil fire after current
-                                            <mark><strong>{{ tag['title'] }}</strong></mark>
-                                            has
-                                            fired.
-                                        </p>
-                                        {% if tag['_sequence']['after_conditional'] %}
-                                            <p class="text-center"><em>Don`t fire
-                                                {% if 'pill' in tag %}
-                                                    <button type="button" class="btn btn-{{ tag['pill'] }}"
-                                                            data-toggle="modal"
-                                                            data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
-                                                        {{ tag_list[tag['_sequence']['after_index']]['title'] }}
-                                                    </button>
-                                                {% else %}
-                                                    <button type="button" class="btn btn-secondary" data-toggle="modal"
-                                                            data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
-                                                        {{ tag_list[tag['_sequence']['after_index']]['title'] }}
-                                                    </button>
-                                                {% endif %} if this
-                                                <mark><strong>{{ tag['title'] }}</strong></mark>
-                                                fails or is
-                                                paused.
-                                            </em>
-                                            </p>
-                                        {% else %}
-                                            <p class="text-center" style="tab-size: 6;"><em><strong>Disabled</strong>:
-                                                <del>Don`t fire
+                                    {% if '_sequence' in tag and tag['_sequence'] and 'before' in tag['_sequence'] %}
+                                        <button class="btn btn-info" type="button" data-toggle="collapse"
+                                                data-target="#before_{{ tag['_sequence']['before'] }}_{{ loop.index0 | string }}"
+                                                aria-expanded="false"
+                                                aria-controls="before_{{ tag['_sequence']['before'] }}_{{ loop.index0 | string }}">
+                                            Setup Tag
+                                        </button>
+                                        <div class="collapse"
+                                             id="before_{{ tag['_sequence']['before'] }}_{{ loop.index0 | string }}">
+                                            <div class="card card-body">
+                                                <p class="text-left">Tag
                                                     {% if 'pill' in tag %}
-                                                        <button type="button" class="btn btn-light"
+                                                        <button type="button" class="btn btn-{{ tag['pill'] }}"
                                                                 data-toggle="modal"
-                                                                data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}"
-                                                                disabled>
-                                                            <del>{{ tag_list[tag['_sequence']['after_index']]['title'] }}</del>
+                                                                data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
+                                                            {{ tag_list[tag['_sequence']['before_index']]['title'] }}
                                                         </button>
                                                     {% else %}
-                                                        <button type="button" class="btn btn-outline-secondary"
+                                                        <button type="button" class="btn btn-secondary"
                                                                 data-toggle="modal"
-                                                                data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}"
-                                                                disabled>
-                                                            <del>{{ tag_list[tag['_sequence']['after_index']]['title'] }}</del>
+                                                                data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
+                                                            {{ tag_list[tag['_sequence']['before_index']]['title'] }}
                                                         </button>
-                                                    {% endif %} if this
+                                                    {% endif %} wil fire <strong>before</strong> current
                                                     <mark><strong>{{ tag['title'] }}</strong></mark>
-                                                    fails or is
-                                                    paused.
-                                                </del>
-                                            </em>
-                                            </p>
-                                        {% endif %}
+                                                    has
+                                                    fired.
+                                                </p>
+                                                {% if tag['_sequence']['before_conditional'] %}
+                                                    <p class="text-center"><em>Don`t fire
+                                                        <mark><strong>{{ tag['title'] }}</strong></mark>
+                                                        if
+                                                        {% if 'pill' in tag %}
+                                                            <button type="button" class="btn btn-{{ tag['pill'] }}"
+                                                                    data-toggle="modal"
+                                                                    data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
+                                                                {{ tag_list[tag['_sequence']['before_index']]['title'] }}
+                                                            </button>
+                                                        {% else %}
+                                                            <button type="button" class="btn btn-secondary"
+                                                                    data-toggle="modal"
+                                                                    data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
+                                                                {{ tag_list[tag['_sequence']['before_index']]['title'] }}
+                                                            </button>
+                                                        {% endif %}
+                                                        fails or is
+                                                        paused.
+                                                    </em>
+                                                    </p>
+                                                {% else %}
+                                                    <p class="text-center" style="tab-size: 6;">
+                                                        <em><strong>Disabled</strong>:
+                                                            <del>Don`t fire
+                                                                <mark><strong>{{ tag['title'] }}</strong></mark>
+                                                                if
+                                                                {% if 'pill' in tag %}
+                                                                    <button type="button" class="btn btn-light"
+                                                                            data-toggle="modal"
+                                                                            data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}"
+                                                                            disabled>
+                                                                        <del>{{ tag_list[tag['_sequence']['after_index']]['title'] }}</del>
+                                                                    </button>
+                                                                {% else %}
+                                                                    <button type="button"
+                                                                            class="btn btn-outline-secondary"
+                                                                            data-toggle="modal"
+                                                                            data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}"
+                                                                            disabled>
+                                                                        <del>{{ tag_list[tag['_sequence']['after_index']]['title'] }}</del>
+                                                                    </button>
+                                                                {% endif %}
+
+                                                                fails or is
+                                                                paused.
+                                                            </del>
+                                                        </em>
+                                                    </p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                </th>
+                                <!-- Sequence 'before' end -->
+                                <!-- Sequence 'after' start -->
+                                <th scope="row" style="font-weight: normal">
+                                    {% if '_sequence' in tag and tag['_sequence'] and 'after' in tag['_sequence'] %}
+                                        <button class="btn btn-info" type="button" data-toggle="collapse"
+                                                data-target="#after_{{ tag['_sequence']['after'] }}_{{ loop.index0 | string }}"
+                                                aria-expanded="false"
+                                                aria-controls="after_{{ tag['_sequence']['after'] }}_{{ loop.index0 | string }}">
+                                            Cleanup Tag
+                                        </button>
+                                        <div class="collapse"
+                                             id="after_{{ tag['_sequence']['after'] }}_{{ loop.index0 | string }}">
+                                            <div class="card card-body">
+                                                <p class="text-left">Tag
+                                                    {% if 'pill' in tag %}
+                                                        <button type="button" class="btn btn-{{ tag['pill'] }}"
+                                                                data-toggle="modal"
+                                                                data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
+                                                            {{ tag_list[tag['_sequence']['after_index']]['title'] }}
+                                                        </button>
+                                                    {% else %}
+                                                        <button type="button" class="btn btn-secondary"
+                                                                data-toggle="modal"
+                                                                data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
+                                                            {{ tag_list[tag['_sequence']['after_index']]['title'] }}
+                                                        </button>
+                                                    {% endif %} wil fire <strong>after</strong> current
+                                                    <mark><strong>{{ tag['title'] }}</strong></mark>
+                                                    has
+                                                    fired.
+                                                </p>
+                                                {% if tag['_sequence']['after_conditional'] %}
+                                                    <p class="text-center"><em>Don`t fire
+                                                        {% if 'pill' in tag %}
+                                                            <button type="button" class="btn btn-{{ tag['pill'] }}"
+                                                                    data-toggle="modal"
+                                                                    data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
+                                                                {{ tag_list[tag['_sequence']['after_index']]['title'] }}
+                                                            </button>
+                                                        {% else %}
+                                                            <button type="button" class="btn btn-secondary"
+                                                                    data-toggle="modal"
+                                                                    data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
+                                                                {{ tag_list[tag['_sequence']['after_index']]['title'] }}
+                                                            </button>
+                                                        {% endif %} if this
+                                                        <mark><strong>{{ tag['title'] }}</strong></mark>
+                                                        fails or is
+                                                        paused.
+                                                    </em>
+                                                    </p>
+                                                {% else %}
+                                                    <p class="text-center" style="tab-size: 6;">
+                                                        <em><strong>Disabled</strong>:
+                                                            <del>Don`t fire
+                                                                {% if 'pill' in tag %}
+                                                                    <button type="button" class="btn btn-light"
+                                                                            data-toggle="modal"
+                                                                            data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}"
+                                                                            disabled>
+                                                                        <del>{{ tag_list[tag['_sequence']['after_index']]['title'] }}</del>
+                                                                    </button>
+                                                                {% else %}
+                                                                    <button type="button"
+                                                                            class="btn btn-outline-secondary"
+                                                                            data-toggle="modal"
+                                                                            data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}"
+                                                                            disabled>
+                                                                        <del>{{ tag_list[tag['_sequence']['after_index']]['title'] }}</del>
+                                                                    </button>
+                                                                {% endif %} if this
+                                                                <mark><strong>{{ tag['title'] }}</strong></mark>
+                                                                fails or is
+                                                                paused.
+                                                            </del>
+                                                        </em>
+                                                    </p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
                                     {% endif %}
                                 </th>
+                                <!-- Sequence 'before' end -->
+                                <!-- Sequence list end -->
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -175,6 +283,7 @@
             </div>
         </main>
     </div>
+
 
     <!-- Tag Modals Start -->
     {% for tag in tag_list %}
