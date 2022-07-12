@@ -138,3 +138,53 @@ def expense_count_to_json(data_list: list) -> dict:
     return {
         'data': items_data
     }
+
+
+def gtm_trigger_len(nested_list: list) -> int:
+    """
+    Counts the length of a GTM Firing or Blocking condition.
+    Actually counts the length of a list that is n-dimensional by skipping string members.
+
+    :param nested_list: list or nested list
+    :type nested_list: list
+    :return: length of list
+    :rtype: int
+    """
+
+    count = 0
+
+    for item in nested_list:
+        if type(item) is not str:
+            if type(item) is list:
+                count += gtm_trigger_len(item)
+            else:
+                count += 1
+
+    return count
+
+
+def extract_nested_strings(nested_list: list) -> list:
+    """
+    Extracts all found string type objects inside a n-levels nested list
+
+    :param nested_list: Any nested list
+    :type nested_list: list
+    :return: List of all string type objects found
+    :rtype: list
+    """
+
+    result = []
+
+    for el in x:
+        if hasattr(el, "__iter__") and not isinstance(el, str):
+            result.extend(extract_nested_strings(el))
+        else:
+            result.append(el)
+
+    final_list = []
+
+    for item in result:
+        if type(item) is str:
+            final_list.append(item)
+
+    return list(set(final_list))
