@@ -80,6 +80,8 @@
                         <thead>
                         <tr>
                             <th scope="col">Tag name</th>
+                            <th scope="col">Firing Triggers</th>
+                            <th scope="col">Exception Triggers</th>
                             <th scope="col" colspan="2">Sequencing</th>
                         </tr>
                         </thead>
@@ -103,12 +105,36 @@
                                         <span class="badge badge-success">{{ tag[tag['nameProperty']] }}</span>
                                     {% endif %}
                                 </th>
+                                <!-- Tag Triggers start -->
+                                <!-- Firing Triggers start -->
+                                <th scope="row">
+                                    <button type="button" class="btn btn-outline-success btn-sm" data-toggle="modal"
+                                            data-target="#conditionalModal_tag{{ loop.index0 }}">
+                                        {{ get_len(tag['_conditions']) }} conditions
+                                    </button>
+                                </th>
+                                <!-- Firing Triggers end -->
+                                <!-- Blocking Triggers start -->
+                                <th scope="row">
+                                    {% set conditions_len = get_len(tag['_blocking']) %}
+                                    <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal"
+                                            data-target="#blockingModal_tag{{ loop.index0 }}"
+                                            {% if conditions_len == 0 %}
+                                            disabled>
+                                            {% else %}
+                                                >
+                                            {% endif %}
+                                    {{ get_len(tag['_blocking']) }} conditions
+                                    </button>
+                                </th>
+                                <!-- Firing Triggers end -->
+                                <!-- Tag Triggers end -->
                                 <!-- Tag list end -->
                                 <!-- Sequence list start -->
                                 <!-- Sequence 'before' start -->
                                 <th scope="row" style="font-weight: normal">
                                     {% if '_sequence' in tag and tag['_sequence'] and 'before' in tag['_sequence'] %}
-                                        <button class="btn btn-info" type="button" data-toggle="collapse"
+                                        <button class="btn btn-outline-info btn-sm" type="button" data-toggle="collapse"
                                                 data-target="#before_{{ tag['_sequence']['before'] }}_{{ loop.index0 | string }}"
                                                 aria-expanded="false"
                                                 aria-controls="before_{{ tag['_sequence']['before'] }}_{{ loop.index0 | string }}">
@@ -119,13 +145,13 @@
                                             <div class="card card-body">
                                                 <p class="text-left">Tag
                                                     {% if 'pill' in tag %}
-                                                        <button type="button" class="btn btn-{{ tag['pill'] }}"
+                                                        <button type="button" class="btn btn-{{ tag['pill'] }} btn-sm"
                                                                 data-toggle="modal"
                                                                 data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
                                                             {{ tag_list[tag['_sequence']['before_index']]['title'] }}
                                                         </button>
                                                     {% else %}
-                                                        <button type="button" class="btn btn-secondary"
+                                                        <button type="button" class="btn btn-secondary btn-sm"
                                                                 data-toggle="modal"
                                                                 data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
                                                             {{ tag_list[tag['_sequence']['before_index']]['title'] }}
@@ -140,13 +166,14 @@
                                                         <mark><strong>{{ tag['title'] }}</strong></mark>
                                                         if
                                                         {% if 'pill' in tag %}
-                                                            <button type="button" class="btn btn-{{ tag['pill'] }}"
+                                                            <button type="button"
+                                                                    class="btn btn-{{ tag['pill'] }} btn-sm"
                                                                     data-toggle="modal"
                                                                     data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
                                                                 {{ tag_list[tag['_sequence']['before_index']]['title'] }}
                                                             </button>
                                                         {% else %}
-                                                            <button type="button" class="btn btn-secondary"
+                                                            <button type="button" class="btn btn-secondary btn-sm"
                                                                     data-toggle="modal"
                                                                     data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
                                                                 {{ tag_list[tag['_sequence']['before_index']]['title'] }}
@@ -163,7 +190,7 @@
                                                                 <mark><strong>{{ tag['title'] }}</strong></mark>
                                                                 if
                                                                 {% if 'pill' in tag %}
-                                                                    <button type="button" class="btn btn-light"
+                                                                    <button type="button" class="btn btn-light btn-sm"
                                                                             data-toggle="modal"
                                                                             data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}"
                                                                             disabled>
@@ -171,7 +198,7 @@
                                                                     </button>
                                                                 {% else %}
                                                                     <button type="button"
-                                                                            class="btn btn-outline-secondary"
+                                                                            class="btn btn-outline-secondary btn-sm"
                                                                             data-toggle="modal"
                                                                             data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}"
                                                                             disabled>
@@ -194,7 +221,7 @@
                                 <!-- Sequence 'after' start -->
                                 <th scope="row" style="font-weight: normal">
                                     {% if '_sequence' in tag and tag['_sequence'] and 'after' in tag['_sequence'] %}
-                                        <button class="btn btn-info" type="button" data-toggle="collapse"
+                                        <button class="btn btn-outline-info btn-sm" type="button" data-toggle="collapse"
                                                 data-target="#after_{{ tag['_sequence']['after'] }}_{{ loop.index0 | string }}"
                                                 aria-expanded="false"
                                                 aria-controls="after_{{ tag['_sequence']['after'] }}_{{ loop.index0 | string }}">
@@ -205,13 +232,13 @@
                                             <div class="card card-body">
                                                 <p class="text-left">Tag
                                                     {% if 'pill' in tag %}
-                                                        <button type="button" class="btn btn-{{ tag['pill'] }}"
+                                                        <button type="button" class="btn btn-{{ tag['pill'] }} btn-sm"
                                                                 data-toggle="modal"
                                                                 data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
                                                             {{ tag_list[tag['_sequence']['after_index']]['title'] }}
                                                         </button>
                                                     {% else %}
-                                                        <button type="button" class="btn btn-secondary"
+                                                        <button type="button" class="btn btn-secondary btn-sm"
                                                                 data-toggle="modal"
                                                                 data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
                                                             {{ tag_list[tag['_sequence']['after_index']]['title'] }}
@@ -224,13 +251,14 @@
                                                 {% if tag['_sequence']['after_conditional'] %}
                                                     <p class="text-center"><em>Don`t fire
                                                         {% if 'pill' in tag %}
-                                                            <button type="button" class="btn btn-{{ tag['pill'] }}"
+                                                            <button type="button"
+                                                                    class="btn btn-{{ tag['pill'] }} btn-sm"
                                                                     data-toggle="modal"
                                                                     data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
                                                                 {{ tag_list[tag['_sequence']['after_index']]['title'] }}
                                                             </button>
                                                         {% else %}
-                                                            <button type="button" class="btn btn-secondary"
+                                                            <button type="button" class="btn btn-secondary btn-sm"
                                                                     data-toggle="modal"
                                                                     data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
                                                                 {{ tag_list[tag['_sequence']['after_index']]['title'] }}
@@ -246,7 +274,7 @@
                                                         <em><strong>Disabled</strong>:
                                                             <del>Don`t fire
                                                                 {% if 'pill' in tag %}
-                                                                    <button type="button" class="btn btn-light"
+                                                                    <button type="button" class="btn btn-light btn-sm"
                                                                             data-toggle="modal"
                                                                             data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}"
                                                                             disabled>
@@ -254,7 +282,7 @@
                                                                     </button>
                                                                 {% else %}
                                                                     <button type="button"
-                                                                            class="btn btn-outline-secondary"
+                                                                            class="btn btn-outline-secondary btn-sm"
                                                                             data-toggle="modal"
                                                                             data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}"
                                                                             disabled>
@@ -284,9 +312,9 @@
         </main>
     </div>
 
-
-    <!-- Tag Modals Start -->
+    <!-- Tag Specific Modal Start -->
     {% for tag in tag_list %}
+        <!-- Tag Modals Start -->
         <div class="modal fade" id="{{ tag['title'] | replace(' ', '') + tag_list.index(tag) | string }}"
              tabindex="-1" role="dialog"
              aria-labelledby="{{ tag['title'] | replace(' ', '') + tag_list.index(tag) | string }}"
@@ -375,11 +403,269 @@
                 </div>
             </div>
         </div>
-    {% endfor %}
-    <!-- Tag Modals End -->
+        <!-- Tag Modals End -->
 
-    <!-- Code Block Modals Start -->
-    {% for tag in tag_list %}
+        <!-- Firing Conditions Start -->
+        <div class="modal fade" id="conditionalModal_tag{{ loop.index0 }}"
+             tabindex="-1" role="dialog"
+             aria-labelledby="conditionalModal_tag{{ loop.index0 }}"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"
+                            id="conditionalModal_tag{{ loop.index0 }}">{{ tag['title'] }}
+                            firing conditions</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="container">
+                                    {% set conditions = tag['_conditions'] %}
+                                    {% for rule_set in conditions %}
+                                        {% set rule_set_loop = loop %}
+                                        {% for rule in rule_set %}
+                                            {% if rule[0] == 'if' %}
+                                                <div class="card gtm-card">
+                                                    <div class="card-header">
+                                                        Featured
+                                                    </div>
+                                                    {% for cond in rule[1:] %}
+                                                        {% set predicate_index = cond %}
+                                                        {% set evaluate = predicates[predicate_index]['arg0'] %}
+                                                        {% set evaluator = predicates[predicate_index]['title'] %}
+                                                        {% set against = predicates[predicate_index]['arg1'] %}
+                                                        <div class="row justify-content-center align-items-center gtm-row">
+                                                            <div class="col gtm-col">
+                                                                {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
+                                                                    <button type="button" data-dismiss="modal"
+                                                                            class="btn btn-primary btn-sm"
+                                                                            data-toggle="modal"
+                                                                            data-target="#{{ find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string }}">
+                                                                        {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                                    </button>
+                                                                {% else %}
+                                                                    <button type="button" data-dismiss="modal"
+                                                                            class="btn btn-primary btn-sm"
+                                                                            data-toggle=""
+                                                                            data-target="#">
+                                                                        {{ evaluate }}
+                                                                    </button>
+                                                                {% endif %}
+                                                                <span class="text-center">
+                                                                    {{ evaluator }}
+                                                                </span>
+                                                                <span class="badge badge-pill badge-info align-middle">
+                                                                    {{ against }}</span>
+                                                            </div>
+                                                        </div>
+                                                        {% if not loop.last %}
+                                                            <div class="row justify-content-center align-items-center">
+                                                                <div class="col-8">
+                                                                    <h2 class="gtmspy-hr">
+                                                                        <span>AND</span>
+                                                                    </h2>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% elif rule[0] == 'unless' %}
+                                                <div class="row justify-content-center align-items-center">
+                                                    <div class="col-8">
+                                                        <h2 class="gtmspy-hr">
+                                                            <span>OR</span>
+                                                        </h2>
+                                                    </div>
+                                                </div>
+                                                <div class="card gtm-card">
+                                                    <div class="card-header">
+                                                        Featured
+                                                    </div>
+                                                    {% for cond in rule[1:] %}
+                                                        {% set predicate_index = cond %}
+                                                        {% set evaluate = predicates[predicate_index]['arg0'] %}
+                                                        {% set evaluator = predicates[predicate_index]['title'] %}
+                                                        {% set against = predicates[predicate_index]['arg1'] %}
+                                                        <div class="row justify-content-center align-items-center gtm-row">
+                                                            <div class="col gtm-col">
+                                                                {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
+                                                                    <button type="button" data-dismiss="modal"
+                                                                            class="btn btn-primary btn-sm"
+                                                                            data-toggle="modal"
+                                                                            data-target="#{{ find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string }}">
+                                                                        {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                                    </button>
+                                                                {% else %}
+                                                                    <button type="button" data-dismiss="modal"
+                                                                            class="btn btn-primary btn-sm"
+                                                                            data-toggle=""
+                                                                            data-target="#">
+                                                                        {{ evaluate }}
+                                                                    </button>
+                                                                {% endif %}
+                                                                <span class="text-center">
+                                                                    not {{ evaluator }}
+                                                                </span>
+                                                                <span class="badge badge-pill badge-info align-middle">
+                                                                    {{ against }}</span>
+                                                            </div>
+                                                        </div>
+                                                        {% if not rule_set_loop.last %}
+                                                            <div class="row justify-content-center align-items-center">
+                                                                <div class="col-8">
+                                                                    <h2 class="gtmspy-hr">
+                                                                        <span>AND</span>
+                                                                    </h2>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Firing Conditions End -->
+
+        <!-- Blocking Conditions Start -->
+        <div class="modal fade" id="blockingModal_tag{{ loop.index0 }}"
+             tabindex="-1" role="dialog"
+             aria-labelledby="blockingModal_tag{{ loop.index0 }}"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"
+                            id="blockingModal_tag{{ loop.index0 }}">{{ tag['title'] }}
+                            blocking conditions</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="container">
+                                    {% set blockers = tag['_blocking'] %}
+                                    {% for block_set in blockers %}
+                                        {% set block_set_loop = loop %}
+                                        {% for block in block_set %}
+                                            {% if block[0] == 'if' %}
+                                                {% for cond in block[1:] %}
+                                                    {% set predicate_index = cond %}
+                                                    {% set evaluate = predicates[predicate_index]['arg0'] %}
+                                                    {% set evaluator = predicates[predicate_index]['title'] %}
+                                                    {% set against = predicates[predicate_index]['arg1'] %}
+                                                    <div class="row justify-content-center align-items-center">
+                                                        <div class="col">
+                                                            {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
+                                                                <button type="button" data-dismiss="modal"
+                                                                        class="btn btn-primary btn-sm"
+                                                                        data-toggle="modal"
+                                                                        data-target="#{{ find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string }}">
+                                                                    {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                                </button>
+                                                            {% else %}
+                                                                <button type="button" data-dismiss="modal"
+                                                                        class="btn btn-primary btn-sm" data-toggle=""
+                                                                        data-target="#">
+                                                                    {{ evaluate }}
+                                                                </button>
+                                                            {% endif %}
+                                                            <span class="text-center">
+                                                                    {{ evaluator }}
+                                                                </span>
+                                                            <span class="badge badge-pill badge-info align-middle">
+                                                                    {{ against }}</span>
+                                                        </div>
+                                                    </div>
+                                                    {% if not loop.last %}
+                                                        <div class="row justify-content-center align-items-center">
+                                                            <div class="col">
+                                                                <h2 class="gtmspy-hr">
+                                                                    <span>AND</span>
+                                                                </h2>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% elif block[0] == 'unless' %}
+                                                <div class="row align-items-start">
+                                                    <div class="col">
+                                                        <h2 class="gtmspy-hr">
+                                                            <span>OR</span>
+                                                        </h2>
+                                                    </div>
+                                                </div>
+                                                {% for cond in block[1:] %}
+                                                    {% set predicate_index = cond %}
+                                                    {% set evaluate = predicates[predicate_index]['arg0'] %}
+                                                    {% set evaluator = predicates[predicate_index]['title'] %}
+                                                    {% set against = predicates[predicate_index]['arg1'] %}
+                                                    <div class="row justify-content-center align-items-center">
+                                                        <div class="col">
+                                                            {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
+                                                                <button type="button" data-dismiss="modal"
+                                                                        class="btn btn-primary btn-sm"
+                                                                        data-toggle="modal"
+                                                                        data-target="#{{ find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string }}">
+                                                                    {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                                </button>
+                                                            {% else %}
+                                                                <button type="button" data-dismiss="modal"
+                                                                        class="btn btn-primary btn-sm" data-toggle=""
+                                                                        data-target="#">
+                                                                    {{ evaluate }}
+                                                                </button>
+                                                            {% endif %}
+                                                            <span class="text-center">
+                                                                    not {{ evaluator }}
+                                                                </span>
+                                                            <span class="badge badge-pill badge-info align-middle">
+                                                                    {{ against }}</span>
+                                                        </div>
+                                                    </div>
+                                                    {% if not block_set_loop.last %}
+                                                        <div class="row align-items-start">
+                                                            <div class="col">
+                                                                <h2 class="gtmspy-hr">
+                                                                    <span>AND</span>
+                                                                </h2>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Blocking Conditions End -->
+
+        <!-- Code Block Modals Start -->
         {% for key in tag.keys() %}
             {% if key in code_snippets %}
                 <div class="modal fade" id="{{ key + loop.index0 | string }}"
@@ -416,11 +702,14 @@
                 </div>
             {% endif %}
         {% endfor %}
-    {% endfor %}
-    <!-- Code Block Modals End -->
+        <!-- Code Block Modals End -->
 
-    <!-- Macro Modals Start -->
+    {% endfor %}
+    <!-- Tag Specific Modal End -->
+
+    <!-- Variable Modals Start -->
     {% for var in variables %}
+        <!-- Macro Modals Start -->
         <div class="modal fade" id="{{ var['title'] | replace(' ', '') + variables.index(var) | string }}"
              tabindex="1" role="dialog"
              aria-labelledby="{{ var['title'] | replace(' ', '') + variables.index(var) | string }}"
@@ -507,11 +796,9 @@
                 </div>
             </div>
         </div>
-    {% endfor %}
-    <!-- Macro Modals End -->
+        <!-- Macro Modals End -->
 
-    <!-- Macro Input Table Section start-->
-    {% for var in variables %}
+        <!-- Macro Input Table Section start-->
         {% for key in var.keys() %}
             {% if type_check(var[key]) == 'mapping' %}
                 <div class="modal fade" id="macro_{{ variables.index(var) }}_mapping"
@@ -594,9 +881,9 @@
                 </div>
             {% endif %}
         {% endfor %}
+        <!-- Macro Input Table Section end-->
     {% endfor %}
-    <!-- Macro Input Table Section end-->
-
+    <!-- Variable Modals End -->
 
     {% block scripts %}
         <script type="text/javascript" src="{{ url_for('static', filename='js/GTM-T7MRFWX.js') }}"></script>
