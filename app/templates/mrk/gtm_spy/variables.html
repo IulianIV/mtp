@@ -110,8 +110,9 @@
         </main>
     </div>
 
-    <!-- Macro Modals Start -->
+    <!-- Variable Specific Modals Start -->
     {% for var in variables %}
+        <!-- Macro Modals Start -->
         <div class="modal fade" id="{{ var['title'] | replace(' ', '') + variables.index(var) | string }}"
              tabindex="1" role="dialog"
              aria-labelledby="{{ var['title'] | replace(' ', '') + variables.index(var) | string }}"
@@ -196,11 +197,9 @@
                 </div>
             </div>
         </div>
-    {% endfor %}
-    <!-- Macro Modals End -->
+        <!-- Macro Modals End -->
 
-    <!-- Macro Input Table Section start-->
-    {% for var in variables %}
+         <!-- Macro Input Table Section start-->
         {% for key in var.keys() %}
             {% if type_check(var[key]) == 'mapping' %}
                 <div class="modal fade" id="macro_{{ variables.index(var) }}_mapping"
@@ -283,8 +282,9 @@
                 </div>
             {% endif %}
         {% endfor %}
+        <!-- Macro Input Table Section end-->
     {% endfor %}
-    <!-- Macro Input Table Section end-->
+    <!-- Variable Specific Modals End -->
 
 
     {% block scripts %}
