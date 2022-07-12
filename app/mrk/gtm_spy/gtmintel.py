@@ -689,6 +689,23 @@ class GTMIntel(object):
 
         return tags
 
+    def create_predicates_container(self):
+        new_predicates = []
+
+        predicates = self.predicates
+
+        for pred in predicates:
+            temp_dict = {}
+            pred_index = find_in_index(pred['function'], evaluations_index)
+
+            for key, value in pred.items():
+                temp_dict[key] = value
+                temp_dict = {**temp_dict, **pred_index}
+
+            new_predicates.append(temp_dict)
+
+        return new_predicates
+
     def __str__(self):
         return \
             f'''
