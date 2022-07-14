@@ -650,6 +650,28 @@ class GTMIntel(object):
         :rtype:
         """
 
+    def process_predicate_trigger(self, trigger_arg1: str) -> dict:
+        """
+        Find a trigger in the tags section by its 'vtp_uniqueTriggerId` given in a predicates 'arg1' key.
+
+        :param trigger_id: the ID of the trigger as defined in GTM (e.g. "(^$|((^|,)31742945_37($|,)))")
+        :type trigger_id: string
+        :return: matching tag dict
+        :rtype: dict
+        """
+
+        tag_list = self.tags
+        found_tag = []
+
+        trigger_id = re.search(r'\(\^\$\|\(\(\^\|,\)([0-9_]+)\(\$\|,\)\)\)$', trigger_arg1).group(1)
+
+        for tag in tag_list:
+            for key in tag.keys():
+                if tag[key] == trigger_id:
+                    found_tag.append(tag)
+
+        return found_tag[0]
+
     def create_macro_container(self):
 
         macros = []
