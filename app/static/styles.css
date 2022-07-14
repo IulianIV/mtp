@@ -4313,11 +4313,11 @@ a.gtmspy-link { /* Custom Addition */
 }
 
 h2.gtmspy-hr { /* Custom Addition */
-    width: 50%;
+    width: 100%;
     text-align: center;
-    border-bottom: 1px solid #000;
+    border-bottom: 1px solid #c9c9c9;
     line-height: 0.1em;
-    margin: 10px 0 10px;
+    /* margin: 10px 0 10px; */
     font-size: medium;
 }
 
@@ -4334,14 +4334,6 @@ div.gtm-row { /* Custom Addition */
 div.gtm-col { /* Custom Addition */
     margin-bottom: 10px;
     margin-top: 10px;
-}
-
-h2.gtmspy-hr span { /* Custom Addition */
-    background: #fff;
-    padding: 0 2px;
-    font-size: 0.8rem;
-    max-width: 30px;
-    text-align: center;
 }
 
 div.gtm-bordered { /* Custom Addition */
