@@ -42,6 +42,7 @@ def gtm_intel_tags():
     type_check = spy.process_type
     get_macro = spy.process_macro
     process_mapping = spy.process_mapping
+    tag_from_predicate = spy.process_predicate_trigger
     string_list = extract_nested_strings
 
     code_snippets = code_snippet_properties
@@ -50,6 +51,8 @@ def gtm_intel_tags():
     macro_index = macros_index
     triggers = triggers_index
 
+
+
     get_len = gtm_trigger_len
 
     return render_template('mrk/gtm_spy/tags.html', model_gtm_path=container_url,
@@ -57,7 +60,8 @@ def gtm_intel_tags():
                            skip_tag_keys=skip_keys_tags, code_snippets=code_snippets, type_check=type_check,
                            find_index=find_index, get_macro=get_macro, macros_index=macro_index,
                            variables=variables, process_mapping=process_mapping, get_len=get_len,
-                           predicates=predicates, triggers_index=triggers_index, string_list=string_list)
+                           predicates=predicates, triggers_index=triggers, string_list=string_list,
+                           tag_from_predicate=tag_from_predicate)
 
 
 @bp.route('/gtm-spy/variables', methods=('GET', 'POST'))
