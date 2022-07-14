@@ -314,16 +314,17 @@
 
     <!-- Tag Specific Modal Start -->
     {% for tag in tag_list %}
+        {% set modal_id = tag['title'] | replace(' ', '') + tag_list.index(tag) | string %}
         <!-- Tag Modals Start -->
-        <div class="modal fade" id="{{ tag['title'] | replace(' ', '') + tag_list.index(tag) | string }}"
+        <div class="modal fade" id="{{ modal_id }}"
              tabindex="-1" role="dialog"
-             aria-labelledby="{{ tag['title'] | replace(' ', '') + tag_list.index(tag) | string }}"
+             aria-labelledby="{{ modal_id }}"
              aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title"
-                            id="{{ tag['title'] | replace(' ', '') + tag_list.index(tag) | string }}">{{ tag['title'] }}
+                            id="{{ modal_id }}">{{ tag['title'] }}
                             details</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -338,35 +339,38 @@
                                     <div class="row">
                                         {% for key in tag.keys() %}
                                             {% if key in code_snippets %}
+                                                {% set snipper_modal_id = key + loop.index0 | string %}
                                                 <div class="col-8 col-sm-6">
                                                     {{ key }}
                                                 </div>
                                                 <div class="col-4 col-sm-6">
                                                     <button type="button" data-dismiss="modal"
                                                             class="btn btn-info btn-sm" data-toggle="modal"
-                                                            data-target="#{{ key + loop.index0 | string }}">
+                                                            data-target="#{{ snipper_modal_id }}">
                                                         Code Snippet
                                                     </button>
                                                 </div>
                                             {% elif type_check(tag[key]) == 'macro' %}
+                                                {% set macro_modal_id = find_index(get_macro(tag[key])['function'], macros_index)['title'] | replace(' ', '') + tag[key][1] | string %}
                                                 <div class="col-8 col-sm-6">
                                                     {{ key }}
                                                 </div>
                                                 <div class="col-4 col-sm-6">
                                                     <button type="button" data-dismiss="modal"
                                                             class="btn btn-info btn-sm" data-toggle="modal"
-                                                            data-target="#{{ find_index(get_macro(tag[key])['function'], macros_index)['title'] | replace(' ', '') + tag[key][1] | string }}">
+                                                            data-target="#{{ macro_modal_id }}">
                                                         {{ find_index(get_macro(tag[key])['function'], macros_index)['title'] }}
                                                     </button>
                                                 </div>
                                             {% elif type_check(tag[key]) == 'mapping' %}
+                                                {% set mapping_modal_id = tag_list.index(tag) %}
                                                 <div class="col-8 col-sm-6">
                                                     {{ key }}
                                                 </div>
                                                 <div class="col-4 col-sm-6">
                                                     <button type="button" data-dismiss="modal"
                                                             class="btn btn-info btn-sm" data-toggle="modal"
-                                                            data-target="#macro_{{ tag_list.index(tag) }}_mapping">
+                                                            data-target="#macro_{{ mapping_modal_id }}_mapping">
                                                         Data Table
                                                     </button>
                                                 </div>
@@ -428,23 +432,45 @@
                                     {% for rule_set in conditions %}
                                         {% set rule_set_loop = loop %}
                                         {% for rule in rule_set %}
+                                            <!-- IF section start -->
                                             {% if rule[0] == 'if' %}
                                                 <div class="card gtm-card">
-                                                    <div class="card-header">
-                                                        Featured
-                                                    </div>
+                                                    {% for cond in rule[1:] %}
+                                                        {% set predicate_index = cond %}
+                                                        {% set against = predicates[predicate_index]['arg1'] %}
+                                                        {% if against in triggers_index %}
+                                                            <div class="card-header">
+                                                                Fires on
+                                                                <button type="button"
+                                                                        class="btn btn-{{ triggers_index[against]['pill'] }} btn-sm">
+                                                                    {{ triggers_index[against]['title'] }}
+                                                                </button>
+                                                            </div>
+                                                        {% elif type_check(against) == 'RegEx' %}
+                                                            {% set found_tag = tag_from_predicate(against) %}
+                                                            {% set tag_index = triggers_index[found_tag['function']] %}
+                                                            <div class="card-header">
+                                                                Fires on
+                                                                <button type="button"
+                                                                        class="btn btn-{{ tag_index['pill'] }} btn-sm">
+                                                                    {{ tag_index['title'] }}
+                                                                </button>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
                                                     {% for cond in rule[1:] %}
                                                         {% set predicate_index = cond %}
                                                         {% set evaluate = predicates[predicate_index]['arg0'] %}
                                                         {% set evaluator = predicates[predicate_index]['title'] %}
                                                         {% set against = predicates[predicate_index]['arg1'] %}
+                                                        {% set firing_modal_id_if = find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string %}
                                                         <div class="row justify-content-center align-items-center gtm-row">
                                                             <div class="col gtm-col">
                                                                 {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
                                                                     <button type="button" data-dismiss="modal"
                                                                             class="btn btn-primary btn-sm"
                                                                             data-toggle="modal"
-                                                                            data-target="#{{ find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string }}">
+                                                                            data-target="#{{ firing_modal_id_if }}">
                                                                         {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
                                                                     </button>
                                                                 {% else %}
@@ -464,7 +490,7 @@
                                                         </div>
                                                         {% if not loop.last %}
                                                             <div class="row justify-content-center align-items-center">
-                                                                <div class="col-8">
+                                                                <div class="col-4">
                                                                     <h2 class="gtmspy-hr">
                                                                         <span>AND</span>
                                                                     </h2>
@@ -473,30 +499,53 @@
                                                         {% endif %}
                                                     {% endfor %}
                                                 </div>
+                                                <!-- IF section end -->
+                                                <!-- UNLESS section start -->
                                             {% elif rule[0] == 'unless' %}
                                                 <div class="row justify-content-center align-items-center">
-                                                    <div class="col-8">
+                                                    <div class="col-4">
                                                         <h2 class="gtmspy-hr">
                                                             <span>OR</span>
                                                         </h2>
                                                     </div>
                                                 </div>
                                                 <div class="card gtm-card">
-                                                    <div class="card-header">
-                                                        Featured
-                                                    </div>
+                                                    {% for cond in rule[1:] %}
+                                                        {% set predicate_index = cond %}
+                                                        {% set against = predicates[predicate_index]['arg1'] %}
+                                                        {% if against in triggers_index %}
+                                                            <div class="card-header">
+                                                                Fires on
+                                                                <button type="button"
+                                                                        class="btn btn-{{ triggers_index[against]['pill'] }} btn-sm">
+                                                                    {{ triggers_index[against]['title'] }}
+                                                                </button>
+                                                            </div>
+                                                        {% elif type_check(against) == 'RegEx' %}
+                                                            {% set found_tag = tag_from_predicate(against) %}
+                                                            {% set tag_index = triggers_index[found_tag['function']] %}
+                                                            <div class="card-header">
+                                                                Fires on
+                                                                <button type="button"
+                                                                        class="btn btn-{{ tag_index['pill'] }} btn-sm">
+                                                                    {{ tag_index['title'] }}
+                                                                </button>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
                                                     {% for cond in rule[1:] %}
                                                         {% set predicate_index = cond %}
                                                         {% set evaluate = predicates[predicate_index]['arg0'] %}
                                                         {% set evaluator = predicates[predicate_index]['title'] %}
                                                         {% set against = predicates[predicate_index]['arg1'] %}
+                                                        {% set firing_modal_id_unless = find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string %}
                                                         <div class="row justify-content-center align-items-center gtm-row">
                                                             <div class="col gtm-col">
                                                                 {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
                                                                     <button type="button" data-dismiss="modal"
                                                                             class="btn btn-primary btn-sm"
                                                                             data-toggle="modal"
-                                                                            data-target="#{{ find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string }}">
+                                                                            data-target="#{{ firing_modal_id_unless }}">
                                                                         {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
                                                                     </button>
                                                                 {% else %}
@@ -516,7 +565,7 @@
                                                         </div>
                                                         {% if not rule_set_loop.last %}
                                                             <div class="row justify-content-center align-items-center">
-                                                                <div class="col-8">
+                                                                <div class="col-4">
                                                                     <h2 class="gtmspy-hr">
                                                                         <span>AND</span>
                                                                     </h2>
@@ -526,6 +575,7 @@
                                                     {% endfor %}
                                                 </div>
                                             {% endif %}
+                                            <!-- UNLESS section end -->
                                         {% endfor %}
                                     {% endfor %}
                                 </div>
@@ -560,96 +610,155 @@
                         <div class="container-fluid">
                             <div class="row">
                                 <div class="container">
-                                    {% set blockers = tag['_blocking'] %}
-                                    {% for block_set in blockers %}
+                                    {% set blocks = tag['_blocking'] %}
+                                    {% for block_set in blocks %}
                                         {% set block_set_loop = loop %}
                                         {% for block in block_set %}
+                                            <!-- IF section start -->
                                             {% if block[0] == 'if' %}
-                                                {% for cond in block[1:] %}
-                                                    {% set predicate_index = cond %}
-                                                    {% set evaluate = predicates[predicate_index]['arg0'] %}
-                                                    {% set evaluator = predicates[predicate_index]['title'] %}
-                                                    {% set against = predicates[predicate_index]['arg1'] %}
-                                                    <div class="row justify-content-center align-items-center">
-                                                        <div class="col">
-                                                            {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
-                                                                <button type="button" data-dismiss="modal"
-                                                                        class="btn btn-primary btn-sm"
-                                                                        data-toggle="modal"
-                                                                        data-target="#{{ find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string }}">
-                                                                    {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                <div class="card gtm-card">
+                                                    {% for cond in block[1:] %}
+                                                        {% set predicate_index = cond %}
+                                                        {% set against = predicates[predicate_index]['arg1'] %}
+                                                        {% if against in triggers_index %}
+                                                            <div class="card-header">
+                                                                Fires on
+                                                                <button type="button"
+                                                                        class="btn btn-{{ triggers_index[against]['pill'] }} btn-sm">
+                                                                    {{ triggers_index[against]['title'] }}
                                                                 </button>
-                                                            {% else %}
-                                                                <button type="button" data-dismiss="modal"
-                                                                        class="btn btn-primary btn-sm" data-toggle=""
-                                                                        data-target="#">
-                                                                    {{ evaluate }}
+                                                            </div>
+                                                        {% elif type_check(against) == 'RegEx' %}
+                                                            {% set found_tag = tag_from_predicate(against) %}
+                                                            {% set tag_index = triggers_index[found_tag['function']] %}
+                                                            <div class="card-header">
+                                                                Fires on
+                                                                <button type="button"
+                                                                        class="btn btn-{{ tag_index['pill'] }} btn-sm">
+                                                                    {{ tag_index['title'] }}
                                                                 </button>
-                                                            {% endif %}
-                                                            <span class="text-center">
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    {% for cond in block[1:] %}
+                                                        {% set predicate_index = cond %}
+                                                        {% set evaluate = predicates[predicate_index]['arg0'] %}
+                                                        {% set evaluator = predicates[predicate_index]['title'] %}
+                                                        {% set against = predicates[predicate_index]['arg1'] %}
+                                                        {% set blocking_modal_id_if = find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string %}
+                                                        <div class="row justify-content-center align-items-center gtm-row">
+                                                            <div class="col gtm-col">
+                                                                {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
+                                                                    <button type="button" data-dismiss="modal"
+                                                                            class="btn btn-primary btn-sm"
+                                                                            data-toggle="modal"
+                                                                            data-target="#{{ blocking_modal_id_if }}">
+                                                                        {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                                    </button>
+                                                                {% else %}
+                                                                    <button type="button" data-dismiss="modal"
+                                                                            class="btn btn-primary btn-sm"
+                                                                            data-toggle=""
+                                                                            data-target="#">
+                                                                        {{ evaluate }}
+                                                                    </button>
+                                                                {% endif %}
+                                                                <span class="text-center">
                                                                     {{ evaluator }}
                                                                 </span>
-                                                            <span class="badge badge-pill badge-info align-middle">
+                                                                <span class="badge badge-pill badge-info align-middle">
                                                                     {{ against }}</span>
-                                                        </div>
-                                                    </div>
-                                                    {% if not loop.last %}
-                                                        <div class="row justify-content-center align-items-center">
-                                                            <div class="col">
-                                                                <h2 class="gtmspy-hr">
-                                                                    <span>AND</span>
-                                                                </h2>
                                                             </div>
                                                         </div>
-                                                    {% endif %}
-                                                {% endfor %}
+                                                        {% if not loop.last %}
+                                                            <div class="row justify-content-center align-items-center">
+                                                                <div class="col-4">
+                                                                    <h2 class="gtmspy-hr">
+                                                                        <span>AND</span>
+                                                                    </h2>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+
+                                                    {% endfor %}
+                                                </div>
+                                                <!-- IF section end -->
+                                                <!-- UNLESS section start -->
                                             {% elif block[0] == 'unless' %}
-                                                <div class="row align-items-start">
-                                                    <div class="col">
+                                                <div class="row justify-content-center align-items-center">
+                                                    <div class="col-4">
                                                         <h2 class="gtmspy-hr">
                                                             <span>OR</span>
                                                         </h2>
                                                     </div>
                                                 </div>
-                                                {% for cond in block[1:] %}
-                                                    {% set predicate_index = cond %}
-                                                    {% set evaluate = predicates[predicate_index]['arg0'] %}
-                                                    {% set evaluator = predicates[predicate_index]['title'] %}
-                                                    {% set against = predicates[predicate_index]['arg1'] %}
-                                                    <div class="row justify-content-center align-items-center">
-                                                        <div class="col">
-                                                            {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
-                                                                <button type="button" data-dismiss="modal"
-                                                                        class="btn btn-primary btn-sm"
-                                                                        data-toggle="modal"
-                                                                        data-target="#{{ find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string }}">
-                                                                    {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                <div class="card gtm-card">
+                                                    {% for cond in block[1:] %}
+                                                        {% set predicate_index = cond %}
+                                                        {% set against = predicates[predicate_index]['arg1'] %}
+                                                        {% if against in triggers_index %}
+                                                            <div class="card-header">
+                                                                Fires on
+                                                                <button type="button"
+                                                                        class="btn btn-{{ triggers_index[against]['pill'] }} btn-sm">
+                                                                    {{ triggers_index[against]['title'] }}
                                                                 </button>
-                                                            {% else %}
-                                                                <button type="button" data-dismiss="modal"
-                                                                        class="btn btn-primary btn-sm" data-toggle=""
-                                                                        data-target="#">
-                                                                    {{ evaluate }}
+                                                            </div>
+                                                        {% elif type_check(against) == 'RegEx' %}
+                                                            {% set found_tag = tag_from_predicate(against) %}
+                                                            {% set tag_index = triggers_index[found_tag['function']] %}
+                                                            <div class="card-header">
+                                                                Fires on
+                                                                <button type="button"
+                                                                        class="btn btn-{{ tag_index['pill'] }} btn-sm">
+                                                                    {{ tag_index['title'] }}
                                                                 </button>
-                                                            {% endif %}
-                                                            <span class="text-center">
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    {% for cond in block[1:] %}
+                                                        {% set predicate_index = cond %}
+                                                        {% set evaluate = predicates[predicate_index]['arg0'] %}
+                                                        {% set evaluator = predicates[predicate_index]['title'] %}
+                                                        {% set against = predicates[predicate_index]['arg1'] %}
+                                                        {% set blocking_modal_id_unless = find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string %}
+                                                        <div class="row justify-content-center align-items-center gtm-row">
+                                                            <div class="col gtm-col">
+                                                                {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
+                                                                    <button type="button" data-dismiss="modal"
+                                                                            class="btn btn-primary btn-sm"
+                                                                            data-toggle="modal"
+                                                                            data-target="#{{ blocking_modal_id_unless }}">
+                                                                        {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                                    </button>
+                                                                {% else %}
+                                                                    <button type="button" data-dismiss="modal"
+                                                                            class="btn btn-primary btn-sm"
+                                                                            data-toggle=""
+                                                                            data-target="#">
+                                                                        {{ evaluate }}
+                                                                    </button>
+                                                                {% endif %}
+                                                                <span class="text-center">
                                                                     not {{ evaluator }}
                                                                 </span>
-                                                            <span class="badge badge-pill badge-info align-middle">
+                                                                <span class="badge badge-pill badge-info align-middle">
                                                                     {{ against }}</span>
-                                                        </div>
-                                                    </div>
-                                                    {% if not block_set_loop.last %}
-                                                        <div class="row align-items-start">
-                                                            <div class="col">
-                                                                <h2 class="gtmspy-hr">
-                                                                    <span>AND</span>
-                                                                </h2>
                                                             </div>
                                                         </div>
-                                                    {% endif %}
-                                                {% endfor %}
+                                                        {% if not block_set_loop.last %}
+                                                            <div class="row justify-content-center align-items-center">
+                                                                <div class="col-4">
+                                                                    <h2 class="gtmspy-hr">
+                                                                        <span>AND</span>
+                                                                    </h2>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
                                             {% endif %}
+                                            <!-- UNLESS section end -->
                                         {% endfor %}
                                     {% endfor %}
                                 </div>
@@ -668,15 +777,16 @@
         <!-- Code Block Modals Start -->
         {% for key in tag.keys() %}
             {% if key in code_snippets %}
-                <div class="modal fade" id="{{ key + loop.index0 | string }}"
+                {% set mapping_modal_id = key + loop.index0 | string %}
+                <div class="modal fade" id=""
                      tabindex="1" role="dialog"
-                     aria-labelledby="{{ key + loop.index0 | string }}"
+                     aria-labelledby="{{ mapping_modal_id }}"
                      aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title"
-                                    id="{{ key + loop.index0 | string }}">Code Block for tag ID {{ tag['tag_id'] }}:
+                                    id="{{ mapping_modal_id }}">Code Block for tag ID {{ tag['tag_id'] }}:
                                     {{ tag['title'] }}</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
@@ -709,16 +819,17 @@
 
     <!-- Variable Modals Start -->
     {% for var in variables %}
+        {% set var_macro_id = var['title'] | replace(' ', '') + variables.index(var) | string %}
         <!-- Macro Modals Start -->
-        <div class="modal fade" id="{{ var['title'] | replace(' ', '') + variables.index(var) | string }}"
+        <div class="modal fade" id="{{ var_macro_id }}"
              tabindex="1" role="dialog"
-             aria-labelledby="{{ var['title'] | replace(' ', '') + variables.index(var) | string }}"
+             aria-labelledby="{{ var_macro_id }}"
              aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title"
-                            id="{{ var['title'] | replace(' ', '') + variables.index(var) | string }}">Variable:
+                            id="{{ var_macro_id }}">Variable:
                             {{ var['title'] }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -741,24 +852,26 @@
                                         {% for key in var.keys() %}
                                             {% if key not in skip_tag_keys %}
                                                 {% if type_check(var[key]) == 'macro' %}
+                                                    {% set var_modal_id = find_index(get_macro(var[key])['function'], macros_index)['title'] | replace(' ', '') + var[key][1] | string %}
                                                     <div class="col-8 col-sm-6">
                                                         {{ key }}
                                                     </div>
                                                     <div class="col-4 col-sm-6">
                                                         <button type="button" data-dismiss="modal"
                                                                 class="btn btn-info btn-sm" data-toggle="modal"
-                                                                data-target="#{{ find_index(get_macro(var[key])['function'], macros_index)['title'] | replace(' ', '') + var[key][1] | string }}">
+                                                                data-target="#{{ var_modal_id }}">
                                                             {{ find_index(get_macro(var[key])['function'], macros_index)['title'] }}
                                                         </button>
                                                     </div>
                                                 {% elif type_check(var[key]) == 'mapping' %}
+                                                    {% set mapping_modal_id = variables.index(var) %}
                                                     <div class="col-8 col-sm-6">
                                                         {{ key }}
                                                     </div>
                                                     <div class="col-4 col-sm-6">
                                                         <button type="button" data-dismiss="modal"
                                                                 class="btn btn-info btn-sm" data-toggle="modal"
-                                                                data-target="#macro_{{ variables.index(var) }}_mapping">
+                                                                data-target="#macro_{{ mapping_modal_id }}_mapping">
                                                             Data Table
                                                         </button>
                                                     </div>
@@ -801,15 +914,16 @@
         <!-- Macro Input Table Section start-->
         {% for key in var.keys() %}
             {% if type_check(var[key]) == 'mapping' %}
-                <div class="modal fade" id="macro_{{ variables.index(var) }}_mapping"
+                {% set mapping_modal_index = variables.index(var) %}
+                <div class="modal fade" id="macro_{{ mapping_modal_index }}_mapping"
                      tabindex="-1" role="dialog"
-                     aria-labelledby="macro_{{ variables.index(var) }}_mapping"
+                     aria-labelledby="macro_{{ mapping_modal_index }}_mapping"
                      aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title"
-                                    id="macro_{{ variables.index(var) }}_mapping">Input Mapping for:
+                                    id="macro_{{ mapping_modal_index }}_mapping">Input Mapping for:
                                     {{ var['title'] }}</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
@@ -839,10 +953,11 @@
                                                         {% set next_map_item = process_map[process_map_list[loop.index0 + 1]] %}
 
                                                         {% if type_check(current_map_item) == 'macro' %}
+                                                            {% set macro_modal_id_current = find_index(get_macro(current_map_item)['function'], macros_index)['title'] | replace(' ', '') + current_map_item[1] | string %}
                                                             <div class="col-8 col-sm-6">
                                                                 <button type="button" data-dismiss="modal"
                                                                         class="btn btn-info btn-sm" data-toggle="modal"
-                                                                        data-target="#{{ find_index(get_macro(current_map_item)['function'], macros_index)['title'] | replace(' ', '') + current_map_item[1] | string }}">
+                                                                        data-target="#{{ macro_modal_id }}">
                                                                     {{ find_index(get_macro(current_map_item)['function'], macros_index)['title'] }}
                                                                 </button>
                                                             </div>
@@ -852,10 +967,11 @@
                                                             </div>
                                                         {% endif %}
                                                         {% if type_check(next_map_item) == 'macro' %}
+                                                            {% set macro_modal_id_next = find_index(get_macro(next_map_item)['function'], macros_index)['title'] | replace(' ', '') + next_map_item[1] | string %}
                                                             <div class="col-4 col-sm-6">
                                                                 <button type="button" data-dismiss="modal"
                                                                         class="btn btn-info btn-sm" data-toggle="modal"
-                                                                        data-target="#{{ find_index(get_macro(next_map_item)['function'], macros_index)['title'] | replace(' ', '') + next_map_item[1] | string }}">
+                                                                        data-target="#{{ macro_modal_id_next }}">
                                                                     {{ find_index(get_macro(next_map_item)['function'], macros_index)['title'] }}
                                                                 </button>
                                                             </div>
