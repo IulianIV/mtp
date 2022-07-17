@@ -2,13 +2,13 @@ import json
 import os
 import re
 from copy import deepcopy
-from typing import Generator, Callable, Union, List, Set
+from typing import Generator, Callable, Union, List, Set, Any
 
 import requests
 
 from app.manager.errors import SectionIndexError
-from app.manager.helpers import Config
-from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags
+from app.manager.helpers import Config, extract_trigger_id
+from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags, triggers_index
 from .lurker import find_in_index
 
 CONTAINER_SAVE_PATH: os.PathLike = Config.GTM_SPY_DOWNLOAD_PATH
@@ -302,20 +302,6 @@ class GTMIntel(object):
 
         return permissions
 
-    def process_macro(self, macro):
-        """
-        Processes the given "macro" list and displays its contents.
-
-        :param macro: ["macro", 5]
-        :return: Container like object. Any given "macros" section value at the given macro index.
-        """
-        if self.process_type(macro) == 'macro':
-            try:
-                macro_literal = self.macros[macro[1]]
-                return macro_literal
-            except IndexError:
-                return 'Provide a macro index that exists'
-
     def process_type(self, property_value):
 
         """
@@ -375,25 +361,19 @@ class GTMIntel(object):
         if real_type is str and re.match(r'^\(\^\$\|\(\(\^\|,\)[0-9_]+\(\$\|,\)\)\)$', property_value):
             return 'RegEx'
 
-    # better-me document some steps for parsing a trigger group.
-    #   Another custom dict should be added inside the 'tags' section which contains all containing
-    #   tag ids (tag_id) with their linked rules.
-    #   The Trigger group itself if triggered by user-given GTM Conditions and actually triggers when
-    #   user-given conditions are met AND all other triggers fired.
-    def process_trigger_group(self, tag):
+    def process_macro(self, macro):
         """
-        To be detailed. A rough detail on how it works can be found in UpNote and app.diagrams.net
+        Processes the given "macro" list and displays its contents.
 
-        :return:
+        :param macro: ["macro", 5]
+        :return: Container like object. Any given "macros" section value at the given macro index.
         """
-
-        if 'vtp_triggerIds' in tag:
-            if type(tag['vtp_triggerIds']) is list and len(tag['vtp_triggerIds']) > 1:
-                print(tag)
-            elif type(tag['vtp_triggerIds']) is list and len(tag['vtp_triggerIds']) == 1:
-                return 'empty trigger group'
-
-        return tag
+        if self.process_type(macro) == 'macro':
+            try:
+                macro_literal = self.macros[macro[1]]
+                return macro_literal
+            except IndexError:
+                return 'Provide a macro index that exists'
 
     def process_escape(self, escape):
         """
@@ -652,10 +632,10 @@ class GTMIntel(object):
 
     def process_predicate_trigger(self, trigger_arg1: str) -> dict:
         """
-        Find a trigger in the tags section by its 'vtp_uniqueTriggerId` given in a predicates 'arg1' key.
+        Find a trigger in the tags` section by its 'vtp_uniqueTriggerId` given in a predicates 'arg1' key.
 
-        :param trigger_id: the ID of the trigger as defined in GTM (e.g. "(^$|((^|,)31742945_37($|,)))")
-        :type trigger_id: string
+        :param trigger_arg1: the ID of the trigger as defined in GTM (e.g. "(^$|((^|,)31742945_37($|,)))")
+        :type trigger_arg1: string
         :return: matching tag dict
         :rtype: dict
         """
@@ -671,6 +651,55 @@ class GTMIntel(object):
                     found_tag.append(tag)
 
         return found_tag[0]
+
+    def process_trigger_groups(self) -> Union[dict, str]:
+
+        tags = self._usable_container['tags']
+
+        trigger_group = {'_group': [], '_group_members': [], '_triggers': []}
+
+        for tag in tags:
+
+            if tag['function'] == '__tg' and 'vtp_triggerIds' in tag:
+
+                if len(tag['vtp_triggerIds']) < 2:
+                    return 'Empty trigger group'
+
+                trigger_group['_group'].append(tag)
+                tag_members = tag['vtp_triggerIds'][1:]
+
+                for member in tag_members:
+                    trigger_group['_group_members'].append(self.search_in_container('tags', 'vtp_firingId', member))
+                    trigger_group['_triggers'].append(self.search_in_container('tags', 'vtp_uniqueTriggerId',
+                                                                               extract_trigger_id(member)))
+
+        return trigger_group
+
+    # TODO add an exception for non-dict container.
+    # TODO have the possibility to only pass either key or value
+    def search_in_container(self, container: str, key: Union[str, int], value: Any) -> list:
+        """
+        Searches the given container for items that contain the given key, value pair
+
+        :param container: GTM valid container e.g. 'predicates'
+        :type container: str
+        :param key: Key that might be found within the containers items
+        :type key: str, int
+        :param value: Value that is associated with key
+        :type value: Any
+        :return: The container item where the pair was found
+        :rtype: dict
+        """
+
+        container = self._usable_container[container]
+
+        found_item = []
+
+        for item in container:
+            if key in item and item[key] == value:
+                found_item.append(item)
+
+        return found_item
 
     def create_macro_container(self):
 
@@ -727,6 +756,34 @@ class GTMIntel(object):
             new_predicates.append(temp_dict)
 
         return new_predicates
+
+    def create_trigger_container(self):
+
+        rule_tagged = self.process_rules()
+        predicates = self.create_predicates_container()
+        triggers = []
+
+        for tag in rule_tagged:
+            temp_dict = {}
+            if tag['function'] in triggers_index:
+                trigger_index = find_in_index(tag['function'], triggers_index)
+
+                for key, value in tag.items():
+                    temp_dict[key] = value
+                    temp_dict = {**temp_dict, **trigger_index}
+
+                triggers.append(temp_dict)
+
+        for predicate in predicates:
+            temp_dict = {}
+
+            if predicate['arg1'] in triggers_index:
+                temp_dict['function'] = predicate['arg1']
+                trigger_index = find_in_index(predicate['arg1'], triggers_index)
+
+                triggers.append({**temp_dict, **trigger_index})
+
+        return triggers
 
     def __str__(self):
         return \
