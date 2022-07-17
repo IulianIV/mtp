@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+
+    {% block title %}
+        <title>MTP | Web App</title>
+    {% endblock %}
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="row min-vh-100 flex-column flex-md-row">
+        <aside class="col-12 col-md-3 bg-light flex-shrink-1">
+            <nav class="navbar navbar-expand navbar-light bg-light flex-md-column flex-row align-items-start py-2">
+                <ul class="flex-md-column flex-row navbar-nav w-100 justify-content-between">
+                    <li class="nav-item">
+                        <span class="navbar-brand pl-0 text-nowrap" href="#">
+                            <span class="navbar-text">Currently working on:</span>
+                            <br>
+                            <a class="gtmspy-link" href="{{ model_gtm_path }}" target="_blank">
+                                <span class="font-weight-bold mb-0 h2 bg-spygreen rounded-2">{{ gtm_id }}</span>
+                            </a>
+                            <span><strong>v{{ version }}</strong></span>
+                            <span>&nbsp;</span>
+                        </span>
+                    </li>
+                </ul>
+                <form class="form-inline my-2">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <button type="button" class="btn btn-outline-secondary">Load</button>
+                            <button type="button"
+                                    class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#">GTM-1</a>
+                                <a class="dropdown-item" href="#">GTM-2</a>
+                                <a class="dropdown-item" href="#">GTM-3</a>
+                                <div role="separator" class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">Separated link</a>
+                            </div>
+                        </div>
+                        <input type="text" class="form-control" placeholder="GTM-1234567 or URL"
+                               aria-label="Text input with segmented dropdown button">
+                    </div>
+                </form>
+                <div class="collapse navbar-collapse">
+                    <ul class="flex-md-column flex-row navbar-nav w-100 justify-content-between">
+                        <li class="nav-item">
+                            <span class="nav-brand pl-0 text-nowrap" href="#">
+                                <span class="font-weight-bold">Container Sections</span>
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link pl-0" href="{{ url_for('mrk.gtm_intel_variables') }}">
+                                <span class="d-none d-md-inline">Variables</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link pl-0" href="{{ url_for('mrk.gtm_intel_tags') }}">
+                                <span class="d-none d-md-inline">Tags</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link pl-0" href="#">
+                                <span class="d-none d-md-inline">Triggers</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+        <main class="col bg-faded py-3 flex-grow-1">
+            <div class="row justify-content-center">
+                <div class="col-lg-11">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Trigger name</th>
+                            <th scope="col">Added in</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for trigger in triggers %}
+                            {% if trigger['function'] not in skip_keys %}
+                                {% set trigger_modal_id = trigger['title'] | replace(' ', '') + triggers.index(trigger) | string %}
+                                {% set trigger_title = trigger['title'] %}
+                                <tr>
+                                    <!-- Trigger list start -->
+                                    <th scope="row">
+                                        {% if 'pill' in trigger %}
+                                            <button type="button" class="btn btn-{{ trigger['pill'] }}"
+                                                    data-toggle="modal"
+                                                    data-target="#{{ trigger_modal_id }}">
+                                                {{ trigger_title }}
+                                            </button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                                    data-target="#{{ trigger_modal_id }}">
+                                                {{ trigger_title }}
+                                            </button>
+                                        {% endif %}
+                                    </th>
+                                    <!-- Trigger list end -->
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        {% for group in trigger_groups['_group'] %}
+                            {% set index = find_index(group['function'], triggers_index) %}
+                            <tr>
+                                <!-- Trigger list start -->
+                                <th scope="row">
+                                    {% if 'pill' in index %}
+                                        <button type="button" class="btn btn-{{ index['pill'] }}"
+                                                data-toggle="modal"
+                                                data-target="#">
+                                            {{ index['title'] }}
+                                        </button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                                data-target="#">
+                                            {{ index['title'] }}
+                                        </button>
+                                    {% endif %}
+                                </th>
+                                <!-- Trigger list end -->
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    {% block scripts %}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/GTM-T7MRFWX.js') }}"></script>
+    {% endblock %}
+
+
+{% endblock %}
