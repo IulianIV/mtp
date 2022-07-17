@@ -1,6 +1,7 @@
 import os
 import secrets
 from datetime import datetime
+import re
 
 from flask import Flask, flash
 from wtforms.validators import ValidationError
@@ -175,7 +176,7 @@ def extract_nested_strings(nested_list: list) -> list:
 
     result = []
 
-    for el in x:
+    for el in nested_list:
         if hasattr(el, "__iter__") and not isinstance(el, str):
             result.extend(extract_nested_strings(el))
         else:
@@ -188,3 +189,19 @@ def extract_nested_strings(nested_list: list) -> list:
             final_list.append(item)
 
     return list(set(final_list))
+
+
+def extract_trigger_id(trigger_id: str) -> str:
+    """
+    Extracts the 'vtp_uniqueTriggerId' from a 'vtp_firingId' found in a trigger group list
+
+    :param trigger_id: any string like: '31742945_23_22'
+    :type trigger_id: str
+    :return: A unique trigger id like '31742945_22'
+    :rtype: str
+    """
+    vtp_firing_id = trigger_id
+
+    trigger_id = re.sub(r'([0-9]+)_[0-9]+_([0-9]+)', r'\1_\2', vtp_firing_id)
+
+    return trigger_id
