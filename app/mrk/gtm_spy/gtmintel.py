@@ -54,72 +54,20 @@ def check_for_container(method: Callable) -> Union[Callable, TypeError]:
 class GTMIntel(object):
     _root_path = CONTAINER_SAVE_PATH
 
-    def __init__(self, container_id: str, website: str = None):
-        if website is None:
-            self._id = container_id
+    def __init__(self, container_id: str, first_load: bool = False, container_data=None):
+
+        self._id = container_id
+
+        if first_load:
             # _full_container also hold 'resource' and 'runtime' data
-            self._full_container = self.container_to_json()
-            # the preserve the integrity of the original container, we will be working on a copy.
-            self._working_container = deepcopy(self._full_container)
-            # _usable_container only hold 'version' and literal container data ('macros', 'tags', 'predicates', 'rules')
-            self._usable_container = self._working_container[self.container_root]
-            self._version = self.version
-        else:
-            pass
+            self._original_container = self.container_to_json()
+        elif not first_load:
+            self._original_container = self.saved_container_to_json(container_data)
 
-    @staticmethod
-    def check_for_script(container_id: str) -> Union[bool, str]:
-        """
-        Checks whether the given GTM Script ID is saved as a file in the root system path
-
-        :param container_id: CONTAINER_ID like string: 'GTM-XXXXX'
-        :return: True if exists or downloads the container if not found
-        """
-        local_script_filename = os.path.join(CONTAINER_SAVE_PATH, container_id + '.js')
-
-        if os.path.exists(local_script_filename):
-            print('GTM Script for given ID already exists.')
-            return True
-        else:
-            print('Given script ID is not present in root folder. Attempting download...')
-            return GTMIntel.download_gtm_container_from_url(CONTAINER_SAVE_PATH, container_id)
-
-    @staticmethod
-    def download_gtm_container_from_url(file_path: os.PathLike, container_id: str) -> str:
-        """
-        Downloads and saves a GTM Container in the given path.
-
-        :param file_path: Pathlike object
-        :param container_id: CONTAINER_ID string object
-        :return: File name of the saved GTM Container
-        """
-        local_filename = os.path.join(file_path, container_id + ".js")
-
-        script_url = GTM_URL_ROOT + container_id
-        # NOTE the stream=True parameter below
-        with requests.get(script_url, stream=True) as r:
-            r.raise_for_status()
-            with open(local_filename, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    # If you have chunk encoded response uncomment if
-                    # and set chunk_size parameter to None.
-                    # if chunk:
-                    f.write(chunk)
-
-        return local_filename
-
-    @staticmethod
-    def get_existing_gtm_script(container_id: str) -> Union[os.PathLike, str]:
-        """
-        Finds the local file path from a given Container ID, if it exists.
-
-        :param container_id: CONTAINER_ID string object
-        :return: Pathlike container file location
-        """
-        if GTMIntel.check_for_script(container_id):
-            return os.path.join(CONTAINER_SAVE_PATH, container_id + '.js')
-        else:
-            return 'This container script was not found. Maybe download it?..'
+        # the preserve the integrity of the original container, we will be working on a copy.
+        self._working_container = deepcopy(self._original_container)
+        # _usable_container only hold 'version' and literal container data ('macros', 'tags', 'predicates', 'rules')
+        self._resource_container = self._working_container[self.container_root]
 
     # fixme Fix situations when an item does not contain given property.
     #   Basically fix "KeyError" errors. What to do when a section doesn't have that property at all?
@@ -178,15 +126,6 @@ class GTMIntel(object):
 
         return final_properties
 
-    def find(self, container_section: list):
-        """
-        Empty because it awaits development
-
-        :param container_section:
-        :return:
-        """
-        pass
-
     @check_for_container
     def section_contents(self, section: list) -> Union[str, Generator]:
         """
@@ -196,7 +135,7 @@ class GTMIntel(object):
         :return: Section contents
         """
 
-        container_section = self._usable_container[section]
+        container_section = self._resource_container[section]
 
         return container_section
 
@@ -206,16 +145,24 @@ class GTMIntel(object):
 
         :return: Computer friendly container data
         """
+        container_exp = r'var data = ({[\u0000-\uffff]*?});[\t-\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]'
+        req = requests.get(self.url)
+        raw_data = req.content.decode('utf-8')
 
-        with open(self.get_existing_gtm_script(self._id)) as container_script:
-            data = container_script.read()
+        container_data = re.search(container_exp, raw_data, re.IGNORECASE).group(1)
 
-            container_data = data[data.find('var data = {'):data.find('/*')]
-            container_data = container_data[container_data.find('{'):container_data.rfind('}') + 1]
+        container_json = json.loads(container_data)
 
-            container_json = json.loads(container_data)
+        return container_json
 
-            return container_json
+    @staticmethod
+    def saved_container_to_json(container_data) -> dict:
+
+        container_data = container_data.decode('utf-8')
+
+        container_json = json.loads(container_data)
+
+        return container_json
 
     def find_container(self, website_url: str):
         """
@@ -237,7 +184,7 @@ class GTMIntel(object):
         return url
 
     @property
-    def full_container(self) -> dict:
+    def working_container(self) -> dict:
         return self._working_container
 
     @property
@@ -253,15 +200,19 @@ class GTMIntel(object):
         return root
 
     @property
-    def container(self):
-        return self._usable_container
+    def original_container(self) -> dict:
+        return self._original_container
+
+    @property
+    def resource_container(self):
+        return self._resource_container
 
     @property
     def version(self) -> str:
 
-        self._version = self.section_contents(ROOT['VERSION'])
+        version = self.section_contents(ROOT['VERSION'])
 
-        return self._version
+        return version
 
     @property
     def macros(self) -> list:
@@ -450,7 +401,7 @@ class GTMIntel(object):
     # better-me For the sake of running functionality, this parses the tag container more or less than 3 times.
     #   its time complexity is a bitch. Try to refine the process and make it better/faster.
     def process_rules(self):
-        process_container = self._usable_container
+        process_container = self._resource_container
 
         tags = process_container['tags']
         rules = process_container['rules']
@@ -654,7 +605,7 @@ class GTMIntel(object):
 
     def process_trigger_groups(self) -> Union[dict, str]:
 
-        tags = self._usable_container['tags']
+        tags = self._resource_container['tags']
 
         trigger_group = {'_group': [], '_group_members': [], '_triggers': []}
 
@@ -691,7 +642,7 @@ class GTMIntel(object):
         :rtype: dict
         """
 
-        container = self._usable_container[container]
+        container = self._resource_container[container]
 
         found_item = []
 
@@ -710,7 +661,11 @@ class GTMIntel(object):
         for macro in original_macros:
             temp_dict = {}
             macro_name = macro['function']
-            index_details = find_in_index(macro_name, macros_index)
+            if macro_name not in macros_index and 'cvt' in macro_name:
+                index_details = macros_index['_custom_variable_template']
+            else:
+                index_details = find_in_index(macro_name, macros_index)
+
             for key, value in macro.items():
                 temp_dict[key] = value
                 temp_dict = {**temp_dict, **index_details}
@@ -729,14 +684,15 @@ class GTMIntel(object):
             temp_dict = {}
             tag_name = tag['function']
             temp_dict['_sequence'] = self.process_teardown_setup(tag)
-            if tag_name not in triggers_not_tags:
+            if tag_name in tags_index:
                 index_details = find_in_index(tag_name, tags_index)
+            else:
+                index_details = {**tag}
+            for key, value in tag.items():
+                temp_dict[key] = value
+                temp_dict = {**temp_dict, **index_details}
 
-                for key, value in tag.items():
-                    temp_dict[key] = value
-                    temp_dict = {**temp_dict, **index_details}
-
-                tags.append(temp_dict)
+            tags.append(temp_dict)
 
         return tags
 
