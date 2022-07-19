@@ -1,132 +1,55 @@
-{% extends 'base.html' %}
+{% extends 'gtm_base.html' %}
+{% set active_page = "variables" %}
 
-{% block meta %}
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <meta name="description" content=""/>
-    <meta name="author" content=""/>
+{% block gtm_content %}
 
-    {% block title %}
-        <title>MTP | Web App</title>
-    {% endblock %}
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Variable name</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for var in variables %}
+            {% set var_modal_id = var['title'] | replace(' ', '') + variables.index(var) | string %}
+            <tr>
+                <th scope="row">
+                    {% if 'pill' in var %}
+                        <button type="button" class="btn btn-{{ var['pill'] }}" data-toggle="modal"
+                                data-target="#{{ var_modal_id }}">
+                            {{ var['title'] }}
+                        </button>
+                    {% else %}
+                        <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                data-target="#{{ var_modal_id }}">
+                            {{ var['title'] }}
+                        </button>
+                    {% endif %}
+                    {% if 'nameProperty' in var %}
+                        <span class="badge badge-success">{{ var[var['nameProperty']] }}</span>
+                    {% endif %}
+                </th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock %}
-
-{% block content %}
-
-    <div class="row min-vh-100 flex-column flex-md-row">
-        <aside class="col-12 col-md-3 bg-light flex-shrink-1">
-            <nav class="navbar navbar-expand navbar-light bg-light flex-md-column flex-row align-items-start py-2">
-                <ul class="flex-md-column flex-row navbar-nav w-100 justify-content-between">
-                    <li class="nav-item">
-                        <span class="navbar-brand pl-0 text-nowrap" href="#">
-                            <span class="navbar-text">Currently working on:</span>
-                            <br>
-                            <a class="gtmspy-link" href="{{ model_gtm_path }}" target="_blank">
-                                <span class="font-weight-bold mb-0 h2 bg-spygreen rounded-2">{{ gtm_id }}</span>
-                            </a>
-                            <span><strong>v{{ version }}</strong></span>
-                            <span>&nbsp;</span>
-                        </span>
-                    </li>
-                </ul>
-                <form class="form-inline my-2">
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <button type="button" class="btn btn-outline-secondary">Load</button>
-                            <button type="button"
-                                    class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="sr-only">Toggle Dropdown</span>
-                            </button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#">GTM-1</a>
-                                <a class="dropdown-item" href="#">GTM-2</a>
-                                <a class="dropdown-item" href="#">GTM-3</a>
-                                <div role="separator" class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">Separated link</a>
-                            </div>
-                        </div>
-                        <input type="text" class="form-control" placeholder="GTM-1234567 or URL"
-                               aria-label="Text input with segmented dropdown button">
-                    </div>
-                </form>
-                <div class="collapse navbar-collapse">
-                    <ul class="flex-md-column flex-row navbar-nav w-100 justify-content-between">
-                        <li class="nav-item">
-                            <span class="nav-brand pl-0 text-nowrap" href="#">
-                                <span class="font-weight-bold">Container Sections</span>
-                            </span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link pl-0" href="#">
-                                <span class="d-none d-md-inline">Variables</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link pl-0" href="{{ url_for('mrk.gtm_intel_tags') }}">
-                                <span class="d-none d-md-inline">Tags</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link pl-0" href="{{ url_for('mrk.gtm_intel_triggers') }}">
-                                <span class="d-none d-md-inline">Triggers</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </aside>
-        <main class="col bg-faded py-3 flex-grow-1">
-            <div class="row justify-content-center">
-                <div class="col-lg-11">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th scope="col">Variable name</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for var in variables %}
-                            <tr>
-                                <th scope="row">
-                                    {% if 'pill' in var %}
-                                        <button type="button" class="btn btn-{{ var['pill'] }}" data-toggle="modal"
-                                                data-target="#{{ var['title'] | replace(' ', '') + variables.index(var) | string }}">
-                                            {{ var['title'] }}
-                                        </button>
-                                    {% else %}
-                                        <button type="button" class="btn btn-secondary" data-toggle="modal"
-                                                data-target="#{{ var['title'] | replace(' ', '') + variables.index(var) | string }}">
-                                            {{ var['title'] }}
-                                        </button>
-                                    {% endif %}
-                                    {% if 'nameProperty' in var %}
-                                        <span class="badge badge-success">{{ var[var['nameProperty']] }}</span>
-                                    {% endif %}
-                                </th>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-    </div>
-
+{% block gtm_modals %}
     <!-- Variable Specific Modals Start -->
     {% for var in variables %}
+        {% set var_modal_id = var['title'] | replace(' ', '') + variables.index(var) | string %}
         <!-- Macro Modals Start -->
-        <div class="modal fade" id="{{ var['title'] | replace(' ', '') + variables.index(var) | string }}"
+        <div class="modal fade" id="{{ var_modal_id }}"
              tabindex="1" role="dialog"
-             aria-labelledby="{{ var['title'] | replace(' ', '') + variables.index(var) | string }}"
+             aria-labelledby="{{ var_modal_id }}"
              aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title"
-                            id="{{ var['title'] | replace(' ', '') + variables.index(var) | string }}">Variable:
+                            id="{{ var_modal_id }}">Variable:
                             {{ var['title'] }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -148,13 +71,14 @@
                                     <div class="row">
                                         {% for key in var.keys() %}
                                             {% if type_check(var[key]) == 'macro' %}
+                                                {% set macro_modal_index = find_index(get_macro(var[key])['function'], macros_index)['title'] | replace(' ', '') + var[key][1] | string %}
                                                 <div class="col-8 col-sm-6">
                                                     {{ key }}
                                                 </div>
                                                 <div class="col-4 col-sm-6">
                                                     <button type="button" data-dismiss="modal"
                                                             class="btn btn-info btn-sm" data-toggle="modal"
-                                                            data-target="#{{ find_index(get_macro(var[key])['function'], macros_index)['title'] | replace(' ', '') + var[key][1] | string }}">
+                                                            data-target="#{{ macro_modal_index }}">
                                                         {{ find_index(get_macro(var[key])['function'], macros_index)['title'] }}
                                                     </button>
                                                 </div>
@@ -204,7 +128,7 @@
         </div>
         <!-- Macro Modals End -->
 
-         <!-- Macro Input Table Section start-->
+        <!-- Macro Input Table Section start-->
         {% for key in var.keys() %}
             {% if type_check(var[key]) == 'mapping' %}
                 <div class="modal fade" id="macro_{{ variables.index(var) }}_mapping"
@@ -245,10 +169,11 @@
                                                         {% set next_map_item = process_map[process_map_list[loop.index0 + 1]] %}
 
                                                         {% if type_check(current_map_item) == 'macro' %}
+                                                            {% set macro_modal_index = find_index(get_macro(current_map_item)['function'], macros_index)['title'] | replace(' ', '') + current_map_item[1] | string %}
                                                             <div class="col-8 col-sm-6">
                                                                 <button type="button" data-dismiss="modal"
                                                                         class="btn btn-info btn-sm" data-toggle="modal"
-                                                                        data-target="#{{ find_index(get_macro(current_map_item)['function'], macros_index)['title'] | replace(' ', '') + current_map_item[1] | string }}">
+                                                                        data-target="#{{ macro_modal_index }}">
                                                                     {{ find_index(get_macro(current_map_item)['function'], macros_index)['title'] }}
                                                                 </button>
                                                             </div>
@@ -258,10 +183,11 @@
                                                             </div>
                                                         {% endif %}
                                                         {% if type_check(next_map_item) == 'macro' %}
+                                                            {% set macro_modal_index = find_index(get_macro(next_map_item)['function'], macros_index)['title'] | replace(' ', '') + next_map_item[1] | string %}
                                                             <div class="col-4 col-sm-6">
                                                                 <button type="button" data-dismiss="modal"
                                                                         class="btn btn-info btn-sm" data-toggle="modal"
-                                                                        data-target="#{{ find_index(get_macro(next_map_item)['function'], macros_index)['title'] | replace(' ', '') + next_map_item[1] | string }}">
+                                                                        data-target="#{{ macro_modal_index }}">
                                                                     {{ find_index(get_macro(next_map_item)['function'], macros_index)['title'] }}
                                                                 </button>
                                                             </div>
@@ -291,8 +217,4 @@
     {% endfor %}
     <!-- Variable Specific Modals End -->
 
-
-    {% block scripts %}
-        <script type="text/javascript" src="{{ url_for('static', filename='js/GTM-T7MRFWX.js') }}"></script>
-    {% endblock %}
 {% endblock %}
