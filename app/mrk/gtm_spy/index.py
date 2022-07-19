@@ -86,7 +86,9 @@ tags_index = {
     '__xpsh': {'title': 'Xtremepush'},
     '__yieldify': {'title': 'Yieldify'},
     '__qpx': {'title': 'Quora'},
-    '__pntr': {'title': 'Pinterest'}
+    '__pntr': {'title': 'Pinterest'},
+    '__gaawc': {'title': 'GA4 Configuration', 'pill': 'warning'},
+    '__gaawe': {'title': 'GA4 Event', 'pill': 'warning', 'nameProperty': 'vtp_eventName'}
 }
 
 macros_index = {
@@ -107,7 +109,10 @@ macros_index = {
     '__u': {'title': 'URL', 'nameProperty': 'vtp_component'},
     '__gas': {'title': 'Google Analytics Settings', 'pill': 'warning'},
     '__aev': {'title': 'Auto Event Variable', 'nameProperty': 'vtp_varType', 'pill': 'primary'},
-    '__cid': {'title': 'Container ID', 'pill': 'primary', 'isBuiltIn': not False}
+    '__cid': {'title': 'Container ID', 'pill': 'primary', 'isBuiltIn': not False},
+    '__awec': {'title': 'User-Provided Data', 'pill': 'primary'},
+    '_custom_variable_template': {'title': 'Custom Variable Template', 'pill': 'dark'},
+    '__t': {'title': 'Custom Firing Schedule Enabled'}
 }
 
 triggers_index = {
