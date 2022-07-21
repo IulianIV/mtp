@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 
-from wtforms.fields import StringField, TextAreaField, SubmitField, HiddenField
+from wtforms.fields import StringField, SubmitField
 from wtforms.validators import DataRequired
 
 # TODO add a post title 30 char limit
