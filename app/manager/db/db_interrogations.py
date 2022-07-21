@@ -382,6 +382,10 @@ def gtm_container_exists(user_id: int, container_id: str):
         return False
 
 
+def get_gtm_containers(user_id: int):
+    return GTMContainers.query.filter_by(user_id=user_id).order_by(GTMContainers.container_id).all()
+
+
 """
 Database UPDATE queries section
 """
@@ -469,6 +473,15 @@ def inactivate_all_gtm_containers(user_id: int):
 
     for container in containers:
         container.is_active = False
+
+    db.session.commit()
+
+
+def update_gtm_container_data(user_id: int, container_id: str, container_data):
+
+    container = GTMContainers.query.filter_by(user_id=user_id, container_id=container_id).first()
+
+    container.container_data = container_data
 
     db.session.commit()
 
