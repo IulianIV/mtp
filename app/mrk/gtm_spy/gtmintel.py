@@ -174,6 +174,17 @@ class GTMIntel(object):
         """
         pass
 
+    @staticmethod
+    def count_items(container):
+        function_list = []
+        print(container)
+        for item in container:
+            function_list.append(item['function'])
+
+        count = len(function_list)
+
+        return count
+
     @property
     def id(self) -> str:
         return self._id
@@ -741,12 +752,13 @@ class GTMIntel(object):
 
         return triggers
 
+
     def __str__(self):
         return \
             f'''
                 ====== GTM CONTAINER ======
                 Container ID: {self._id}
-                Container version: {self._version}
+                Container version: {self.version}
                 Container URL: {self.url}
                 
                 ==========================
