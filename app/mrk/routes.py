@@ -6,7 +6,7 @@ from flask_login import current_user
 from app import db
 from app.manager.db.db_interrogations import (
     gtm_container_exists, get_active_gtm_container, insert_gtm_container,
-    set_gtm_container_active, set_gtm_container_inactive, inactivate_all_gtm_containers,
+    set_gtm_container_active, inactivate_all_gtm_containers,
     get_gtm_containers, update_gtm_container_data
 )
 from app.auth.routes import login_required
