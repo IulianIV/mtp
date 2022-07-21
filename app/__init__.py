@@ -103,6 +103,9 @@ def create_app(test_config=None):
     from app.seo import bp as seo_bp
     app.register_blueprint(seo_bp)
 
+    from app.mrk import bp as mrk_bp
+    app.register_blueprint(mrk_bp)
+
     from app.webtools import bp as webtools_bp
     app.register_blueprint(webtools_bp)
 

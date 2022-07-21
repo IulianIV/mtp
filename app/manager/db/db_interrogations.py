@@ -7,7 +7,7 @@ from app import db
 from app.manager.db.models import (
     User, UrlEncodeDecodeParse, BudgetExpense, BudgetRevenue, BudgetUtilities,
     BudgetSaving, ValidationSavingSources, ValidationSavingAccount, ValidationSavingReason, ValidationSavingItems,
-    ValidationSavingAction, ValidationSavingCategories, Post
+    ValidationSavingAction, ValidationSavingCategories, Post, GTMContainers
 )
 
 # Type hinting
@@ -93,6 +93,11 @@ def insert_post(title: str, body: str, author_id: str, post_image_name: Union[No
 def add_new_url(user: int, raw_url: str, encode_option: Union[str, None], encoding: Union[str, None]):
     return db.session.add(UrlEncodeDecodeParse(user_id=user, raw_url=raw_url, encode_option=encode_option,
                                                encoding=encoding))
+
+
+def insert_gtm_container(user: int, container_id: str, container_data: bytes):
+    return db.session.add(GTMContainers(user_id=user, container_id=container_id,
+                                        container_data=container_data, is_active=False))
 
 
 """
@@ -365,6 +370,22 @@ def check_current_month_data(user: int):
         return True
 
 
+def get_active_gtm_container(user_id: int):
+    return GTMContainers.query.filter_by(user_id=user_id, is_active=True).first()
+
+
+def gtm_container_exists(user_id: int, container_id: str):
+
+    if GTMContainers.query.filter_by(user_id=user_id, container_id=container_id).first():
+        return True
+    else:
+        return False
+
+
+def get_gtm_containers(user_id: int):
+    return GTMContainers.query.filter_by(user_id=user_id).order_by(GTMContainers.container_id).all()
+
+
 """
 Database UPDATE queries section
 """
@@ -427,6 +448,40 @@ def update_saving_entry(entry_id: int, user: int, date: DateTime, value: int, ac
     entry.saving_source = account
     entry.saving_reason = reason
     entry.saving_action = action
+
+    db.session.commit()
+
+
+def set_gtm_container_active(user_id: int, container_id: str):
+
+    container = GTMContainers.query.filter_by(user_id=user_id, container_id=container_id).first()
+    container.is_active = True
+
+    db.session.commit()
+
+
+def set_gtm_container_inactive(user_id: int, container_id: str):
+
+    container = GTMContainers.query.filter_by(user_id=user_id, container_id=container_id).first()
+    container.is_active = False
+
+    db.session.commit()
+
+
+def inactivate_all_gtm_containers(user_id: int):
+    containers = GTMContainers.query.filter_by(user_id=user_id).all()
+
+    for container in containers:
+        container.is_active = False
+
+    db.session.commit()
+
+
+def update_gtm_container_data(user_id: int, container_id: str, container_data):
+
+    container = GTMContainers.query.filter_by(user_id=user_id, container_id=container_id).first()
+
+    container.container_data = container_data
 
     db.session.commit()
 

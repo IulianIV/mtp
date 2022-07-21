@@ -1,0 +1,63 @@
+{% extends 'gtm_base.html' %}
+{% set active_page = "triggers" %}
+
+{% block gtm_content %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Trigger name</th>
+            <th scope="col">Added in</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for trigger in triggers %}
+            {% if trigger['function'] not in skip_keys %}
+                {% set trigger_modal_id = trigger['title'] | replace(' ', '') + triggers.index(trigger) | string %}
+                {% set trigger_title = trigger['title'] %}
+                <tr>
+                    <!-- Trigger list start -->
+                    <th scope="row">
+                        {% if 'pill' in trigger %}
+                            <button type="button" class="btn btn-{{ trigger['pill'] }}"
+                                    data-toggle="modal"
+                                    data-target="#{{ trigger_modal_id }}">
+                                {{ trigger_title }}
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                    data-target="#{{ trigger_modal_id }}">
+                                {{ trigger_title }}
+                            </button>
+                        {% endif %}
+                    </th>
+                    <!-- Trigger list end -->
+                </tr>
+            {% endif %}
+        {% endfor %}
+        {% for group in trigger_groups['_group'] %}
+            {% set index = find_index(group['function'], triggers_index) %}
+            <tr>
+                <!-- Trigger list start -->
+                <th scope="row">
+                    {% if 'pill' in index %}
+                        <button type="button" class="btn btn-{{ index['pill'] }}"
+                                data-toggle="modal"
+                                data-target="#">
+                            {{ index['title'] }}
+                        </button>
+                    {% else %}
+                        <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                data-target="#">
+                            {{ index['title'] }}
+                        </button>
+                    {% endif %}
+                </th>
+                <!-- Trigger list end -->
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block gtm_modals %}
+{% endblock %}

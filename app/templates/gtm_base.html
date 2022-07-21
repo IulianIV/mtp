@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% set navigation_bar = [
+    (url_for('mrk.gtm_intel_summary'), 'summary', 'Container Summary'),
+    (url_for('mrk.gtm_intel_variables'), 'variables', 'Variables'),
+    (url_for('mrk.gtm_intel_tags'), 'tags', 'Tags'),
+    (url_for('mrk.gtm_intel_triggers'), 'triggers', 'Triggers'),
+    ('#', 'custom-tags', 'Custom Tags'),
+    ('#', 'custom-variables', 'Custom Variables'),
+    ('#', 'runtime', 'Runtime'),
+    ('#', 'permissions', 'Permissions'),
+    ('#', 'sandboxed-scripts', 'Sandboxed Scripts'),
+    ('#', 'security-groups', 'Security Groups')
+] %}
+{% set active_page = active_page|default('summary') %}
+
+{% block meta %}
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+
+    {% block title %}
+        <title>MTP | Web App</title>
+    {% endblock %}
+
+{% endblock %}
+{% block content %}
+    <div class="row min-vh-100 flex-column flex-md-row">
+        <aside class="col-12 col-md-3 bg-light flex-shrink-1">
+            <nav class="navbar navbar-expand navbar-light bg-light flex-md-column flex-row align-items-start py-2">
+                <ul class="flex-md-column flex-row navbar-nav w-100 justify-content-between">
+                    <li class="nav-item">
+                        <span class="navbar-brand pl-0 text-nowrap" href="#">
+                            {% if model_gtm_path and gtm_id and version %}
+                                {% set recent_version = new_version(gtm_id) %}
+                                <span class="navbar-text">Currently working on:</span>
+                                <br>
+                                <a class="gtmspy-link" href="{{ model_gtm_path }}" target="_blank">
+                                    <span class="font-weight-bold mb-0 h2 bg-spygreen rounded-2">{{ gtm_id }}</span>
+                                </a>
+                                <span><strong>v{{ version }}</strong></span>
+                            {% endif %}
+                            {% if recent_version != version %}
+                                <button type="button" class="btn btn-danger" data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="A new container version is available. The current version is {{ recent_version | int - version | int }} version(s) behind.">
+                                        <strong>v{{ recent_version }}</strong>
+                                </button>
+                            {% endif %}
+                        </span>
+                    </li>
+                </ul>
+                <form class="form-inline my-2" method="post" id="gtm-id-form" action="{{ url_for('mrk.gtm_intel') }}"
+                      novalidate>
+                    {{ container_id_form.hidden_tag() }}
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            {{ container_id_form.submit_id(form='gtm-id-form', class='btn btn-outline-secondary') }}
+                            <button type="button"
+                                    class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                {% for container in containers %}
+                                    <a class="dropdown-item" href="#">{{ container }}</a>
+                                {% endfor %}
+                                <div role="separator" class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">Reload from Source</a>
+                            </div>
+                        </div>
+                        {{ container_id_form.container_id(form='gtm-id-form', class='form-control', placeholder='GTM-1234567 or URL') }}
+                    </div>
+
+                </form>
+                <div class="collapse navbar-collapse">
+                    <ul class="flex-md-column flex-row navbar-nav w-100 justify-content-between">
+                        <li class="nav-item">
+                            <span class="nav-brand pl-0 text-nowrap" href="#">
+                                <span class="font-weight-bold">Container Sections</span>
+                            </span>
+                        </li>
+                        {% for href, id, caption in navigation_bar %}
+                            <li
+                                    {% if id == active_page %}
+                                        class="badge badge-info" style="text-align: left;"
+                                    {% else %}
+                                        class="badge badge-light" style="text-align: left;"
+                                    {% endif %}
+                            >
+                                <a class="nav-link pl-0" href="{{ href|e }}">
+                                    <span class="d-none d-md-inline">{{ caption|e }}</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                        <div role="separator" class="dropdown-divider"></div>
+                        <li class="nav-item">
+                            <a class="nav-link pl-0" href="#">
+                                <span class="font-weight-bold">Manage GTM Containers</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+        <main class="col bg-faded py-3 flex-grow-1">
+            <div class="row justify-content-center">
+                <div class="col-lg-11">
+                    {% if url_for(request.endpoint) == '/gtm-spy/' %}
+                        <div class="jumbotron">
+                            <h1 class="display-4">Hello, agent!</h1>
+                            <p class="lead">If you are here you probably have no analyzed GTM Containers..</p>
+                            <hr class="my-4">
+                            <p>Load a container from the left sidebar or choose a previous one from the dropdown.</p>
+                        </div>
+                    {% endif %}
+                    {% block gtm_content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </main>
+    </div>
+    {% block gtm_modals %}
+    {% endblock %}
+    <script>
+        $(".dropdown-menu").on('click', '.dropdown-item', function () {
+            let gtm_id = this.innerHTML;
+            let input = $('#container_id');
+            input.val(input.val() + gtm_id);
+
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock %}
