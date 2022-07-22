@@ -88,7 +88,8 @@ tags_index = {
     '__qpx': {'title': 'Quora'},
     '__pntr': {'title': 'Pinterest'},
     '__gaawc': {'title': 'GA4 Configuration', 'pill': 'warning'},
-    '__gaawe': {'title': 'GA4 Event', 'pill': 'warning', 'nameProperty': 'vtp_eventName'}
+    '__gaawe': {'title': 'GA4 Event', 'pill': 'warning', 'nameProperty': 'vtp_eventName'},
+    '_custom_tag_template': {'title': 'Custom Tag Template', 'pill': 'dark', 'nameProperty': 'function'}
 }
 
 macros_index = {
@@ -184,5 +185,5 @@ skip_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function']
 skip_tag_keys = ['pill', 'property', 'nameProperty', 'title', 'function', 'infoKey', 'teardown_tags',
                  'setup_tags', '_sequence']
 skip_groups = ['__tg']
-triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl']
+triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl', '__evl']
 code_snippet_properties = ['vtp_html', 'vtp_javascript']

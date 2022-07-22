@@ -9,7 +9,7 @@ import requests
 from app.manager.errors import SectionIndexError
 from app.manager.helpers import Config, extract_trigger_id
 from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags, triggers_index
-from .lurker import find_in_index
+from .utils import find_in_index
 
 CONTAINER_SAVE_PATH: os.PathLike = Config.GTM_SPY_DOWNLOAD_PATH
 
@@ -697,8 +697,11 @@ class GTMIntel(object):
             temp_dict['_sequence'] = self.process_teardown_setup(tag)
             if tag_name in tags_index:
                 index_details = find_in_index(tag_name, tags_index)
+            elif tag_name not in tags_index and 'cvt' in tag_name:
+                index_details = tags_index['_custom_tag_template']
             else:
                 index_details = {**tag}
+
             for key, value in tag.items():
                 temp_dict[key] = value
                 temp_dict = {**temp_dict, **index_details}
