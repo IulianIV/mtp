@@ -15,13 +15,14 @@ from app.mrk.forms import ContainerLoad
 from app.mrk.gtm_spy.gtmintel import GTMIntel
 from app.mrk.gtm_spy.index import (skip_macro_keys, macros_index, skip_tag_keys,
                                    code_snippet_properties, triggers_index, skip_groups, triggers_not_tags)
-from app.mrk.gtm_spy.lurker import find_in_index
-from app.mrk.gtm_spy.utils import gtm_compare_get_version
+from app.mrk.gtm_spy.utils import gtm_compare_get_version, find_in_index
 from app.manager.helpers import gtm_trigger_len, extract_nested_strings, form_validated_message, form_error_message
 
 
 # TODO should the final container contain data for color coding?
 # TODO add modal preview for lists and certain variables
+
+index_url = 'mrk.gtm_intel'
 
 @bp.context_processor
 @login_required
@@ -82,7 +83,7 @@ def gtm_intel_summary():
     user_id = current_user.get_id()
 
     if user_id is None:
-        return redirect(url_for('mrk.gtm_intel'))
+        return redirect(url_for(index_url))
 
     container = get_active_gtm_container(user_id)
 
@@ -110,7 +111,7 @@ def gtm_intel_tags():
     user_id = current_user.get_id()
 
     if user_id is None:
-        return redirect(url_for('mrk.gtm_intel'))
+        return redirect(url_for(index_url))
 
     container = get_active_gtm_container(user_id)
 
@@ -156,7 +157,7 @@ def gtm_intel_triggers():
     user_id = current_user.get_id()
 
     if user_id is None:
-        return redirect(url_for('mrk.gtm_intel'))
+        return redirect(url_for(index_url))
 
     container = get_active_gtm_container(user_id)
 
@@ -198,7 +199,7 @@ def gtm_intel_variables():
     user_id = current_user.get_id()
 
     if user_id is None:
-        return redirect(url_for('mrk.gtm_intel'))
+        return redirect(url_for(index_url))
 
     container = get_active_gtm_container(user_id)
 
