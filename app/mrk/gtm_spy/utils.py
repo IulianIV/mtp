@@ -32,5 +32,9 @@ def find_in_index(value: str, index: dict) -> dict:
     :return: Dictionary containing value data
     :rtype: dictionary
     """
+    try:
+        index[value]
+    except KeyError:
+        return {'title': ''}
 
     return index[value]
