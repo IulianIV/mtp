@@ -218,6 +218,7 @@ def gtm_intel_variables():
     container_version = spy.version
 
     skip_keys = skip_macro_keys
+    code_snippets = code_snippet_properties
 
     find_index = find_in_index
     macro_index = macros_index
@@ -226,4 +227,4 @@ def gtm_intel_variables():
                            gtm_id=container_id, version=container_version, variables=variables,
                            skip_macro_keys=skip_keys, type_check=type_check, get_macro=get_macro,
                            macros_index=macro_index, find_index=find_index, process_mapping=process_mapping,
-                           container_id_form=container_id_form)
+                           container_id_form=container_id_form, code_snippets=code_snippets)

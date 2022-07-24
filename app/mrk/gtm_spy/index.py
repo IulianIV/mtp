@@ -193,7 +193,7 @@ dlvBuiltins_index = {
     "gtm.visibleTime": {'title': "Element Visibility Time (On-Screen Duration)"}
 }
 
-skip_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function']
+skip_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function', 'infoKey']
 skip_tag_keys = ['pill', 'property', 'nameProperty', 'title', 'function', 'infoKey', 'teardown_tags',
                  'setup_tags', '_sequence']
 skip_groups = ['__tg']

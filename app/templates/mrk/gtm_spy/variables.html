@@ -70,7 +70,19 @@
                                     <hr/>
                                     <div class="row">
                                         {% for key in var.keys() %}
-                                            {% if type_check(var[key]) == 'macro' %}
+                                            {% if key in code_snippets %}
+                                                {% set snippet_modal_id = key + loop.index0 | string %}
+                                                <div class="col-8 col-sm-6">
+                                                    {{ key }}
+                                                </div>
+                                                <div class="col-4 col-sm-6">
+                                                    <button type="button" data-dismiss="modal"
+                                                            class="btn btn-info btn-sm" data-toggle="modal"
+                                                            data-target="#{{ snippet_modal_id }}">
+                                                        Custom Javascript
+                                                    </button>
+                                                </div>
+                                            {% elif type_check(var[key]) == 'macro' %}
                                                 {% set macro_modal_index = find_index(get_macro(var[key])['function'], macros_index)['title'] | replace(' ', '') + var[key][1] | string %}
                                                 <div class="col-8 col-sm-6">
                                                     {{ key }}
@@ -214,6 +226,48 @@
             {% endif %}
         {% endfor %}
         <!-- Macro Input Table Section end-->
+
+        <!-- Code Block Modals Start -->
+        {% for key in var.keys() %}
+            {% if key in code_snippets %}
+                {% set mapping_modal_id = key + loop.index0 | string %}
+                <div class="modal fade" id="{{ mapping_modal_id }}"
+                     tabindex="1" role="dialog"
+                     aria-labelledby="{{ mapping_modal_id }}"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"
+                                    id="{{ mapping_modal_id }}">JS for {{ var['tag_id'] }}:
+                                    {{ var['title'] }}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="container">
+                                            <code>
+                                                {% if var[key] | length > 1 %}
+                                                    {{ var[key][1] | e | trim }}
+                                                {% endif %}
+                                            </code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <!-- Code Block Modals End -->
     {% endfor %}
     <!-- Variable Specific Modals End -->
 

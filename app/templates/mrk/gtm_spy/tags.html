@@ -274,15 +274,15 @@
                                     <div class="row">
                                         {% for key in tag.keys() %}
                                             {% if key in code_snippets %}
-                                                {% set snipper_modal_id = key + loop.index0 | string %}
+                                                {% set snippet_modal_id = key + loop.index0 | string %}
                                                 <div class="col-8 col-sm-6">
                                                     {{ key }}
                                                 </div>
                                                 <div class="col-4 col-sm-6">
                                                     <button type="button" data-dismiss="modal"
                                                             class="btn btn-info btn-sm" data-toggle="modal"
-                                                            data-target="#{{ snipper_modal_id }}">
-                                                        Code Snippet
+                                                            data-target="#{{ snippet_modal_id }}">
+                                                        Custom HTML
                                                     </button>
                                                 </div>
                                             {% elif type_check(tag[key]) == 'macro' %}
@@ -713,7 +713,7 @@
         {% for key in tag.keys() %}
             {% if key in code_snippets %}
                 {% set mapping_modal_id = key + loop.index0 | string %}
-                <div class="modal fade" id=""
+                <div class="modal fade" id="{{ mapping_modal_id }}"
                      tabindex="1" role="dialog"
                      aria-labelledby="{{ mapping_modal_id }}"
                      aria-hidden="true">
@@ -721,7 +721,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title"
-                                    id="{{ mapping_modal_id }}">Code Block for tag ID {{ tag['tag_id'] }}:
+                                    id="{{ mapping_modal_id }}">Custom HTML for tag ID {{ tag['tag_id'] }}:
                                     {{ tag['title'] }}</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
