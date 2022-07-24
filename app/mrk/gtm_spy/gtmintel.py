@@ -672,8 +672,11 @@ class GTMIntel(object):
         for macro in original_macros:
             temp_dict = {}
             macro_name = macro['function']
+
             if macro_name not in macros_index and 'cvt' in macro_name:
                 index_details = macros_index['_custom_variable_template']
+            elif 'vtp_name' in macro and macro['vtp_name'] in dlvBuiltins_index:
+                index_details = dlvBuiltins_index[macro['vtp_name']]
             else:
                 index_details = find_in_index(macro_name, macros_index)
 
