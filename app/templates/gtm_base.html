@@ -125,8 +125,9 @@
     {% endblock %}
     <script>
         $(".dropdown-menu").on('click', '.dropdown-item', function () {
-            let gtm_id = this.innerHTML;
             let input = $('#container_id');
+            input.val('');
+            let gtm_id = this.innerHTML;
             input.val(input.val() + gtm_id);
 
         });
