@@ -2,11 +2,10 @@ import json
 import os
 import re
 from copy import deepcopy
-from typing import Generator, Callable, Union, List, Set, Any
+from typing import Generator, Callable, Union, Any
 
 import requests
 
-from app.manager.errors import SectionIndexError
 from app.manager.helpers import Config, extract_trigger_id
 from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags, triggers_index
 from .utils import find_in_index
@@ -30,23 +29,13 @@ SECTIONS = [ROOT['VERSION'], ROOT['MACROS'],
             ROOT['RUNTIME'], ROOT['PERMISSIONS']]
 
 
-# fixme These need to be re-documented and re-defined or refactored to hint towards the correct functionality
-#   At the moment it is not clear what each function does
-#         get_section_properties_values()
-#         available_item_properties()
-#         get_section_properties()
-
-# TODO This class only parses and returns raw GTM data, creates a final, structured and readable GTM container
-#   which can be represented in the front-end
-#   Another separate functionality has to be created that parses the final container against the index
-#   to pretty print all data.
-
+# decorator to validate if a given section is indeed a valid section
 def check_for_container(method: Callable) -> Union[Callable, TypeError]:
     def wrapper(self, section: SECTIONS):
         if section in SECTIONS:
             return method(self, section)
         else:
-            raise SectionIndexError(f'Not in sections list. Accepted sections are: {SECTIONS}')
+            raise IndexError(f'Not in sections list. Accepted sections are: {SECTIONS}')
 
     return wrapper
 
@@ -69,69 +58,12 @@ class GTMIntel(object):
         # _usable_container only hold 'version' and literal container data ('macros', 'tags', 'predicates', 'rules')
         self._resource_container = self._working_container[self.container_root]
 
-    # fixme Fix situations when an item does not contain given property.
-    #   Basically fix "KeyError" errors. What to do when a section doesn't have that property at all?
-    #   analyze this functionality
-    @staticmethod
-    def get_section_properties_values(container_section: str,
-                                      section_item_property: str) -> List:
-        """
-        From the given section name, creates a list of all the values of the given property name
-
-        :param container_section: 'tags' or 'predicates'
-        :param section_item_property: 'function' or 'arg0'
-        :return: List of property values
-        """
-        properties = list()
-        iter_arg = iter(container_section)
-
-        while True:
-            try:
-                item_property = next(iter_arg)
-                properties.append(item_property[section_item_property])
-            except StopIteration:
-                break
-        return properties
-
-    # fixme What happens when a List or empty section is passed?
-    @staticmethod
-    def available_item_properties(section_item: str) -> List[str]:
-        """
-        Creates a list of the available properties from a given section
-
-        :param section_item: Literal item found within any given container section
-        :return: List of available properties
-        """
-
-        properties = [key for key in section_item.keys()]
-
-        return properties
-
-    # fixme What happens when a List or empty section is passed?
-    @staticmethod
-    def get_section_properties(container_section: str) -> Set:
-        """
-        When a certain code smell will be fixed this will be detailed
-
-        :param container_section:
-        :return:
-        """
-        overall_properties = list()
-
-        for item in container_section:
-            for key in item.keys():
-                overall_properties.append(key)
-
-        final_properties = set(overall_properties)
-
-        return final_properties
-
     @check_for_container
     def section_contents(self, section: list) -> Union[str, Generator]:
         """
         Get the content of the given section
 
-        :param section: 'predicates' or 'tags'
+        :param section: 'predicates' or 'tags' etc.
         :return: Section contents
         """
 
@@ -141,9 +73,9 @@ class GTMIntel(object):
 
     def container_to_json(self) -> dict:
         """
-        Converts a given container to JSON
+        Fetches the contents of a given GTM ID by building its URL.
 
-        :return: Computer friendly container data
+        :return: Container Data in JSON format
         """
         container_exp = r'var data = ({[\u0000-\uffff]*?});[\t-\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]'
         req = requests.get(self.url)
@@ -157,6 +89,15 @@ class GTMIntel(object):
 
     @staticmethod
     def saved_container_to_json(container_data) -> dict:
+        """
+        Function that is used to convert container data into JSON format. Primarily used in reading the data
+        from the database
+        
+        :param container_data: literal container data
+        :type container_data: dict
+        :return: container JSON
+        :rtype: JSON
+        """
 
         container_data = container_data.decode('utf-8')
 
@@ -187,15 +128,30 @@ class GTMIntel(object):
 
     @property
     def id(self) -> str:
+        """
+        Returns the ID of the container.
+        :return: Container ID
+        :rtype: str
+        """
         return self._id
 
     @property
     def url(self) -> str:
+        """
+        Return the URL of the container
+        :return: Container URL
+        :rtype: str
+        """
         url = GTM_URL_ROOT + self._id
         return url
 
     @property
     def working_container(self) -> dict:
+        """
+        The whole container
+        :return: The whole container
+        :rtype: dict
+        """
         return self._working_container
 
     @property
@@ -212,14 +168,31 @@ class GTMIntel(object):
 
     @property
     def original_container(self) -> dict:
+        """
+        All modifications are done on a deepcopy() of the original to avoid data corruption.
+        Also, to be able, in the future, to process different types of data.
+        This returns the original, non-modified container.
+        :return: Original container
+        :rtype: dict 
+        """
         return self._original_container
 
     @property
     def resource_container(self):
+        """
+        Returns the contents of the 'resources' section
+        :return: 'resources' container section
+        :rtype: dict
+        """
         return self._resource_container
 
     @property
     def version(self) -> str:
+        """
+        Returns the version of the container
+        :return: container version
+        :rtype: str
+        """
 
         version = self.section_contents(ROOT['VERSION'])
 
@@ -227,6 +200,11 @@ class GTMIntel(object):
 
     @property
     def macros(self) -> list:
+        """
+        Returns the macros secton of the container
+        :return: macros section
+        :rtype: dict
+        """
 
         macros = self.section_contents('macros')
 
@@ -234,13 +212,22 @@ class GTMIntel(object):
 
     @property
     def predicates(self) -> list:
-
+        """
+        Returns the predicates secton of the container
+        :return:
+        :rtype:
+        """
         predicates = self.section_contents('predicates')
 
         return predicates
 
     @property
     def rules(self) -> list:
+        """
+        Returns the rules secton of the container
+        :return:
+        :rtype:
+        """
 
         rules = self.section_contents('rules')
 
@@ -248,6 +235,11 @@ class GTMIntel(object):
 
     @property
     def tags(self) -> list:
+        """
+        Returns the tags secton of the container
+        :return:
+        :rtype:
+        """
         tags = self.section_contents('tags')
 
         return tags
@@ -734,10 +726,12 @@ class GTMIntel(object):
 
         rule_tagged = self.process_rules()
         predicates = self.create_predicates_container()
+        rules = self._resource_container['rules']
         triggers = []
 
         for tag in rule_tagged:
             temp_dict = {}
+
             if tag['function'] in triggers_index:
                 trigger_index = find_in_index(tag['function'], triggers_index)
 
@@ -747,17 +741,39 @@ class GTMIntel(object):
 
                 triggers.append(temp_dict)
 
-        for predicate in predicates:
-            temp_dict = {}
+        for rl_set, index in zip(rules, range(0, len(rules))):
+            _temp_dict = {'_conditions': list()}
+            _trigger_index = {}
+            new_trigger = {}
 
-            if predicate['arg1'] in triggers_index:
-                temp_dict['function'] = predicate['arg1']
-                trigger_index = find_in_index(predicate['arg1'], triggers_index)
+            for rls in rl_set:
+                condition = []
+                if 'if' in rls:
+                    for predicate_index in rls[1:]:
+                        if predicates[predicate_index]['arg1'] in triggers_index:
+                            _trigger_index = find_in_index(predicates[predicate_index]['arg1'], triggers_index)
+                            condition.append(rls)
 
-                triggers.append({**temp_dict, **trigger_index})
+                            _temp_dict['_conditions'].append(condition)
+                            _temp_dict['function'] = predicates[predicate_index]['arg1']
+                            new_trigger = {**_temp_dict, **_trigger_index}
+
+                            triggers.append(new_trigger)
+
+                elif 'block' not in rls and 'add' not in rls:
+                    nested = [rls]
+                    new_trigger['_conditions'].append(nested)
+
+        # for predicate in predicates:
+        #     temp_dict = {}
+        #
+        #     if predicate['arg1'] in triggers_index:
+        #         temp_dict['function'] = predicate['arg1']
+        #         trigger_index = find_in_index(predicate['arg1'], triggers_index)
+        #
+        #         triggers.append({**temp_dict, **trigger_index})
 
         return triggers
-
 
     def __str__(self):
         return \
