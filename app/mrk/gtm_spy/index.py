@@ -91,7 +91,8 @@ tags_index = {
     '__gaawe': {'title': 'GA4 Event', 'pill': 'warning', 'nameProperty': 'vtp_eventName'},
     '_custom_tag_template': {'title': 'Custom Tag Template', 'pill': 'dark', 'nameProperty': 'function'},
     '__ac360': {'title': 'Audience Center 360'},
-    '__awcc': {'title': 'Google Ads Calls from Website Conversion', 'pill': 'primary', 'nameProperty': 'vtp_phoneConversionNumber'},
+    '__awcc': {'title': 'Google Ads Calls from Website Conversion', 'pill': 'primary',
+               'nameProperty': 'vtp_phoneConversionNumber'},
     '__awud': {'title': 'Google Ads User-provided Data Event', 'pill': 'primary'},
     '__cloud_retail': {'title': 'Google Cloud Retail'},
     '__automl': {'title': 'Google Cloud Recommendations AI'},
@@ -145,7 +146,9 @@ triggers_index = {
     "gtm.triggerGroup": {'title': "Trigger Group", 'pill': "secondary", 'exportType': "TRIGGER_GROUP"},
     "gtm.historyChange": {'title': "History Change", 'pill': "secondary", 'exportType': "HISTORY_CHANGE"},
     '__e': {'title': "Custom Event", 'pill': "warning", 'exportType': "CUSTOM_EVENT"},
-    '__tg': {'title': "Trigger Group", 'pill': "secondary", 'exportType': "TRIGGER_GROUP"}
+    '__tg': {'title': "Trigger Group", 'pill': "secondary", 'exportType': "TRIGGER_GROUP"},
+    'gtm.init_consent': {'title': 'Consent Initialization', 'pill': 'primary', 'exportType': "CONSENT INITIALIZATION"},
+    'gtm.init': {'title': 'Initialization', 'pill': 'primary', 'exportType': "INITIALIZATION"}
 }
 
 evaluations_index = {
@@ -195,8 +198,8 @@ dlvBuiltins_index = {
 
 skip_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function', 'infoKey']
 skip_tag_keys = ['pill', 'property', 'nameProperty', 'title', 'function', 'infoKey', 'teardown_tags',
-                 'setup_tags', '_sequence']
-skip_groups = ['__tg']
+                 'setup_tags', '_sequence', '_conditions', '_blocking', 'exportType']
+skip_trigger_keys = ['gtm.triggerGroup', '__tg']
 triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl', '__evl']
 code_snippet_properties = ['vtp_html', 'vtp_javascript']
 untracked_macros = ['Environment name']
