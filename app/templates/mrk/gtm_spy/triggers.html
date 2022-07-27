@@ -93,20 +93,29 @@
                     <div class="collapse"
                          id="tagGrouping">
                         <div class="card card-body">
-                            {% for member in trigger_groups['_group_members'] %}
-                                {% set trigger_by_fire_id = search_in_container('tags', 'vtp_uniqueTriggerId', member[0]['vtp_firingId']) %}
-                                <p class="text-left">
-                                    {% if trigger_by_fire_id %}
-                                        {% set found_trigger = find_index(trigger_reference['function'], triggers_index) %}
+                            <p class="text-left">
+                                {% for trigger in trigger_groups['_triggers'] %}
+                                    {% if trigger %}
+                                        {% set group_loop = loop %}
+                                        {% set found_trigger = find_index(trigger[0]['function'], triggers_index) %}
                                         {% set found_trigger_title = found_trigger['title'] | replace(' ', '') %}
-                                        {% set found_trigger_modal = found_trigger_title + triggers.index(trigger_by_fire_id) %}
-                                        <button type="button"
-                                                class="btn btn-primary btn-sm"
-                                                data-toggle="modal"
-                                                data-target="#{{ found_trigger_modal }}">
-                                            {{ found_trigger['title'] }}
-                                        </button>
-                                    {% elif member[0]['_conditions'] %}
+                                        {% set trigger_index = 0 %}
+                                        {% for trig in triggers %}
+                                            {% if trig['tag_id'] == trigger[0]['tag_id'] %}
+                                                {% set trigger_index = loop.index0 %}
+                                                {% set found_trigger_modal = found_trigger_title + trigger_index | string %}
+                                                <button type="button"
+                                                        class="btn btn-primary btn-sm"
+                                                        data-toggle="modal"
+                                                        data-target="#{{ found_trigger_modal }}">
+                                                    {{ found_trigger['title'] }}
+                                                </button>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for member in trigger_groups['_group_members'] %}
+                                    {% if member[0]['_conditions'] %}
                                         {% for rule_set in member[0]['_conditions'] %}
                                             {% for rules in rule_set %}
                                                 {% for predicate_index in rules[1:] %}
@@ -138,8 +147,8 @@
                                             {{ member[0]['function'] }}
                                         </button>
                                     {% endif %}
-                                </p>
-                            {% endfor %}
+                                {% endfor %}
+                            </p>
                         </div>
                     </div>
                 </th>
