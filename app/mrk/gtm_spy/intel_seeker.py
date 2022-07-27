@@ -5,8 +5,6 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 
-from app.manager.errors import ConsentError
-
 url = 'https://rsge.ro/'
 
 URL = str
