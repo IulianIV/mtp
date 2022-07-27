@@ -10,6 +10,11 @@ from app.manager.helpers import Config, extract_trigger_id
 from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags, triggers_index
 from .utils import find_in_index
 
+# FIXME MAJOR! All create_container_name() functions need to be evaluated and commented. The goal, eventually,
+#   is to have their complexity reduced. Especially in the case of trigger and trigger_group_processing..
+#   It is OK to have it complex if the JSON parsing itself is complex but a better, faster way to deal
+#   with those has to be developed.
+
 CONTAINER_SAVE_PATH: os.PathLike = Config.GTM_SPY_DOWNLOAD_PATH
 
 GTM_URL_ROOT: str = 'https://www.googletagmanager.com/gtm.js?id='
@@ -404,11 +409,20 @@ class GTMIntel(object):
     # better-me For the sake of running functionality, this parses the tag container more or less than 3 times.
     #   its time complexity is a bitch. Try to refine the process and make it better/faster.
     def process_rules(self):
+        """
+        Processes the rules container and associates found rules to their respective tags.
+
+        :return:
+        :rtype:
+        """
         process_container = self._resource_container
 
         tags = process_container['tags']
         rules = process_container['rules']
 
+        # Needed for front-end processing.
+        # In this case, eventually, the processing of the rules is better in a nested fashion
+        # Nesting allows for rule "grouping"
         for tag in tags:
             tag['_conditions'] = list()
             tag['_blocking'] = list()
@@ -425,8 +439,14 @@ class GTMIntel(object):
 
             trigg_cond = re.compile('if|unless')
 
+            # allows for easy determining the type of the rule
             rule_types = [x[0] for x in rl_set]
 
+            # All the checks below are necessary.
+            # Upon analysis, it was concluded that there are certain "types" of rules, defined by their members
+            # the "members" are described by the conditionals below
+
+            # Member 1 - if no "block" rule is found, it is automatically a "firing" tag
             if 'block' not in rule_types:
                 for rls in rl_set:
                     if re.search(trigg_cond, rls[0]):
@@ -437,6 +457,7 @@ class GTMIntel(object):
                 conditions.insert(index, list(condition))
                 condition.clear()
 
+            # Member 2 - if there is no "add" but there is "block" it means it is a "blocking" tag
             if 'block' in rule_types and 'add' not in rule_types:
                 for rls in rl_set:
                     if re.search(trigg_cond, rls[0]):
@@ -447,6 +468,8 @@ class GTMIntel(object):
                 blocks.insert(index, list(block))
                 block.clear()
 
+            # Member 3 - If there is "add" and "block" it means the same rules are used as "firing" and "blocking"
+            #   conditions
             if 'add' in rule_types and 'block' in rule_types:
                 for rls in rl_set:
                     if re.search(trigg_cond, rls[0]):
@@ -462,6 +485,8 @@ class GTMIntel(object):
                 block.clear()
                 condition.clear()
 
+        # While the above conditionals map the firing, blocking and target conditionals
+        #   The loops from below map the indexes to the right tags.
         for x in range(0, len(targets)):
             for tag_index in targets[x][1:]:
                 tags[tag_index]['_conditions'].append(conditions[x])
@@ -606,10 +631,222 @@ class GTMIntel(object):
 
         return found_tag[0]
 
+    # TODO have the possibility to only pass either key or value
+    def search_in_container(self, container: Union[str, dict], key: Union[str, int], value: Any) -> list:
+        """
+        Searches the given container for items that contain the given key, value pair
+
+        :param container: GTM valid container e.g. 'predicates'
+        :type container: str
+        :param key: Key that might be found within the containers items
+        :type key: str, int
+        :param value: Value that is associated with key
+        :type value: Any
+        :return: The container item where the pair was found
+        :rtype: dict
+        """
+        if type(container) is str:
+            container = self._resource_container[container]
+
+        found_item = []
+
+        for item in container:
+            if key in item and item[key] == value:
+                found_item.append(item)
+
+        return found_item
+
+    def create_macro_container(self):
+        """
+        Processes and creates the variables container
+
+        :return: Dictionary with variable values
+        :rtype: dict
+        """
+
+        macros = []
+
+        original_macros = self.macros
+
+        for macro in original_macros:
+            temp_dict = {}
+            macro_name = macro['function']
+
+            # Custom Variable Templates have custom naming, this makes it possible to see the custom variable contents
+            if macro_name not in macros_index and 'cvt' in macro_name:
+                index_details = macros_index['_custom_variable_template']
+            elif 'vtp_name' in macro and macro['vtp_name'] in dlvBuiltins_index:
+                index_details = dlvBuiltins_index[macro['vtp_name']]
+            else:
+                index_details = find_in_index(macro_name, macros_index)
+
+            for key, value in macro.items():
+                temp_dict[key] = value
+                temp_dict = {**temp_dict, **index_details}
+
+            macros.append(temp_dict)
+
+        return macros
+
+    def create_tag_container(self):
+        """
+        Creates the tag container for usage in front-end. Works directly onto the rule-tagged container
+
+        :return: Tag processed container
+        :rtype: dict
+        """
+
+        tags = []
+
+        rules_tagged = self.process_rules()
+
+        for tag in rules_tagged:
+            temp_dict = {}
+            tag_name = tag['function']
+            temp_dict['_sequence'] = self.process_teardown_setup(tag)
+            if tag_name in tags_index:
+                index_details = find_in_index(tag_name, tags_index)
+            # This makes sure that if the tag is a Custom Template Tag, the contents are still visible
+            elif tag_name not in tags_index and 'cvt' in tag_name:
+                index_details = tags_index['_custom_tag_template']
+            else:
+                index_details = {**tag}
+
+            for key, value in tag.items():
+                temp_dict[key] = value
+                temp_dict = {**temp_dict, **index_details}
+
+            tags.append(temp_dict)
+
+        return tags
+
+    def create_predicates_container(self):
+        """
+        Creates the predicate container
+
+        :return: Predicate container and index details
+        :rtype: dict
+        """
+        new_predicates = []
+
+        predicates = self.predicates
+
+        for pred in predicates:
+            temp_dict = {}
+            pred_index = find_in_index(pred['function'], evaluations_index)
+
+            for key, value in pred.items():
+                temp_dict[key] = value
+                temp_dict = {**temp_dict, **pred_index}
+
+            new_predicates.append(temp_dict)
+
+        return new_predicates
+
+    def create_trigger_container(self):
+        """
+        Processes the rules' container while passing predicate data to relevant tags then creates new tags from certain
+            other predicates and allocates to the newly create tags already existing rules.
+
+        :return: trigger container
+        :rtype: dict
+        """
+
+        # This has to be done on a rule tagged container as well on a complete predicates container
+        rule_tagged = self.process_rules()
+        predicates = self.create_predicates_container()
+        rules = self._resource_container['rules']
+        triggers = []
+
+        # First processes the standard tags and ads trigger index information
+        for tag in rule_tagged:
+            temp_dict = {}
+
+            if tag['function'] in triggers_index:
+                trigger_index = find_in_index(tag['function'], triggers_index)
+
+                for key, value in tag.items():
+                    temp_dict[key] = value
+                    temp_dict = {**temp_dict, **trigger_index}
+
+                triggers.append(temp_dict)
+
+        # Variables needed when processing predicates containing trigger names but the firing conditions point to other
+        #   predicates that eventually point to the right trigger.
+        group_conditions = {'_group_trigger': list(), '_trigger': list()}
+        is_group_predicate = False
+
+        for rl_set, index in zip(rules, range(0, len(rules))):
+            _temp_dict = {'_conditions': list()}
+            _trigger_index = {}
+            new_trigger = {}
+
+            # In this case the firing or blocking condition of the rule is irrelevant. It can onyl help at counting
+            #   how many tags is the trigger assigned to
+            for rls in rl_set:
+                condition = []
+                if 'if' in rls:
+                    for predicate_index in rls[1:]:
+                        # Handles the assignment of the rule to the proper trigger that is referenced by its firing_id
+                        #   in a regex variable
+                        if self.process_type(predicates[predicate_index]['arg1']) == 'RegEx':
+                            is_group_predicate = True
+                            group_conditions['_group_trigger'].append(re.search(r'^\(\^\$\|\(\(\^\|,\)([0-9_]+)\(\$\|,\)\)\)$', predicates[predicate_index]['arg1']).group(1))
+                            nested_rls = [rls]
+                            group_conditions['_trigger'].append(nested_rls)
+
+                        # Handles triggers that are not in tags, but in predicates, which are valid triggers
+                        if predicates[predicate_index]['arg1'] in triggers_index:
+                            _trigger_index = find_in_index(predicates[predicate_index]['arg1'], triggers_index)
+                            condition.append(rls)
+
+                            _temp_dict['_conditions'].append(condition)
+                            _temp_dict['function'] = predicates[predicate_index]['arg1']
+                            new_trigger = {**_temp_dict, **_trigger_index}
+
+                            triggers.append(new_trigger)
+
+                # basically handles if the conditional is "unless" in the rule
+                elif 'block' not in rls and 'add' not in rls:
+                    if is_group_predicate:
+                        group_conditions['_trigger'][-1].append(rls)
+                        is_group_predicate = False
+                    nested = [rls]
+                    new_trigger['_conditions'].append(nested)
+                    triggers.append(new_trigger)
+
+        # because the above algorith duplicates tags and associates rules only to '__tg'
+        # tags this si needed to overwrite the conditions
+        for trigger in triggers:
+            if 'vtp_triggerIds' in trigger and trigger['vtp_uniqueTriggerId'] in group_conditions['_group_trigger']:
+                index = group_conditions['_group_trigger'].index(trigger['vtp_uniqueTriggerId'])
+                trigger['_conditions'].append(group_conditions['_trigger'][index])
+
+            if 'vtp_firingId' in trigger:
+                unique_firing_id = re.sub(r'([0-9]+)_[0-9]+_([0-9]+)', r'\1_\2', trigger['vtp_firingId'])
+
+                for trig in triggers:
+                    if 'vtp_uniqueTriggerId' in trig and trig['vtp_uniqueTriggerId'] == unique_firing_id:
+                        trig['_conditions'] = trigger['_conditions']
+
+                triggers.pop(triggers.index(trigger))
+
+        return triggers
+
     def process_trigger_groups(self) -> Union[dict, str]:
+        """
+        Creates a dictionary with data regarding the existing trigger group triggers.
+        It maps the triggers in a dictionary which is ordered and can be easily accessed
+
+        :return: Trigger Group Container
+        :rtype: dict
+        """
 
         tags = self._resource_container['tags']
 
+        # all trigger groups are "__tg" but only one has a  unique firing ID
+        # all child tag have triggers themselves which conditions actually further along point to another existing
+        # trigger
         trigger_group = {'_group': [], '_group_members': [], '_triggers': []}
 
         for tag in tags:
@@ -628,162 +865,3 @@ class GTMIntel(object):
                                                                                extract_trigger_id(member)))
 
         return trigger_group
-
-    # TODO add an exception for non-dict container.
-    # TODO have the possibility to only pass either key or value
-    def search_in_container(self, container: str, key: Union[str, int], value: Any) -> list:
-        """
-        Searches the given container for items that contain the given key, value pair
-
-        :param container: GTM valid container e.g. 'predicates'
-        :type container: str
-        :param key: Key that might be found within the containers items
-        :type key: str, int
-        :param value: Value that is associated with key
-        :type value: Any
-        :return: The container item where the pair was found
-        :rtype: dict
-        """
-
-        container = self._resource_container[container]
-
-        found_item = []
-
-        for item in container:
-            if key in item and item[key] == value:
-                found_item.append(item)
-
-        return found_item
-
-    def create_macro_container(self):
-
-        macros = []
-
-        original_macros = self.macros
-
-        for macro in original_macros:
-            temp_dict = {}
-            macro_name = macro['function']
-
-            if macro_name not in macros_index and 'cvt' in macro_name:
-                index_details = macros_index['_custom_variable_template']
-            elif 'vtp_name' in macro and macro['vtp_name'] in dlvBuiltins_index:
-                index_details = dlvBuiltins_index[macro['vtp_name']]
-            else:
-                index_details = find_in_index(macro_name, macros_index)
-
-            for key, value in macro.items():
-                temp_dict[key] = value
-                temp_dict = {**temp_dict, **index_details}
-
-            macros.append(temp_dict)
-
-        return macros
-
-    def create_tag_container(self):
-
-        tags = []
-
-        rules_tagged = self.process_rules()
-
-        for tag in rules_tagged:
-            temp_dict = {}
-            tag_name = tag['function']
-            temp_dict['_sequence'] = self.process_teardown_setup(tag)
-            if tag_name in tags_index:
-                index_details = find_in_index(tag_name, tags_index)
-            elif tag_name not in tags_index and 'cvt' in tag_name:
-                index_details = tags_index['_custom_tag_template']
-            else:
-                index_details = {**tag}
-
-            for key, value in tag.items():
-                temp_dict[key] = value
-                temp_dict = {**temp_dict, **index_details}
-
-            tags.append(temp_dict)
-
-        return tags
-
-    def create_predicates_container(self):
-        new_predicates = []
-
-        predicates = self.predicates
-
-        for pred in predicates:
-            temp_dict = {}
-            pred_index = find_in_index(pred['function'], evaluations_index)
-
-            for key, value in pred.items():
-                temp_dict[key] = value
-                temp_dict = {**temp_dict, **pred_index}
-
-            new_predicates.append(temp_dict)
-
-        return new_predicates
-
-    def create_trigger_container(self):
-
-        rule_tagged = self.process_rules()
-        predicates = self.create_predicates_container()
-        rules = self._resource_container['rules']
-        triggers = []
-
-        for tag in rule_tagged:
-            temp_dict = {}
-
-            if tag['function'] in triggers_index:
-                trigger_index = find_in_index(tag['function'], triggers_index)
-
-                for key, value in tag.items():
-                    temp_dict[key] = value
-                    temp_dict = {**temp_dict, **trigger_index}
-
-                triggers.append(temp_dict)
-
-        for rl_set, index in zip(rules, range(0, len(rules))):
-            _temp_dict = {'_conditions': list()}
-            _trigger_index = {}
-            new_trigger = {}
-
-            for rls in rl_set:
-                condition = []
-                if 'if' in rls:
-                    for predicate_index in rls[1:]:
-                        if predicates[predicate_index]['arg1'] in triggers_index:
-                            _trigger_index = find_in_index(predicates[predicate_index]['arg1'], triggers_index)
-                            condition.append(rls)
-
-                            _temp_dict['_conditions'].append(condition)
-                            _temp_dict['function'] = predicates[predicate_index]['arg1']
-                            new_trigger = {**_temp_dict, **_trigger_index}
-
-                            triggers.append(new_trigger)
-
-                elif 'block' not in rls and 'add' not in rls:
-                    nested = [rls]
-                    new_trigger['_conditions'].append(nested)
-
-        # for predicate in predicates:
-        #     temp_dict = {}
-        #
-        #     if predicate['arg1'] in triggers_index:
-        #         temp_dict['function'] = predicate['arg1']
-        #         trigger_index = find_in_index(predicate['arg1'], triggers_index)
-        #
-        #         triggers.append({**temp_dict, **trigger_index})
-
-        return triggers
-
-    def __str__(self):
-        return \
-            f'''
-                ====== GTM CONTAINER ======
-                Container ID: {self._id}
-                Container version: {self.version}
-                Container URL: {self.url}
-                
-                ==========================
-                
-                
-            '''
