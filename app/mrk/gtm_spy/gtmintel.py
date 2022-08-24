@@ -82,7 +82,7 @@ class GTMIntel(object):
 
         :return: Container Data in JSON format
         """
-        container_exp = r'var data = ({[\u0000-\uffff]*?});[\t-\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]'
+        container_exp = r'var data = ({[\u0000-\uffff]*?});\n[\t-\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]'
         req = requests.get(self.url)
         raw_data = req.content.decode('utf-8')
 
