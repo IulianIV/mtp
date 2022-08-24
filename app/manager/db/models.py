@@ -290,7 +290,7 @@ class GTMContainers(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey(user_id_fk))
     container_id = db.Column(db.String(25), index=True, nullable=False)
-    container_data = db.Column(db.BLOB, index=False, nullable=False)
+    container_data = db.Column(db.LargeBinary(length=(2**32)-1), index=False, nullable=False)
     is_active = db.Column(db.Boolean, index=False, nullable=False, default=False)
 
     def __repr__(self):
