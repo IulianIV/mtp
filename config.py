@@ -10,12 +10,7 @@ class Config:
     DEBUG = False
 
     if basedir == '/home/maiels/mtp':
-
-        db_u = 'maiels'
-        db_p = '4ytgM2KEAjvSWwaLR57r'
-        db_h = 'maiels.mysql.pythonanywhere-services.com'
-        db_d = 'maiels$mtpdb'
-
+        
         SQLALCHEMY_DATABASE_URI = f'mysql+mysqlconnector://{db_u}:{db_p}@{db_h}/{db_d}'
         SQLALCHEMY_TRACK_MODIFICATIONS = False
         SQLALCHEMY_POOL_RECYCLE = 299
