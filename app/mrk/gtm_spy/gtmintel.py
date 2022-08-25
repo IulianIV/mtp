@@ -779,9 +779,10 @@ class GTMIntel(object):
         for rl_set, index in zip(rules, range(0, len(rules))):
             _temp_dict = {'_conditions': list()}
             _trigger_index = {}
-            new_trigger = {}
+            # fixme the way it is set right now leads to duplication of rules and "container summary" errors.
+            new_trigger = {'_conditions': list()}
 
-            # In this case the firing or blocking condition of the rule is irrelevant. It can onyl help at counting
+            # In this case the firing or blocking condition of the rule is irrelevant. It can only help at counting
             #   how many tags is the trigger assigned to
             for rls in rl_set:
                 condition = []
