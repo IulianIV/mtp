@@ -39,6 +39,14 @@ def login_required(view):
     return wrapped_view
 
 
+"""
+Basic permission grating across URLs.
+Basically, only users that have assigned roles that correspond to the argument can be given access to the wrapped view.
+@user_roles(permitted_roles=['admin', 'editor'] --> only allows users that have user.user_role field assigned with
+'admin' or 'editor'
+"""
+
+
 def user_roles(permitted_roles):
     def decorator(view):
         @functools.wraps(view)
