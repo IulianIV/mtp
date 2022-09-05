@@ -1,7 +1,7 @@
 from flask import request, send_from_directory, render_template
 
 from app import current_app
-from app.auth.routes import login_required
+from app.manager.helpers import login_required
 from app.seo import bp
 
 
@@ -12,7 +12,6 @@ def static_from_root():
 
 
 @bp.route('/error/401')
-@login_required
 def error_401():
     pass
     return render_template('errors/401.html'), 404

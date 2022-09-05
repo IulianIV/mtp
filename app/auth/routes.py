@@ -1,5 +1,3 @@
-import functools
-
 from flask import (
     redirect, render_template, url_for
 )
@@ -8,7 +6,7 @@ from flask_login import login_user, current_user, logout_user
 from app import db
 from app.auth import bp
 from app.auth.forms import LoginForm, RegisterForm
-from app.manager.db.db_interrogations import check_existing_user, insert_user
+from app.manager.db.db_interrogations import get_existing_user_by_username, insert_user
 from app.manager.db.models import User
 from app.manager.helpers import form_validated_message, form_error_message, app_endpoints
 
@@ -33,7 +31,7 @@ def register():
         password_retype = register_form.password_retype.data
         email = register_form.email.data
 
-        username_validity = check_existing_user(username)
+        username_validity = get_existing_user_by_username(username)
 
         if password == password_retype and username_validity is None:
             form_validated_message(f'User {username} has been registered. Please log in to continue')
@@ -92,14 +90,3 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for(login_endpoint))
-
-
-def login_required(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if User.query.all() is None:
-            return redirect(url_for(login_endpoint))
-
-        return view(**kwargs)
-
-    return wrapped_view
