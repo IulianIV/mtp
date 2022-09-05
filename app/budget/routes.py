@@ -9,7 +9,7 @@ from forex_python.converter import CurrencyRates
 from wtforms.validators import ValidationError
 
 from app import db
-from app.auth.routes import login_required
+from app.manager.helpers import login_required, user_roles
 from app.budget import bp
 from app.budget import forms
 from app.manager.db.db_interrogations import (
@@ -46,6 +46,7 @@ budget_template_endpoints = {
 # TODO Make sure to add form_validation_error/success to all views.
 
 @bp.route('/')
+@user_roles(permitted_roles=['admin'])
 @login_required
 def summary():
     user_id = current_user.get_id()

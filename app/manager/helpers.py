@@ -1,12 +1,17 @@
+import functools
+
 import os
 import secrets
 from datetime import datetime
 import re
 
-from flask import Flask, flash
+from flask import Flask, flash, redirect, url_for
+from flask_login import current_user
 from wtforms.validators import ValidationError
 
 from app import Config
+from app.manager.db.models import User
+from app.manager.db.db_interrogations import get_existing_user_by_id
 
 # used across many routs. Greatly helps with code cohesion. This enables a way to male sure there are no duplicate
 # constants across the application
@@ -21,6 +26,41 @@ app_endpoints = {
 }
 
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
+
+
+def login_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if User.query.all() is None:
+            return redirect(url_for(app_endpoints['login']))
+
+        return view(**kwargs)
+
+    return wrapped_view
+
+
+"""
+Basic permission grating across URLs.
+Basically, only users that have assigned roles that correspond to the argument can be given access to the wrapped view.
+@user_roles(permitted_roles=['admin', 'editor'] --> only allows users that have user.user_role field assigned with
+'admin' or 'editor'
+"""
+
+
+def user_roles(permitted_roles):
+    def decorator(view):
+        @functools.wraps(view)
+        def admin_view(**kwargs):
+
+            now_user_id = current_user.get_id()
+            user = get_existing_user_by_id(now_user_id)
+
+            if user.user_role not in permitted_roles:
+                return redirect(url_for(app_endpoints['login']))
+
+            return view(**kwargs)
+        return admin_view
+    return decorator
 
 
 # checks if the given filename has an extension found within the allowed filetypes.

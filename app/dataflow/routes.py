@@ -4,7 +4,7 @@ from flask_dropzone import Dropzone
 from flask_wtf import FlaskForm
 from wtforms.fields import SubmitField
 
-from app.auth.routes import login_required
+from app.manager.helpers import login_required
 from app.dataflow import bp
 
 

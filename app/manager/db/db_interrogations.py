@@ -105,8 +105,14 @@ Database SELECT queries section
 """
 
 
-def check_existing_user(username):
+def get_existing_user_by_username(username):
     user = User.query.filter_by(username=username).first()
+
+    return user
+
+
+def get_existing_user_by_id(user_id: int):
+    user = User.query.filter_by(id=user_id).first()
 
     return user
 

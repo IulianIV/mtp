@@ -9,7 +9,7 @@ from app.manager.db.db_interrogations import (
     set_gtm_container_active, set_gtm_container_inactive, inactivate_all_gtm_containers,
     get_gtm_containers, update_gtm_container_data
 )
-from app.auth.routes import login_required
+from app.manager.helpers import login_required
 from app.mrk import bp
 from app.mrk.forms import ContainerLoad
 from app.mrk.gtm_spy.gtmintel import GTMIntel
