@@ -623,6 +623,12 @@ def add_utilities_entry():
                            utilities_form=utilities_form, table_counts=table_counts)
 
 
+@bp.route('/recurrent-payments', methods=('GET', 'POST'))
+@login_required
+def recurrent_payments():
+    return render_template('budget/recurrent.html')
+
+
 # TODO maybe make a better implementation of the Budget Entry Edit/Delete functionality by two different scopes:
 #   1. The current model injects a HTML string when the query to the DataBase Model is made. Maybe something with
 #   less cohesion can be made?

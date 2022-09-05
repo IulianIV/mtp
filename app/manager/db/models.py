@@ -295,3 +295,24 @@ class GTMContainers(db.Model):
 
     def __repr__(self):
         return f'GTM Container of id {self.container_id}.'
+
+
+class BudgetRecurrent(db.Model):
+    __tablename__ = 'budget_recurrent'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(user_id_fk))
+    recurrent_name = db.Column(db.String(100), nullable=False)
+    recurrent_value = db.Column(db.Float, nullable=False)
+    recurrent_status = db.Column(db.String(10), nullable=False)
+    recurrent_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'Budget recurrent {self.recurrent_status} payment number {self.id}: {self.recurrent_name} of value' \
+               f'{self.recurrent_name}'
+
+    def to_dict(self):
+
+        return {
+            'recurrent_name': self.recurrent_name,
+            'recurrent_value': self.recurrent_value
+        }
