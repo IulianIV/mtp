@@ -15,7 +15,6 @@ login_endpoint = app_endpoints['login']
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
-    # TODO check functionality and remove in future commit
 
     register_form = RegisterForm()
 
@@ -31,7 +30,6 @@ def register():
         if password == password_retype and username_validity is None:
             form_validated_message(f'User {username} has been registered. Please log in to continue')
 
-            # TODO check functionality and remove in future commit
             insert_user(username, email, password, user_role='guest')
             db.session.commit()
 
