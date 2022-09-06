@@ -5,7 +5,7 @@ import secrets
 from datetime import datetime
 import re
 
-from flask import Flask, flash, redirect, url_for
+from flask import Flask, flash, redirect, url_for, request
 from flask_login import current_user
 from wtforms.validators import ValidationError
 
@@ -32,6 +32,7 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if User.query.all() is None:
+
             return redirect(url_for(app_endpoints['login']))
 
         return view(**kwargs)
@@ -56,7 +57,11 @@ def user_roles(permitted_roles):
             user = get_existing_user_by_id(now_user_id)
 
             if user.user_role not in permitted_roles:
-                return redirect(url_for(app_endpoints['login']))
+
+                current_path = request.path
+                form_error_message(f'You do not have sufficient permission to access this view: {current_path}')
+
+                return redirect(url_for(app_endpoints['blog_index']))
 
             return view(**kwargs)
         return admin_view
