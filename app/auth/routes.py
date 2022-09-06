@@ -15,12 +15,7 @@ login_endpoint = app_endpoints['login']
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
-
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    # temporary added in deployment version to remove ability to register
-    else:
-        return redirect(url_for('index'))
+    # TODO check functionality and remove in future commit
 
     register_form = RegisterForm()
 
@@ -36,7 +31,8 @@ def register():
         if password == password_retype and username_validity is None:
             form_validated_message(f'User {username} has been registered. Please log in to continue')
 
-            insert_user(username, email, password)
+            # TODO check functionality and remove in future commit
+            insert_user(username, email, password, user_role='guest')
             db.session.commit()
 
             return redirect(url_for('index'))
