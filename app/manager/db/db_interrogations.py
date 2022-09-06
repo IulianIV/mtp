@@ -24,7 +24,6 @@ Database INSERT queries section
 
 
 def insert_user(username: str, email: str, password: str, user_role: str):
-    # TODO check functionality and remove in future commit
     user = User(username=username, email=email, user_role=user_role)
     user.set_password(password)
     return db.session.add(user)
