@@ -31,7 +31,7 @@ class User(UserMixin, db.Model):
     budget_utilities_id = db.relationship('BudgetUtilities', lazy='dynamic')
     url_decode_parse_id = db.relationship('UrlEncodeDecodeParse')
     username = db.Column(db.String(15), unique=True, nullable=False, index=True)
-    user_role = db.Column(db.String(20), nullable=False, default='guest')
+    user_role = db.Column(db.String(50), db.ForeignKey('permission_roles.role_name'), nullable=False, unique=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow())
     password_hash = db.Column(db.String(128))
     email = db.Column(db.String(120), index=True, unique=True)
@@ -60,8 +60,15 @@ class UserProfile(db.Model):
     avatar = db.Column(db.String(256), unique=False, nullable=True)
 
 
-class UserRole(db.Model):
-    __tablename__ = 'user_role'
+class PermissionRoles(db.Model):
+    __tablename__ = 'permission_roles'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_role = db.relationship('User')
+    role_name = db.Column(db.String(50), nullable=False, unique=True)
+    role_sequence = db.Column(db.BLOB, index=False, nullable=False)
+
+    def __repr__(self):
+        return f'{self.role_name} Permissions Role (Role ID: {self.id})'
 
 
 class Post(db.Model):

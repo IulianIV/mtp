@@ -5,7 +5,7 @@ from flask import render_template
 from flask_login import current_user
 
 from app.analytics import bp
-from app.manager.helpers import login_required, user_roles
+from app.manager.helpers import login_required
 from app.manager.db.db_interrogations import (
     query_expense_entries, query_revenue_entries, query_savings_entries, query_utilities_entries,
     get_expense_count, get_revenue_count, get_savings_count, get_utilities_count,
@@ -60,7 +60,7 @@ def budget_tables():
 
 
 @bp.route('/utm-stats')
-@user_roles(permitted_roles=['admin', 'guest'])
+
 @login_required
 def utm_stats():
     raw_entries = get_parsed_urls(user_id=current_user.get_id())
@@ -88,7 +88,7 @@ def utm_stats():
 
 
 # fixme To be removed in the future when module is implemented. Exists only for communication purposes
-@user_roles(permitted_roles=['admin', 'guest'])
+
 @login_required
 @bp.route('/utm-analyzer-template')
 def utm_analyzer():
