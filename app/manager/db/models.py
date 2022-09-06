@@ -60,6 +60,10 @@ class UserProfile(db.Model):
     avatar = db.Column(db.String(256), unique=False, nullable=True)
 
 
+class UserRole(db.Model):
+    __tablename__ = 'user_role'
+
+
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
