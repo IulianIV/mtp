@@ -28,46 +28,6 @@ app_endpoints = {
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
 
 
-def login_required(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if User.query.all() is None:
-
-            return redirect(url_for(app_endpoints['login']))
-
-        return view(**kwargs)
-
-    return wrapped_view
-
-
-"""
-Basic permission grating across URLs.
-Basically, only users that have assigned roles that correspond to the argument can be given access to the wrapped view.
-
-'admin' or 'editor'
-"""
-
-
-# def user_roles(permitted_roles):
-#     def decorator(view):
-#         @functools.wraps(view)
-#         def admin_view(**kwargs):
-#
-#             now_user_id = current_user.get_id()
-#             user = get_existing_user_by_id(now_user_id)
-#
-#             if user.user_role not in permitted_roles:
-#
-#                 current_path = request.path
-#                 form_error_message(f'You do not have sufficient permission to access this view: {current_path}')
-#
-#                 return redirect(url_for(app_endpoints['blog_index']))
-#
-#             return view(**kwargs)
-#         return admin_view
-#     return decorator
-
-
 # checks if the given filename has an extension found within the allowed filetypes.
 def allowed_file(filename):
     return '.' in filename and filename.split('.', 1)[1].lower() in ALLOWED_EXTENSIONS
