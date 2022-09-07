@@ -7,7 +7,7 @@ from app import db
 from app.manager.db.models import (
     User, UrlEncodeDecodeParse, BudgetExpense, BudgetRevenue, BudgetUtilities,
     BudgetSaving, ValidationSavingSources, ValidationSavingAccount, ValidationSavingReason, ValidationSavingItems,
-    ValidationSavingAction, ValidationSavingCategories, Post, GTMContainers
+    ValidationSavingAction, ValidationSavingCategories, Post, GTMContainers, PermissionRoles, RoleRules
 )
 
 # Type hinting
@@ -390,6 +390,16 @@ def gtm_container_exists(user_id: int, container_id: str):
 
 def get_gtm_containers(user_id: int):
     return GTMContainers.query.filter_by(user_id=user_id).order_by(GTMContainers.container_id).all()
+
+
+def get_user_role_rules(user_id: int):
+
+    user = User.query.filter_by(id=user_id).first()
+    user_role = user.user_role
+
+    role_rules = RoleRules.query.filter_by(role_name=user_role).group_by(RoleRules.role_rule).all()
+
+    return role_rules
 
 
 """
