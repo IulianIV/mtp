@@ -64,11 +64,21 @@ class PermissionRoles(db.Model):
     __tablename__ = 'permission_roles'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_role = db.relationship('User')
+    role_rules = db.relationship('RoleRules')
     role_name = db.Column(db.String(50), nullable=False, unique=True)
-    role_sequence = db.Column(db.BLOB, index=False, nullable=False)
 
     def __repr__(self):
         return f'{self.role_name} Permissions Role (Role ID: {self.id})'
+
+
+class RoleRules(db.Model):
+    __tablename__ = 'role_rules'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    role_name = db.Column(db.String(50), db.ForeignKey('permission_roles.role_name'), nullable=False, unique=False)
+    role_rule = db.Column(db.String(100), nullable=False, unique=False)
+
+    def __repr__(self):
+        return f'Rules table for {self.role_name}'
 
 
 class Post(db.Model):
