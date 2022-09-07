@@ -7,7 +7,7 @@ from flask import (
 )
 from flask_login import current_user
 
-from app.manager.helpers import login_required
+from app.manager.permissions.utils import login_required
 from app.manager import tests_bp
 from app.manager.db.db_interrogations import *
 from app.manager.helpers import form_validated_message, form_error_message, check_range

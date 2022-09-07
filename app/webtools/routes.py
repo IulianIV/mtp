@@ -7,7 +7,7 @@ from flask import (
 from flask_login import current_user
 
 from app import db
-from app.manager.helpers import login_required
+from app.manager.permissions.utils import login_required
 from app.manager.db.db_interrogations import (
     add_new_url,
 )

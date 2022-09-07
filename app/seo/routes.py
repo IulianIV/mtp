@@ -1,7 +1,7 @@
 from flask import request, send_from_directory, render_template
 
 from app import current_app
-from app.manager.helpers import login_required
+from app.manager.permissions.utils import login_required
 from app.seo import bp
 
 
