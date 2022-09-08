@@ -403,7 +403,7 @@ $(document).ready(function () {
 // Permissions Module Roles DataTables function
 $(document).ready(function () {
     $('a[class="btn btn-info showRoleTable"]').click(function () {
-       $('div[class="card-body user-roles"]').show();
+        $('div[class="card-body user-roles"]').show();
         $('a[class="btn btn-secondary hideRoleTable"]').show();
         $('a[class="btn btn-info showRoleTable"]').hide();
         $('a[id="user-roles"]').show();
@@ -414,3 +414,20 @@ $(document).ready(function () {
         $('a[class="btn btn-info showRoleTable"]').show();
     });
 });
+
+function hidePermissions(module_id) {
+    let module = document.getElementById(module_id + "_table_body");
+    let showButton = document.getElementById(module_id);
+
+    if (module.style.display === "none") {
+        module.style.display = "";
+        showButton.className = "btn btn-info btn-sm";
+        showButton.textContent = "Collapse";
+    } else {
+        module.style.display = "none";
+        showButton.className = "btn btn-secondary btn-sm";
+        showButton.textContent = "Expand";
+
+    }
+
+}
