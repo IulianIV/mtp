@@ -1,0 +1,41 @@
+{% extends 'permissions_base.html' %}
+{% set active_page = "all_users" %}
+
+{% block permission_content %}
+    <div class="card mb-4">
+        <div class="card-header" id="roles">
+            Roles
+            <a class="btn btn-info showRoleTable">Show table</a>
+            <a class="btn btn-secondary hideRoleTable" style="display: none;">Hide Table</a>
+        </div>
+        <div class="card-body user-roles" style="display: none;">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="user-roles" aria-describedby="expense">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">e-mail</th>
+                        <th scope="col">Role</th>
+                    </tr>
+                    </thead>
+                    <tbody class="post">
+                    {% for users in all_users %}
+                        <tr>
+                            <th class="small mb-1" scope="row">{{ users.id }}</th>
+                            <th class="small mb-1" scope="row">{{ users.username }}</th>
+                            <th class="small mb-1" scope="row">{{ users.email }}</th>
+                            <th class="small mb-1" scope="row">{{ users.user_role }}</th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    {% block scripts %}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/tables.js') }}"></script>
+    {% endblock %}
+{% endblock %}
