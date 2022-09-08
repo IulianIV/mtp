@@ -36,7 +36,7 @@ login_endpoint = app_endpoints['login']
 #   Show Arrows and Indicators. Indicators should be as many slides there are.
 # TODO if you want to add filtering/sorting the above proposed carousel implementation might not be so good.
 @bp.route('/')
-def index():
+def homepage():
     if not current_user.is_authenticated:
         return redirect(url_for(login_endpoint))
     posts = query_blog_posts()
