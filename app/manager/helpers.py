@@ -1,17 +1,12 @@
-import functools
-
 import os
 import secrets
 from datetime import datetime
 import re
 
-from flask import Flask, flash, redirect, url_for, request
-from flask_login import current_user
+from flask import Flask, flash
 from wtforms.validators import ValidationError
 
 from app import Config
-from app.manager.db.models import User
-from app.manager.db.db_interrogations import get_existing_user_by_id
 
 # used across many routs. Greatly helps with code cohesion. This enables a way to male sure there are no duplicate
 # constants across the application
@@ -25,15 +20,13 @@ app_endpoints = {
     'login': 'auth.login'
 }
 
-ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
-
 
 # checks if the given filename has an extension found within the allowed filetypes.
 def allowed_file(filename):
-    return '.' in filename and filename.split('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.split('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
 
 
-# handles deletion of images from the uploads folder on post deletion
+# handles deletion of images from the uploads' folder on post deletion
 def delete_post_image(image_name):
     root_path = Config.POST_IMAGE_UPLOAD_PATH
     post_image_path = os.path.join(root_path, image_name)
