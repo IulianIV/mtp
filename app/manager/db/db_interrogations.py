@@ -117,6 +117,13 @@ def get_existing_user_by_id(user_id: int):
     return user
 
 
+def get_all_users():
+
+    all_users = User.query.all()
+
+    return all_users
+
+
 def query_expense_entries(user_id: int):
     return BudgetExpense.query.filter_by(user_id=user_id).order_by(BudgetExpense.expense_date.desc())
 
@@ -400,6 +407,13 @@ def get_user_role_rules(user_id: int):
     role_rules = RoleRules.query.filter_by(role_name=user_role).group_by(RoleRules.role_rule).all()
 
     return role_rules
+
+
+def get_all_roles():
+
+    roles = PermissionRoles.query.all()
+
+    return roles
 
 
 """
