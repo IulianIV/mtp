@@ -22,6 +22,7 @@ def convert_url_map_to_module_map(url_map: Iterator, skip_list: list = None) -> 
     rule_map = url_map
 
     module_map = defaultdict(list)
+    module_map['All'] = list()
 
     for rule in rule_map:
         module = rule.endpoint
@@ -62,6 +63,9 @@ def requires_permissions(view):
 
         current_endpoint = view.__name__
 
+        if 'Admin' in role_rules:
+            return view(**kwargs)
+
         if current_endpoint not in role_rules:
             current_path = request.path
             form_error_message(f'You do not have sufficient permission to access this view: {current_path}')
@@ -73,30 +77,45 @@ def requires_permissions(view):
     return permission_wall
 
 
-# Needed to simply/complete the user given rule list
 def process_rule_list(rule_list: list, modules_list: dict):
-    rules = rule_list
+    """
+    Creates a new list of rules from the user selected rule set.
+    If there are any parent rules selected, appends the whole module as role rules.
+    Eliminates' rules that already exist as parent children.
+    Keeps orphan rules.
+
+    :param rule_list: list of user selected rules
+    :type rule_list: list
+    :param modules_list: list of existing modules and possible rules
+    :type modules_list: dict
+    :return: returns list of rules for given role
+    :rtype: list
+    """
     new_rule_list = list()
     parent_list = list()
 
-    if rules is None or rules == []:
+    if 'All' in rule_list:
+
+        new_rule_list.append('Admin')
+
+        return new_rule_list
+
+    if rule_list is None or rule_list == []:
         return ValueError('primary argument can not be empty or None')
 
-    for rule in rules:
+    for rule in rule_list:
         if rule in modules_list.keys():
             parent_list.append(rule)
-            rules.remove(rule)
 
     for parent in parent_list:
-        for rule in rules:
-            if rule in modules_list[parent]:
-                rules.remove(rule)
-            else:
-                rules.append(rule)
+        rule_list.remove(parent)
 
-    new_rule_list.extend(rules)
+        for child in modules_list[parent]:
+            if child in rule_list:
+                rule_list.remove(child)
 
-    print(rules)
+        new_rule_list.extend(modules_list[parent])
 
+    new_rule_list.extend(rule_list)
 
     return new_rule_list
