@@ -4,7 +4,7 @@ from flask import (
 from flask_login import current_user
 
 from app import db
-from app.manager.permissions.utils import login_required
+from app.manager.permissions.utils import login_required, requires_permissions
 from app.blog import bp
 from app.blog.forms import AddPost, UpdatePost
 from app.manager.db.db_interrogations import (
@@ -45,7 +45,7 @@ def homepage():
 
 
 @bp.route('/create', methods=('GET', 'POST'))
-
+@requires_permissions
 @login_required
 def create():
     create_post_form = AddPost()
@@ -80,7 +80,7 @@ def create():
 
 # TODO add a way to delete post images on request.
 @bp.route('/<int:post_id>/update', methods=('GET', 'POST'))
-
+@requires_permissions
 @login_required
 def update(post_id):
     update_form = UpdatePost()
@@ -120,7 +120,7 @@ def update(post_id):
 # better-me Add conditional that logged in user can only delete his own posts.
 #   FE wise the button is not accessible but if they access by URL any post can be deleted.
 @bp.route('/<int:post_id>/delete', methods=('POST', 'GET'))
-
+@requires_permissions
 @login_required
 def delete(post_id):
     user_id = current_user.get_id()
