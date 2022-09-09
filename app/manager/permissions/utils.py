@@ -9,13 +9,13 @@ from flask_login import current_user
 
 from app.manager.helpers import extract_nested_strings
 from app.manager.db.models import User
-from app.manager.db.db_interrogations import get_existing_user_by_id, get_user_role_rules
+from app.manager.db.db_interrogations import get_user_role_rules
 
 from app.manager.helpers import app_endpoints, form_error_message
 
 
 # Converts a Werkzeug url_map to a user and computer friendly module mapping
-def convert_url_map_to_module_map(url_map: Iterator, skip_list: list = None):
+def convert_url_map_to_module_map(url_map: Iterator, skip_list: list = None) -> dict:
     if skip_list is None:
         skip_list = []
 
@@ -71,3 +71,32 @@ def requires_permissions(view):
         return view(**kwargs)
 
     return permission_wall
+
+
+# Needed to simply/complete the user given rule list
+def process_rule_list(rule_list: list, modules_list: dict):
+    rules = rule_list
+    new_rule_list = list()
+    parent_list = list()
+
+    if rules is None or rules == []:
+        return ValueError('primary argument can not be empty or None')
+
+    for rule in rules:
+        if rule in modules_list.keys():
+            parent_list.append(rule)
+            rules.remove(rule)
+
+    for parent in parent_list:
+        for rule in rules:
+            if rule in modules_list[parent]:
+                rules.remove(rule)
+            else:
+                rules.append(rule)
+
+    new_rule_list.extend(rules)
+
+    print(rules)
+
+
+    return new_rule_list
