@@ -4,7 +4,7 @@ from flask import (
 from app.manager.permissions.utils import login_required, requires_permissions,\
     convert_url_map_to_module_map, process_rule_list
 from app.manager.permissions import bp
-from app.manager.db.db_interrogations import get_all_roles, get_all_users
+from app.manager.db.db_interrogations import get_all_roles, get_all_users, create_new_role
 from app.manager.helpers import form_validated_message, form_error_message
 from app import Config
 
@@ -34,26 +34,21 @@ def user_roles():
     if request.method == 'POST':
         if rules_form.is_submitted() and rules_form.validate_on_submit():
             selected_modules_list = request.form.getlist('module_name')
-
-            print(selected_modules_list)
-
+            role_name = rules_form.role_name.data
 
             rule_list = process_rule_list(selected_modules_list, module_map)
 
+            create_new_role(role_name, rule_list)
 
             if selected_modules_list == ['']:
-                form_error_message('You can not create a Role with no rules.')
+                form_error_message("You can't create a Role with no rules.")
 
                 return redirect(url_for('permissions.user_roles'))
 
-            form_validated_message(f'New role "{rules_form.role_name.data}" '
+            form_validated_message(f'New role "{role_name}" '
                                    f'has been submitted. It will become available in a few moments')
 
             return redirect(url_for('permissions.user_roles'))
-
-            # add function that processes the selected list.
-            # if in the selected list is a Parent module name remove parent, remove children and
-            # re-populate with parents children (basically give module wide access)
 
     return render_template('manager/permissions/user_roles.html', rules_form=rules_form,
                            module_map=module_map, all_roles=all_roles)
