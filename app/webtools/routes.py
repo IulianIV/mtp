@@ -7,7 +7,7 @@ from flask import (
 from flask_login import current_user
 
 from app import db
-from app.manager.permissions.utils import login_required
+from app.manager.permissions.utils import login_required, requires_permissions
 from app.manager.db.db_interrogations import (
     add_new_url,
 )
@@ -33,7 +33,7 @@ encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424', 'cp437', '
 
 
 @bp.route('/url-encode-decode-parser', methods=('GET', 'POST'))
-
+@requires_permissions
 @login_required
 def url_encode_decode_parse():
 
@@ -120,7 +120,7 @@ def url_encode_decode_parse():
 # TODO will check a URL, return its HTTP response, generate a preview, read and print OpenGraph data and preview it
 #   for multiple social media websites and print JSON-LD schema if present and the type of structured data it holds.
 @bp.route('/url-checker', methods=('GET', 'POST'))
-
+@requires_permissions
 @login_required
 def url_checker():
 

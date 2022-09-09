@@ -9,7 +9,7 @@ from app.manager.db.db_interrogations import (
     set_gtm_container_active, set_gtm_container_inactive, inactivate_all_gtm_containers,
     get_gtm_containers, update_gtm_container_data
 )
-from app.manager.permissions.utils import login_required
+from app.manager.permissions.utils import login_required, requires_permissions
 from app.mrk import bp
 from app.mrk.forms import ContainerLoad
 from app.mrk.gtm_spy.gtmintel import GTMIntel
@@ -24,6 +24,7 @@ from app.manager.helpers import gtm_trigger_len, extract_nested_strings, form_va
 # TODO add modal preview for lists and certain variables
 
 @bp.context_processor
+@requires_permissions
 @login_required
 def inject_containers():
 
@@ -36,7 +37,7 @@ def inject_containers():
 
 
 @bp.route('/gtm-spy/', methods=('GET', 'POST'))
-
+@requires_permissions
 @login_required
 def gtm_intel():
     container_id_form = ContainerLoad()
@@ -77,7 +78,7 @@ def gtm_intel():
 
 
 @bp.route('/gtm-spy/summary', methods=('GET', 'POST'))
-
+@requires_permissions
 @login_required
 def gtm_intel_summary():
     container_id_form = ContainerLoad()
@@ -106,7 +107,7 @@ def gtm_intel_summary():
 
 
 @bp.route('/gtm-spy/tags', methods=('GET', 'POST'))
-
+@requires_permissions
 @login_required
 def gtm_intel_tags():
     container_id_form = ContainerLoad()
@@ -153,7 +154,7 @@ def gtm_intel_tags():
 
 
 @bp.route('/gtm-spy/triggers', methods=('GET', 'POST'))
-
+@requires_permissions
 @login_required
 def gtm_intel_triggers():
     container_id_form = ContainerLoad()
