@@ -16,7 +16,7 @@ app_endpoints = {
     'savings_entry_endpoint': 'budget.add_savings_entry',
     'validation_endpoint': 'budget.validation',
     'utilities_entry_endpoint': 'budget.add_utilities_entry',
-    'blog_index': 'blog.index',
+    'blog_index': 'blog.homepage',
     'login': 'auth.login'
 }
 
