@@ -100,6 +100,16 @@ def insert_gtm_container(user: int, container_id: str, container_data: bytes):
                                         container_data=container_data, is_active=False))
 
 
+def create_new_role(role_name: str, role_rules: list):
+
+    db.session.add(PermissionRoles(role_name=role_name))
+
+    for rule in role_rules:
+        db.session.add(RoleRules(role_name=role_name, role_rule=rule))
+
+    return db.session.commit()
+
+
 """
 Database SELECT queries section
 """
