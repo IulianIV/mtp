@@ -526,6 +526,14 @@ def update_gtm_container_data(user_id: int, container_id: str, container_data):
     db.session.commit()
 
 
+def update_permissions_role(user_id: str, new_role: str):
+    user = User.query.filter_by(id=user_id).first()
+
+    user.user_role = new_role
+
+    db.session.commit()
+
+
 """
 Database DELETE queries section
 """
