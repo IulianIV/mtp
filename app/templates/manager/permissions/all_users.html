@@ -17,15 +17,42 @@
                         <th scope="col">Name</th>
                         <th scope="col">e-mail</th>
                         <th scope="col">Role</th>
+                        <th scope="col">Entry options</th>
+                        <th scope="col">Edit role</th>
                     </tr>
                     </thead>
                     <tbody class="post">
-                    {% for users in all_users %}
+                    {% for user in all_users %}
+                        {% set roles = all_roles %}
                         <tr>
-                            <th class="small mb-1" scope="row">{{ users.id }}</th>
-                            <th class="small mb-1" scope="row">{{ users.username }}</th>
-                            <th class="small mb-1" scope="row">{{ users.email }}</th>
-                            <th class="small mb-1" scope="row">{{ users.user_role }}</th>
+                            <th class="small mb-1" scope="row">{{ user['id'] }}</th>
+                            <th class="small mb-1" scope="row">{{ user['username'] }}</th>
+                            <th class="small mb-1" scope="row">{{ user['email'] }}</th>
+                            <th class="small mb-1" scope="row">
+                                <select class="form-select py-4" form="user-roles-form" id="user_role_select_{{ user['id'] }}"
+                                        name="user_role_select" required="">
+                                    {% for role in roles %}
+                                        {% if role.role_name == user['user_role'] %}
+                                            <option value="{{ user['user_role'] }}"
+                                                    selected="{{ user['user_role'] }}" user_id="{{ user['id'] }}">{{ user['user_role'] }}</option>
+                                        {% else %}
+                                            <option value="{{ role.role_name }}" user_id="{{ user['id'] }}">{{ role.role_name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </th>
+                            <th class="small mb-1" scope="row">
+                                {{ user['entry_options'] | safe }}
+                            </th>
+                            <th class="small mb-1" scope="row">
+                                <div class="form-check">
+                                    <input class="form-check-input big-checkbox" type="checkbox"
+                                           id="user_roles_checkbox" value=""
+                                           form='permissions-form' name="user_roles_checkbox">
+                                    <label class="form-check-label" for="user_roles_checkbox">
+                                    </label>
+                                </div>
+                            </th>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -37,5 +64,6 @@
 
     {% block scripts %}
         <script type="text/javascript" src="{{ url_for('static', filename='js/tables.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/helpers.js') }}"></script>
     {% endblock %}
 {% endblock %}
