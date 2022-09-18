@@ -10,7 +10,8 @@ from werkzeug.utils import secure_filename
 from app import Config
 from app import db
 from app.api import bp
-from app.manager.db.db_interrogations import get_expense_count_by_category, get_expense_count_by_item
+from app.manager.db.db_interrogations import get_expense_count_by_category,\
+    get_expense_count_by_item, update_permissions_role
 from app.manager.db.models import BudgetExpense, BudgetRevenue, BudgetSaving, BudgetUtilities
 from app.manager.helpers import expense_count_to_json, allowed_file, form_error_message
 
@@ -161,3 +162,14 @@ def save_post_image():
 def load_post_image(filename):
 
     return send_from_directory(Config.POST_IMAGE_UPLOAD_PATH, filename, as_attachment=True)
+
+
+@bp.route('/update-user-role', methods=('GET', 'POST'))
+def update_user_role():
+
+    user_id = request.args.get('user_id')
+    new_role = request.args.get('user_new_role')
+
+    update_permissions_role(user_id, new_role)
+
+    return json.dumps(200)
