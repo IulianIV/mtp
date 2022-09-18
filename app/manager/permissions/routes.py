@@ -60,5 +60,13 @@ def user_roles():
 def all_users():
 
     users = get_all_users()
+    all_roles = get_all_roles()
 
-    return render_template('manager/permissions/all_users.html', all_users=users)
+    users = [user.user_role_dict() for user in users]
+
+    reload_arg = request.args.get('success')
+
+    if reload_arg == '1':
+        form_validated_message('Data sent successfully!')
+
+    return render_template('manager/permissions/all_users.html', all_users=users, all_roles=all_roles)
