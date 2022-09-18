@@ -6,6 +6,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import login, db
+from app.manager.helpers import generate_table_entry_button
 
 # TODO Add permissions Table and migrate/upgrade
 # TODO add last_seen logic
@@ -47,6 +48,20 @@ class User(UserMixin, db.Model):
     def avatar(self, size):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
+
+    def user_role_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'user_role': self.user_role,
+            'entry_options': generate_table_entry_button(endpoint='', endpoint_arguments=dict(),
+                                                         css_class='btn btn-success', button_text='Save',
+                                                         tag='button',
+                                                         extra_attrs={'id': self.id,
+                                                                      # 'onClick': "changeRole(this.id)",
+                                                                      'type': 'button'})
+        }
 
     def __repr__(self):
         return f'User: {self.username}, with id: {self.id}'
@@ -106,7 +121,6 @@ class BudgetRevenue(db.Model):
         return f'Budget revenue ID: {self.id}'
 
     def to_dict(self):
-
         entry_date = self.revenue_date
         formatted_date = entry_date.strftime(fe_date_format)
 
@@ -115,11 +129,11 @@ class BudgetRevenue(db.Model):
             'revenue_date': formatted_date,
             'revenue_value': self.revenue_value,
             'revenue_source': self.revenue_source,
-            'entry_options': '<a href="'
-                             + url_for('budget.update_revenue_entries', revenue_id=self.id) +
-                             '"class="btn btn-primary">Edit</a>&nbsp;<a href="'
-                             + url_for('budget.delete_revenue_entries', revenue_id=self.id) +
-                             '" class="btn btn-danger">Delete</a>'
+            'entry_options': generate_table_entry_button('budget.update_revenue_entries', {'revenue_id': self.id},
+                                                         button_text='Edit', append_nbsp=True)
+                             + generate_table_entry_button('budget.delete_revenue_entries',
+                                                           {'revenue_id': self.id}, button_text='Delete',
+                                                           css_class='btn btn-danger')
         }
 
 
@@ -140,7 +154,6 @@ class BudgetSaving(db.Model):
         return f'Budget saving ID: {self.id}'
 
     def to_dict(self):
-
         entry_date = self.saving_date
         formatted_date = entry_date.strftime(fe_date_format)
 
@@ -151,11 +164,11 @@ class BudgetSaving(db.Model):
             'saving_source': self.saving_source,
             'saving_reason': self.saving_reason,
             'saving_action': self.saving_action,
-            'entry_options': '<a href="'
-                             + url_for('budget.update_saving_entries', saving_id=self.id) +
-                             '"class="btn btn-primary">Edit</a>&nbsp;<a href="'
-                             + url_for('budget.delete_saving_entries', saving_id=self.id) +
-                             '" class="btn btn-danger">Delete</a>'
+            'entry_options': generate_table_entry_button('budget.update_saving_entries', {'saving_id': self.id},
+                                                         append_nbsp=True, button_text='Edit')
+                             + generate_table_entry_button('budget.delete_saving_entries',
+                                                           {'saving_id': self.id}, button_text='Delete',
+                                                           css_class='btn btn-danger')
         }
 
 
@@ -174,7 +187,6 @@ class BudgetExpense(db.Model):
         return f'Budget expense ID: {self.id}'
 
     def to_dict(self):
-
         entry_date = self.expense_date
         formatted_date = entry_date.strftime(fe_date_format)
 
@@ -185,11 +197,11 @@ class BudgetExpense(db.Model):
             'expense_value': self.expense_value,
             'expense_item_category': self.expense_item_category,
             'expense_source': self.expense_source,
-            'entry_options': '<a href="'
-                             + url_for('budget.update_expense_entries', expense_id=self.id) +
-                             '"class="btn btn-primary">Edit</a>&nbsp;<a href="'
-                             + url_for('budget.delete_expense_entries', expense_id=self.id) +
-                             '" class="btn btn-danger">Delete</a>'
+            'entry_options': generate_table_entry_button('budget.update_expense_entries', {'expense_id': self.id},
+                                                         append_nbsp=True, button_text='Edit')
+                             + generate_table_entry_button('budget.delete_expense_entries',
+                                                           {'expense_id': self.id}, button_text='Delete',
+                                                           css_class='btn btn-danger')
         }
 
 
@@ -209,7 +221,6 @@ class BudgetUtilities(db.Model):
         return f'Budget utilities id: {self.id}'
 
     def to_dict(self):
-
         entry_date = self.utilities_date
         formatted_date = entry_date.strftime(fe_date_format)
 
@@ -222,11 +233,11 @@ class BudgetUtilities(db.Model):
             'utilities_maintenance_value': self.utilities_maintenance_value,
             'utilities_info': self.utilities_info,
             'budget_source': self.budget_source,
-            'entry_options': '<a href="'
-                             + url_for('budget.update_utilities_entry', utility_id=self.id) +
-                             '"class="btn btn-primary">Edit</a>&nbsp;<a href="'
-                             + url_for('budget.delete_utilities_entry', utility_id=self.id) +
-                             '" class="btn btn-danger">Delete</a>'
+            'entry_options': generate_table_entry_button('budget.update_utilities_entry', {'utility_id': self.id},
+                                                         append_nbsp=True, button_text='Edit')
+                             + generate_table_entry_button('budget.update_utilities_entry',
+                                                           {'utility_id': self.id}, button_text='Delete',
+                                                           css_class='btn btn-danger')
         }
 
 
