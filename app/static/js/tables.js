@@ -414,20 +414,3 @@ $(document).ready(function () {
         $('a[class="btn btn-info showRoleTable"]').show();
     });
 });
-
-function hidePermissions(module_id) {
-    let module = document.getElementById(module_id + "_table_body");
-    let showButton = document.getElementById(module_id);
-
-    if (module.style.display === "none") {
-        module.style.display = "";
-        showButton.className = "btn btn-info btn-sm";
-        showButton.textContent = "Collapse";
-    } else {
-        module.style.display = "none";
-        showButton.className = "btn btn-secondary btn-sm";
-        showButton.textContent = "Expand";
-
-    }
-
-}
