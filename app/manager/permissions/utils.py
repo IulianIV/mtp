@@ -53,6 +53,9 @@ def login_required(view):
     return wrapped_view
 
 
+# check closed issue 69 (https://github.com/IulianIV/mtp/issues/69)
+            # this is not ideal for every possible situation and should only be used
+            # on template rendering functions
 def requires_permissions(view):
     @functools.wraps(view)
     def permission_wall(**kwargs):
