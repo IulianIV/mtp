@@ -24,8 +24,6 @@ from app.manager.helpers import gtm_trigger_len, extract_nested_strings, form_va
 # TODO add modal preview for lists and certain variables
 
 @bp.context_processor
-@requires_permissions
-@login_required
 def inject_containers():
 
     user_id = current_user.get_id()
