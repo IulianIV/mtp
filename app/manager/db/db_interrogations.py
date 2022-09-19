@@ -7,7 +7,7 @@ from app import db
 from app.manager.db.models import (
     User, UrlEncodeDecodeParse, BudgetExpense, BudgetRevenue, BudgetUtilities,
     BudgetSaving, ValidationSavingSources, ValidationSavingAccount, ValidationSavingReason, ValidationSavingItems,
-    ValidationSavingAction, ValidationSavingCategories, Post, GTMContainers
+    ValidationSavingAction, ValidationSavingCategories, Post, GTMContainers, PermissionRoles, RoleRules
 )
 
 # Type hinting
@@ -100,6 +100,16 @@ def insert_gtm_container(user: int, container_id: str, container_data: bytes):
                                         container_data=container_data, is_active=False))
 
 
+def create_new_role(role_name: str, role_rules: list):
+
+    db.session.add(PermissionRoles(role_name=role_name))
+
+    for rule in role_rules:
+        db.session.add(RoleRules(role_name=role_name, role_rule=rule))
+
+    return db.session.commit()
+
+
 """
 Database SELECT queries section
 """
@@ -115,6 +125,13 @@ def get_existing_user_by_id(user_id: int):
     user = User.query.filter_by(id=user_id).first()
 
     return user
+
+
+def get_all_users():
+
+    all_users = User.query.all()
+
+    return all_users
 
 
 def query_expense_entries(user_id: int):
@@ -392,6 +409,23 @@ def get_gtm_containers(user_id: int):
     return GTMContainers.query.filter_by(user_id=user_id).order_by(GTMContainers.container_id).all()
 
 
+def get_user_role_rules(user_id: int):
+
+    user = User.query.filter_by(id=user_id).first()
+    user_role = user.user_role
+
+    role_rules = RoleRules.query.filter_by(role_name=user_role).group_by(RoleRules.role_rule).all()
+
+    return role_rules
+
+
+def get_all_roles():
+
+    roles = PermissionRoles.query.all()
+
+    return roles
+
+
 """
 Database UPDATE queries section
 """
@@ -488,6 +522,14 @@ def update_gtm_container_data(user_id: int, container_id: str, container_data):
     container = GTMContainers.query.filter_by(user_id=user_id, container_id=container_id).first()
 
     container.container_data = container_data
+
+    db.session.commit()
+
+
+def update_permissions_role(user_id: str, new_role: str):
+    user = User.query.filter_by(id=user_id).first()
+
+    user.user_role = new_role
 
     db.session.commit()
 

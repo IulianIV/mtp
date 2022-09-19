@@ -1,0 +1,69 @@
+{% extends 'permissions_base.html' %}
+{% set active_page = "all_users" %}
+
+{% block permission_content %}
+    <div class="card mb-4">
+        <div class="card-header" id="roles">
+            Roles
+            <a class="btn btn-info showRoleTable">Show table</a>
+            <a class="btn btn-secondary hideRoleTable" style="display: none;">Hide Table</a>
+        </div>
+        <div class="card-body user-roles" style="display: none;">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="user-roles" aria-describedby="expense">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">e-mail</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Entry options</th>
+                        <th scope="col">Edit role</th>
+                    </tr>
+                    </thead>
+                    <tbody class="post">
+                    {% for user in all_users %}
+                        {% set roles = all_roles %}
+                        <tr>
+                            <th class="small mb-1" scope="row">{{ user['id'] }}</th>
+                            <th class="small mb-1" scope="row">{{ user['username'] }}</th>
+                            <th class="small mb-1" scope="row">{{ user['email'] }}</th>
+                            <th class="small mb-1" scope="row">
+                                <select class="form-select py-4" form="user-roles-form" id="user_role_select_{{ user['id'] }}"
+                                        name="user_role_select" required="">
+                                    {% for role in roles %}
+                                        {% if role.role_name == user['user_role'] %}
+                                            <option value="{{ user['user_role'] }}"
+                                                    selected="{{ user['user_role'] }}" user_id="{{ user['id'] }}">{{ user['user_role'] }}</option>
+                                        {% else %}
+                                            <option value="{{ role.role_name }}" user_id="{{ user['id'] }}">{{ role.role_name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </th>
+                            <th class="small mb-1" scope="row">
+                                {{ user['entry_options'] | safe }}
+                            </th>
+                            <th class="small mb-1" scope="row">
+                                <div class="form-check">
+                                    <input class="form-check-input big-checkbox" type="checkbox"
+                                           id="user_roles_checkbox" value=""
+                                           form='permissions-form' name="user_roles_checkbox">
+                                    <label class="form-check-label" for="user_roles_checkbox">
+                                    </label>
+                                </div>
+                            </th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    {% block scripts %}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/tables.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/helpers.js') }}"></script>
+    {% endblock %}
+{% endblock %}
