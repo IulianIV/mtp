@@ -9,7 +9,7 @@ from forex_python.converter import CurrencyRates
 from wtforms.validators import ValidationError
 
 from app import db
-from app.auth.routes import login_required
+from app.manager.permissions.utils import login_required, requires_permissions
 from app.budget import bp
 from app.budget import forms
 from app.manager.db.db_interrogations import (
@@ -48,6 +48,7 @@ budget_template_endpoints = {
 # TODO Make sure to add form_validation_error/success to all views.
 
 @bp.route('/')
+@requires_permissions
 @login_required
 def summary():
     user_id = current_user.get_id()
@@ -104,6 +105,7 @@ def summary():
 
 
 @bp.route('/new-expense-entry', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def add_expense_entry():
     user_id = current_user.get_id()
@@ -141,6 +143,7 @@ def add_expense_entry():
 
 
 @bp.route('/new-revenue-entry', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def add_revenue_entry():
     user_id = current_user.get_id()
@@ -173,6 +176,7 @@ def add_revenue_entry():
 
 
 @bp.route('/new-savings-entry', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def add_savings_entry():
     user_id = current_user.get_id()
@@ -221,6 +225,7 @@ def add_savings_entry():
 #   Current problem resides at the Form Initialization level
 #   Can't get context to push.
 @bp.route('/validation', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def validation():
     # noinspection PyShadowingNames
@@ -254,6 +259,7 @@ def validation():
 
 
 @bp.route('/validation/items', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def validation_items():
     # noinspection PyShadowingNames
@@ -313,6 +319,7 @@ def validation_items():
 
 
 @bp.route('/validation/category', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def validation_categories():
     # noinspection PyShadowingNames
@@ -365,6 +372,7 @@ def validation_categories():
 
 
 @bp.route('/validation/sources', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def validation_sources():
     # noinspection PyShadowingNames
@@ -421,6 +429,7 @@ def validation_sources():
 
 
 @bp.route('/validation/accounts', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def validation_accounts():
     # noinspection PyShadowingNames
@@ -477,6 +486,7 @@ def validation_accounts():
 
 
 @bp.route('/validation/actions', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def validation_actions():
     # noinspection PyShadowingNames
@@ -535,6 +545,7 @@ def validation_actions():
 
 
 @bp.route('/validation/reasons', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def validation_reasons():
     # noinspection PyShadowingNames
@@ -591,6 +602,7 @@ def validation_reasons():
 
 
 @bp.route('/new-utilities-entry', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def add_utilities_entry():
     user_id = current_user.get_id()
@@ -708,6 +720,7 @@ def recurrent_payments():
 #   i.e. eventually remove having 5 different "update" and "delete" functions for each budget entry.
 # TODO add is_validated() and/or is_submitted() conditional in IF clause.
 @bp.route('/utilities-update/<int:utility_id>', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def update_utilities_entry(utility_id):
     utility_update_form = forms.UpdateUtilitiesEntry()
@@ -747,6 +760,7 @@ def update_utilities_entry(utility_id):
 
 # fixme apparently the form accepts future dates.
 @bp.route('/revenue-update/<int:revenue_id>', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def update_revenue_entries(revenue_id):
     revenue_update_form = forms.UpdateRevenueEntry()
@@ -777,6 +791,7 @@ def update_revenue_entries(revenue_id):
 
 
 @bp.route('/expense-update/<int:expense_id>', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def update_expense_entries(expense_id):
     expense_update_form = forms.UpdateExpenseEntry()
@@ -813,6 +828,7 @@ def update_expense_entries(expense_id):
 
 
 @bp.route('/saving-update/<int:saving_id>', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def update_saving_entries(saving_id):
     saving_update_form = forms.UpdateSavingsEntry()
@@ -855,6 +871,7 @@ def update_saving_entries(saving_id):
 
 
 @bp.route('/utilities-delete/<int:utility_id>', methods=('POST', 'GET'))
+@requires_permissions
 @login_required
 def delete_utilities_entry(utility_id):
     user_id = current_user.get_id()
@@ -866,6 +883,7 @@ def delete_utilities_entry(utility_id):
 
 
 @bp.route('/revenue-delete/<int:revenue_id>', methods=('POST', 'GET'))
+@requires_permissions
 @login_required
 def delete_revenue_entries(revenue_id):
     user_id = current_user.get_id()
@@ -877,6 +895,7 @@ def delete_revenue_entries(revenue_id):
 
 
 @bp.route('/expense-delete/<int:expense_id>', methods=('POST', 'GET'))
+@requires_permissions
 @login_required
 def delete_expense_entries(expense_id):
     user_id = current_user.get_id()
@@ -888,6 +907,7 @@ def delete_expense_entries(expense_id):
 
 
 @bp.route('/saving-delete/<int:saving_id>', methods=('POST', 'GET'))
+@requires_permissions
 @login_required
 def delete_saving_entries(saving_id):
     user_id = current_user.get_id()

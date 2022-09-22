@@ -3,7 +3,7 @@ import secrets
 from datetime import datetime
 import re
 
-from flask import Flask, flash
+from flask import Flask, flash, url_for
 from wtforms.validators import ValidationError
 
 from app import Config
@@ -17,19 +17,17 @@ app_endpoints = {
     'recurrent_entry_endpoint': 'budget.recurrent_payments',
     'validation_endpoint': 'budget.validation',
     'utilities_entry_endpoint': 'budget.add_utilities_entry',
-    'blog_index': 'blog.index',
+    'blog_index': 'blog.homepage',
     'login': 'auth.login'
 }
-
-ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
 
 
 # checks if the given filename has an extension found within the allowed filetypes.
 def allowed_file(filename):
-    return '.' in filename and filename.split('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.split('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
 
 
-# handles deletion of images from the uploads folder on post deletion
+# handles deletion of images from the uploads' folder on post deletion
 def delete_post_image(image_name):
     root_path = Config.POST_IMAGE_UPLOAD_PATH
     post_image_path = os.path.join(root_path, image_name)
@@ -56,7 +54,6 @@ def post_image_rename(image_uuid):
 class CustomCSRF:
 
     def __init__(self):
-
         app = Flask(__name__)
 
         app.config['SECRET_KEY'] = f'{secrets.token_hex(16)}'
@@ -112,7 +109,6 @@ class CheckForNumber(object):
 
 # Used in faker functionality to check that given input is indeed range type
 def check_range(ranged_faker_func):
-
     def wrapper(*args):
         range_nums = args[0].split('-')
 
@@ -206,3 +202,63 @@ def extract_trigger_id(trigger_id: str) -> str:
     trigger_id = re.sub(r'([0-9]+)_[0-9]+_([0-9]+)', r'\1_\2', vtp_firing_id)
 
     return trigger_id
+
+
+# TODO maybe make a better template out of the two functions down here
+
+
+def generate_table_entry_button(endpoint: str = None, endpoint_arguments: dict = None, extra_attrs: dict = None,
+                                css_class: str = None, button_text: str = '', append_nbsp: bool = False,
+                                tag: str = 'a', literal_endpoint: bool = False):
+    """
+    Generates an edit button that can be used in database entry editing
+
+    :param endpoint: URL of page to open. Must be Flask like.
+    :type endpoint: str
+    :param endpoint_arguments: Arguments to pass to url_for function
+    :type endpoint_arguments: dict
+    :param css_class: Styling class for button. Defaults to 'btn btn-primary'
+    :type css_class: str
+    :param button_text: Button text. Defaults to 'Edit'
+    :type button_text: str
+    :param append_nbsp: Necessary in some cases. Appends a '&nbsp;' at the end of the string.
+    :type append_nbsp: bool
+    :param tag: On occasion the tag type can be changed to fit different needs
+    :type tag: str
+    :param extra_attrs: Extra attributes to add to tag
+    :type extra_attrs: dict
+    :param literal_endpoint: Wheter to consider the given endpoint as literal
+    :type literal_endpoint: bool
+    :return: styled anchor tag leading to a database entry edit
+    :rtype: str
+    """
+    if css_class is None:
+        css_class = 'btn btn-primary'
+
+    if append_nbsp:
+        nbsp = '&nbsp;'
+    else:
+        nbsp = ''
+
+    if endpoint is None:
+        endpoint = '#'
+    elif endpoint == '':
+        endpoint = ''
+    elif not literal_endpoint:
+        endpoint = url_for(endpoint, **endpoint_arguments)
+
+    def parse_extattr(extra_attributes: dict):
+
+        attributes = ''
+
+        if extra_attributes is None:
+            return ''
+
+        for key, value in extra_attributes.items():
+            attributes += f'{key}={value} '
+
+        return attributes
+
+    edit_button = f'<{tag} href="{endpoint}" class="{css_class}" {parse_extattr(extra_attrs)}>{button_text}</{tag}>{nbsp}'
+
+    return edit_button

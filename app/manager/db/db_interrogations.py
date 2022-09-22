@@ -7,7 +7,8 @@ from app import db
 from app.manager.db.models import (
     User, UrlEncodeDecodeParse, BudgetExpense, BudgetRevenue, BudgetUtilities,
     BudgetSaving, ValidationSavingSources, ValidationSavingAccount, ValidationSavingReason, ValidationSavingItems,
-    ValidationSavingAction, ValidationSavingCategories, Post, GTMContainers, BudgetRecurrent
+    ValidationSavingAction, ValidationSavingCategories, Post, GTMContainers, PermissionRoles, RoleRules, BudgetRecurrent
+
 )
 
 current_month = datetime.now().month
@@ -20,8 +21,8 @@ Database INSERT queries section
 """
 
 
-def insert_user(username: str, email: str, password: str):
-    user = User(username=username, email=email)
+def insert_user(username: str, email: str, password: str, user_role: str):
+    user = User(username=username, email=email, user_role=user_role)
     user.set_password(password)
     return db.session.add(user)
 
@@ -119,19 +120,39 @@ def send_recurrent_pay(user, date: datetime, recurrent_name: str, value: str):
         insert_expense(user, date, recurrent_name, value, 'Bank')
 
         return db.session.commit()
-    
 
-    
+def create_new_role(role_name: str, role_rules: list):
+
+    db.session.add(PermissionRoles(role_name=role_name))
+
+    for rule in role_rules:
+        db.session.add(RoleRules(role_name=role_name, role_rule=rule))
+
+    return db.session.commit()
+
 
 """
 Database SELECT queries section
 """
 
 
-def check_existing_user(username):
+def get_existing_user_by_username(username):
     user = User.query.filter_by(username=username).first()
 
     return user
+
+
+def get_existing_user_by_id(user_id: int):
+    user = User.query.filter_by(id=user_id).first()
+
+    return user
+
+
+def get_all_users():
+
+    all_users = User.query.all()
+
+    return all_users
 
 
 def query_expense_entries(user_id: int):
@@ -406,8 +427,25 @@ def get_gtm_containers(user_id: int):
     return GTMContainers.query.filter_by(user_id=user_id).order_by(GTMContainers.container_id).all()
 
 
+
 def get_recurrent_payments(user_id: int):
     return BudgetRecurrent.query.filter_by(user_id=user_id).order_by(BudgetRecurrent.recurrent_name).all()
+
+def get_user_role_rules(user_id: int):
+
+    user = User.query.filter_by(id=user_id).first()
+    user_role = user.user_role
+
+    role_rules = RoleRules.query.filter_by(role_name=user_role).group_by(RoleRules.role_rule).all()
+
+    return role_rules
+
+
+def get_all_roles():
+
+    roles = PermissionRoles.query.all()
+
+    return roles
 
 
 """
@@ -503,6 +541,7 @@ def update_gtm_container_data(user_id: int, container_id: str, container_data):
     db.session.commit()
 
 
+
 def update_recurrent_name(recurrent_id: int, new_name: str):
 
     recurrent = BudgetRecurrent.query.filter_by(id=recurrent_id).first()
@@ -516,6 +555,12 @@ def disable_recurrent_entry(recurrent_id: int):
 
     current_recurrent = BudgetRecurrent.query.filter_by(id=recurrent_id).first()
     current_recurrent.recurrent_status = 0
+
+def update_permissions_role(user_id: str, new_role: str):
+    user = User.query.filter_by(id=user_id).first()
+
+    user.user_role = new_role
+
 
     db.session.commit()
 
