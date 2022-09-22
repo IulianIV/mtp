@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask_wtf import FlaskForm
 from wtforms.fields import DateField
-from wtforms.fields import SubmitField, StringField, SelectField, TextAreaField
+from wtforms.fields import SubmitField, StringField, SelectField, TextAreaField, HiddenField
 from wtforms.validators import DataRequired
 
 from app.manager.helpers import NoFutureDates, CheckForNumber
@@ -79,6 +79,22 @@ class AddValidationActions(FlaskForm):
 class AddValidationReason(FlaskForm):
     reason_value = StringField(validators=[DataRequired()])
     submit_reason = SubmitField()
+
+
+class AddRecurrentPayment(FlaskForm):
+    recurrent_name = StringField('Payment name', validators=[DataRequired()])
+    recurrent_value = StringField('Currency', validators=[DataRequired()])
+    submit_recurrent = SubmitField('Add Recurrent payment')
+
+
+class RecurrentPaymentOperations(FlaskForm):
+    recurrent_id_field = HiddenField('recurrent_id')
+    loop_index_field = HiddenField('loop_index_field')
+    new_recurrent_name = StringField('Payment name')
+    new_recurrent_value = StringField('Currency')
+    save_edited_entry = SubmitField('Save edit')
+    delete_edited_entry = SubmitField('Delete entry')
+    send_recurrent_entry = SubmitField('Add expense')
 
 
 class UpdateUtilitiesEntry(FlaskForm):
