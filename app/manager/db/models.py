@@ -309,10 +309,3 @@ class BudgetRecurrent(db.Model):
     def __repr__(self):
         return f'Budget recurrent {self.recurrent_status} payment number {self.id}: {self.recurrent_name} of value' \
                f'{self.recurrent_name}'
-
-    def to_dict(self):
-
-        return {
-            'recurrent_name': self.recurrent_name,
-            'recurrent_value': self.recurrent_value
-        }
