@@ -74,6 +74,9 @@
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownBudget">
                         <a class="dropdown-item" href="{{ url_for('budget.summary') }}">Summary</a>
                         <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('budget.recurrent_payments') }}">Recurrent
+                            Payments</a>
+                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ url_for('budget.add_revenue_entry') }}">Add Revenue</a>
                         <a class="dropdown-item" href="{{ url_for('budget.add_expense_entry') }}">Add New
                             Expense</a>
