@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import NewType, Union
+from typing import Union
 
 from sqlalchemy import and_, extract, func
 
@@ -7,11 +7,9 @@ from app import db
 from app.manager.db.models import (
     User, UrlEncodeDecodeParse, BudgetExpense, BudgetRevenue, BudgetUtilities,
     BudgetSaving, ValidationSavingSources, ValidationSavingAccount, ValidationSavingReason, ValidationSavingItems,
-    ValidationSavingAction, ValidationSavingCategories, Post, GTMContainers, PermissionRoles, RoleRules
-)
+    ValidationSavingAction, ValidationSavingCategories, Post, GTMContainers, PermissionRoles, RoleRules, BudgetRecurrent
 
-# Type hinting
-DateTime = NewType('DateTime', datetime)
+)
 
 current_month = datetime.now().month
 current_year = datetime.now().year
@@ -29,8 +27,7 @@ def insert_user(username: str, email: str, password: str, user_role: str):
     return db.session.add(user)
 
 
-def insert_expense(user: int, date: DateTime, item: str, value: str, source: str):
-
+def insert_expense(user: int, date: datetime, item: str, value: str, source: str):
     item_category = ValidationSavingItems.query.filter_by(items=item).first().category
 
     return db.session.add(
@@ -38,18 +35,18 @@ def insert_expense(user: int, date: DateTime, item: str, value: str, source: str
                       expense_item_category=item_category, expense_source=source))
 
 
-def insert_revenue(user: int, date: DateTime, revenue: str, source: str):
+def insert_revenue(user: int, date: datetime, revenue: str, source: str):
     return db.session.add(
         BudgetRevenue(user_id=user, revenue_date=date, revenue_value=revenue, revenue_source=source))
 
 
-def insert_savings(user: int, date: DateTime, value: str, source: str, reason: str, action: str):
+def insert_savings(user: int, date: datetime, value: str, source: str, reason: str, action: str):
     return db.session.add(
         BudgetSaving(user_id=user, saving_date=date, saving_value=value, saving_source=source, saving_reason=reason,
                      saving_action=action))
 
 
-def insert_utilities(user: int, date: DateTime, rent: str, energy: str, satellite: str, maintenance: str, details: str,
+def insert_utilities(user: int, date: datetime, rent: str, energy: str, satellite: str, maintenance: str, details: str,
                      budget_source: str):
     return db.session.add(
         BudgetUtilities(user_id=user, utilities_date=date, utilities_rent_value=rent, utilities_energy_value=energy,
@@ -99,6 +96,30 @@ def insert_gtm_container(user: int, container_id: str, container_data: bytes):
     return db.session.add(GTMContainers(user_id=user, container_id=container_id,
                                         container_data=container_data, is_active=False))
 
+
+def insert_recurrent_payment(user, recurrent_name: str, recurrent_value: str, recurrent_status: bool,
+                             recurrent_date: datetime):
+    return db.session.add(
+        BudgetRecurrent(user_id=user, recurrent_name=recurrent_name, recurrent_status=recurrent_status,
+                        recurrent_value=recurrent_value, recurrent_date=recurrent_date))
+
+
+def send_recurrent_pay(user, date: datetime, recurrent_name: str, value: str):
+
+    category_exists = ValidationSavingCategories.query.filter_by(categories='Subscriptions').first()
+
+    if not category_exists:
+        insert_validation_categories('Subscriptions')
+
+    source_exists = ValidationSavingItems.query.filter_by(items=recurrent_name).first()
+    
+    if not source_exists:
+        insert_validation_items(recurrent_name, 'Subscriptions')
+        
+    if category_exists and source_exists:
+        insert_expense(user, date, recurrent_name, value, 'Bank')
+
+        return db.session.commit()
 
 def create_new_role(role_name: str, role_rules: list):
 
@@ -256,35 +277,34 @@ def get_validation_reason(reason_value: str):
 
 def get_parsed_urls(user_id: int):
     return UrlEncodeDecodeParse.query.filter_by(user_id=user_id).filter(and_(UrlEncodeDecodeParse.encode_option == None,
-                                                  UrlEncodeDecodeParse.encoding == None))
+                                                                             UrlEncodeDecodeParse.encoding == None))
 
 
 def get_current_month_data(user: int):
     budget_totals = {
         'revenue': BudgetRevenue.query.
-        filter_by(user_id=user).
-        filter(extract('month', BudgetRevenue.revenue_date) == current_month).
-        filter(extract('year', BudgetRevenue.revenue_date) == current_year).
-        with_entities(BudgetRevenue.revenue_value).all(),
+            filter_by(user_id=user).
+            filter(extract('month', BudgetRevenue.revenue_date) == current_month).
+            filter(extract('year', BudgetRevenue.revenue_date) == current_year).
+            with_entities(BudgetRevenue.revenue_value).all(),
         'expense': BudgetExpense.query.
-        filter_by(user_id=user).
-        filter(extract('month', BudgetExpense.expense_date) == current_month).
-        filter(extract('year', BudgetExpense.expense_date) == current_year).
-        with_entities(BudgetExpense.expense_value).all()
+            filter_by(user_id=user).
+            filter(extract('month', BudgetExpense.expense_date) == current_month).
+            filter(extract('year', BudgetExpense.expense_date) == current_year).
+            with_entities(BudgetExpense.expense_value).all()
     }
 
     return budget_totals
 
 
 def get_current_month_mandatory_expense(user: int):
-
     rent_utilities_total = sum(db.session.query(func.sum(BudgetUtilities.utilities_rent_value),
-                            func.sum(BudgetUtilities.utilities_satellite_value),
-                            func.sum(BudgetUtilities.utilities_energy_value),
-                            func.sum(BudgetUtilities.utilities_maintenance_value)).
-                            filter_by(user_id=user).
-                            filter(extract('month', BudgetUtilities.utilities_date) == current_month).
-                            filter(extract('year', BudgetUtilities.utilities_date) == current_year).all()[0])
+                                                func.sum(BudgetUtilities.utilities_satellite_value),
+                                                func.sum(BudgetUtilities.utilities_energy_value),
+                                                func.sum(BudgetUtilities.utilities_maintenance_value)).
+                               filter_by(user_id=user).
+                               filter(extract('month', BudgetUtilities.utilities_date) == current_month).
+                               filter(extract('year', BudgetUtilities.utilities_date) == current_year).all()[0])
 
     return rent_utilities_total
 
@@ -293,14 +313,14 @@ def get_current_month_mandatory_expense(user: int):
 def get_savings_data(user: int):
     savings_totals = {
         'ec': BudgetSaving.query.
-        filter_by(user_id=user).
-        filter_by(saving_source='EC').filter_by(saving_action='deposit').all(),
+            filter_by(user_id=user).
+            filter_by(saving_source='EC').filter_by(saving_action='deposit').all(),
         'ed': BudgetSaving.query.
-        filter_by(user_id=user).
-        filter_by(saving_source='ED').filter_by(saving_action='deposit').all(),
+            filter_by(user_id=user).
+            filter_by(saving_source='ED').filter_by(saving_action='deposit').all(),
         'if': BudgetSaving.query.
-        filter_by(user_id=user).
-        filter_by(saving_source='IF').filter_by(saving_action='deposit').all(),
+            filter_by(user_id=user).
+            filter_by(saving_source='IF').filter_by(saving_action='deposit').all(),
     }
 
     return savings_totals
@@ -378,13 +398,12 @@ def query_saving_entry(user_id: str, saving_id: str):
 
 
 def check_current_month_data(user: int):
-
-    current_month_revenue = BudgetRevenue.query.filter_by(user_id=user).\
-        filter(extract('month', BudgetRevenue.revenue_date) == current_month).\
+    current_month_revenue = BudgetRevenue.query.filter_by(user_id=user). \
+        filter(extract('month', BudgetRevenue.revenue_date) == current_month). \
         filter(extract('year', BudgetRevenue.revenue_date) == current_year).first()
 
-    current_month_expense = BudgetExpense.query.filter_by(user_id=user).\
-        filter(extract('month', BudgetExpense.expense_date) == current_month).\
+    current_month_expense = BudgetExpense.query.filter_by(user_id=user). \
+        filter(extract('month', BudgetExpense.expense_date) == current_month). \
         filter(extract('year', BudgetExpense.expense_date) == current_year).first()
 
     if not current_month_revenue or not current_month_expense:
@@ -398,7 +417,6 @@ def get_active_gtm_container(user_id: int):
 
 
 def gtm_container_exists(user_id: int, container_id: str):
-
     if GTMContainers.query.filter_by(user_id=user_id, container_id=container_id).first():
         return True
     else:
@@ -408,6 +426,10 @@ def gtm_container_exists(user_id: int, container_id: str):
 def get_gtm_containers(user_id: int):
     return GTMContainers.query.filter_by(user_id=user_id).order_by(GTMContainers.container_id).all()
 
+
+
+def get_recurrent_payments(user_id: int):
+    return BudgetRecurrent.query.filter_by(user_id=user_id).order_by(BudgetRecurrent.recurrent_name).all()
 
 def get_user_role_rules(user_id: int):
 
@@ -440,9 +462,8 @@ def update_post(user: int, title: str, body: str, post_id: str, image_name: Unio
     db.session.commit()
 
 
-def update_utility_entry(entry_id: int, user: int, date: DateTime, rent_value: int, energy_value: int,
+def update_utility_entry(entry_id: int, user: int, date: datetime, rent_value: int, energy_value: int,
                          satellite_value: int, maintenance_value: int, details: str, source: str):
-
     entry = BudgetUtilities.query.filter_by(id=entry_id, user_id=user).first()
     entry.utilities_date = date
     entry.utilities_rent_value = rent_value
@@ -455,8 +476,7 @@ def update_utility_entry(entry_id: int, user: int, date: DateTime, rent_value: i
     db.session.commit()
 
 
-def update_revenue_entry(entry_id: int, user: int, date: DateTime, value: int, source: str):
-
+def update_revenue_entry(entry_id: int, user: int, date: datetime, value: int, source: str):
     entry = BudgetRevenue.query.filter_by(id=entry_id, user_id=user).first()
     entry.revenue_date = date
     entry.revenue_value = value
@@ -465,8 +485,7 @@ def update_revenue_entry(entry_id: int, user: int, date: DateTime, value: int, s
     db.session.commit()
 
 
-def update_expense_entry(entry_id: int, user: int, date: DateTime, item: str, value: int, source: str):
-
+def update_expense_entry(entry_id: int, user: int, date: datetime, item: str, value: int, source: str):
     entry = BudgetExpense.query.filter_by(id=entry_id, user_id=user).first()
     entry.expense_date = date
     entry.expense_item = item
@@ -480,8 +499,7 @@ def update_expense_entry(entry_id: int, user: int, date: DateTime, item: str, va
     db.session.commit()
 
 
-def update_saving_entry(entry_id: int, user: int, date: DateTime, value: int, account: str, reason: str, action: str):
-
+def update_saving_entry(entry_id: int, user: int, date: datetime, value: int, account: str, reason: str, action: str):
     entry = BudgetSaving.query.filter_by(id=entry_id, user_id=user).first()
     entry.saving_date = date
     entry.saving_value = value
@@ -493,7 +511,6 @@ def update_saving_entry(entry_id: int, user: int, date: DateTime, value: int, ac
 
 
 def set_gtm_container_active(user_id: int, container_id: str):
-
     container = GTMContainers.query.filter_by(user_id=user_id, container_id=container_id).first()
     container.is_active = True
 
@@ -501,7 +518,6 @@ def set_gtm_container_active(user_id: int, container_id: str):
 
 
 def set_gtm_container_inactive(user_id: int, container_id: str):
-
     container = GTMContainers.query.filter_by(user_id=user_id, container_id=container_id).first()
     container.is_active = False
 
@@ -518,7 +534,6 @@ def inactivate_all_gtm_containers(user_id: int):
 
 
 def update_gtm_container_data(user_id: int, container_id: str, container_data):
-
     container = GTMContainers.query.filter_by(user_id=user_id, container_id=container_id).first()
 
     container.container_data = container_data
@@ -526,10 +541,26 @@ def update_gtm_container_data(user_id: int, container_id: str, container_data):
     db.session.commit()
 
 
+
+def update_recurrent_name(recurrent_id: int, new_name: str):
+
+    recurrent = BudgetRecurrent.query.filter_by(id=recurrent_id).first()
+
+    recurrent.recurrent_name = new_name
+
+    db.session.commit()
+
+
+def disable_recurrent_entry(recurrent_id: int):
+
+    current_recurrent = BudgetRecurrent.query.filter_by(id=recurrent_id).first()
+    current_recurrent.recurrent_status = 0
+
 def update_permissions_role(user_id: str, new_role: str):
     user = User.query.filter_by(id=user_id).first()
 
     user.user_role = new_role
+
 
     db.session.commit()
 
@@ -567,3 +598,22 @@ def delete_saving_entry(entry_id: int, user: int):
     BudgetSaving.query.filter_by(id=entry_id, user_id=user).delete()
 
     db.session.commit()
+
+
+"""
+Database combo queries section
+"""
+
+
+def insert_and_disable_recurrent(recurrent_id: int, user, new_name: int, new_value: int,
+                                    new_status: bool, new_date: datetime):
+
+    current_recurrent = BudgetRecurrent.query.filter_by(id=recurrent_id).first()
+    current_recurrent.recurrent_status = 0
+
+    db.session.add(
+        BudgetRecurrent(user_id=user, recurrent_name=new_name, recurrent_status=new_status,
+                        recurrent_value=new_value, recurrent_date=new_date))
+
+    return db.session.commit()
+

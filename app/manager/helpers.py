@@ -14,6 +14,7 @@ app_endpoints = {
     'revenue_entry_endpoint': 'budget.add_revenue_entry',
     'expense_entry_endpoint': 'budget.add_expense_entry',
     'savings_entry_endpoint': 'budget.add_savings_entry',
+    'recurrent_entry_endpoint': 'budget.recurrent_payments',
     'validation_endpoint': 'budget.validation',
     'utilities_entry_endpoint': 'budget.add_utilities_entry',
     'blog_index': 'blog.homepage',
