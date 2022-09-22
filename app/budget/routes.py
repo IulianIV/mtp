@@ -23,7 +23,8 @@ from app.manager.db.db_interrogations import (
     insert_validation_reasons, query_utilities_entries, get_utilities_count, insert_utilities, query_utilities_entry,
     update_utility_entry, query_revenue_entry, update_revenue_entry, query_expense_entry, update_expense_entry,
     query_saving_entry, update_saving_entry, delete_utility_entry, delete_revenue_entry, delete_expense_entry,
-    delete_saving_entry, check_current_month_data
+    delete_saving_entry, check_current_month_data, get_recurrent_payments, insert_recurrent_payment,
+    update_recurrent_name, insert_and_disable_recurrent, disable_recurrent_entry, send_recurrent_pay
 )
 from app.manager.helpers import CustomCSRF, form_validated_message, form_error_message, app_endpoints
 
@@ -36,6 +37,7 @@ expense_entry_endpoint = app_endpoints['expense_entry_endpoint']
 savings_entry_endpoint = app_endpoints['savings_entry_endpoint']
 validation_entry_endpoint = app_endpoints['validation_endpoint']
 utilities_entry_endpoint = app_endpoints['utilities_entry_endpoint']
+recurrent_payment_endpoint = app_endpoints['recurrent_entry_endpoint']
 
 budget_template_endpoints = {
     'budget_validation': 'budget/validation.html'
@@ -626,7 +628,77 @@ def add_utilities_entry():
 @bp.route('/recurrent-payments', methods=('GET', 'POST'))
 @login_required
 def recurrent_payments():
-    return render_template('budget/recurrent.html')
+    user_id = current_user.get_id()
+
+    add_recurrent_form = forms.AddRecurrentPayment()
+    edit_recurrent_form = forms.RecurrentPaymentOperations()
+    existing_recurrent = get_recurrent_payments(user_id)
+
+    if request.method == 'POST' and add_recurrent_form.validate_on_submit():
+
+        if add_recurrent_form.submit_recurrent.id in request.form:
+            new_recurrent_name = add_recurrent_form.recurrent_name.data
+            new_recurrent_value = add_recurrent_form.recurrent_value.data
+
+            form_validated_message(validation_confirm)
+
+            insert_recurrent_payment(user=user_id, recurrent_name=new_recurrent_name, recurrent_status=True,
+                                     recurrent_value=new_recurrent_value, recurrent_date=datetime.utcnow())
+
+            db.session.commit()
+
+            return redirect(url_for(recurrent_payment_endpoint))
+
+    if request.method == 'POST' and edit_recurrent_form.is_submitted():
+        if edit_recurrent_form.save_edited_entry.id in request.form:
+
+            recurrent_index = int(edit_recurrent_form.loop_index_field.data)
+            recurrent_id = int(edit_recurrent_form.recurrent_id_field.data)
+            current_recurrent_name = existing_recurrent[recurrent_index].recurrent_name
+            current_recurrent_value = existing_recurrent[recurrent_index].recurrent_value
+            edited_recurrent_value = edit_recurrent_form.new_recurrent_value.data
+            edited_recurrent_name = edit_recurrent_form.new_recurrent_name.data
+
+            if edited_recurrent_name != current_recurrent_name and edited_recurrent_value == current_recurrent_value:
+                update_recurrent_name(recurrent_id, edited_recurrent_name)
+
+                return redirect(url_for(recurrent_payment_endpoint))
+
+            if edited_recurrent_name == current_recurrent_name and edited_recurrent_value != current_recurrent_value:
+                insert_and_disable_recurrent(recurrent_id, user_id, current_recurrent_name, edited_recurrent_value,
+                                             new_status=True, new_date=datetime.utcnow())
+
+                return redirect(url_for(recurrent_payment_endpoint))
+
+            if edited_recurrent_name != current_recurrent_name and edited_recurrent_value != current_recurrent_value:
+                insert_and_disable_recurrent(recurrent_id, user_id, edited_recurrent_name, edited_recurrent_value,
+                                             new_status=True, new_date=datetime.utcnow())
+
+                return redirect(url_for(recurrent_payment_endpoint))
+
+            return redirect(url_for(recurrent_payment_endpoint))
+
+        if edit_recurrent_form.delete_edited_entry.id in request.form:
+
+            recurrent_id = int(edit_recurrent_form.recurrent_id_field.data)
+
+            disable_recurrent_entry(recurrent_id)
+
+            return redirect(url_for(recurrent_payment_endpoint))
+
+        if edit_recurrent_form.send_recurrent_entry.id in request.form:
+
+            recurrent_index = int(edit_recurrent_form.loop_index_field.data)
+            current_recurrent_name = existing_recurrent[recurrent_index].recurrent_name
+            current_recurrent_value = existing_recurrent[recurrent_index].recurrent_value
+
+            send_recurrent_pay(user=user_id, date=datetime.utcnow(),
+                               recurrent_name=current_recurrent_name, value=current_recurrent_value)
+
+            return redirect(url_for(recurrent_payment_endpoint))
+
+    return render_template('budget/recurrent.html', add_recurrent_form=add_recurrent_form,
+                           edit_recurrent_form=edit_recurrent_form, recurrents=existing_recurrent)
 
 
 # TODO maybe make a better implementation of the Budget Entry Edit/Delete functionality by two different scopes:
@@ -648,7 +720,6 @@ def update_utilities_entry(utility_id):
     utility_update_form.update_budget_sources.choices = sources_set
 
     if request.method == 'GET':
-
         utility_update_form.update_date.data = utilities_entry.utilities_date
         utility_update_form.update_rent.data = utilities_entry.utilities_rent_value
         utility_update_form.update_energy.data = utilities_entry.utilities_energy_value
@@ -658,7 +729,6 @@ def update_utilities_entry(utility_id):
         utility_update_form.update_budget_sources.data = utilities_entry.budget_source
 
     if request.method == 'POST':
-
         date = utility_update_form.update_date.data
         rent = utility_update_form.update_rent.data
         energy = utility_update_form.update_energy.data
