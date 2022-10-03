@@ -115,6 +115,9 @@ def create_app(test_config=None):
     from app.analytics import bp as analytics_bp
     app.register_blueprint(analytics_bp)
 
+    from app.manager.permissions import bp as permissions_bp
+    app.register_blueprint(permissions_bp)
+
     app.add_url_rule('/', endpoint='index')
 
     return app

@@ -1,0 +1,87 @@
+{% extends 'permissions_base.html' %}
+{% set active_page = "user_roles" %}
+
+{% block permission_content %}
+    <div class="card mb-4">
+        <div class="card-header" id="roles">
+            Roles
+            <a class="btn btn-info showRoleTable">Show table</a>
+            <a class="btn btn-secondary hideRoleTable" style="display: none;">Hide Table</a>
+        </div>
+        <div class="card-body user-roles" style="display: none;">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="user-roles" aria-describedby="expense">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Role name</th>
+                    </tr>
+                    </thead>
+                    <tbody class="post">
+                    {% for role in all_roles %}
+                        <tr>
+                            <th class="small mb-1" scope="row">{{ role.id }}</th>
+                            <th class="small mb-1" scope="row">{{ role.role_name }}</th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <form method="post" id="permissions-form" action="{{ url_for('permissions.user_roles') }}" novalidate>
+        {{ rules_form.hidden_tag() }}
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="form-inline">
+                    <div class="form-group mx-sm-3 mb-2">
+                        {{ rules_form.role_name.label(class='sr-only') }}
+                        {{ rules_form.role_name(form='permissions-form', class='form-control', placeholder="Role name") }}
+                    </div>
+                    {{ rules_form.submit_rules(form='permissions-form', class="btn btn-success mb-2") }}
+                </div>
+            </div>
+            <div class="card-body">
+                {% for module in module_map %}
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                        <tr>
+                            <th scope="col">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="{{ module }}_all"
+                                           value="{{ module }}" form='permissions-form' name="module_name">
+                                    {#                                    {{ rules_form.role_rules( type="checkbox", id=[module, "all"]|join('_'), class="form-check-input") }}#}
+                                    {#                                    {{ rules_form.role_rules.label(text=module | upper, class="form-check-label", for=[module, "all"]|join('_')) }}#}
+                                    <label class="form-check-label" ,
+                                           for="{{ module }}_all"> {{ module | upper }}</label>
+                                    <a class="btn btn-info btn-sm" id="{{ module }}"
+                                       onclick="hidePermissions(this.id)">Collapse</a>
+                                </div>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody id="{{ module }}_table_body">
+                        {% for sub in range(0, module_map[module] | length) %}
+                            <tr>
+                                <th scope="row">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox"
+                                               id="{{ module_map[module][sub] }}" value="{{ module_map[module][sub] }}"
+                                               form='permissions-form' name="module_name">
+                                        <label class="form-check-label" for="{{ module_map[module][sub] }}">
+                                            {{ module_map[module][sub] | replace('_', ' ') | capitalize }}
+                                        </label>
+                                    </div>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% block scripts %}
+            <script type="text/javascript" src="{{ url_for('static', filename='js/tables.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/helpers.js') }}"></script>
+        {% endblock %}
+{% endblock %}

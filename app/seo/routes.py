@@ -1,7 +1,7 @@
 from flask import request, send_from_directory, render_template
 
 from app import current_app
-from app.auth.routes import login_required
+from app.manager.permissions.utils import login_required, requires_permissions
 from app.seo import bp
 
 
@@ -12,6 +12,7 @@ def static_from_root():
 
 
 @bp.route('/error/401')
+@requires_permissions
 @login_required
 def error_401():
     pass
@@ -19,6 +20,7 @@ def error_401():
 
 
 @bp.route('/error/404', methods=('GET',))
+@requires_permissions
 @login_required
 def error_404():
     pass
@@ -26,6 +28,7 @@ def error_404():
 
 
 @bp.route('/error/500', methods=('GET',))
+@requires_permissions
 @login_required
 def error_500():
     pass
