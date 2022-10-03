@@ -88,11 +88,23 @@ tags_index = {
     '__qpx': {'title': 'Quora'},
     '__pntr': {'title': 'Pinterest'},
     '__gaawc': {'title': 'GA4 Configuration', 'pill': 'warning'},
-    '__gaawe': {'title': 'GA4 Event', 'pill': 'warning', 'nameProperty': 'vtp_eventName'}
+    '__gaawe': {'title': 'GA4 Event', 'pill': 'warning', 'nameProperty': 'vtp_eventName'},
+    '_custom_tag_template': {'title': 'Custom Tag Template', 'pill': 'dark', 'nameProperty': 'function'},
+    '__ac360': {'title': 'Audience Center 360'},
+    '__awcc': {'title': 'Google Ads Calls from Website Conversion', 'pill': 'primary',
+               'nameProperty': 'vtp_phoneConversionNumber'},
+    '__awud': {'title': 'Google Ads User-provided Data Event', 'pill': 'primary'},
+    '__cloud_retail': {'title': 'Google Cloud Retail'},
+    '__automl': {'title': 'Google Cloud Recommendations AI'},
+    '__gfct': {'title': 'Google Flights Conversion Tracking'},
+    '__gfpa': {'title': 'Google Flights Price Accuracy'},
+    '__ta': {'title': 'Neustar AdAdvisor'},
+    '__qca': {'title': 'Quantcast Advertise'},
+    '__tpdpx': {'title': 'Tapad Conversion Pixel'}
 }
 
 macros_index = {
-    '__k': {'title': '1st Party Cookie', 'nameProperty': 'vtp_name'},
+    '__k': {'title': 'First Party Cookie', 'nameProperty': 'vtp_name'},
     '__c': {'title': 'Constant', 'nameProperty': 'vtp_value'},
     '__ctv': {'title': 'Container Version', 'isBuiltIn': not False, 'pill': 'primary'},
     '__e': {'title': 'Event', 'isBuiltIn': not False, 'pill': 'primary'},
@@ -112,7 +124,9 @@ macros_index = {
     '__cid': {'title': 'Container ID', 'pill': 'primary', 'isBuiltIn': not False},
     '__awec': {'title': 'User-Provided Data', 'pill': 'primary'},
     '_custom_variable_template': {'title': 'Custom Variable Template', 'pill': 'dark'},
-    '__t': {'title': 'Custom Firing Schedule Enabled'}
+    '__t': {'title': 'Custom Firing Schedule Enabled'},
+    '__hid': {'title': 'HTML ID', 'isBuiltIn': not False},
+    '__uv': {'title': 'Undefined Value', 'pill': 'dark'}
 }
 
 triggers_index = {
@@ -132,7 +146,9 @@ triggers_index = {
     "gtm.triggerGroup": {'title': "Trigger Group", 'pill': "secondary", 'exportType': "TRIGGER_GROUP"},
     "gtm.historyChange": {'title': "History Change", 'pill': "secondary", 'exportType': "HISTORY_CHANGE"},
     '__e': {'title': "Custom Event", 'pill': "warning", 'exportType': "CUSTOM_EVENT"},
-    '__tg': {'title': "Trigger Group", 'pill': "secondary", 'exportType': "TRIGGER_GROUP"}
+    '__tg': {'title': "Trigger Group", 'pill': "secondary", 'exportType': "TRIGGER_GROUP"},
+    'gtm.init_consent': {'title': 'Consent Initialization', 'pill': 'primary', 'exportType': "CONSENT INITIALIZATION"},
+    'gtm.init': {'title': 'Initialization', 'pill': 'primary', 'exportType': "INITIALIZATION"}
 }
 
 evaluations_index = {
@@ -176,13 +192,14 @@ dlvBuiltins_index = {
     "gtm.videoTitle": {'title': "Video Title"},
     "gtm.videoUrl": {'title': "Video URL"},
     "gtm.videoVisible": {'title': "Video Visible"},
-    "gtm.visibleRatio": {'title': "Element Visibility Ratio"},
-    "gtm.visibleTime": {'title': "Element Visibility Time"}
+    "gtm.visibleRatio": {'title': "Element Visibility Ratio (Percent Visible)"},
+    "gtm.visibleTime": {'title': "Element Visibility Time (On-Screen Duration)"}
 }
 
-skip_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function']
+skip_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function', 'infoKey']
 skip_tag_keys = ['pill', 'property', 'nameProperty', 'title', 'function', 'infoKey', 'teardown_tags',
-                 'setup_tags', '_sequence']
-skip_groups = ['__tg']
-triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl']
+                 'setup_tags', '_sequence', '_conditions', '_blocking', 'exportType']
+skip_trigger_keys = ['gtm.triggerGroup', '__tg']
+triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl', '__evl']
 code_snippet_properties = ['vtp_html', 'vtp_javascript']
+untracked_macros = ['Environment name']

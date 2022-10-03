@@ -237,7 +237,7 @@
 
                         {% endif %}
                     </th>
-                    <!-- Sequence 'before' end -->
+                    <!-- Sequence 'after' end -->
                     <!-- Sequence list end -->
                 </tr>
             {% endif %}
@@ -274,15 +274,15 @@
                                     <div class="row">
                                         {% for key in tag.keys() %}
                                             {% if key in code_snippets %}
-                                                {% set snipper_modal_id = key + loop.index0 | string %}
+                                                {% set snippet_modal_id = key + loop.index0 | string %}
                                                 <div class="col-8 col-sm-6">
                                                     {{ key }}
                                                 </div>
                                                 <div class="col-4 col-sm-6">
                                                     <button type="button" data-dismiss="modal"
                                                             class="btn btn-info btn-sm" data-toggle="modal"
-                                                            data-target="#{{ snipper_modal_id }}">
-                                                        Code Snippet
+                                                            data-target="#{{ snippet_modal_id }}">
+                                                        Custom HTML
                                                     </button>
                                                 </div>
                                             {% elif type_check(tag[key]) == 'macro' %}
@@ -709,11 +709,11 @@
         </div>
         <!-- Blocking Conditions End -->
 
-        <!-- Code Block Modals Start -->
+        <!--  Tag Code Block Modals Start -->
         {% for key in tag.keys() %}
             {% if key in code_snippets %}
                 {% set mapping_modal_id = key + loop.index0 | string %}
-                <div class="modal fade" id=""
+                <div class="modal fade" id="{{ mapping_modal_id }}"
                      tabindex="1" role="dialog"
                      aria-labelledby="{{ mapping_modal_id }}"
                      aria-hidden="true">
@@ -721,7 +721,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title"
-                                    id="{{ mapping_modal_id }}">Code Block for tag ID {{ tag['tag_id'] }}:
+                                    id="{{ mapping_modal_id }}">Custom HTML for tag ID {{ tag['tag_id'] }}:
                                     {{ tag['title'] }}</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
@@ -747,7 +747,7 @@
                 </div>
             {% endif %}
         {% endfor %}
-        <!-- Code Block Modals End -->
+        <!-- Tag Code Block Modals End -->
 
     {% endfor %}
     <!-- Tag Specific Modal End -->
@@ -808,6 +808,18 @@
                                                                 class="btn btn-info btn-sm" data-toggle="modal"
                                                                 data-target="#macro_{{ mapping_modal_id }}_mapping">
                                                             Data Table
+                                                        </button>
+                                                    </div>
+                                                {% elif key in code_snippets %}
+                                                    {% set snippet_modal_id = key + loop.index0 | string %}
+                                                    <div class="col-8 col-sm-6">
+                                                        {{ key }}
+                                                    </div>
+                                                    <div class="col-4 col-sm-6">
+                                                        <button type="button" data-dismiss="modal"
+                                                                class="btn btn-info btn-sm" data-toggle="modal"
+                                                                data-target="#{{ snippet_modal_id }}">
+                                                            Custom Javascript
                                                         </button>
                                                     </div>
                                                 {% else %}
@@ -933,6 +945,46 @@
             {% endif %}
         {% endfor %}
         <!-- Macro Input Table Section end-->
+
+        <!-- Macro Code Block Modals Start -->
+        {% for key in var.keys() %}
+            {% if key in code_snippets %}
+                {% set mapping_modal_id = key + loop.index0 | string %}
+                <div class="modal fade" id="{{ mapping_modal_id }}"
+                     tabindex="1" role="dialog"
+                     aria-labelledby="{{ mapping_modal_id }}"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"
+                                    id="{{ mapping_modal_id }}">Custom HTML for tag ID:
+                                    {{ var['title'] }}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="container">
+                                            <code>
+                                                {{ var[key][1] | e | trim }}
+                                            </code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <!-- Macro Code Block Modals End -->
     {% endfor %}
     <!-- Variable Modals End -->
 
