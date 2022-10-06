@@ -1,7 +1,7 @@
 import json
 import re
-
 import requests
+from .index import runtime_index
 
 
 def gtm_compare_get_version(gtm_id) -> int:
@@ -38,3 +38,28 @@ def find_in_index(value: str, index: dict) -> dict:
         return {'title': ''}
 
     return index[value]
+
+
+def get_runtime_index(index_value: int, dict_key: str, full_index: bool = False):
+    if full_index:
+        return runtime_index[index_value]
+
+    requested_value = runtime_index[index_value][dict_key]
+
+    return requested_value
+
+
+def flatten_container(container):
+    """
+    Flattens a nested list or tuple creating a generator object
+    :param container: nested list
+    :type container: list
+    :return: flattened list generator
+    :rtype: generator
+    """
+    for i in container:
+        if isinstance(i, (list, tuple)):
+            for j in flatten_container(i):
+                yield j
+        else:
+            yield i
