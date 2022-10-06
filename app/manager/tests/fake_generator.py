@@ -7,7 +7,7 @@ from flask import (
 )
 from flask_login import current_user
 
-from app.auth.routes import login_required
+from app.manager.permissions.utils import login_required, requires_permissions
 from app.manager import tests_bp
 from app.manager.db.db_interrogations import *
 from app.manager.helpers import form_validated_message, form_error_message, check_range
@@ -22,6 +22,7 @@ from app.webtools.routes import encodings
 #   certain types of data.
 
 @tests_bp.route('/tests/fake-data-generator', methods=('GET', 'POST'))
+@requires_permissions
 @login_required
 def add_fakes():
     fake_form = AddFakes()

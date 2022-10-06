@@ -1,0 +1,154 @@
+{% extends 'budget_base.html' %}
+
+{% block budget_data %}
+    <div id="layoutBudgetIndex">
+        <div id="layoutBudgetIndex_content">
+            <main>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-bdgt-1">
+                            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                <div class="card-header"><h3 class="text-center font-weight-light my-4" id="revenue">
+                                    Recurrent Payments</h3></div>
+                                <div class="card-body">
+                                    {% if recurrents %}
+
+                                        {% for recurrent in recurrents %}
+                                            {% if recurrent.recurrent_status == '1' %}
+                                                <form method="post" class="form-inline"
+                                                      id={{ "edit-recurrent-form" + loop.index0 | string }}
+                                                              action="{{ url_for('budget.recurrent_payments') }}"
+                                                      novalidate>
+                                                    <div class="form-inline">
+                                                        {{ edit_recurrent_form.new_recurrent_name.label(class="sr-only",
+                                        for="nameInput" + loop.index0 | string) }}
+                                                        {{ edit_recurrent_form.new_recurrent_name(form="edit-recurrent-form" + loop.index0 | string,
+                                        class="form-control mb-2 mr-sm-1 col-xl-2", placeholder=recurrent.recurrent_name, value=recurrent.recurrent_name, id="nameInput" + loop.index0 | string, disabled='') }}
+                                                        {{ edit_recurrent_form.new_recurrent_value.label(class="sr-only",
+                                        for="valueInput" + loop.index0 | string) }}
+                                                        <div class="input-group mb-2 mr-sm-2 col-xl-2">
+                                                            {{ edit_recurrent_form.new_recurrent_value(form="edit-recurrent-form" + loop.index0 | string, type="text",
+                                        class="form-control", placeholder=recurrent.recurrent_value, value=recurrent.recurrent_value, id="valueInput" + loop.index0 | string, disabled='') }}
+                                                            <div class="input-group-prepend">
+                                                                <div class="input-group-text">RON</div>
+                                                            </div>
+                                                        </div>
+                                                        {{ edit_recurrent_form.send_recurrent_entry(form="edit-recurrent-form" + loop.index0 | string, class='btn btn-primary mb-2 mr-sm-2',
+                                                    data_toggle="tooltip", data_placement="bottom", title="Add Recurrent payment as a New Expense", id="send-button" + loop.index0 | string) }}
+                                                        <div class="form-check mb-2 mr-sm-2">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                   id="{{ loop.index0 }}"
+                                                                   onclick="enableEditing(this.id)">
+                                                            <label class="form-check-label" for="{{ loop.index0 }}">
+                                                                Edit
+                                                            </label>
+                                                        </div>
+                                                        {{ edit_recurrent_form.recurrent_id_field(form="edit-recurrent-form" + loop.index0 | string,
+                                                    id=recurrent.id,
+                                                    value=recurrent.id) }}
+                                                        {{ edit_recurrent_form.loop_index_field(form="edit-recurrent-form" + loop.index0 | string,
+                                                    id=loop.index0,
+                                                    value=loop.index0) }}
+                                                        {{ edit_recurrent_form.save_edited_entry(form="edit-recurrent-form" + loop.index0 | string, class='btn btn-success mb-2 mr-sm-2',
+                                                    data_toggle="tooltip", data_placement="bottom", title="Save edits made to current payment", id="save-button" + loop.index0 | string,
+                                                    disabled='') }}
+                                                        {{ edit_recurrent_form.delete_edited_entry(form="edit-recurrent-form" + loop.index0 | string,
+                                                class='btn btn-outline-danger mb-2', data_toggle="tooltip",
+                                                        data_placement="bottom",
+                                                        title="Delete the entry (does not delete the actual recorded expense)",
+                                                        id="delete-button" + loop.index0 | string,
+                                                        disabled='') }}
+                                                    </div>
+                                                </form>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                    {% else %}
+                                        <p class="h4">There are no registered recurrent payments.</p>
+                                    {% endif %}
+                                    <button type="button" class="btn btn-warning mb-2" id="delete-button"
+                                            data-placement="bottom"
+                                            title="Add new recurrent entry" data-dismiss="modal"
+                                            data-toggle="modal"
+                                            data-target="#new_entry_modal">
+                                        Add new Recurrent Payment Entry
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="new_entry_modal"
+                     tabindex="-1" role="form"
+                     aria-labelledby="new_entry_modal"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="form">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title"
+                                    id="new_entry_modal">New recurrent expense entry
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <form method="post" class="form-inline" id="recurrent-payment-form"
+                                              action="{{ url_for('budget.recurrent_payments') }}"
+                                              novalidate>
+                                            {{ add_recurrent_form.hidden_tag() }}
+                                            {{ add_recurrent_form.recurrent_name.label(class="sr-only",
+                                        for="recurrent-payment-form") }}
+                                            {{ add_recurrent_form.recurrent_name(form='recurrent-payment-form',
+                                        class="form-control mb-2 mr-sm-1 col-xl-4", placeholder="Some subscription...", id="nameInput") }}
+                                            {{ add_recurrent_form.recurrent_value.label(class="sr-only",
+                                        for="recurrent-payment-form") }}
+                                            <div class="input-group mb-2 mr-sm-2 col-xl-4">
+                                                {{ add_recurrent_form.recurrent_value(form='recurrent-payment-form', type='text',
+                                        class="form-control", placeholder="10.00", id="valueInput") }}
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">RON</div>
+                                                </div>
+                                            </div>
+                                            {{ add_recurrent_form.submit_recurrent(form='recurrent-payment-form', class='btn btn-primary mb-2 mr-sm-2') }}
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+    <script>
+        function enableEditing(tag_id) {
+            let current_checkbox = document.getElementById(tag_id)
+
+
+            if (!current_checkbox.checked) {
+                document.getElementById('save-button' + tag_id).disabled = true;
+                document.getElementById('delete-button' + tag_id).disabled = true;
+                document.getElementById('valueInput' + tag_id).disabled = true;
+                document.getElementById('nameInput' + tag_id).disabled = true;
+
+            } else {
+                document.getElementById('save-button' + tag_id).disabled = false;
+                document.getElementById('delete-button' + tag_id).disabled = false;
+                document.getElementById('valueInput' + tag_id).disabled = false;
+                document.getElementById('nameInput' + tag_id).disabled = false;
+            }
+        }
+    </script>
+    {% block scripts %}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/tables.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/helpers.js') }}"></script>
+    {% endblock %}
+{% endblock %}

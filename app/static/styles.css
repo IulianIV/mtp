@@ -98,6 +98,14 @@ div.custom-container { /* Custom Addition */
 
 }
 
+input.big-checkbox { /* Custom Addition */
+
+    width: 20px;
+    height: 20px;
+
+}
+
+
 /* Custom Addition --> */
 .card-custom {
     overflow: hidden;

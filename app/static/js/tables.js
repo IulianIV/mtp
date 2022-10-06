@@ -398,3 +398,19 @@ $(document).ready(function () {
         });
     });
 });
+
+
+// Permissions Module Roles DataTables function
+$(document).ready(function () {
+    $('a[class="btn btn-info showRoleTable"]').click(function () {
+        $('div[class="card-body user-roles"]').show();
+        $('a[class="btn btn-secondary hideRoleTable"]').show();
+        $('a[class="btn btn-info showRoleTable"]').hide();
+        $('a[id="user-roles"]').show();
+    });
+    $('a[class="btn btn-secondary hideRoleTable"]').click(function () {
+        $('div[class="card-body user-roles"]').hide();
+        $('a[class="btn btn-secondary hideRoleTable"]').hide();
+        $('a[class="btn btn-info showRoleTable"]').show();
+    });
+});
