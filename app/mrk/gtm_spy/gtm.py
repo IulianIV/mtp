@@ -1,21 +1,35 @@
+from __future__ import annotations
 import json
-import os
 import re
 from copy import deepcopy
-from typing import Generator, Callable, Union, Any
+from typing import Generator, Callable, Union, Any, NewType, List
+from itertools import islice
 
 import requests
 
-from app.manager.helpers import Config, extract_trigger_id
-from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags, triggers_index
-from .utils import find_in_index
+from app.manager.helpers import extract_trigger_id
+from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags, \
+    triggers_index, runtime_index
+from .utils import find_in_index, get_runtime_index, flatten_container
 
 # FIXME MAJOR! All create_container_name() functions need to be evaluated and commented. The goal, eventually,
 #   is to have their complexity reduced. Especially in the case of trigger and trigger_group_processing..
 #   It is OK to have it complex if the JSON parsing itself is complex but a better, faster way to deal
 #   with those has to be developed.
 
-CONTAINER_SAVE_PATH: os.PathLike = Config.GTM_SPY_DOWNLOAD_PATH
+# TODO Use generators wherever possible to make code more readable, fast and easier to manage
+#   change the codebase for this. This might also save memory.
+# TODO research ways or libraries for faster JSON parsing.
+# TODO List storage in memory can be replaced with generators (?)
+
+# TODO refactor the code by using ABC or Protocol and Dataclasses.
+#   There should be a class GTM that holds the whole container, handles connection and other non-data related methods.
+#   All other container sections should inherit from the GTM class
+#       GTMMacros, GTMPredicates, GTMTags, GTMRules and so on, which themselves being so similar could inherit
+#       from another class. This way the main class is not so cluttered.
+
+# TODO Create a find_type(Union[section, container]) -> Union[builtin type, custom type]:
+#  function that handles type definitions across all containers and sections.
 
 GTM_URL_ROOT: str = 'https://www.googletagmanager.com/gtm.js?id='
 
@@ -33,6 +47,8 @@ SECTIONS = [ROOT['VERSION'], ROOT['MACROS'],
             ROOT['TAGS'], ROOT['PREDICATES'], ROOT['RULES'],
             ROOT['RUNTIME'], ROOT['PERMISSIONS']]
 
+Template = NewType('RuntimeTemplate', List[Union[int, str, List]])
+
 
 # decorator to validate if a given section is indeed a valid section
 def check_for_container(method: Callable) -> Union[Callable, TypeError]:
@@ -46,7 +62,6 @@ def check_for_container(method: Callable) -> Union[Callable, TypeError]:
 
 
 class GTMIntel(object):
-    _root_path = CONTAINER_SAVE_PATH
 
     def __init__(self, container_id: str, first_load: bool = False, container_data=None):
 
@@ -61,10 +76,11 @@ class GTMIntel(object):
         # the preserve the integrity of the original container, we will be working on a copy.
         self._working_container = deepcopy(self._original_container)
         # _usable_container only hold 'version' and literal container data ('macros', 'tags', 'predicates', 'rules')
-        self._resource_container = self._working_container[self.container_root]
+        self._resource_container = self._working_container[self.container_resource_section]
+        self.runtime_container = self._working_container[self.container_runtime_section]
 
     @check_for_container
-    def section_contents(self, section: list) -> Union[str, Generator]:
+    def resource_section_contents(self, section: list) -> Union[str, Generator]:
         """
         Get the content of the given section
 
@@ -72,9 +88,9 @@ class GTMIntel(object):
         :return: Section contents
         """
 
-        container_section = self._resource_container[section]
+        resource_section = self._resource_container[section]
 
-        return container_section
+        return resource_section
 
     def container_to_json(self) -> dict:
         """
@@ -125,7 +141,8 @@ class GTMIntel(object):
         function_list = []
         print(container)
         for item in container:
-            function_list.append(item['function'])
+            if 'function' in item:
+                function_list.append(item['function'])
 
         count = len(function_list)
 
@@ -160,16 +177,29 @@ class GTMIntel(object):
         return self._working_container
 
     @property
-    def container_root(self):
+    def container_resource_section(self):
         """
         References the 'resource' part of the container
 
         :return: 'resource' contents
         """
 
-        root: str = list(self._working_container.keys())[0]
+        resource: list = list(self._working_container.keys())[0]
 
-        return root
+        return resource
+
+    @property
+    def container_runtime_section(self):
+        """
+        References the 'runtime' part of the container
+
+        :return: 'runtime' section
+        """
+
+        if 'runtime' in list(self._working_container.keys()):
+            return list(self._working_container.keys())[1]
+        else:
+            return 'runtime section missing from selected container'
 
     @property
     def original_container(self) -> dict:
@@ -199,7 +229,7 @@ class GTMIntel(object):
         :rtype: str
         """
 
-        version = self.section_contents(ROOT['VERSION'])
+        version = self.resource_section_contents(ROOT['VERSION'])
 
         return version
 
@@ -211,7 +241,7 @@ class GTMIntel(object):
         :rtype: dict
         """
 
-        macros = self.section_contents('macros')
+        macros = self.resource_section_contents('macros')
 
         return macros
 
@@ -222,7 +252,7 @@ class GTMIntel(object):
         :return:
         :rtype:
         """
-        predicates = self.section_contents('predicates')
+        predicates = self.resource_section_contents('predicates')
 
         return predicates
 
@@ -234,7 +264,7 @@ class GTMIntel(object):
         :rtype:
         """
 
-        rules = self.section_contents('rules')
+        rules = self.resource_section_contents('rules')
 
         return rules
 
@@ -245,19 +275,19 @@ class GTMIntel(object):
         :return:
         :rtype:
         """
-        tags = self.section_contents('tags')
+        tags = self.resource_section_contents('tags')
 
         return tags
 
     @property
     def runtime(self) -> list:
-        runtime = self.section_contents('runtime')
+        runtime = self.runtime_container
 
         return runtime
 
     @property
     def permissions(self) -> list:
-        permissions = self.section_contents('permissions')
+        permissions = self.resource_section_contents('permissions')
 
         return permissions
 
@@ -792,7 +822,9 @@ class GTMIntel(object):
                         #   in a regex variable
                         if self.process_type(predicates[predicate_index]['arg1']) == 'RegEx':
                             is_group_predicate = True
-                            group_conditions['_group_trigger'].append(re.search(r'^\(\^\$\|\(\(\^\|,\)([0-9_]+)\(\$\|,\)\)\)$', predicates[predicate_index]['arg1']).group(1))
+                            group_conditions['_group_trigger'].append(
+                                re.search(r'^\(\^\$\|\(\(\^\|,\)([0-9_]+)\(\$\|,\)\)\)$',
+                                          predicates[predicate_index]['arg1']).group(1))
                             nested_rls = [rls]
                             group_conditions['_trigger'].append(nested_rls)
 
@@ -866,3 +898,171 @@ class GTMIntel(object):
                                                                                extract_trigger_id(member)))
 
         return trigger_group
+
+
+class GTMRuntime(GTMIntel):
+
+    def __init__(self, container_id: str, first_load: bool = False, container_data: Any = None):
+        super().__init__(container_id=container_id, first_load=first_load, container_data=container_data)
+
+    @property
+    def templates(self) -> Generator:
+        """
+        :return: Creates a generator containing all found templates within the runtime section
+        :rtype: Generator
+        """
+        templates_to_gen = (RuntimeTemplate(template) for template in self.runtime)
+
+        return templates_to_gen
+
+    @property
+    def length(self):
+        template_length = len(list(self.templates))
+
+        return template_length
+
+    def fetch_template(self, template_index: int) -> RuntimeTemplate:
+        """
+        Fetches a template from the available templates by their index
+        :param template_index: index of template to return
+        :type template_index: int
+        :return: Returns a RuntimeTemplate object
+        :rtype: RuntimeTemplate
+        """
+        template = next(islice(self.templates, template_index, None))
+
+        return template
+
+
+class RuntimeTemplate:
+    def __init__(self, template: Template):
+        self.contents = template
+
+    @property
+    def length(self):
+        length = len(self.contents)
+
+        return length
+
+    @property
+    def name(self):
+        name = self.contents[1]
+
+        return name
+
+    # TODO Improve this once the role of index 46 has been established.
+    #   Grabbing the field_data variable this is is kind of crude
+    @property
+    def field_data_variable(self):
+        variable = self.contents[2][1]
+
+        return variable
+
+    @property
+    def template_main_function(self):
+        """
+        Generate the main function that hold the whole template data
+        :return: String representation of the main template function
+        :rtype: str
+        """
+        symbol = get_runtime_index(self.contents[0], 'symbol')
+        name = self.name
+        body = f'{symbol} {name}() {{}};'
+
+        return body
+
+    # TODO get index counter by the index symbol/sign (i.e. "<<")
+    def count_occurrences(self, index: int, count_all: bool = False, print_to_console: bool = True) -> Union[int, dict]:
+        """
+        Count occurrences of a runtime index values within the current template.
+        :param index: runtime index value found within the template
+        :type index: int
+        :param count_all: if TRUE count all indexes regardless of given index
+        :type count_all: bool
+        :param print_to_console: if FALSE does not print results to console
+        :type print_to_console: bool
+        :return: Returns a simple integer if count_all is set to False. Returns a dictionary of index: index_count if count_all is set to True
+        :rtype: Union[int, dict]
+        """
+        template = list(flatten_container(self.contents))
+
+        response_dict = dict()
+
+        if not count_all:
+            if index not in runtime_index.keys():
+                raise KeyError(f'Please choose a value between 1 and 66')
+            else:
+                count = template.count(index)
+
+            response = count
+            if print_to_console:
+                print(f'Found {count} instances of {runtime_index[index]}')
+
+            return response
+        else:
+            for item in template:
+                if item in runtime_index.keys():
+                    count = list(template).count(item)
+                    response_dict[f'{item}'] = count
+
+            if print_to_console:
+                print(response_dict)
+
+    """
+    The properties below only provide the names of the items.
+    For example: self.lets would be a list of all "let" declared variables.
+        Try to create with an argument or another function altogether that "pretty" prints
+        the data. Example: lets_literal() (a method not a property!) print "let a;"
+            Although, this might be tricky. Doing this, what happens to variables that have assignment? 
+                The assignment should be included in the print.
+    """
+
+    @property
+    def lets(self):
+        # parses the template and finds all instances of "let" declared variables.
+        #   in spite of "var" declarations, even though "let" variables are declared with
+        #   the same index (41) they are not found in the initial variable list
+        #   and are declared within their respective scopes.
+        pass
+
+    @property
+    def vars(self):
+        """
+        Grab the first occurrence of the 41 index in the template, which defines the list of "var" declared variables
+        :return: var values generator
+        :rtype: Generator
+        """
+        for item in self.contents:
+            if isinstance(item, list) and item[0] == 41:
+                for var in item[1:]:
+                    yield var
+
+                if self.contents.index(item) > 2:
+                    break
+
+    @property
+    def consts(self):
+        """
+        Creates a generator containing all found indexes of value 52 which represents "const" values.
+        :return: const values generator
+        :rtype: Generator
+        """
+        def count_consts(container):
+            for i in container:
+                if isinstance(i, list):
+                    for j in count_consts(i):
+                        if j == 52:
+                            yield i[1]
+                # TODO Analyze why having this conditional here makes it work
+                #   removing this breaks functionality.
+                else:
+                    if i == 52:
+                        yield i
+
+        return count_consts(self.contents)
+
+    @property
+    def function(self):
+        # Indexes 50 and 51 represent functions. 50 states an unassigned function while 51 represents functions
+        # assigned to a variable.
+        pass
