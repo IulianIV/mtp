@@ -292,6 +292,7 @@ class GTMContainers(db.Model):
     container_id = db.Column(db.String(25), index=True, nullable=False)
     container_data = db.Column(db.LargeBinary(length=(2**32)-1), index=False, nullable=False)
     is_active = db.Column(db.Boolean, index=False, nullable=False, default=False)
+    container_source = db.Column(db.String(150), index=True, nullable=True)
 
     def __repr__(self):
         return f'GTM Container of id {self.container_id}.'
