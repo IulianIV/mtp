@@ -6,7 +6,7 @@
     (url_for('mrk.gtm_intel_triggers'), 'triggers', 'Triggers'),
     ('#', 'custom-tags', 'Custom Tags'),
     ('#', 'custom-variables', 'Custom Variables'),
-    ('#', 'runtime', 'Runtime'),
+    (url_for('mrk.gtm_intel_runtime'), 'runtime', 'Runtime'),
     ('#', 'permissions', 'Permissions'),
     ('#', 'sandboxed-scripts', 'Sandboxed Scripts'),
     ('#', 'security-groups', 'Security Groups')
@@ -27,7 +27,7 @@
 {% endblock %}
 {% block content %}
     <div class="row min-vh-100 flex-column flex-md-row">
-        <aside class="col-12 col-md-3 bg-light flex-shrink-1">
+        <aside class="col-12 col-md-4 bg-light flex-shrink-1">
             <nav class="navbar navbar-expand navbar-light bg-light flex-md-column flex-row align-items-start py-2">
                 <ul class="flex-md-column flex-row navbar-nav w-100 justify-content-between">
                     <li class="nav-item">
@@ -36,13 +36,14 @@
                                 {% set recent_version = new_version(gtm_id) %}
                                 <span class="navbar-text">Currently working on:</span>
                                 <br>
-                                <a class="gtmspy-link" href="{{ model_gtm_path }}" target="_blank">
+                                <a class="gtmspy-link" href="{{ model_gtm_path }}" target="_blank" rel="noreferrer">
                                     <span class="font-weight-bold mb-0 h2 bg-spygreen rounded-2">{{ gtm_id }}</span>
                                 </a>
                                 <span><strong>v{{ version }}</strong></span>
                             {% endif %}
                             {% if recent_version != version %}
-                                <button type="button" class="btn btn-danger" data-toggle="tooltip"
+                                <button type="button" class="btn btn-danger" style="vertical-align: top;"
+                                        data-toggle="tooltip"
                                         data-placement="top"
                                         title="A new container version is available. The current version is {{ recent_version | int - version | int }} version(s) behind.">
                                         <strong>v{{ recent_version }}</strong>
@@ -51,6 +52,16 @@
                         </span>
                     </li>
                 </ul>
+                {% if container_domain %}
+                    <ul class="flex-sm-column flex-row navbar-nav w-100 justify-content-between">
+                        <li class="nav-item">
+                            <span class="navbar-text">for domain
+                                <a class="navbar-text" href="{{ container_domain }}" target="_blank"
+                                   rel="noreferrer">{{ container_domain }}</a>
+                            </span>
+                        </li>
+                    </ul>
+                {% endif %}
                 <form class="form-inline my-2" method="post" id="gtm-id-form" action="{{ url_for('mrk.gtm_intel') }}"
                       novalidate>
                     {{ container_id_form.hidden_tag() }}
@@ -89,9 +100,15 @@
                                         class="badge badge-light" style="text-align: left;"
                                     {% endif %}
                             >
-                                <a class="nav-link pl-0" href="{{ href|e }}">
-                                    <span class="d-none d-md-inline">{{ caption|e }}</span>
-                                </a>
+                                {% if href | e == "#" %}
+                                    <a class="nav-link pl-0" href="{{ href|e }}">
+                                        <s class="d-none d-md-inline">{{ caption|e }}</s>
+                                    </a>
+                                {% else %}
+                                    <a class="nav-link pl-0" href="{{ href|e }}">
+                                        <span class="d-none d-md-inline">{{ caption|e }}</span>
+                                    </a>
+                                {% endif %}
                             </li>
                         {% endfor %}
                         <div role="separator" class="dropdown-divider"></div>
