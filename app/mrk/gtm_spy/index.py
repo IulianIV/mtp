@@ -1,3 +1,11 @@
+skip_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function', 'infoKey']
+skip_tag_keys = ['pill', 'property', 'nameProperty', 'title', 'function', 'infoKey', 'teardown_tags',
+                 'setup_tags', '_sequence', '_conditions', '_blocking', 'exportType']
+skip_trigger_keys = ['gtm.triggerGroup', '__tg']
+triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl', '__evl']
+code_snippet_properties = ['vtp_html', 'vtp_javascript']
+untracked_macros = ['Environment name']
+
 tags_index = {
     '__paused': {
         'title': 'Paused Tag',
@@ -196,10 +204,81 @@ dlvBuiltins_index = {
     "gtm.visibleTime": {'title': "Element Visibility Time (On-Screen Duration)"}
 }
 
-skip_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function', 'infoKey']
-skip_tag_keys = ['pill', 'property', 'nameProperty', 'title', 'function', 'infoKey', 'teardown_tags',
-                 'setup_tags', '_sequence', '_conditions', '_blocking', 'exportType']
-skip_trigger_keys = ['gtm.triggerGroup', '__tg']
-triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl', '__evl']
-code_snippet_properties = ['vtp_html', 'vtp_javascript']
-untracked_macros = ['Environment name']
+runtime_index = {
+    0: {'symbol': '+', 'type': 'operator', 'name': 'addition'},
+    1: {'symbol': '&&', 'type': 'operator', 'name': 'logical AND'},
+    2: {'symbol': '.', 'type': 'no type', 'name': 'method accessor'},
+    3: {'symbol': '=', 'type': 'operator', 'name': 'assignment'},
+    4: {'symbol': 'break', 'type': 'statement', 'name': 'break statement'},
+    5: {'symbol': 'case', 'type': 'statement', 'name': 'case (switch)'},
+    6: {'symbol': 'continue', 'type': 'statement', 'name': 'continue statement'},
+    7: {'symbol': '[]', 'type': 'array', 'name': 'index based array'},
+    8: {'symbol': '{}', 'type': 'array', 'name': 'key-value based array'},
+    9: {'symbol': 'default', 'type': 'statement', 'name': 'default (switch)'},
+    10: {'symbol': '/', 'type': 'operator', 'name': 'division'},
+    11: {'symbol': '[]', 'type': '', 'name': ''},
+    12: {'symbol': '==', 'type': 'operator', 'name': 'equality'},
+    13: {'symbol': '[]', 'type': '', 'name': ''},
+    14: {'symbol': '[]', 'type': '', 'name': ''},
+    15: {'symbol': 'variable_reference', 'type': '', 'name': ''},
+    16: {'symbol': '[]', 'type': 'no type', 'name': 'property accessor'},
+    17: {'symbol': '.', 'type': 'no type', 'name': 'property accessor'},
+    18: {'symbol': '>', 'type': 'operator', 'name': 'larger than'},
+    19: {'symbol': '>=', 'type': 'operator', 'name': 'larger than or equal to'},
+    20: {'symbol': '===', 'type': 'operator', 'name': 'equality with type comparison'},
+    21: {'symbol': '!==', 'type': 'operator', 'name': 'NOT equality with type comparison'},
+    22: {'symbol': 'if', 'type': 'statement', 'name': 'if statement'},
+    23: {'symbol': '<', 'type': 'operator', 'name': 'less than'},
+    24: {'symbol': '<=', 'type': 'operator', 'name': 'less than or equal to'},
+    25: {'symbol': '%', 'type': 'operator', 'name': 'division reminder'},
+    26: {'symbol': '*', 'type': 'operator', 'name': 'multiplication'},
+    27: {'symbol': '-', 'type': 'operator', 'name': 'unary negation'},
+    28: {'symbol': '!', 'type': 'operator', 'name': 'logical NOT'},
+    29: {'symbol': '!=', 'type': 'operator', 'name': 'NOT equality'},
+    30: {'symbol': '||', 'type': 'operator', 'name': 'logical OR'},
+    31: {'symbol': '[]', 'type': '', 'name': ''},
+    32: {'symbol': '[]', 'type': '', 'name': ''},
+    33: {'symbol': '[]', 'type': '', 'name': ''},
+    34: {'symbol': '[]', 'type': '', 'name': ''},
+    35: {'symbol': '[]', 'type': '', 'name': ''},
+    36: {'symbol': 'return', 'type': 'statement', 'name': 'return statement'},
+    37: {'symbol': '-', 'type': 'operator', 'name': 'substraction'},
+    38: {'symbol': 'switch', 'type': 'statement', 'name': 'switch statement'},
+    39: {'symbol': '?', 'type': 'operator', 'name': 'ternary operator'},
+    40: {'symbol': 'typeof', 'type': 'operator', 'name': 'Type return operator'},
+    41: {'symbol': 'var', 'type': 'variable list', 'name': 'variable declaration var/let',
+         'variations': {1: 'var list', 2: 'let list'}},
+    42: {'symbol': 'while', 'type': 'statement', 'name': 'while and do...while statement',
+         'variations': {1: 'while', 2: 'do...while'}},
+    43: {'symbol': '[]', 'type': 'no type', 'name': 'Property setter'},
+    44: {'symbol': 'undefined', 'type': 'statement', 'name': 'undefined statement'},
+    45: {'symbol': 'null', 'type': 'null', 'name': 'null type'},
+    46: [],
+    47: {'symbol': 'for', 'type': 'statement', 'name': 'for statement',
+         'variation': 'for (var a in b)'},
+    48: [],
+    49: {'symbol': 'control', 'type': 'statement', 'name': 'control statement'},
+    50: {'symbol': 'function', 'type': 'declaration', 'name': 'function',
+         'variation': 'function definition'},
+    51: {'symbol': 'function', 'type': 'declaration', 'name': 'function',
+         'variation': 'function assignment'},
+    52: {'symbol': 'const', 'type': 'constant', 'name': 'constant declaration'},
+    53: {'symbol': 'for', 'type': 'statement', 'name': 'for statement',
+         'variation': 'standard'},
+    54: [],
+    55: {'symbol': 'for', 'type': 'statement', 'name': 'for statement',
+         'variation': 'for (let a in b)'},
+    56: {'symbol': '&', 'type': 'operator', 'name': 'Bitwise AND'},
+    57: {'symbol': '<<', 'type': 'operator', 'name': 'Bitwise Leftshift'},
+    58: {'symbol': '~', 'type': 'operator', 'name': 'Bitwise negation'},
+    59: {'symbol': '|', 'type': 'operator', 'name': 'Bitwise OR'},
+    60: {'symbol': '>>', 'type': 'operator', 'name': 'Bitwise rightshift'},
+    61: {'symbol': '>>>', 'type': 'operator', 'name': 'Unsigned Bitwise rightshift'},
+    62: {'symbol': '^', 'type': 'operator', 'name': 'Bitwise XOR'},
+    63: [],
+    64: [],
+    65: {'symbol': 'for', 'type': 'statement', 'name': 'for statement',
+         'variation': 'for (var a of b)'},
+    66: {'symbol': 'for', 'type': 'statement', 'name': 'for statement',
+         'variation': 'for (let a of b)'}
+}
