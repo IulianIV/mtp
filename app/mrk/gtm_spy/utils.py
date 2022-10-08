@@ -63,3 +63,19 @@ def flatten_container(container):
                 yield j
         else:
             yield i
+
+
+# Used in the runtime parser to check if arguments given to a certain method (operator, statement) are valid references
+#   to a var, let, const or function.
+def check_if_reference(*args):
+    non_reference = []
+    for arg in args:
+        if arg[0] == 15:
+            continue
+        else:
+            non_reference.append(args.index(arg))
+
+    if not non_reference:
+        return True
+
+    return f'Arguments {non_reference} are not valid variable references'
