@@ -224,7 +224,7 @@ runtime_index = {
     16: {'symbol': '[]', 'type': 'no type', 'name': 'property accessor'},
     17: {'symbol': '.', 'type': 'no type', 'name': 'property accessor'},
     18: {'symbol': '>', 'type': 'operator', 'name': 'larger than'},
-    19: {'symbol': '>=', 'type': 'operator', 'name': 'larger than or equal to'},
+    19: {'symbol': '>=', 'type': 'operator', 'name': 'larger than or equal to', 'method': 'operator_lg_eq'},
     20: {'symbol': '===', 'type': 'operator', 'name': 'equality with type comparison'},
     21: {'symbol': '!==', 'type': 'operator', 'name': 'NOT equality with type comparison'},
     22: {'symbol': 'if', 'type': 'statement', 'name': 'if statement'},
