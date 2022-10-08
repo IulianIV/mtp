@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections import OrderedDict
 import json
 import re
 from copy import deepcopy
@@ -10,7 +11,7 @@ import requests
 from app.manager.helpers import extract_trigger_id
 from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags, \
     triggers_index, runtime_index
-from .utils import find_in_index, get_runtime_index, flatten_container
+from .utils import find_in_index, get_runtime_index, flatten_container, check_if_reference
 
 # FIXME MAJOR! All create_container_name() functions need to be evaluated and commented. The goal, eventually,
 #   is to have their complexity reduced. Especially in the case of trigger and trigger_group_processing..
@@ -899,6 +900,12 @@ class GTMIntel(object):
 
         return trigger_group
 
+    @property
+    def runtime_parser(self) -> GTMRuntime:
+        runtime_template = GTMRuntime(self.id, True)
+
+        return runtime_template
+
 
 class GTMRuntime(GTMIntel):
 
@@ -936,7 +943,9 @@ class GTMRuntime(GTMIntel):
 
 class RuntimeTemplate:
     def __init__(self, template: Template):
+        # TODO maybe implement this as a generator too, to save memory and adapt other methods?
         self.contents = template
+        self.cache = []
 
     @property
     def length(self):
@@ -952,6 +961,7 @@ class RuntimeTemplate:
 
     # TODO Improve this once the role of index 46 has been established.
     #   Grabbing the field_data variable this is is kind of crude
+    # fix-me naming of this function is highly inefficient
     @property
     def field_data_variable(self):
         variable = self.contents[2][1]
@@ -1017,52 +1027,147 @@ class RuntimeTemplate:
                 The assignment should be included in the print.
     """
 
+    def _find_nested_index_and_name(self, var_type: int, unique: bool = True) -> Generator:
+        """
+        Create a generator of "let" or "const" variable declarations
+        :return: let/cont variables generator
+        :rtype: Generator
+        """
+
+        # TODO try to redo the lower inner function with generators. What you have tried is right here, below.
+        #   This does not seems to work. If a copy of container is yielded it just simply shows nothing
+        #   and only parses the first occurrence of 41 index
+        #   Also check the implementation of "consts"
+        # def count_lets(container):
+        #
+        #     for idx, item in enumerate(container):
+        #         if item == 41:
+        #             yield item
+        #         elif isinstance(item, list):
+        #             for j in count_lets(item):
+        #                 if j == 41:
+        #                     yield item
+
+        cache = []
+        var = var_type
+
+        # needed to bypass the first 41 "var" declaration in case of "let"
+        stripped_template = self.contents[4:]
+
+        def indexer(container):
+            nonlocal cache
+            container_copy = container.copy()
+
+            for idx, item in enumerate(container):
+                if item == var:
+                    cache.append(container_copy[1])
+                elif isinstance(item, list):
+                    for j in indexer(item):
+                        if j == var:
+                            cache.append(container[1])
+
+            # using OrderedDict to make the list unique
+            if not unique:
+                return (let for let in cache)
+            else:
+                cache = list(OrderedDict.fromkeys(cache))
+                return (let for let in cache)
+
+        return indexer(stripped_template)
+
     @property
-    def lets(self):
-        # parses the template and finds all instances of "let" declared variables.
-        #   in spite of "var" declarations, even though "let" variables are declared with
-        #   the same index (41) they are not found in the initial variable list
-        #   and are declared within their respective scopes.
-        pass
+    def lets(self) -> Generator:
+        """
+        Create a generator of "let" variable declarations
+        :return: let variables generator
+        :rtype: Generator
+        """
+        return self._find_nested_index_and_name(41)
+
+    @property
+    def consts(self) -> Generator:
+        """
+        Create a generator of "const" variable declarations
+        :return: const variables generator
+        :rtype: Generator
+        """
+        return self._find_nested_index_and_name(52)
 
     @property
     def vars(self):
         """
         Grab the first occurrence of the 41 index in the template, which defines the list of "var" declared variables
-        :return: var values generator
+        :return: var variables generator
         :rtype: Generator
         """
-        for item in self.contents:
+        stripped_template = self.contents[3:4]
+
+        for item in stripped_template:
             if isinstance(item, list) and item[0] == 41:
                 for var in item[1:]:
                     yield var
 
-                if self.contents.index(item) > 2:
-                    break
-
     @property
-    def consts(self):
+    def functions(self):
         """
-        Creates a generator containing all found indexes of value 52 which represents "const" values.
-        :return: const values generator
+        Create a generator of "function" declarations and assignments
+        :return: function declaration/assignment generator
         :rtype: Generator
         """
-        def count_consts(container):
-            for i in container:
-                if isinstance(i, list):
-                    for j in count_consts(i):
-                        if j == 52:
-                            yield i[1]
-                # TODO Analyze why having this conditional here makes it work
-                #   removing this breaks functionality.
-                else:
-                    if i == 52:
-                        yield i
 
-        return count_consts(self.contents)
+        cache = {}
+        count = 1
 
-    @property
-    def function(self):
-        # Indexes 50 and 51 represent functions. 50 states an unassigned function while 51 represents functions
-        # assigned to a variable.
-        pass
+        # needed to bypass the first 50 "function" declaration
+        stripped_template = self.contents[1:]
+
+        for item in stripped_template:
+            if isinstance(item, list) and item[0] == 50:
+                cache[f'declared_function_{stripped_template.index(item) - 2}:'] = item[1]
+
+        for item in self._find_nested_index_and_name(51, False):
+            cache[f'assigned_function_{count}:'] = item
+            count += 1
+
+        return ((k, v) for (k, v) in cache.items())
+
+    @staticmethod
+    def _get_index_parser_method_name(index_value: int):
+        return get_runtime_index(index_value, 'method')
+
+    # better-me Here temporarily for test reasons
+    # in production mode there should be no checking if the index is "3" or other values
+    # it is like this to create methods one by one
+    def parse_line(self, test_line):
+
+        def indexer(container):
+            for idx, item in enumerate(container):
+                if isinstance(item, list):
+                    try:
+                        index_method = self._get_index_parser_method_name(item[0])
+                        if item[0] == 19:
+                            method_call = getattr(self, index_method)(item)
+                            return method_call
+                    except KeyError:
+                        continue
+
+        return indexer(test_line)
+
+    def operator_lg_eq(self, container) -> str:
+        """
+        Handles parsing of ">=" operator - larger than or equal to
+        :return: string representation of parsed operator
+        :rtype: str
+        """
+        arg1 = container[1]
+        arg2 = container[2]
+        operator_symbol = get_runtime_index(container[0], 'symbol')
+        container_string = ''
+
+        # if this check does not pass start evaluating what the next arguments are and their respective methods
+        if check_if_reference(arg1, arg2):
+            container_string = f'{arg1[1]} {operator_symbol} {arg2[1]}'
+
+        return container_string
+
+
