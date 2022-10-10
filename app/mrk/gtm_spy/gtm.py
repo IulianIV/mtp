@@ -10,8 +10,9 @@ import requests
 
 from app.manager.helpers import extract_trigger_id
 from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags, \
-    triggers_index, runtime_index
-from .utils import find_in_index, get_runtime_index, flatten_container, check_if_reference
+    triggers_index, runtime_index, UnaryOperator, BinaryOperator, TernaryOperator, Statement,\
+    ValueStatement, PropertySetter, PropertyAccessor, Array
+from .utils import find_in_index, get_runtime_index, flatten_container
 
 # FIXME MAJOR! All create_container_name() functions need to be evaluated and commented. The goal, eventually,
 #   is to have their complexity reduced. Especially in the case of trigger and trigger_group_processing..
@@ -1108,15 +1109,18 @@ class RuntimeTemplate:
                     yield var
 
     @property
-    def functions(self):
+    def functions(self, member_list: bool = True):
         """
         Create a generator of "function" declarations and assignments
+        :param member_list: If True return a list of function names. Else prints a detailed dict.
+        :type member_list: bool
         :return: function declaration/assignment generator
         :rtype: Generator
         """
 
         cache = {}
         count = 1
+        function_names = []
 
         # needed to bypass the first 50 "function" declaration
         stripped_template = self.contents[1:]
@@ -1124,38 +1128,57 @@ class RuntimeTemplate:
         for item in stripped_template:
             if isinstance(item, list) and item[0] == 50:
                 cache[f'declared_function_{stripped_template.index(item) - 2}:'] = item[1]
+                function_names.append(item[1])
 
         for item in self._find_nested_index_and_name(51, False):
             cache[f'assigned_function_{count}:'] = item
             count += 1
+            function_names.append(item[1])
 
-        return ((k, v) for (k, v) in cache.items())
+        if not member_list:
+            return ((k, v) for (k, v) in cache.items())
 
-    @staticmethod
-    def _get_index_parser_method_name(index_value: int):
-        return get_runtime_index(index_value, 'method')
+        return (x for x in function_names)
 
     # better-me Here temporarily for test reasons
     # in production mode there should be no checking if the index is "3" or other values
-    # it is like this to create methods one by one
+    # it is like this to create index methods one by one
     def parse_line(self, test_line):
 
         def indexer(container):
             for idx, item in enumerate(container):
-                if isinstance(item, list):
+                if isinstance(item, int):
                     try:
-                        index_method = self._get_index_parser_method_name(item[0])
-                        if item[0] == 19:
-                            method_call = getattr(self, index_method)(item)
-                            return method_call
+                        index_method = get_runtime_index(item, 'method')
+                        method_call = getattr(self, index_method)(container)
+                        return method_call
+                    except KeyError:
+                        continue
+                if isinstance(item, str) and container[0] == 'require':
+                    index_method = get_runtime_index(container[0], 'method')
+                    method_call = getattr(self, index_method)(container)
+                    return method_call
+                elif isinstance(item, list):
+                    try:
+                        index_method = get_runtime_index(item[0], 'method')
+                        method_call = getattr(self, index_method)(item)
+                        return method_call
                     except KeyError:
                         continue
 
         return indexer(test_line)
 
-    def operator_lg_eq(self, container) -> str:
+    def parse(self):
+
+        contents = self.contents
+
+        self.parse_line(contents)
+
+    # Treat property accessors differently if necessary, even though they are binary operators
+    # Special treatments needs to be made if arg1 is evaluated as string but represents a function reference
+    def parse_binary_operator(self, container) -> str:
         """
-        Handles parsing of ">=" operator - larger than or equal to
+        Handles parsing of binary operators that take two operands as arguments (i.e. "+", "||", "==" etc.)
         :return: string representation of parsed operator
         :rtype: str
         """
@@ -1165,9 +1188,65 @@ class RuntimeTemplate:
         container_string = ''
 
         # if this check does not pass start evaluating what the next arguments are and their respective methods
-        if check_if_reference(arg1, arg2):
+        if arg1[0] == 15 and arg2[0] == 15:
             container_string = f'{arg1[1]} {operator_symbol} {arg2[1]}'
+        elif isinstance(arg1, str):
+            if isinstance(arg2, list):
+                arg2 = self.parse_line(arg2)
+                container_string = f'{arg1} {operator_symbol} {arg2}'
+            elif isinstance(arg2, int):
+                container_string = f'{arg1} {operator_symbol} {arg2}'
+
+        return container_string
+
+    def parse_unary_operator(self, container) -> str:
+        """
+        Handles parsing of unary operators "!", "~", "-" etc.
+        :return: string representation of parsed operator
+        :rtype: str
+        """
+        arguments = container[1]
+        operator_symbol = get_runtime_index(container[0], 'symbol')
+
+        if operator_symbol == 'typeof':
+            container_string = f'{operator_symbol} {arguments}'
+        else:
+            container_string = f'{operator_symbol}{arguments}'
 
         return container_string
 
 
+    @staticmethod
+    def parse_value_reference(container) -> str:
+        if container[0] == 15:
+            return container[1]
+
+    @staticmethod
+    def parse_require_exception(container) -> str:
+        container_string = ''
+
+        if container[0] == 'require':
+            container_string = f'require("{container[1]}");'
+
+        return container_string
+
+    def parse_let_const(self, container):
+        value_type = ''
+
+        if container[0] == 52:
+            value_type = 'const'
+
+        if container[0] == 41:
+            value_type = 'let'
+
+        value_name = container[1]
+        assignment = container[2]
+        container_string = ''
+
+        if isinstance(assignment, list):
+            assignment_value = self.parse_line(assignment)
+            container_string = f'{value_type} {value_name} = {assignment_value}'
+        elif isinstance(assignment, str):
+            container_string = f'{value_type} {value_name} = {assignment}'
+
+        return container_string
