@@ -1,6 +1,8 @@
+import functools
 import json
 import re
 import requests
+from typing import Union
 from .index import runtime_index
 
 
@@ -40,7 +42,7 @@ def find_in_index(value: str, index: dict) -> dict:
     return index[value]
 
 
-def get_runtime_index(index_value: int, dict_key: str, full_index: bool = False):
+def get_runtime_index(index_value: Union[int, str], dict_key: str, full_index: bool = False):
     if full_index:
         return runtime_index[index_value]
 
@@ -63,19 +65,3 @@ def flatten_container(container):
                 yield j
         else:
             yield i
-
-
-# Used in the runtime parser to check if arguments given to a certain method (operator, statement) are valid references
-#   to a var, let, const or function.
-def check_if_reference(*args):
-    non_reference = []
-    for arg in args:
-        if arg[0] == 15:
-            continue
-        else:
-            non_reference.append(args.index(arg))
-
-    if not non_reference:
-        return True
-
-    return f'Arguments {non_reference} are not valid variable references'
