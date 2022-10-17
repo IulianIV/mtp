@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import itertools
 from collections import OrderedDict
 import json
 import re
@@ -141,7 +143,6 @@ class GTMIntel(object):
     @staticmethod
     def count_items(container):
         function_list = []
-        print(container)
         for item in container:
             if 'function' in item:
                 function_list.append(item['function'])
@@ -947,6 +948,7 @@ class RuntimeTemplate:
         # TODO maybe implement this as a generator too, to save memory and adapt other methods?
         self.contents = template
         self.cache = []
+        self.counter = 0
 
     @property
     def length(self):
@@ -1030,7 +1032,7 @@ class RuntimeTemplate:
 
     def _find_nested_index_and_name(self, var_type: int, unique: bool = True) -> Generator:
         """
-        Create a generator of "let" or "const" variable declarations
+        Create a generator of given index and their names
         :return: let/cont variables generator
         :rtype: Generator
         """
@@ -1133,7 +1135,7 @@ class RuntimeTemplate:
         for item in self._find_nested_index_and_name(51, False):
             cache[f'assigned_function_{count}:'] = item
             count += 1
-            function_names.append(item[1])
+            function_names.append(item)
 
         if not member_list:
             return ((k, v) for (k, v) in cache.items())
@@ -1158,6 +1160,8 @@ class RuntimeTemplate:
                     index_method = get_runtime_index(container[0], 'method')
                     method_call = getattr(self, index_method)(container)
                     return method_call
+                if isinstance(item, str) and item in self.functions:
+                    return self.parse_function_call(item)
                 elif isinstance(item, list):
                     try:
                         index_method = get_runtime_index(item[0], 'method')
@@ -1187,19 +1191,26 @@ class RuntimeTemplate:
         operator_symbol = get_runtime_index(container[0], 'symbol')
         container_string = ''
 
+        # fix-me There is no semicolon here
         # if this check does not pass start evaluating what the next arguments are and their respective methods
-        if arg1[0] == 15 and arg2[0] == 15:
-            container_string = f'{arg1[1]} {operator_symbol} {arg2[1]}'
+        if isinstance(arg1, list) and isinstance(arg2, list):
+            container_string = f'{self.parse_line(arg1)} {operator_symbol} {self.parse_line(arg2)}'
+        # if arg1[0] == 15 and arg2[0] == 15:
+        #     container_string = f'{arg1[1]} {operator_symbol} {arg2[1]}'
         elif isinstance(arg1, str):
             if isinstance(arg2, list):
                 arg2 = self.parse_line(arg2)
                 container_string = f'{arg1} {operator_symbol} {arg2}'
+            elif isinstance(arg2, str):
+                container_string = f'{arg1} {operator_symbol} "{arg2}"'
             elif isinstance(arg2, int):
                 container_string = f'{arg1} {operator_symbol} {arg2}'
 
+
         return container_string
 
-    def parse_unary_operator(self, container) -> str:
+    @staticmethod
+    def parse_unary_operator(container) -> str:
         """
         Handles parsing of unary operators "!", "~", "-" etc.
         :return: string representation of parsed operator
@@ -1215,6 +1226,70 @@ class RuntimeTemplate:
 
         return container_string
 
+    def parse_method_accessor(self, container) -> str:
+
+        raw_object = container[1]
+        _object = ''
+
+        if isinstance(raw_object, list):
+            _object = self.parse_line(raw_object)
+
+        _property = container[2]
+        _method_arguments = container[3]
+        arguments = []
+        argument_string = ''
+
+        if isinstance(_method_arguments, list):
+            arguments = self.parse_line(_method_arguments)
+
+        base_string = f'{_object}.{_property}('
+
+        if len(arguments) == 1:
+            argument_string += f'"{arguments[0]}"'
+        else:
+            for arg in arguments:
+                argument_string += f'"{arg}",'
+
+        if argument_string.endswith(','):
+            argument_string = argument_string[:-1]
+
+        container_string = base_string + argument_string + ');'
+
+        return container_string
+
+    def parse_array_literal(self, container) -> list:
+        if len(container) == 1:
+            return list()
+
+        argument_list = []
+
+        for argument in container[1:]:
+            if isinstance(argument, list):
+                raw_argument = self.parse_line(argument)
+                argument_list.append(raw_argument)
+            elif isinstance(argument, str):
+                argument_list.append(argument)
+
+        return argument_list
+
+    def parse_key_value_object(self, container) -> dict:
+
+        if len(container) == 1:
+            return dict()
+
+        argument_dict = {}
+
+        for idx, argument in enumerate(container[1:]):
+            if isinstance(argument, list):
+                container[idx + 1] = self.parse_line(argument)
+
+        dict_keys = container[1:][::2]
+        dict_values = container[1:][1::2]
+
+        for (k, v) in itertools.zip_longest(dict_keys, dict_values):
+            argument_dict[k] = v
+
+        return argument_dict
 
     @staticmethod
     def parse_value_reference(container) -> str:
@@ -1250,3 +1325,147 @@ class RuntimeTemplate:
             container_string = f'{value_type} {value_name} = {assignment}'
 
         return container_string
+
+    def parse_switch_statement(self, container):
+
+        switch_identifier = ''
+
+        # Parse the identifier - argument 1
+        if isinstance(container[1], list):
+            switch_identifier = self.parse_line(container[1])
+
+        switch_head = f'switch ({switch_identifier}) {{\n'
+
+        # parse through the argument declaration list - argument 2
+
+        raw_switch_cases = self.get_arguments(container[2])
+        parsed_cases = []
+
+        for idx, argument in enumerate(raw_switch_cases):
+            if isinstance(argument, list):
+                parsed_cases.append(self.parse_line(argument))
+                continue
+
+            parsed_cases.append(argument)
+
+        # parse through the body arguments - argument 3
+
+        switch_body = self.get_arguments(container[3])
+
+        if raw_switch_cases == [] and switch_body == []:
+            switch_head += '}'
+            return switch_head
+
+        expression_string = []
+
+        for idx, item in enumerate(switch_body):
+            if isinstance(item, list):
+                expression_string.append(self.parse_line(item))
+
+        switch_statement_string = switch_head + ''.join(expression_string)
+
+        for idx, arg in enumerate(parsed_cases):
+            switch_statement_string = switch_statement_string.replace(f'%%%%{idx}', str(parsed_cases[idx]))
+
+        # temporary replacement for the "default"
+        switch_statement_string = re.sub(r" %%%%\d", "", switch_statement_string)
+        switch_statement_string += '};'
+
+        return switch_statement_string
+
+    # parse the switch body arguments such as "case" or "default"
+    def parse_switch_expressions(self, container):
+
+        case_string = f'\t{get_runtime_index(container[0], "symbol")} %%%%{self.counter}:\n\t\t'
+        self.counter += 1
+
+        case_body = []
+
+        for idx, item in enumerate(container[1:]):
+            if isinstance(item, list):
+                arguments = self.get_arguments(item)
+
+                for arg in arguments:
+                    case_body.append(self.parse_line(arg) + ';')
+
+        case_body = '\n\t\t'.join(case_body) + '\n'
+
+        switch_expression_body = case_string + case_body
+
+        return switch_expression_body
+
+    @staticmethod
+    def get_arguments(container):
+        return container[1:]
+
+    @staticmethod
+    def parse_simple_statement(container):
+        statement_string = get_runtime_index(container[0], 'symbol')
+
+        return statement_string
+
+    def parse_return_statement(self, container):
+        return_statement_literal = get_runtime_index(container[0], 'symbol')
+
+        if len(container) == 1:
+            return 'return;'
+
+        return_arguments = container[1]
+
+        return_string = ''
+
+        if isinstance(return_arguments, list):
+            return_string += self.parse_line(return_arguments)
+
+        if isinstance(return_arguments, int):
+            return_string += str(return_arguments)
+
+        return_statement_literal = f'{return_statement_literal} {return_string};'
+
+        return return_statement_literal
+
+    @staticmethod
+    def parse_function_call(function_name):
+        return f'{function_name}()'
+
+    def parse_defined_functions(self, container):
+        function_name = container[1]
+        function_arguments = self.get_arguments(container[2])
+        function_body = container[3:]
+
+        function_start_string = f'function {function_name}('
+        function_body_string = ''
+
+        for argument in function_arguments:
+            if argument == function_arguments[-1]:
+                function_start_string += f'{argument}'
+            else:
+                function_start_string += f'{argument}, '
+
+        function_start_string += ') {\n\n'
+
+        for part in function_body:
+            if isinstance(part, list):
+                function_body_string += '\t' + self.parse_line(part) + '\n'
+
+        function_string = function_start_string + function_body_string + '\n}'
+
+        return function_string
+
+    def parse_return_multiple(self, container):
+        multiple_returns = container[1:]
+        return_literals = ''
+
+        for idx, item in enumerate(multiple_returns):
+            if idx == len(multiple_returns) - 1:
+                if isinstance(item, list):
+                    return_literals += f'{str(self.parse_line(item))}'
+                else:
+                    return_literals += f'{str(item)}'
+            elif isinstance(item, list):
+                return_literals += f'{str(self.parse_line(item))}, '
+
+        return return_literals
+
+
+
