@@ -1161,7 +1161,7 @@ class RuntimeTemplate:
                     method_call = getattr(self, index_method)(container)
                     return method_call
                 if isinstance(item, str) and item in self.functions:
-                    return self.parse_function_call(item)
+                    return self.parse_function_call(container)
                 elif isinstance(item, list):
                     try:
                         index_method = get_runtime_index(item[0], 'method')
@@ -1180,6 +1180,7 @@ class RuntimeTemplate:
 
     # Treat property accessors differently if necessary, even though they are binary operators
     # Special treatments needs to be made if arg1 is evaluated as string but represents a function reference
+    # fixme this section has some duplicated code. Keep yourself DRY an improve the code.
     def parse_binary_operator(self, container) -> str:
         """
         Handles parsing of binary operators that take two operands as arguments (i.e. "+", "||", "==" etc.)
@@ -1189,28 +1190,65 @@ class RuntimeTemplate:
         arg1 = container[1]
         arg2 = container[2]
         operator_symbol = get_runtime_index(container[0], 'symbol')
+
+        try:
+            exception_string = container[3]
+        except IndexError:
+            exception_string = ''
+
         container_string = ''
 
-        # fix-me There is no semicolon here
+        # fixme There is no semicolon here
         # if this check does not pass start evaluating what the next arguments are and their respective methods
-        if isinstance(arg1, list) and isinstance(arg2, list):
-            container_string = f'{self.parse_line(arg1)} {operator_symbol} {self.parse_line(arg2)}'
+        # fixme has dependency with parse_ternary_operator
+        if container[0] == 17:
+            if isinstance(arg2, list):
+                container_string = f'{self.parse_line(arg1)}{operator_symbol}{self.parse_line(arg2)}'
+                return container_string
+
+            if isinstance(arg2, str):
+                container_string = f'{self.parse_line(arg1)}{operator_symbol}{arg2}'
+                return container_string
+
+        if isinstance(arg1, list):
+            if isinstance(arg2, list):
+                container_string = f'{self.parse_line(arg1)} {operator_symbol} {self.parse_line(arg2)}'
+                return container_string
+
+            if isinstance(arg2, str):
+                if arg2 not in self.vars and arg2 not in self.lets and arg2 not in self.consts:
+                    container_string = f'{self.parse_line(arg1)} {operator_symbol} "{arg2}"'
+                else:
+                    container_string = f'{self.parse_line(arg1)} {operator_symbol} {arg2}'
+                return container_string
         # if arg1[0] == 15 and arg2[0] == 15:
         #     container_string = f'{arg1[1]} {operator_symbol} {arg2[1]}'
-        elif isinstance(arg1, str):
+        elif isinstance(arg1, str) or isinstance(arg1, int):
             if isinstance(arg2, list):
                 arg2 = self.parse_line(arg2)
-                container_string = f'{arg1} {operator_symbol} {arg2}'
+
+                if exception_string == 'property_setter':
+                    container_string = f'{arg1} {operator_symbol} {arg2};'
+                    return container_string
+
+                # this checks if the binary argument is eligible for quoting
+                if arg1 not in self.vars and arg1 not in self.lets and arg1 not in self.consts:
+                    container_string = f'"{arg1}" {operator_symbol} {arg2}'
+                else:
+                    container_string = f'{arg1} {operator_symbol} {arg2}'
+                return container_string
             elif isinstance(arg2, str):
-                container_string = f'{arg1} {operator_symbol} "{arg2}"'
+                if isinstance(arg1, int):
+                    container_string = f'{arg1} {operator_symbol} "{arg2}"'
+                elif arg1 not in self.vars and arg1 not in self.lets and arg1 not in self.consts:
+                    container_string = f'"{arg1}" {operator_symbol} "{arg2}"'
+
+                return container_string
             elif isinstance(arg2, int):
                 container_string = f'{arg1} {operator_symbol} {arg2}'
+                return container_string
 
-
-        return container_string
-
-    @staticmethod
-    def parse_unary_operator(container) -> str:
+    def parse_unary_operator(self, container) -> str:
         """
         Handles parsing of unary operators "!", "~", "-" etc.
         :return: string representation of parsed operator
@@ -1218,6 +1256,9 @@ class RuntimeTemplate:
         """
         arguments = container[1]
         operator_symbol = get_runtime_index(container[0], 'symbol')
+
+        if isinstance(arguments, list):
+            arguments = self.parse_line(arguments)
 
         if operator_symbol == 'typeof':
             container_string = f'{operator_symbol} {arguments}'
@@ -1424,11 +1465,7 @@ class RuntimeTemplate:
 
         return return_statement_literal
 
-    @staticmethod
-    def parse_function_call(function_name):
-        return f'{function_name}()'
-
-    def parse_defined_functions(self, container):
+    def parse_defined_function(self, container):
         function_name = container[1]
         function_arguments = self.get_arguments(container[2])
         function_body = container[3:]
@@ -1467,5 +1504,124 @@ class RuntimeTemplate:
 
         return return_literals
 
+    def parse_property_accessor(self, container):
+        accessed_object = container[1]
+        object_property = container[2]
 
+        if isinstance(object_property, str):
+            object_property = f'"{object_property}"'
 
+        if isinstance(object_property, list):
+            object_property = self.parse_line(object_property)
+
+        if isinstance(accessed_object, list):
+            accessed_object = self.parse_line(accessed_object)
+
+        property_access_string = f'{accessed_object}[{object_property}];'
+
+        return property_access_string
+
+    def parse_ternary_operator(self, container):
+        condition = container[1]
+        if_true = container[2]
+        if_false = container[3]
+
+        if isinstance(condition, list):
+            condition = self.parse_line(condition)
+
+        if isinstance(if_true, list):
+            if_true = self.parse_line(if_true)
+
+        if isinstance(if_false, list):
+            if_false = self.parse_line(if_false)
+
+        ternary_operator_string = f'{condition} ? {if_true} : {if_false}'
+
+        return ternary_operator_string
+
+    def parse_property_setter(self, container):
+        set_to_object = container[1]
+        property_to_set = container[2]
+        property_value = container[3]
+        left_operand_string = ''
+
+        if isinstance(set_to_object, list):
+            set_to_object = self.parse_line(set_to_object)
+
+        if isinstance(property_to_set, str):
+            try:
+                property_to_set = int(property_to_set)
+                left_operand_string = f'{set_to_object}["{property_to_set}"]'
+            except ValueError:
+                left_operand_string = f'{set_to_object}.{property_to_set}'
+
+        property_setter_string = self.parse_binary_operator([3, left_operand_string, property_value, 'property_setter'])
+
+        return property_setter_string
+
+    def parse_function_call(self, container):
+        function_name = container[0]
+        function_call_arguments = container[1:]
+        function_call_string = f'{function_name}('
+
+        if function_name not in self.functions:
+            return 'Function not found in declared functions.'
+
+        for arg in function_call_arguments:
+            if isinstance(arg, list):
+                function_call_string += f'{self.parse_line(arg)}'
+
+            if isinstance(arg, int):
+                function_call_string += f'{arg}'
+
+            if isinstance(arg, str):
+                function_call_string += f'"{arg}"'
+
+            if arg != function_call_arguments[-1]:
+                function_call_string += ', '
+
+        function_call_string += ")"
+
+        return function_call_string
+
+    def parse_assigned_function(self, container):
+        function_name = container[1]
+        function_arguments = container[2][1:]
+        function_head_string = f'function {function_name}('
+        function_body_string = ''
+        local_scope = []
+
+        try:
+            function_body = container[3:]
+        except IndexError:
+            function_body = []
+
+        if function_arguments == [] and function_body == []:
+            return f'function {function_name}(){{}};'
+
+        for arg in function_arguments:
+            function_head_string += f'{arg}'
+
+            if arg != function_arguments[-1]:
+                function_head_string += ', '
+
+        function_head_string += ') {\n'
+
+        for part in function_body:
+            if isinstance(part, list):
+                if part[0] == 41:
+                    local_scope.append(part[1])
+                    continue
+                elif part[0] == 52:
+                    function_body_string += f'\tconst {self.parse_binary_operator([3, part[1], part[2]])};'
+                elif part[0] == 3 and part[1] in local_scope:
+                    function_body_string += f'\tlet {self.parse_line(part)};'
+                else:
+                    function_body_string += f'\t{self.parse_line(part)}'
+
+            if part != function_body[-1]:
+                function_body_string += '\n'
+
+        function_body_string = function_head_string + function_body_string + '\n}'
+
+        return function_body_string
