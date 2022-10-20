@@ -278,97 +278,258 @@ dlvBuiltins_index = {
     "gtm.visibleTime": {'title': "Element Visibility Time (On-Screen Duration)"}
 }
 
-
 runtime_index = {
-    0: {'symbol': '+', 'type': BinaryOperator, 'name': 'addition', 'method': 'parse_binary_operator'},  # DONE
-    1: {'symbol': '&&', 'type': BinaryOperator, 'name': 'logical AND', 'method': 'parse_binary_operator'},  # DONE
-    2: {'symbol': '.', 'type': PropertyAccessor, 'name': 'method accessor', 'method': 'parse_method_accessor'},  # DONE
-    3: {'symbol': '=', 'type': BinaryOperator, 'name': 'assignment', 'method': 'parse_binary_operator'},  # DONE
-    4: {'symbol': 'break', 'type': Statement, 'name': 'break statement', 'method': 'parse_simple_statement'},
-    5: {'symbol': 'case', 'type': Statement, 'name': 'case (switch)'},
-    6: {'symbol': 'continue', 'type': Statement, 'name': 'continue statement', 'method': 'parse_simple_statement'},
-    7: {'symbol': '[]', 'type': Array, 'name': 'index based array', 'method': 'parse_array_literal'},  # DONE
-    8: {'symbol': '{}', 'type': Array, 'name': 'key-value based array', 'method': 'parse_key_value_object'},
-    9: {'symbol': 'default', 'type': Statement, 'name': 'default (switch)'},
-    10: {'symbol': '/', 'type': BinaryOperator, 'name': 'division', 'method': 'parse_binary_operator'},  # DONE
-    11: {'symbol': '[]', 'type': '', 'name': ''},
-    12: {'symbol': '==', 'type': BinaryOperator, 'name': 'equality', 'method': 'parse_binary_operator'},  # DONE
-    13: {'symbol': '[]', 'type': '', 'name': ''},
-    14: {'symbol': '[]', 'type': '', 'name': ''},
-    15: {'symbol': 'variable_reference', 'type': '', 'name': '', 'method': 'parse_value_reference'},  # DONE
-    16: {'symbol': '[]', 'type': PropertyAccessor, 'name': 'property accessor'},
-    17: {'symbol': '.', 'type': PropertyAccessor, 'name': 'property accessor',
+    0: {'symbol': '+',
+        'type': BinaryOperator,
+        'name': 'addition',
+        'method': 'parse_binary_operator'},  # DONE
+    1: {'symbol': '&&',
+        'type': BinaryOperator,
+        'name': 'logical AND',
+        'method': 'parse_binary_operator'},  # DONE
+    2: {'symbol': '.',
+        'type': PropertyAccessor,
+        'name': 'method accessor', 'method': 'parse_method_accessor'},  # DONE
+    3: {'symbol': '=',
+        'type': BinaryOperator,
+        'name': 'assignment', 'method': 'parse_binary_operator'},  # DONE
+    4: {'symbol': 'break',
+        'type': Statement,
+        'name': 'break statement', 'method': 'parse_simple_statement'},  # DONE
+    5: {'symbol': 'case',
+        'type': Statement,
+        'name': 'case (switch)', 'method': 'parse_switch_expressions'},  # DONE
+    6: {'symbol': 'continue',
+        'type': Statement,
+        'name': 'continue statement',
+        'method': 'parse_simple_statement'},  # DONE
+    7: {'symbol': '[]',
+        'type': Array,
+        'name': 'index based array', 'method': 'parse_array_literal'},  # DONE
+    8: {'symbol': '{}',
+        'type': Array,
+        'name': 'key-value based array', 'method': 'parse_key_value_object'},  # DONE
+    9: {'symbol': 'default',
+        'type': Statement,
+        'name': 'default (switch)',
+        'method': 'parse_switch_expressions'},  # DONE
+    10: {'symbol': '/',
+         'type': BinaryOperator,
+         'name': 'division', 'method': 'parse_binary_operator'},  # DONE
+    11: {'symbol': '[]',
+         'type': '',
+         'name': ''},  # EMPTY
+    12: {'symbol': '==',
+         'type': BinaryOperator,
+         'name': 'equality', 'method': 'parse_binary_operator'},  # DONE
+    13: {'symbol': '[]',
+         'type': '',
+         'name': '', 'method': 'parse_return_multiple'},  # DONE
+    14: {'symbol': '[]',
+         'type': '',
+         'name': ''},  # EMPTY
+    15: {'symbol': 'variable_reference',
+         'type': '',
+         'name': '', 'method': 'parse_value_reference'},  # DONE
+    16: {'symbol': '[]',
+         'type': PropertyAccessor,
+         'name': 'property accessor',
+         'method': 'parse_property_accessor'},  # DONE
+    17: {'symbol': '.',
+         'type': PropertyAccessor,
+         'name': 'property accessor',
          'method': 'parse_binary_operator'},  # DONE
-    18: {'symbol': '>', 'type': BinaryOperator, 'name': 'larger than', 'method': 'parse_binary_operator'},  # DONE
-    19: {'symbol': '>=', 'type': BinaryOperator, 'name': 'larger than or equal to',
+    18: {'symbol': '>',
+         'type': BinaryOperator,
+         'name': 'larger than', 'method': 'parse_binary_operator'},  # DONE
+    19: {'symbol': '>=',
+         'type': BinaryOperator,
+         'name': 'larger than or equal to',
          'method': 'parse_binary_operator'},  # DONE
-    20: {'symbol': '===', 'type': BinaryOperator, 'name': 'equality with type comparison',
+    20: {'symbol': '===',
+         'type': BinaryOperator,
+         'name': 'equality with type comparison',
          'method': 'parse_binary_operator'},  # DONE
-    21: {'symbol': '!==', 'type': BinaryOperator, 'name': 'NOT equality with type comparison',
+    21: {'symbol': '!==',
+         'type': BinaryOperator,
+         'name': 'NOT equality with type comparison',
          'method': 'parse_binary_operator'},  # DONE
-    22: {'symbol': 'if', 'type': Statement, 'name': 'if statement'},
-    23: {'symbol': '<', 'type': BinaryOperator, 'name': 'less than', 'method': 'parse_binary_operator'},  # DONE
-    24: {'symbol': '<=', 'type': BinaryOperator, 'name': 'less than or equal to',
+    22: {'symbol': 'if',
+         'type': Statement,
+         'name': 'if statement',
+         'method': 'parse_if_statement'},  # DONE
+    23: {'symbol': '<',
+         'type': BinaryOperator,
+         'name': 'less than', 'method': 'parse_binary_operator'},  # DONE
+    24: {'symbol': '<=',
+         'type': BinaryOperator,
+         'name': 'less than or equal to',
          'method': 'parse_binary_operator'},  # DONE
-    25: {'symbol': '%', 'type': BinaryOperator, 'name': 'division reminder',
+    25: {'symbol': '%',
+         'type': BinaryOperator,
+         'name': 'division reminder',
          'method': 'parse_binary_operator'},  # DONE
-    26: {'symbol': '*', 'type': BinaryOperator, 'name': 'multiplication', 'method': 'parse_binary_operator'},  # DONE
-    27: {'symbol': '-', 'type': UnaryOperator, 'name': 'unary negation', 'method': 'parse_unary_operator'},  # DONE
-    28: {'symbol': '!', 'type': UnaryOperator, 'name': 'logical NOT', 'method': 'parse_unary_operator'},  # DONE
-    29: {'symbol': '!=', 'type': BinaryOperator, 'name': 'NOT equality', 'method': 'parse_binary_operator'},  # DONE
-    30: {'symbol': '||', 'type': BinaryOperator, 'name': 'logical OR', 'method': 'parse_binary_operator'},  # DONE
-    31: {'symbol': '[]', 'type': '', 'name': ''},
-    32: {'symbol': '[]', 'type': '', 'name': ''},
-    33: {'symbol': '[]', 'type': '', 'name': ''},
-    34: {'symbol': '[]', 'type': '', 'name': ''},
-    35: {'symbol': '[]', 'type': '', 'name': ''},
-    # Treat return as a separate method? Even if it is similar to a parse_simple_statement, it can return complex
-    #   objects.
-    36: {'symbol': 'return', 'type': Statement, 'name': 'return statement', 'method': 'parse_simple_statement'},
-    37: {'symbol': '-', 'type': BinaryOperator, 'name': 'substraction', 'method': 'parse_binary_operator'},  # DONE
-    38: {'symbol': 'switch', 'type': Statement, 'name': 'switch statement'},
-    39: {'symbol': '?', 'type': TernaryOperator, 'name': 'ternary operator'},
-    40: {'symbol': 'typeof', 'type': UnaryOperator, 'name': 'Type return operator',
+    26: {'symbol': '*',
+         'type': BinaryOperator,
+         'name': 'multiplication', 'method': 'parse_binary_operator'},  # DONE
+    27: {'symbol': '-',
+         'type': UnaryOperator,
+         'name': 'unary negation', 'method': 'parse_unary_operator'},  # DONE
+    28: {'symbol': '!',
+         'type': UnaryOperator,
+         'name': 'logical NOT', 'method': 'parse_unary_operator'},  # DONE
+    29: {'symbol': '!=',
+         'type': BinaryOperator,
+         'name': 'NOT equality', 'method': 'parse_binary_operator'},  # DONE
+    30: {'symbol': '||',
+         'type': BinaryOperator,
+         'name': 'logical OR', 'method': 'parse_binary_operator'},  # DONE
+    31: {'symbol': '[]',
+         'type': '',
+         'name': ''},  # EMPTY
+    32: {'symbol': '--',
+         'type': UnaryOperator,
+         'name': 'decrement',
+         'method': 'parse_unary_operator',
+         'variation': 'postfix'},  # DONE
+    33: {'symbol': '++',
+         'type': UnaryOperator,
+         'name': 'increment',
+         'method': 'parse_unary_operator',
+         'variation': 'postfix'},  # DONE
+    34: {'symbol': '--',
+         'type': UnaryOperator,
+         'name': 'decrement',
+         'method': 'parse_unary_operator',
+         'variation': 'prefix'},  # DONE
+    35: {'symbol': '++',
+         'type': UnaryOperator,
+         'name': 'increment',
+         'method': 'parse_unary_operator',
+         'variation': 'prefix'},  # DONE
+    36: {'symbol': 'return',
+         'type': Statement,
+         'name': 'return statement', 'method': 'parse_return_statement'},  # DONE
+    37: {'symbol': '-',
+         'type': BinaryOperator,
+         'name': 'substraction', 'method': 'parse_binary_operator'},  # DONE
+    38: {'symbol': 'switch',
+         'type': Statement,
+         'name': 'switch statement', 'method': 'parse_switch_statement'},  # DONE
+    39: {'symbol': '?',
+         'type': TernaryOperator,
+         'name': 'ternary operator',
+         'method': 'parse_ternary_operator'},  # DONE
+    40: {'symbol': 'typeof',
+         'type': UnaryOperator,
+         'name': 'Type return operator',
          'method': 'parse_unary_operator'},  # DONE
-    41: {'symbol': 'var', 'type': ValueStatement,
+    41: {'symbol': 'var',
+         'type': ValueStatement,
+
          'name': 'variable declaration var/let',
-         'variations': {1: 'var list', 2: 'let list'}, 'method': 'parse_let_const'},  # DONE as a generator and method
-    42: {'symbol': 'while', 'type': Statement, 'name': 'while and do...while statement',
-         'variations': {1: 'while', 2: 'do...while'}},
-    43: {'symbol': '[]', 'type': PropertySetter, 'name': 'Property setter'},
-    44: {'symbol': 'undefined', 'type': Statement, 'name': 'undefined statement', 'method': 'parse_simple_statement'},
-    45: {'symbol': 'null', 'type': Statement, 'name': 'null type', 'method': 'parse_simple_statement'},
-    46: {'symbol': '[]', 'type': '', 'name': ''},
-    47: {'symbol': 'for', 'type': Statement, 'name': 'for statement',
-         'variation': 'for (var a in b)'},
-    48: {'symbol': '[]', 'type': '', 'name': ''},
-    49: {'symbol': 'control', 'type': Statement, 'name': 'control statement', 'method': 'parse_simple_statement'},
-    50: {'symbol': 'function', 'type': Statement, 'name': 'function',
-         'variation': 'function definition'},
-    51: {'symbol': 'function', 'type': Statement, 'name': 'function',
-         'variation': 'function assignment'},
-    52: {'symbol': 'const', 'type': ValueStatement, 'name': 'constant declaration',
-         'method': 'parse_let_const'},   # DONE as a generator and method
-    53: {'symbol': 'for', 'type': Statement, 'name': 'for statement',
-         'variation': 'standard'},
-    54: {'symbol': '[]', 'type': '', 'name': ''},
-    55: {'symbol': 'for', 'type': Statement, 'name': 'for statement',
-         'variation': 'for (let a in b)'},
-    56: {'symbol': '&', 'type': BinaryOperator, 'name': 'Bitwise AND', 'method': 'parse_binary_operator'},  # DONE
-    57: {'symbol': '<<', 'type': BinaryOperator, 'name': 'Bitwise Leftshift',
+         'variations': {1: 'var list', 2: 'let list'}, 'method': 'parse_let_const'},  # DONE
+    42: {'symbol': 'while',
+         'type': Statement,
+         'name': 'while and do...while statement',
+         'variations': {1: 'while', 2: 'do...while'},
+         'method': 'parse_while_var_for_statement'},  # DONE
+    43: {'symbol': '[]',
+         'type': PropertySetter,
+         'name': 'Property setter',
+         'method': 'parse_property_setter'},  # DONE
+    44: {'symbol': 'undefined',
+         'type': Statement,
+         'name': 'undefined statement',
+         'method': 'parse_simple_statement'},  # DONE
+    45: {'symbol':
+             'null',
+         'type': Statement,
+         'name':
+             'null type', 'method': 'parse_simple_statement'},  # DONE
+    46: {'symbol': '[]',
+         'type': '',
+         'name': '', 'method': 'get_arguments'},  # DONE
+    47: {'symbol': 'for',
+         'type': Statement,
+         'name': 'for statement',
+         'variation': 'for (var a in b)',
+         'method': 'parse_for_a_of_in_b'},  # DONE
+    48: {'symbol': '[]',
+         'type': '',
+         'name': ''},  # EMPTY
+    49: {'symbol': 'control',
+         'type': Statement,
+         'name': 'control statement',
+         'method': 'parse_simple_statement'},  # DONE
+    50: {'symbol': 'function',
+         'type': Statement,
+         'name': 'function',
+         'variation': 'function definition', 'method': 'parse_defined_function'},  # WIP
+    51: {'symbol': 'function',
+         'type': Statement,
+         'name': 'function',
+         'variation': 'function assignment',
+         'method': 'parse_assigned_function'},  # DONE
+    52: {'symbol': 'const',
+         'type': ValueStatement,
+         'name': 'constant declaration',
+         'method': 'parse_let_const'},  # DONE
+    53: {'symbol': 'for',
+         'type': Statement,
+         'name': 'for statement',
+         'variation': 'standard',
+         'method': 'parse_standard_let_for_loop'},  # DONE
+    54: {'symbol': '[]',
+         'type': '',
+         'name': ''},  # EMPTY
+    55: {'symbol': 'for',
+         'type': Statement,
+         'name': 'for statement',
+         'variation': 'for (let a in b)',
+         'method': 'parse_for_a_of_in_b'},  # DONE
+    56: {'symbol': '&',
+         'type': BinaryOperator,
+         'name': 'Bitwise AND', 'method': 'parse_binary_operator'},  # DONE
+    57: {'symbol': '<<',
+         'type': BinaryOperator,
+         'name': 'Bitwise Leftshift',
          'method': 'parse_binary_operator'},  # DONE
-    58: {'symbol': '~', 'type': UnaryOperator, 'name': 'Bitwise negation', 'method': 'parse_unary_operator'},  # DONE
-    59: {'symbol': '|', 'type': BinaryOperator, 'name': 'Bitwise OR', 'method': 'parse_binary_operator'},  # DONE
-    60: {'symbol': '>>', 'type': BinaryOperator, 'name': 'Bitwise rightshift',
+    58: {'symbol': '~',
+         'type': UnaryOperator,
+         'name': 'Bitwise negation', 'method': 'parse_unary_operator'},  # DONE
+    59: {'symbol': '|',
+         'type': BinaryOperator,
+         'name': 'Bitwise OR', 'method': 'parse_binary_operator'},  # DONE
+    60: {'symbol': '>>',
+         'type': BinaryOperator,
+         'name': 'Bitwise rightshift',
          'method': 'parse_binary_operator'},  # DONE
-    61: {'symbol': '>>>', 'type': BinaryOperator, 'name': 'Unsigned Bitwise rightshift',
+    61: {'symbol': '>>>',
+         'type': BinaryOperator,
+         'name': 'Unsigned Bitwise rightshift',
          'method': 'parse_binary_operator'},  # DONE
-    62: {'symbol': '^', 'type': BinaryOperator, 'name': 'Bitwise XOR', 'method': 'parse_binary_operator'},  # DONE
-    63: {'symbol': '[]', 'type': '', 'name': ''},
-    64: {'symbol': '[]', 'type': '', 'name': ''},
-    65: {'symbol': 'for', 'type': Statement, 'name': 'for statement',
-         'variation': 'for (var a of b)'},
-    66: {'symbol': 'for', 'type': Statement, 'name': 'for statement',
-         'variation': 'for (let a of b)'},
-    'require': {'symbol': '', 'type': '', 'name': 'require function', 'method': 'parse_require_exception'}
+    62: {'symbol': '^',
+         'type': BinaryOperator,
+         'name': 'Bitwise XOR', 'method': 'parse_binary_operator'},  # DONE
+    63: {'symbol': '[]',
+         'type': '',
+         'name': 'for_loop_body',
+         'method': 'parse_for_loop_body'},  # DONE
+    64: {'symbol': 'for',
+         'type': Statement,
+         'name': 'for statement',
+         'variation': 'for (var a of b)',
+         'method': 'parse_for_a_of_in_b'},  # DONE
+    65: {'symbol': '[]',
+         'type': '',
+         'name': ''},  # EMPTY
+    66: {'symbol': 'for',
+         'type': Statement,
+         'name': 'for statement',
+         'variation': 'for (let a of b)',
+         'method': 'parse_for_a_of_in_b'},  # DONE
+    'require': {'symbol': '',
+                'type': '',
+                'name': 'require function', 'method': 'parse_require_exception'}
 }
