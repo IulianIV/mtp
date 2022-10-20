@@ -1215,6 +1215,10 @@ class RuntimeTemplate:
                 container_string = f'{self.parse_line(arg1)} {operator_symbol} {self.parse_line(arg2)}'
                 return container_string
 
+            if isinstance(arg2, int):
+                container_string = f'{self.parse_line(arg1)} {operator_symbol} {arg2}'
+                return container_string
+
             if isinstance(arg2, str):
                 if arg2 not in self.vars and arg2 not in self.lets and arg2 not in self.consts:
                     container_string = f'{self.parse_line(arg1)} {operator_symbol} "{arg2}"'
@@ -1256,9 +1260,28 @@ class RuntimeTemplate:
         """
         arguments = container[1]
         operator_symbol = get_runtime_index(container[0], 'symbol')
+        operator_variation = ''
+
+        try:
+            operator_variation = get_runtime_index(container[0], 'variation')
+        except KeyError:
+            operator_variation = ''
+
+        # the postfix and prefix sections do not actually parse the whole container.
+        #   since we do not really care about the functionality of the operator
+        #   we can only parse it to show it accordingly.
+
+        if operator_variation == 'prefix':
+            temp_arg = arguments[1]
+            container_string = f'{operator_symbol}{temp_arg};'
+            return container_string
 
         if isinstance(arguments, list):
             arguments = self.parse_line(arguments)
+
+        if operator_variation == 'postfix':
+            container_string = f'{arguments}{operator_symbol};'
+            return container_string
 
         if operator_symbol == 'typeof':
             container_string = f'{operator_symbol} {arguments}'
@@ -1348,6 +1371,7 @@ class RuntimeTemplate:
 
     def parse_let_const(self, container):
         value_type = ''
+        container_string = ''
 
         if container[0] == 52:
             value_type = 'const'
@@ -1356,8 +1380,11 @@ class RuntimeTemplate:
             value_type = 'let'
 
         value_name = container[1]
-        assignment = container[2]
-        container_string = ''
+        try:
+            assignment = container[2]
+        except IndexError:
+            container_string = f'{value_type} {value_name};'
+            return container_string
 
         if isinstance(assignment, list):
             assignment_value = self.parse_line(assignment)
@@ -1625,3 +1652,229 @@ class RuntimeTemplate:
         function_body_string = function_head_string + function_body_string + '\n}'
 
         return function_body_string
+
+    def parse_if_statement(self, container):
+        if_condition = container[1]
+        if_body = self.get_arguments(container[2])
+
+        else_header_string = ''
+
+        if_body_string = ''
+        else_body_string = ''
+
+        if_statement_string = ''
+
+        if isinstance(if_condition, list):
+            if_condition = self.parse_line(if_condition)
+
+        if_header_string = f'if ({if_condition}) {{\n'
+
+        try:
+            else_body = self.get_arguments(container[3])
+        except IndexError:
+            else_body = ''
+
+        if else_body:
+            else_header_string = f'else {{\n'
+
+        if isinstance(else_body, list) and else_body[0][0] == 22:
+            else_header_string = f'else'
+
+        if not if_body:
+            if_body_string = ''
+        else:
+            for part in if_body:
+                if isinstance(part, list):
+                    if_body_string += f'{self.parse_line(part)}\n'
+
+        # fixme currently there is no way toa dd end curly brackets without duplicating them
+        #   because of the recurse manner.
+        if not else_body:
+            else_body_string = ''
+        else:
+            for idx, part in enumerate(else_body):
+                if isinstance(part, list):
+                    else_body_string += f'{self.parse_line(part)}'
+
+        # if else
+        if else_body:
+            if_statement_string = f'{if_header_string} {if_body_string}}} {else_header_string} {else_body_string}'
+            return if_statement_string
+
+        # if
+        if not else_body:
+            if_statement_string = f'{if_header_string} {if_body_string}}}'
+            return if_statement_string
+
+    def parse_for_a_of_in_b(self, container):
+
+        for_statement_string = ''
+        for_header_string = ''
+        for_body_string = ''
+        var_type = ''
+        for_type = ''
+        for_body = []
+
+        if container[0] == 64:
+            var_type = 'var'
+            for_type = 'of'
+        elif container[0] == 47:
+            var_type = 'var'
+            for_type = 'in'
+
+        if container[0] == 66:
+            var_type = 'let'
+            for_type = 'of'
+        elif container[0] == 55:
+            var_type = 'let'
+            for_type = 'in'
+
+        if container[0] == 64 or container[0] == 66:
+            if len(container[3]) == 1:
+                for_body = ''
+            else:
+                for_body = container[3][1][1:]
+        elif container[0] == 47 or container[0] == 55:
+            for_body = self.get_arguments(container[3])
+
+        for_index = container[1]
+        for_iterable = container[2]
+
+        if isinstance(for_index, list):
+            for_index = self.parse_line(for_index)
+
+        if isinstance(for_iterable, list):
+            for_iterable = self.parse_line(for_iterable)
+
+        for_header_string = f'for ({var_type} {for_index} {for_type} {for_iterable}) {{\n'
+
+        for part in for_body:
+            if isinstance(part, list):
+                for_body_string += f'\t{self.parse_line(part)}\n'
+
+        for_body_string += '}'
+
+        for_statement_string = f'{for_header_string}{for_body_string}'
+
+        return for_statement_string
+
+    def parse_while_var_for_statement(self, container):
+        while_statement_string = ''
+        while_conditional_string = ''
+        while_body_string = ''
+
+        while_conditional = container[1]
+        is_for_conditional = container[2]
+
+        # while and for statements share the same index with differences in the container body.
+        #   this checks' if the current 42 index container is a while or loop statement container.
+        if is_for_conditional[0] != 46:
+            return self.parse_standard_var_for_loop(container)
+
+        is_do_while = bool(container[3])
+        while_body = self.get_arguments(container[4])
+
+        if isinstance(while_conditional, list):
+            while_conditional_string = self.parse_line(while_conditional)
+
+        for part in while_body:
+            if isinstance(while_body, list):
+                while_body_string += f'\t{self.parse_line(part)}\n'
+
+        if not is_do_while:
+            while_statement_string = f'while ({while_conditional_string}) {{\n{while_body_string}}}'
+        elif is_do_while:
+            while_statement_string = f'do {{\n{while_body_string}}} while ({while_conditional_string});'
+
+        return while_statement_string
+
+    def parse_standard_var_for_loop(self, container):
+        for_statement_string = ''
+        for_conditional_string = ''
+        for_afterthought_string = ''
+        for_body_string = ''
+
+        for_conditional = container[1]
+
+        if isinstance(for_conditional, list):
+            for_conditional_string = self.parse_line(for_conditional)
+
+        for_afterthought = container[2]
+
+        if isinstance(for_afterthought, list):
+            for_afterthought_string = self.parse_line(for_afterthought)
+
+        for_body = container[4]
+
+        for part in for_body:
+            if isinstance(part, list):
+                for_body_string += f'\t{self.parse_line(part)}\n'
+
+        for_statement_string = f'for (; {for_conditional_string}; {for_afterthought_string}) {{\n{for_body_string}}}'
+
+        return for_statement_string
+
+    def parse_standard_let_for_loop(self, container):
+        for_statement_string = ''
+        for_initializer_string = ''
+        for_conditional = ''
+        for_afterthought = ''
+        for_body = ''
+
+        for_let_declaration_list = self.get_arguments(container[1])
+        for_assigned_initializer_list = container[2:-1]
+
+        for_arguments = self.parse_line(container[-1])
+        if isinstance(for_arguments, dict):
+            for_conditional = for_arguments['for_conditional']
+            for_afterthought = for_arguments['for_afterthought']
+            for_body = for_arguments['for_body']
+
+        if for_assigned_initializer_list and for_assigned_initializer_list[0][0] == 3:
+            for assignment in for_assigned_initializer_list:
+                if assignment[0] == 3:
+                    for_let_declaration_list.remove(assignment[1])
+
+                if isinstance(assignment, list):
+                    for_initializer_string += f'{self.parse_line(assignment)}, '
+
+        for idx, declaration in enumerate(for_let_declaration_list):
+            if idx == len(for_let_declaration_list)-1:
+                for_initializer_string += f'{declaration}'
+            else:
+                for_initializer_string += f'{declaration}, '
+
+        for_statement_string = f'for (let {for_initializer_string}; {for_conditional}; ' \
+                               f'{for_afterthought}) {{\n{for_body}}}'
+
+        return for_statement_string
+
+    def parse_for_loop_body(self, container) -> dict:
+        for_body_conditional_string = ''
+        for_body_afterthought_string = ''
+        for_body_string = ''
+        for_body_variable_list = container[1]
+        for_body_conditional = container[2]
+
+        if isinstance(for_body_conditional, list):
+            for_body_conditional_string = self.parse_line(for_body_conditional)
+
+        for_body_afterthought = container[3]
+
+        if isinstance(for_body_afterthought, list):
+            for_body_afterthought_string = self.parse_line(for_body_afterthought)
+
+        for_body = self.get_arguments(container[4])
+
+        for part in for_body:
+            if isinstance(part, list):
+                for_body_string += f'\t{self.parse_line(part)}\n'
+
+        for_body_string_dict = {
+            'for_conditional': for_body_conditional_string,
+            'for_afterthought': for_body_afterthought_string,
+            'for_body': for_body_string,
+            'for_body_variable_list': for_body_variable_list
+        }
+
+        return for_body_string_dict
