@@ -1,20 +1,37 @@
 {% extends 'gtm_base.html' %}
-{% set active_page = "tags" %}
+{% set active_page = "runtime" %}
 
 {% block gtm_content %}
     <div class="container">
         <div class="row">
             <div class="col-sm">
-                <div class="card" style="width: 18rem;">
-                    <div class="card-header">
-                        Tags
+                <div id="accordion">
+                    <div class="card">
+                        {% for template in templates %}
+                            <div class="card-header" id="heading_{{ loop.index0 }}">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link" data-toggle="collapse"
+                                            data-target="#collapse_{{ loop.index0 }}"
+                                            aria-expanded="true" aria-controls="collapse_{{ loop.index0 }}">
+                                        Template: {{ template.name }}
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="collapse_{{ loop.index0 }}" class="collapse show"
+                                 aria-labelledby="heading_{{ loop.index0 }}"
+                                 data-parent="#accordion">
+                                <div class="card-body">
+                                    <pre><code class="language-js">{{ template.parse_template() | safe }}</code></pre>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"></li>
-                    </ul>
                 </div>
             </div>
         </div>
         <br/>
     </div>
+    {% block scripts %}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/helpers.js') }}"></script>
+    {% endblock %}
 {% endblock %}
