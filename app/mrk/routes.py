@@ -18,15 +18,14 @@ from app.mrk.gtm_spy.index import (skip_macro_keys, macros_index, skip_tag_keys,
 from app.mrk.gtm_spy.utils import gtm_compare_get_version, find_in_index
 from app.manager.helpers import gtm_trigger_len, extract_nested_strings, form_validated_message, form_error_message
 
-
 # TODO should the final container contain data for color coding?
 # TODO add modal preview for lists and certain variables
 
 index_url = 'mrk.gtm_intel'
 
+
 @bp.context_processor
 def inject_containers():
-
     user_id = current_user.get_id()
     raw_containers = get_gtm_containers(user_id)
     containers = [container.container_id for container in raw_containers]
@@ -205,7 +204,6 @@ def gtm_intel_triggers():
 
 
 @bp.route('/gtm-spy/variables', methods=('GET', 'POST'))
-
 @login_required
 def gtm_intel_variables():
     container_id_form = ContainerLoad()
@@ -257,6 +255,14 @@ def gtm_intel_runtime():
     c_content = container.container_data
     spy = GTMIntel(c_id, False, c_content)
 
-    print(spy.runtime)
+    container_url = spy.url
+    container_id = spy.id
+    container_version = spy.version
 
-    return render_template('mrk/gtm_spy/runtime.html', container_id_form=container_id_form)
+    spy_runtime = spy.runtime_section
+
+    templates = spy_runtime.templates
+
+    return render_template('mrk/gtm_spy/runtime.html', model_gtm_path=container_url,
+                           gtm_id=container_id, version=container_version, container_id_form=container_id_form,
+                           templates=templates)
