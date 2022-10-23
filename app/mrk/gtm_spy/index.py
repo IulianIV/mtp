@@ -79,6 +79,7 @@ skip_trigger_keys = ['gtm.triggerGroup', '__tg']
 triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl', '__evl']
 code_snippet_properties = ['vtp_html', 'vtp_javascript']
 untracked_macros = ['Environment name']
+runtime_function_regex = [r'__cvt_\d+_\d+', r'__awec', r'__baut', r'__crto', r'__pntr']
 
 tags_index = {
     '__paused': {
@@ -426,7 +427,6 @@ runtime_index = {
          'method': 'parse_unary_operator'},  # DONE
     41: {'symbol': 'var',
          'type': ValueStatement,
-
          'name': 'variable declaration var/let',
          'variations': {1: 'var list', 2: 'let list'}, 'method': 'parse_let_const'},  # DONE
     42: {'symbol': 'while',
@@ -479,7 +479,7 @@ runtime_index = {
          'type': Statement,
          'name': 'for statement',
          'variation': 'standard',
-         'method': 'parse_standard_let_for_loop'},  # DONE
+         'method': 'parse_standard_let_for_loop'},  # DONE - check parse_if_statement - 53 is not what is seems
     54: {'symbol': '[]',
          'type': '',
          'name': ''},  # EMPTY
