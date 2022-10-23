@@ -1131,7 +1131,9 @@ class RuntimeTemplate:
         stripped_template = self.contents[1:]
 
         for item in stripped_template:
-            if isinstance(item, list) and item[0] == 50:
+            if (isinstance(item, list) and item[0] == 50) or \
+                    (isinstance(item, list) and (item[0] == 52 or item[0] == 41)
+                     and (len(item) == 3 and item[2][0] == 51)):
                 cache[f'declared_function_{stripped_template.index(item) - 2}:'] = item[1]
                 function_names.append(item[1])
 
