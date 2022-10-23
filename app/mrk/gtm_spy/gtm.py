@@ -1055,7 +1055,10 @@ class RuntimeTemplate:
         var = var_type
 
         # needed to bypass the first 41 "var" declaration in case of "let"
-        stripped_template = self.contents[4:]
+        if self.contents[3][0] == 41:
+            stripped_template = self.contents[4:]
+        else:
+            stripped_template = self.contents[3:]
 
         def indexer(container):
             nonlocal cache
