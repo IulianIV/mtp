@@ -1130,6 +1130,7 @@ class RuntimeTemplate:
         # needed to bypass the first 50 "function" declaration
         stripped_template = self.contents[1:]
 
+        # Adds function declaration to list if function is directly declared or declared through variable assignment
         for item in stripped_template:
             if (isinstance(item, list) and item[0] == 50) or \
                     (isinstance(item, list) and (item[0] == 52 or item[0] == 41)
