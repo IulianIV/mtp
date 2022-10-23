@@ -1,4 +1,5 @@
 import json
+import jsbeautifier
 
 from flask import render_template, request, redirect, url_for
 from flask_login import current_user
@@ -263,6 +264,8 @@ def gtm_intel_runtime():
 
     templates = spy_runtime.templates
 
+    js_prettify = jsbeautifier.beautify
+
     return render_template('mrk/gtm_spy/runtime.html', model_gtm_path=container_url,
                            gtm_id=container_id, version=container_version, container_id_form=container_id_form,
-                           templates=templates)
+                           templates=templates, js_prettify=js_prettify)
