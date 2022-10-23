@@ -1193,7 +1193,6 @@ class RuntimeTemplate:
 
         if isinstance(container_string, str):
             sanitized_string = re.sub(r';{2,}$', ';', container_string)
-            sanitized_string = re.sub(r'\n{2,}', '\n', container_string)
         else:
             return container_string
 
@@ -1339,11 +1338,16 @@ class RuntimeTemplate:
 
         base_string = f'{_object}.{_property}('
 
+        # better-me the regex matching is done to find instances of situations similar to "s.length -1" which
+        #   should be literal bu are otherwise quoted.
         if len(arguments) == 1:
-            argument_string += f'"{arguments[0]}"'
+            if re.match(r'\s*', arguments[0]):
+                argument_string += f'{arguments[0]}'
+            else:
+                argument_string += f'\'{arguments[0]}\''
         else:
             for arg in arguments:
-                argument_string += f'"{arg}",'
+                argument_string += f'\'{arg}\','
 
         if argument_string.endswith(','):
             argument_string = argument_string[:-1]
@@ -1367,22 +1371,39 @@ class RuntimeTemplate:
 
         return argument_list
 
-    def parse_key_value_object(self, container) -> dict:
+    def parse_key_value_object(self, container) -> str:
 
         if len(container) == 1:
-            return dict()
+            return '{}'
 
         argument_dict = {}
 
         for idx, argument in enumerate(container[1:]):
             if isinstance(argument, list):
-                container[idx + 1] = self._parse_container(argument)
+                if container[0] == 15:
+                    container[idx + 1] = self._parse_container(argument)
+                else:
+                    container[idx + 1] = f'{{{{{self._parse_container(argument)}}}}}'
 
         dict_keys = container[1:][::2]
         dict_values = container[1:][1::2]
 
         for (k, v) in itertools.zip_longest(dict_keys, dict_values):
             argument_dict[k] = v
+
+        # to be able to correctly print javascript code unquoted, dictionaries are not a good strategy.
+        #   they are natively converted to string. Converting the dict to JSON (a string) and then removing
+        #   quotes works.
+
+        argument_dict = re.sub(r'("{{)|(}}")', '', json.dumps(argument_dict))
+
+        # attempt to remove character escapes
+        # better-me address this possible issues. What if in the array body you want the given string to be shown as
+        #   escaped? i.e literal '\"USD\"'. Meanwhile, his replaces escapes
+
+        argument_dict = re.sub(r'\\\s*([nt])', '', argument_dict)
+
+
 
         return argument_dict
 
@@ -1521,6 +1542,9 @@ class RuntimeTemplate:
         if isinstance(return_arguments, list):
             return_str = self._parse_container(return_arguments)
 
+            if isinstance(return_str, list) and not return_str:
+                return_str = '[]'
+
             if isinstance(return_str, dict):
                 return_string += str(return_str)
             else:
@@ -1627,6 +1651,9 @@ class RuntimeTemplate:
             except ValueError:
                 left_operand_string = f'{set_to_object}.{property_to_set}'
 
+        if isinstance(property_to_set, list):
+            left_operand_string = f'{set_to_object}[{self._parse_container(property_to_set)}]'
+
         property_setter_string = self.parse_binary_operator([3, left_operand_string, property_value, 'property_setter'])
 
         return property_setter_string
@@ -1698,6 +1725,19 @@ class RuntimeTemplate:
     def parse_if_statement(self, container):
         if_condition = container[1]
         if_body = self.get_arguments(container[2])
+
+        # better-me Although it does not break functionality, it should be clearly stated in method names, along indexes
+        #   that the 53 index actually refers to scoping and not strictly for loops.
+        # upon analysis, it was found that index 53 actually refers to the scope of the expressions being a
+        #   representative of 'let'. This explains why ``for`` statements with 'let' declarations have the for
+        #   statement body inside the '63' index, because index 63 is the actual for.
+        # This behaviour was observed when index 53 was encountered inside an if statement which was not behaving
+        #   as a for loop statement.
+        # Test with if statements with variable declarations with let, along let declared for loops
+        #   confirmed the theory above.
+        # This conditional here check if the conditional body is a let declaration and interprets accordingly.
+        if if_body[0][0] == 53:
+            if_body = self.get_arguments(if_body[0])
 
         else_header_string = ''
 
