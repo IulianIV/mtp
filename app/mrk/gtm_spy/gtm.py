@@ -13,7 +13,7 @@ import requests
 from app.manager.helpers import extract_trigger_id
 from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags, \
     triggers_index, runtime_index, UnaryOperator, BinaryOperator, TernaryOperator, Statement, \
-    ValueStatement, PropertySetter, PropertyAccessor, Array
+    ValueStatement, PropertySetter, PropertyAccessor, Array, runtime_function_regex
 from .utils import find_in_index, get_runtime_index, flatten_container
 
 # FIXME MAJOR! All create_container_name() functions need to be evaluated and commented. The goal, eventually,
@@ -1561,7 +1561,8 @@ class RuntimeTemplate:
         function_name = container[1]
         function_arguments = self.get_arguments(container[2])
 
-        if re.match(r'__cvt_\d+_\d+', function_name):
+        # template wise modification of the 'a' variable into the 'data' variable for easier user interpretation
+        if any(re.match(regex, function_name) for regex in runtime_function_regex):
             function_arguments = ['data']
 
         function_body = container[3:]
