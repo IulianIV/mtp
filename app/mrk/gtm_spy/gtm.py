@@ -1181,7 +1181,7 @@ class RuntimeTemplate:
     def parse_template(self) -> str:
 
         template = [self.contents]
-        template_string = ''
+        template_string = ""
 
         for line in template:
             template_string += self._parse_container(line)
@@ -1242,7 +1242,7 @@ class RuntimeTemplate:
 
             if isinstance(arg2, str):
                 if arg2 not in self.vars and arg2 not in self.lets and arg2 not in self.consts:
-                    container_string = f'{self._parse_container(arg1)} {operator_symbol} "{arg2}"'
+                    container_string = f'{self._parse_container(arg1)} {operator_symbol} \'{arg2}\''
                 else:
                     container_string = f'{self._parse_container(arg1)} {operator_symbol} {arg2}'
                 return container_string
@@ -1253,12 +1253,12 @@ class RuntimeTemplate:
                 arg2 = self._parse_container(arg2)
 
                 if exception_string == 'property_setter':
-                    container_string = f'{arg1} {operator_symbol} {arg2};'
+                    container_string = f'{arg1} {operator_symbol} {arg2};\n'
                     return container_string
 
                 # this checks if the binary argument is eligible for quoting
                 if arg1 not in self.vars and arg1 not in self.lets and arg1 not in self.consts:
-                    container_string = f'"{arg1}" {operator_symbol} {arg2}'
+                    container_string = f'{arg1} {operator_symbol} {arg2}'
                 elif arg1 in self.vars:
                     container_string = f'var {arg1} {operator_symbol} {arg2}'
                 else:
@@ -1267,20 +1267,20 @@ class RuntimeTemplate:
             elif isinstance(arg2, str):
                 if isinstance(arg1, int):
                     if arg1 in self.vars:
-                        container_string = f'var {arg1} {operator_symbol} "{arg2}";'
+                        container_string = f'var {arg1} {operator_symbol} \'{arg2}\''
                     else:
-                        container_string = f'{arg1} {operator_symbol} "{arg2}";'
+                        container_string = f'{arg1} {operator_symbol} \'{arg2}\''
                 elif arg1 in self.vars:
-                    container_string = f'var {arg1} {operator_symbol} "{arg2}";'
-                elif arg1 not in self.vars and arg1 not in self.lets and arg1 not in self.consts:
-                    container_string = f'"{arg1}" {operator_symbol} "{arg2}";'
+                    container_string = f'var {arg1} {operator_symbol} \'{arg2}\''
+                else:
+                    container_string = f'{arg1} {operator_symbol} \'{arg2}\''
 
                 return container_string
             elif isinstance(arg2, int):
                 if arg1 in self.vars:
-                    container_string = f'var {arg1} {operator_symbol} {arg2};'
+                    container_string = f'var {arg1} {operator_symbol} {arg2}'
                 else:
-                    container_string = f'{arg1} {operator_symbol} {arg2};'
+                    container_string = f'{arg1} {operator_symbol} {arg2}'
                 return container_string
 
     def parse_unary_operator(self, container) -> str:
@@ -1348,7 +1348,7 @@ class RuntimeTemplate:
         if argument_string.endswith(','):
             argument_string = argument_string[:-1]
 
-        container_string = base_string + argument_string + ');'
+        container_string = base_string + argument_string + ')'
 
         return container_string
 
@@ -1424,9 +1424,9 @@ class RuntimeTemplate:
 
         if isinstance(assignment, list):
             assignment_value = self._parse_container(assignment)
-            container_string = f'{value_type} {value_name} = {assignment_value};'
+            container_string = f'{value_type} {value_name} = {assignment_value}\n'
         elif isinstance(assignment, str):
-            container_string = f'{value_type} {value_name} = {assignment};'
+            container_string = f'{value_type} {value_name} = {assignment}\n'
 
         return container_string
 
@@ -1438,7 +1438,7 @@ class RuntimeTemplate:
         if isinstance(container[1], list):
             switch_identifier = self._parse_container(container[1])
 
-        switch_head = f'switch ({switch_identifier}) {{\n'
+        switch_head = f'switch ({switch_identifier}) {{'
 
         # parse through the argument declaration list - argument 2
 
@@ -1480,7 +1480,7 @@ class RuntimeTemplate:
     # parse the switch body arguments such as "case" or "default"
     def parse_switch_expressions(self, container):
 
-        case_string = f'\t{get_runtime_index(container[0], "symbol")} %%%%{self.counter}:\n\t\t'
+        case_string = f'{get_runtime_index(container[0], "symbol")} %%%%{self.counter}:'
         self.counter += 1
 
         case_body = []
@@ -1492,7 +1492,7 @@ class RuntimeTemplate:
                 for arg in arguments:
                     case_body.append(self._parse_container(arg) + ';')
 
-        case_body = '\n\t\t'.join(case_body) + '\n'
+        case_body = '\n'.join(case_body)
 
         switch_expression_body = case_string + case_body
 
@@ -1551,13 +1551,13 @@ class RuntimeTemplate:
             else:
                 function_start_string += f'{argument}, '
 
-        function_start_string += ') {\n\n'
+        function_start_string += ') {'
 
         for part in function_body:
             if isinstance(part, list):
-                function_body_string += '\t' + self._parse_container(part) + '\n'
+                function_body_string += self._parse_container(part)
 
-        function_string = function_start_string + function_body_string + '\n}'
+        function_string = function_start_string + function_body_string + '}'
 
         return function_string
 
@@ -1581,7 +1581,7 @@ class RuntimeTemplate:
         object_property = container[2]
 
         if isinstance(object_property, str):
-            object_property = f'"{object_property}"'
+            object_property = f'\'{object_property}\''
 
         if isinstance(object_property, list):
             object_property = self._parse_container(object_property)
@@ -1589,7 +1589,7 @@ class RuntimeTemplate:
         if isinstance(accessed_object, list):
             accessed_object = self._parse_container(accessed_object)
 
-        property_access_string = f'{accessed_object}[{object_property}];'
+        property_access_string = f'{accessed_object}[{object_property}]'
 
         return property_access_string
 
@@ -1644,7 +1644,7 @@ class RuntimeTemplate:
                 function_call_string += f'{arg}'
 
             if isinstance(arg, str):
-                function_call_string += f'"{arg}"'
+                function_call_string += f'\'{arg}\''
 
             if arg != function_call_arguments[-1]:
                 function_call_string += ', '
@@ -1674,7 +1674,7 @@ class RuntimeTemplate:
             if arg != function_arguments[-1]:
                 function_head_string += ', '
 
-        function_head_string += ') {\n'
+        function_head_string += ') {'
 
         for part in function_body:
             if isinstance(part, list):
@@ -1682,16 +1682,16 @@ class RuntimeTemplate:
                     local_scope.append(part[1])
                     continue
                 elif part[0] == 52:
-                    function_body_string += f'\tconst {self.parse_binary_operator([3, part[1], part[2]])};'
+                    function_body_string += f'const {self.parse_binary_operator([3, part[1], part[2]])};'
                 elif part[0] == 3 and part[1] in local_scope:
-                    function_body_string += f'\tlet {self._parse_container(part)};'
+                    function_body_string += f'let {self._parse_container(part)};'
                 else:
-                    function_body_string += f'\t{self._parse_container(part)}'
+                    function_body_string += f'{self._parse_container(part)}'
 
-            if part != function_body[-1]:
-                function_body_string += '\n'
+            # if part != function_body[-1]:
+            #     function_body_string += '\n'
 
-        function_body_string = function_head_string + function_body_string + '\n}'
+        function_body_string = function_head_string + function_body_string + '}'
 
         return function_body_string
 
@@ -1709,7 +1709,7 @@ class RuntimeTemplate:
         if isinstance(if_condition, list):
             if_condition = self._parse_container(if_condition)
 
-        if_header_string = f'if ({if_condition}) {{\n'
+        if_header_string = f'if ({if_condition}) {{'
 
         try:
             else_body = self.get_arguments(container[3])
@@ -1717,7 +1717,7 @@ class RuntimeTemplate:
             else_body = ''
 
         if else_body:
-            else_header_string = f'else {{\n'
+            else_header_string = f'else {{'
 
         if isinstance(else_body, list) and else_body[0][0] == 22:
             else_header_string = f'else'
@@ -1727,7 +1727,7 @@ class RuntimeTemplate:
         else:
             for part in if_body:
                 if isinstance(part, list):
-                    if_body_string += f'{self._parse_container(part)}\n'
+                    if_body_string += f'{self._parse_container(part)}'
 
         # fixme currently there is no way toa dd end curly brackets without duplicating them
         #   because of the recurse manner.
@@ -1788,11 +1788,11 @@ class RuntimeTemplate:
         if isinstance(for_iterable, list):
             for_iterable = self._parse_container(for_iterable)
 
-        for_header_string = f'for ({var_type} {for_index} {for_type} {for_iterable}) {{\n'
+        for_header_string = f'for ({var_type} {for_index} {for_type} {for_iterable}) {{'
 
         for part in for_body:
             if isinstance(part, list):
-                for_body_string += f'\t{self._parse_container(part)}\n'
+                for_body_string += f'{self._parse_container(part)}'
 
         for_body_string += '}'
 
@@ -1821,12 +1821,12 @@ class RuntimeTemplate:
 
         for part in while_body:
             if isinstance(while_body, list):
-                while_body_string += f'\t{self._parse_container(part)}\n'
+                while_body_string += f'{self._parse_container(part)}'
 
         if not is_do_while:
-            while_statement_string = f'while ({while_conditional_string}) {{\n{while_body_string}}}'
+            while_statement_string = f'while ({while_conditional_string}) {{{while_body_string}}}'
         elif is_do_while:
-            while_statement_string = f'do {{\n{while_body_string}}} while ({while_conditional_string});'
+            while_statement_string = f'do {{{while_body_string}}} while ({while_conditional_string});'
 
         return while_statement_string
 
@@ -1850,9 +1850,9 @@ class RuntimeTemplate:
 
         for part in for_body:
             if isinstance(part, list):
-                for_body_string += f'\t{self._parse_container(part)}\n'
+                for_body_string += f'{self._parse_container(part)}'
 
-        for_statement_string = f'for (; {for_conditional_string}; {for_afterthought_string}) {{\n{for_body_string}}}'
+        for_statement_string = f'for (; {for_conditional_string}; {for_afterthought_string}) {{{for_body_string}}}'
 
         return for_statement_string
 
@@ -1867,6 +1867,7 @@ class RuntimeTemplate:
         for_assigned_initializer_list = container[2:-1]
 
         for_arguments = self._parse_container(container[-1])
+
         if isinstance(for_arguments, dict):
             for_conditional = for_arguments['for_conditional']
             for_afterthought = for_arguments['for_afterthought']
@@ -1890,7 +1891,7 @@ class RuntimeTemplate:
                 for_initializer_string += f'{declaration}, '
 
         for_statement_string = f'for (let {for_initializer_string}; {for_conditional}; ' \
-                               f'{for_afterthought}) {{\n{for_body}}}'
+                               f'{for_afterthought}) {{{for_body}}}'
 
         return for_statement_string
 
@@ -1913,7 +1914,7 @@ class RuntimeTemplate:
 
         for part in for_body:
             if isinstance(part, list):
-                for_body_string += f'\t{self._parse_container(part)}\n'
+                for_body_string += f'{self._parse_container(part)}'
 
         for_body_string_dict = {
             'for_conditional': for_body_conditional_string,
