@@ -1848,13 +1848,17 @@ class RuntimeTemplate:
 
         while_conditional = container[1]
         is_for_conditional = container[2]
+        is_do_while = container[3]
 
         # while and for statements share the same index with differences in the container body.
         #   this checks' if the current 42 index container is a while or loop statement container.
         if is_for_conditional[0] != 46:
             return self.parse_standard_var_for_loop(container)
+        if is_do_while == 'false':
+            is_do_while = False
+        elif is_do_while == 'true':
+            is_do_while = True
 
-        is_do_while = bool(container[3])
         while_body = self.get_arguments(container[4])
 
         if isinstance(while_conditional, list):
