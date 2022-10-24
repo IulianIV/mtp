@@ -1303,14 +1303,14 @@ class RuntimeTemplate:
 
         if operator_variation == 'prefix':
             temp_arg = arguments[1]
-            container_string = f'{operator_symbol}{temp_arg};'
+            container_string = f'{operator_symbol}{temp_arg}'
             return container_string
 
         if isinstance(arguments, list):
             arguments = self._parse_container(arguments)
 
         if operator_variation == 'postfix':
-            container_string = f'{arguments}{operator_symbol};'
+            container_string = f'{arguments}{operator_symbol}'
             return container_string
 
         if operator_symbol == 'typeof':
