@@ -11,9 +11,8 @@ from itertools import islice
 import requests
 
 from app.manager.helpers import extract_trigger_id
-from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, triggers_not_tags, \
-    triggers_index, runtime_index, UnaryOperator, BinaryOperator, TernaryOperator, Statement, \
-    ValueStatement, PropertySetter, PropertyAccessor, Array, runtime_function_regex
+from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, \
+    triggers_index, runtime_index, BinaryOperator, runtime_function_regex
 from .utils import find_in_index, get_runtime_index, flatten_container
 
 # FIXME MAJOR! All create_container_name() functions need to be evaluated and commented. The goal, eventually,
@@ -21,8 +20,7 @@ from .utils import find_in_index, get_runtime_index, flatten_container
 #   It is OK to have it complex if the JSON parsing itself is complex but a better, faster way to deal
 #   with those has to be developed.
 
-# TODO Use generators wherever possible to make code more readable, fast and easier to manage
-#   change the codebase for this. This might also save memory.
+
 # TODO research ways or libraries for faster JSON parsing.
 # TODO List storage in memory can be replaced with generators (?)
 
@@ -88,7 +86,7 @@ class GTMIntel(object):
         """
         Get the content of the given section
 
-        :param section: 'predicates' or 'tags' etc.
+        :param section: 'predicates' or 'tags' etc. # noinspection SpellCheckingInspection
         :return: Section contents
         """
 
@@ -239,7 +237,7 @@ class GTMIntel(object):
     @property
     def macros(self) -> list:
         """
-        Returns the macros secton of the container
+        Returns the macros' section of the container
         :return: macros section
         :rtype: dict
         """
@@ -251,7 +249,7 @@ class GTMIntel(object):
     @property
     def predicates(self) -> list:
         """
-        Returns the predicates secton of the container
+        Returns the predicates' section of the container
         :return:
         :rtype:
         """
@@ -262,7 +260,7 @@ class GTMIntel(object):
     @property
     def rules(self) -> list:
         """
-        Returns the rules secton of the container
+        Returns the rules' section of the container
         :return:
         :rtype:
         """
@@ -274,7 +272,7 @@ class GTMIntel(object):
     @property
     def tags(self) -> list:
         """
-        Returns the tags secton of the container
+        Returns the tags' section of the container
         :return:
         :rtype:
         """
@@ -470,7 +468,7 @@ class GTMIntel(object):
 
         for rl_set, index in zip(rules, range(0, len(rules))):
 
-            trigg_cond = re.compile('if|unless')
+            trigger_cond = re.compile('if|unless')
 
             # allows for easy determining the type of the rule
             rule_types = [x[0] for x in rl_set]
@@ -482,7 +480,7 @@ class GTMIntel(object):
             # Member 1 - if no "block" rule is found, it is automatically a "firing" tag
             if 'block' not in rule_types:
                 for rls in rl_set:
-                    if re.search(trigg_cond, rls[0]):
+                    if re.search(trigger_cond, rls[0]):
                         condition.append(rls)
                     elif re.search('add', rls[0]):
                         targets.append(rls)
@@ -493,7 +491,7 @@ class GTMIntel(object):
             # Member 2 - if there is no "add" but there is "block" it means it is a "blocking" tag
             if 'block' in rule_types and 'add' not in rule_types:
                 for rls in rl_set:
-                    if re.search(trigg_cond, rls[0]):
+                    if re.search(trigger_cond, rls[0]):
                         block.append(rls)
                     elif re.search('block', rls[0]):
                         block_targets.append(rls)
@@ -505,7 +503,7 @@ class GTMIntel(object):
             #   conditions
             if 'add' in rule_types and 'block' in rule_types:
                 for rls in rl_set:
-                    if re.search(trigg_cond, rls[0]):
+                    if re.search(trigger_cond, rls[0]):
                         block.append(rls)
                         condition.append(rls)
                     elif re.search('block', rls[0]):
@@ -634,7 +632,7 @@ class GTMIntel(object):
         "key_for_tag_name", "Custom Image"]
         If not filled it just shows as metadata: ["map"]
 
-        It behaves as follows: if "include tag name" is checked it prints both last 2 values fot he list,
+        It behaves as follows: if "include tag name" is checked it prints both last 2 values for the list,
             the penultimate item being mandatory if the conditions is checked. The last item is the tag name.
         Every other data inbetween that and "map" is the literal table of key-value pairs to be added as tag metadata.
 
@@ -831,7 +829,7 @@ class GTMIntel(object):
                             nested_rls = [rls]
                             group_conditions['_trigger'].append(nested_rls)
 
-                        # Handles triggers that are not in tags, but in predicates, which are valid triggers
+                        # Handle triggers that are not in tags, but in predicates, which are valid triggers
                         if predicates[predicate_index]['arg1'] in triggers_index:
                             _trigger_index = find_in_index(predicates[predicate_index]['arg1'], triggers_index)
                             condition.append(rls)
@@ -1198,8 +1196,6 @@ class RuntimeTemplate:
 
         return sanitized_string
 
-    # Treat property accessors differently if necessary, even though they are binary operators
-    # Special treatments needs to be made if arg1 is evaluated as string but represents a function reference
     # fixme this section has some duplicated code. Keep yourself DRY an improve the code.
     def parse_binary_operator(self, container) -> str:
         """
@@ -1216,10 +1212,6 @@ class RuntimeTemplate:
         except IndexError:
             exception_string = ''
 
-        container_string = ''
-
-        # fixme There is no semicolon here
-        # if this check does not pass start evaluating what the next arguments are and their respective methods
         # fixme has dependency with parse_ternary_operator
         if container[0] == 17:
             if isinstance(arg2, list):
@@ -1245,8 +1237,7 @@ class RuntimeTemplate:
                 else:
                     container_string = f'{self._parse_container(arg1)} {operator_symbol} {arg2}'
                 return container_string
-        # if arg1[0] == 15 and arg2[0] == 15:
-        #     container_string = f'{arg1[1]} {operator_symbol} {arg2[1]}'
+
         elif isinstance(arg1, str) or isinstance(arg1, int):
             if isinstance(arg2, list):
                 arg2 = self._parse_container(arg2)
@@ -1290,7 +1281,6 @@ class RuntimeTemplate:
         """
         arguments = container[1]
         operator_symbol = get_runtime_index(container[0], 'symbol')
-        operator_variation = ''
 
         try:
             operator_variation = get_runtime_index(container[0], 'variation')
@@ -1404,8 +1394,6 @@ class RuntimeTemplate:
         #   escaped? i.e literal '\"USD\"'. Meanwhile, his replaces escapes
 
         argument_dict = re.sub(r'\\\s*([nt])', '', argument_dict)
-
-
 
         return argument_dict
 
@@ -1710,16 +1698,12 @@ class RuntimeTemplate:
             if isinstance(part, list):
                 if part[0] == 41:
                     local_scope.append(part[1])
-                    continue
                 elif part[0] == 52:
                     function_body_string += f'const {self.parse_binary_operator([3, part[1], part[2]])};'
                 elif part[0] == 3 and part[1] in local_scope:
                     function_body_string += f'let {self._parse_container(part)};'
                 else:
                     function_body_string += f'{self._parse_container(part)}'
-
-            # if part != function_body[-1]:
-            #     function_body_string += '\n'
 
         function_body_string = function_head_string + function_body_string + '}'
 
@@ -1747,8 +1731,6 @@ class RuntimeTemplate:
         if_body_string = ''
         else_body_string = ''
 
-        if_statement_string = ''
-
         if isinstance(if_condition, list):
             if_condition = self._parse_container(if_condition)
 
@@ -1772,8 +1754,6 @@ class RuntimeTemplate:
                 if isinstance(part, list):
                     if_body_string += f'{self._parse_container(part)}'
 
-        # fixme currently there is no way toa dd end curly brackets without duplicating them
-        #   because of the recurse manner.
         if not else_body:
             else_body_string = ''
         else:
@@ -1793,8 +1773,6 @@ class RuntimeTemplate:
 
     def parse_for_a_of_in_b(self, container):
 
-        for_statement_string = ''
-        for_header_string = ''
         for_body_string = ''
         var_type = ''
         for_type = ''
@@ -1878,7 +1856,6 @@ class RuntimeTemplate:
         return while_statement_string
 
     def parse_standard_var_for_loop(self, container):
-        for_statement_string = ''
         for_conditional_string = ''
         for_afterthought_string = ''
         for_body_string = ''
@@ -1910,7 +1887,6 @@ class RuntimeTemplate:
         return for_statement_string
 
     def parse_standard_let_for_loop(self, container):
-        for_statement_string = ''
         for_initializer_string = ''
         for_conditional = ''
         for_afterthought = ''
