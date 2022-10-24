@@ -1893,6 +1893,12 @@ class RuntimeTemplate:
 
         for_body = container[4]
 
+        # Another confirmation for the situation of the 53 index in the case of the "if_statement"
+        #   Confirmed in the so-called "standard_var_for_loop" parser - index 53 arguments of a certain statement
+        #   that are scoped to permit "let" variable declarations.
+        if for_body[1][0] == 53:
+            for_body = self.get_arguments(for_body[1])
+
         for part in for_body:
             if isinstance(part, list):
                 for_body_string += f'{self._parse_container(part)}'
