@@ -1339,9 +1339,11 @@ class RuntimeTemplate:
         base_string = f'{_object}.{_property}('
 
         # better-me the regex matching is done to find instances of situations similar to "s.length -1" which
-        #   should be literal bu are otherwise quoted.
+        #   should be literal but are otherwise quoted.
         if len(arguments) == 1:
-            if re.match(r'\s*', arguments[0]):
+            if any(re.search(re.escape(f'.*{operator.value}.*'), arguments[0]) for operator in BinaryOperator):
+                argument_string += f'{arguments[0]}'
+            elif arguments[0] in (self.lets or self.vars or self.consts or self.functions):
                 argument_string += f'{arguments[0]}'
             else:
                 argument_string += f'\'{arguments[0]}\''
