@@ -12,7 +12,7 @@ import requests
 
 from app.manager.helpers import extract_trigger_id
 from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, \
-    triggers_index, runtime_index, BinaryOperator, runtime_function_regex
+    triggers_index, runtime_index, BinaryOperator, runtime_function_regex, Statement
 from .utils import find_in_index, get_runtime_index, flatten_container
 
 # FIXME MAJOR! All create_container_name() functions need to be evaluated and commented. The goal, eventually,
@@ -247,6 +247,10 @@ class GTMIntel(object):
         return macros
 
     @property
+    def macro_names(self) -> Generator:
+        return (macro['function'] for macro in self.macros)
+
+    @property
     def predicates(self) -> list:
         """
         Returns the predicates' section of the container
@@ -279,6 +283,10 @@ class GTMIntel(object):
         tags = self.resource_section_contents('tags')
 
         return tags
+
+    @property
+    def tag_names(self) -> Generator:
+        return (tag['function'] for tag in self.tags)
 
     @property
     def runtime(self) -> list:
@@ -663,6 +671,7 @@ class GTMIntel(object):
         return found_tag[0]
 
     # TODO have the possibility to only pass either key or value
+    # better-me convert to generator
     def search_in_container(self, container: Union[str, dict], key: Union[str, int], value: Any) -> list:
         """
         Searches the given container for items that contain the given key, value pair
