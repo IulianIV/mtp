@@ -932,6 +932,12 @@ class GTMRuntime(GTMIntel):
         return templates_to_gen
 
     @property
+    def template_names(self) -> Generator:
+        return (template.name for template in self.templates)
+
+
+
+    @property
     def length(self):
         template_length = len(list(self.templates))
 
