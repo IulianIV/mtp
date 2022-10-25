@@ -1258,7 +1258,7 @@ class RuntimeTemplate:
                 arg2 = self._parse_container(arg2)
 
                 if exception_string == 'property_setter':
-                    container_string = f'{arg1} {operator_symbol} {arg2};\n'
+                    container_string = f'{arg1} {operator_symbol} {arg2};'
                     return container_string
 
                 # this checks if the binary argument is eligible for quoting
@@ -1329,6 +1329,7 @@ class RuntimeTemplate:
 
         raw_object = container[1]
         _object = ''
+        _is_pattern = False
 
         if isinstance(raw_object, list):
             _object = self._parse_container(raw_object)
@@ -1348,13 +1349,15 @@ class RuntimeTemplate:
         if len(arguments) == 1:
             if any(re.search(re.escape(f'.*{operator.value}.*'), arguments[0]) for operator in BinaryOperator):
                 argument_string += f'{arguments[0]}'
+            elif any(re.search(f'.*{operator.value}.*', arguments[0]) for operator in Statement):
+                argument_string += f'{arguments[0]}'
             elif arguments[0] in (self.lets or self.vars or self.consts or self.functions):
                 argument_string += f'{arguments[0]}'
             else:
                 argument_string += f'\'{arguments[0]}\''
         else:
             for arg in arguments:
-                argument_string += f'\'{arg}\','
+                argument_string += f'{arg},'
 
         if argument_string.endswith(','):
             argument_string = argument_string[:-1]
