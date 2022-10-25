@@ -242,10 +242,11 @@ def gtm_intel_variables():
                            container_id_form=container_id_form, code_snippets=code_snippets)
 
 
-@bp.route('/gtm-spy/runtime', methods=('GET', 'POST'))
-def gtm_intel_runtime():
+@bp.route('/gtm-spy/runtime/<string:template_type>', methods=('GET', 'POST'))
+def gtm_intel_runtime(template_type):
     container_id_form = ContainerLoad()
     user_id = current_user.get_id()
+    templates = ''
 
     if user_id is None:
         return redirect(url_for(index_url))
@@ -262,7 +263,11 @@ def gtm_intel_runtime():
 
     spy_runtime = spy.runtime_section
 
-    templates = spy_runtime.templates
+    if template_type == 'custom-tags':
+        templates = (template if template.name in spy.tag_names else '' for template in spy_runtime.templates)
+
+    if template_type == 'custom-variables':
+        templates = (template if template.name in spy.macro_names else '' for template in spy_runtime.templates)
 
     js_prettify = jsbeautifier.beautify
 

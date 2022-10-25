@@ -1,5 +1,5 @@
 {% extends 'gtm_base.html' %}
-{% set active_page = "runtime" %}
+{% set active_page = request.url.split('/')[-1] %}
 
 {% block gtm_content %}
     <div class="container">
@@ -8,6 +8,7 @@
                 <div id="accordion">
                     <div class="card">
                         {% for template in templates %}
+                            {% if not template is string %}
                             <div class="card-header" id="heading_{{ loop.index0 }}">
                                 <h5 class="mb-0">
                                     <button class="btn btn-link" data-toggle="collapse"
@@ -24,6 +25,7 @@
                                     <pre><code class="language-js">{{ js_prettify(template.parse_template()) | safe }}</code></pre>
                                 </div>
                             </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>
