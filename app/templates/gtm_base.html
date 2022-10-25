@@ -4,9 +4,8 @@
     (url_for('mrk.gtm_intel_variables'), 'variables', 'Variables'),
     (url_for('mrk.gtm_intel_tags'), 'tags', 'Tags'),
     (url_for('mrk.gtm_intel_triggers'), 'triggers', 'Triggers'),
-    ('#', 'custom-tags', 'Custom Tags'),
-    ('#', 'custom-variables', 'Custom Variables'),
-    (url_for('mrk.gtm_intel_runtime'), 'runtime', 'Runtime'),
+    (url_for('mrk.gtm_intel_runtime', template_type='custom-tags'), 'custom-tags', 'Custom Tags'),
+    (url_for('mrk.gtm_intel_runtime', template_type='custom-variables'), 'custom-variables', 'Custom Variables'),
     ('#', 'permissions', 'Permissions'),
     ('#', 'sandboxed-scripts', 'Sandboxed Scripts'),
     ('#', 'security-groups', 'Security Groups')
@@ -124,7 +123,7 @@
         <main class="col bg-faded py-3 flex-grow-1">
             <div class="row justify-content-center">
                 <div class="col-lg-11">
-                    {% if url_for(request.endpoint) == '/gtm-spy/' %}
+                    {% if request.endpoint == 'mrk.gtm_intel' %}
                         <div class="jumbotron">
                             <h1 class="display-4">Hello, agent!</h1>
                             <p class="lead">If you are here you probably have no analyzed GTM Containers..</p>
