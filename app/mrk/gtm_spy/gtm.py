@@ -997,8 +997,76 @@ class RuntimeTemplate:
 
         return body
 
+    @property
+    def lets(self) -> Generator:
+        """
+        Create a generator of "let" variable declarations
+        :return: let variables generator
+        :rtype: Generator
+        """
+        return self._find_nested_index_and_name(41)
+
+    @property
+    def consts(self) -> Generator:
+        """
+        Create a generator of "const" variable declarations
+        :return: const variables generator
+        :rtype: Generator
+        """
+        return self._find_nested_index_and_name(52)
+
+    @property
+    def vars(self):
+        """
+        Grab the first occurrence of the 41 index in the template, which defines the list of "var" declared variables
+        :return: var variables generator
+        :rtype: Generator
+        """
+        stripped_template = self.contents[3:4]
+
+        for item in stripped_template:
+            if isinstance(item, list) and item[0] == 41:
+                for var in item[1:]:
+                    yield var
+
+    @property
+    def functions(self, member_list: bool = True):
+        """
+        Create a generator of "function" declarations and assignments
+        :param member_list: If True return a list of function names. Else prints a detailed dict.
+        :type member_list: bool
+        :return: function declaration/assignment generator
+        :rtype: Generator
+        """
+
+        cache = {}
+        count = 1
+        function_names = []
+
+        # needed to bypass the first 50 "function" declaration
+        stripped_template = self.contents[1:]
+
+        # Adds function declaration to list if function is directly declared or declared through variable assignment
+        for item in stripped_template:
+            if (isinstance(item, list) and item[0] == 50) or \
+                    (isinstance(item, list) and (item[0] == 52 or item[0] == 41)
+                     and (len(item) == 3 and item[2][0] == 51)):
+                cache[f'declared_function_{stripped_template.index(item) - 2}:'] = item[1]
+                function_names.append(item[1])
+
+        for item in self._find_nested_index_and_name(51, False):
+            cache[f'assigned_function_{count}:'] = item
+            count += 1
+            function_names.append(item)
+
+        if not member_list:
+            return ((k, v) for (k, v) in cache.items())
+
+        return (x for x in function_names)
+
     # TODO get index counter by the index symbol/sign (i.e. "<<")
-    def count_occurrences(self, index: int, count_all: bool = False, print_to_console: bool = True) -> Union[int, dict]:
+    def count_occurrences(self, index: int, count_all: bool = False, print_to_console: bool = True) -> Union[
+        int, dict]:
         """
         Count occurrences of a runtime index values within the current template.
         :param index: runtime index value found within the template
@@ -1094,72 +1162,9 @@ class RuntimeTemplate:
 
         return indexer(stripped_template)
 
-    @property
-    def lets(self) -> Generator:
-        """
-        Create a generator of "let" variable declarations
-        :return: let variables generator
-        :rtype: Generator
-        """
-        return self._find_nested_index_and_name(41)
-
-    @property
-    def consts(self) -> Generator:
-        """
-        Create a generator of "const" variable declarations
-        :return: const variables generator
-        :rtype: Generator
-        """
-        return self._find_nested_index_and_name(52)
-
-    @property
-    def vars(self):
-        """
-        Grab the first occurrence of the 41 index in the template, which defines the list of "var" declared variables
-        :return: var variables generator
-        :rtype: Generator
-        """
-        stripped_template = self.contents[3:4]
-
-        for item in stripped_template:
-            if isinstance(item, list) and item[0] == 41:
-                for var in item[1:]:
-                    yield var
-
-    @property
-    def functions(self, member_list: bool = True):
-        """
-        Create a generator of "function" declarations and assignments
-        :param member_list: If True return a list of function names. Else prints a detailed dict.
-        :type member_list: bool
-        :return: function declaration/assignment generator
-        :rtype: Generator
-        """
-
-        cache = {}
-        count = 1
-        function_names = []
-
-        # needed to bypass the first 50 "function" declaration
-        stripped_template = self.contents[1:]
-
-        # Adds function declaration to list if function is directly declared or declared through variable assignment
-        for item in stripped_template:
-            if (isinstance(item, list) and item[0] == 50) or \
-                    (isinstance(item, list) and (item[0] == 52 or item[0] == 41)
-                     and (len(item) == 3 and item[2][0] == 51)):
-                cache[f'declared_function_{stripped_template.index(item) - 2}:'] = item[1]
-                function_names.append(item[1])
-
-        for item in self._find_nested_index_and_name(51, False):
-            cache[f'assigned_function_{count}:'] = item
-            count += 1
-            function_names.append(item)
-
-        if not member_list:
-            return ((k, v) for (k, v) in cache.items())
-
-        return (x for x in function_names)
+    @staticmethod
+    def get_arguments(container):
+        return container[1:]
 
     def _parse_container(self, container_line):
 
@@ -1527,9 +1532,6 @@ class RuntimeTemplate:
 
         return switch_expression_body
 
-    @staticmethod
-    def get_arguments(container):
-        return container[1:]
 
     @staticmethod
     def parse_simple_statement(container):
