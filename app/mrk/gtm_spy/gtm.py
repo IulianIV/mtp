@@ -39,31 +39,17 @@ class GTMIntel(object):
     def __init__(self, container_id: str, first_load: bool = False, container_data=None):
 
         self._id = container_id
+        self._container_data = container_data
 
         if first_load:
             # _full_container also hold 'resource' and 'runtime' data
             self._original_container = self.container_to_json()
-        elif not first_load:
-            self._original_container = self.saved_container_to_json(container_data)
+        else:
+            self._original_container = self.saved_container_to_json(self._container_data)
 
         # the preserve the integrity of the original container, we will be working on a copy.
         self._working_container = deepcopy(self._original_container)
         # _usable_container only hold 'version' and literal container data ('macros', 'tags', 'predicates', 'rules')
-        self._resource_container = self._working_container[self.container_resource_section]
-        self.runtime_container = self._working_container[self.container_runtime_section]
-
-    @check_for_container
-    def resource_section_contents(self, section: list) -> Union[str, Generator]:
-        """
-        Get the content of the given section
-
-        :param section: 'predicates' or 'tags' etc. # noinspection SpellCheckingInspection
-        :return: Section contents
-        """
-
-        resource_section = self._resource_container[section]
-
-        return resource_section
 
     def container_to_json(self) -> dict:
         """
@@ -136,7 +122,7 @@ class GTMIntel(object):
         :return: Container URL
         :rtype: str
         """
-        url = GTM_URL_ROOT + self._id
+        url = GTMRootKeys.URL.value + self._id
         return url
 
     @property
@@ -147,31 +133,6 @@ class GTMIntel(object):
         :rtype: dict
         """
         return self._working_container
-
-    @property
-    def container_resource_section(self):
-        """
-        References the 'resource' part of the container
-
-        :return: 'resource' contents
-        """
-
-        resource: list = list(self._working_container.keys())[0]
-
-        return resource
-
-    @property
-    def container_runtime_section(self):
-        """
-        References the 'runtime' part of the container
-
-        :return: 'runtime' section
-        """
-
-        if 'runtime' in list(self._working_container.keys()):
-            return list(self._working_container.keys())[1]
-        else:
-            return 'runtime section missing from selected container'
 
     @property
     def original_container(self) -> dict:
@@ -185,13 +146,13 @@ class GTMIntel(object):
         return self._original_container
 
     @property
-    def resource_container(self):
+    def resource_section(self) -> GTMResource:
         """
         Returns the contents of the 'resources' section
         :return: 'resources' container section
         :rtype: dict
         """
-        return self._resource_container
+        return GTMResource(self._working_container[GTMRootKeys.RESOURCE.value])
 
     @property
     def version(self) -> str:
@@ -200,10 +161,7 @@ class GTMIntel(object):
         :return: container version
         :rtype: str
         """
-
-        version = self.resource_section_contents(ROOT['VERSION'])
-
-        return version
+        return self.resource_section.version
 
     @property
     def macros(self) -> list:
@@ -212,10 +170,7 @@ class GTMIntel(object):
         :return: macros section
         :rtype: dict
         """
-
-        macros = self.resource_section_contents('macros')
-
-        return macros
+        return self.resource_section.macros
 
     @property
     def macro_names(self) -> Generator:
@@ -228,9 +183,7 @@ class GTMIntel(object):
         :return:
         :rtype:
         """
-        predicates = self.resource_section_contents('predicates')
-
-        return predicates
+        return self.resource_section.predicates
 
     @property
     def rules(self) -> list:
@@ -239,10 +192,7 @@ class GTMIntel(object):
         :return:
         :rtype:
         """
-
-        rules = self.resource_section_contents('rules')
-
-        return rules
+        return self.resource_section.rules
 
     @property
     def tags(self) -> list:
@@ -251,25 +201,11 @@ class GTMIntel(object):
         :return:
         :rtype:
         """
-        tags = self.resource_section_contents('tags')
-
-        return tags
+        return self.resource_section.tags
 
     @property
     def tag_names(self) -> Generator:
         return (tag['function'] for tag in self.tags)
-
-    @property
-    def runtime(self) -> list:
-        runtime = self.runtime_container
-
-        return runtime
-
-    @property
-    def permissions(self) -> list:
-        permissions = self.resource_section_contents('permissions')
-
-        return permissions
 
     def process_type(self, property_value):
 
@@ -425,10 +361,9 @@ class GTMIntel(object):
         :return:
         :rtype:
         """
-        process_container = self._resource_container
 
-        tags = process_container['tags']
-        rules = process_container['rules']
+        tags = self.tags
+        rules = self.rules
 
         # Needed for front-end processing.
         # In this case, eventually, the processing of the rules is better in a nested fashion
@@ -505,7 +440,7 @@ class GTMIntel(object):
             for _tag_index in block_targets[_x][1:]:
                 tags[_tag_index]['_blocking'].append(blocks[_x])
 
-        return process_container['tags']
+        return self.tags
 
     def process_mapping(self, container_mapping, process_macro=False, key_name=None, value_name=None):
         """
@@ -657,7 +592,7 @@ class GTMIntel(object):
         :rtype: dict
         """
         if type(container) is str:
-            container = self._resource_container[container]
+            container = self._resource_section[container]
 
         found_item = []
 
@@ -766,7 +701,7 @@ class GTMIntel(object):
         # This has to be done on a rule tagged container as well on a complete predicates container
         rule_tagged = self.process_rules()
         predicates = self.create_predicates_container()
-        rules = self._resource_container['rules']
+        rules = self.rules
         triggers = []
 
         # First processes the standard tags and ads trigger index information
@@ -856,7 +791,7 @@ class GTMIntel(object):
         :rtype: dict
         """
 
-        tags = self._resource_container['tags']
+        tags = self.tags
 
         # all trigger groups are "__tg" but only one has a  unique firing ID
         # all child tag have triggers themselves which conditions actually further along point to another existing
@@ -882,12 +817,46 @@ class GTMIntel(object):
 
     @property
     def runtime_section(self) -> GTMRuntime:
-        runtime = GTMRuntime(self.id, True)
+
+        if GTMRootKeys.RUNTIME.value in self._working_container.keys():
+            runtime = GTMRuntime(self._working_container[GTMRootKeys.RUNTIME.value])
+        else:
+            runtime = list()
 
         return runtime
 
+# TODO
+class GTMResource:
 
-class GTMRuntime(GTMIntel):
+    def __init__(self, resource_container: dict):
+        self.resource_container = resource_container
+
+    def _resource_section_contents(self, section: GTMResourceKeys) -> Union[str, list]:
+        """
+        Get the content of the given section
+
+        :param section: 'predicates' or 'tags' etc. # noinspection SpellCheckingInspection
+        :return: Section contents
+        """
+
+        resource_section = self.resource_container[section]
+
+        return resource_section
+
+    @property
+    def version(self) -> str:
+        version = self._resource_section_contents(GTMResourceKeys.VERSION.value)
+        return version
+
+    @property
+    def macros(self):
+        macros = self._resource_section_contents(GTMResourceKeys.MACROS.value)
+        return macros
+
+    @property
+    def predicates(self):
+        predicates = self._resource_section_contents(GTMResourceKeys.PREDICATES.value)
+        return predicates
 
     def __init__(self, container_id: str, first_load: bool = False, container_data: Any = None):
         super().__init__(container_id=container_id, first_load=first_load, container_data=container_data)
@@ -898,7 +867,7 @@ class GTMRuntime(GTMIntel):
         :return: Creates a generator containing all found templates within the runtime section
         :rtype: Generator
         """
-        templates_to_gen = (RuntimeTemplate(template) for template in self.runtime)
+        templates_to_gen = (GTMRuntimeTemplate(template) for template in self.runtime_container)
 
         return templates_to_gen
 
@@ -906,28 +875,26 @@ class GTMRuntime(GTMIntel):
     def template_names(self) -> Generator:
         return (template.name for template in self.templates)
 
-
-
     @property
     def length(self):
         template_length = len(list(self.templates))
 
         return template_length
 
-    def fetch_template(self, template_index: int) -> RuntimeTemplate:
+    def fetch_template(self, template_index: int) -> GTMRuntimeTemplate:
         """
         Fetches a template from the available templates by their index
         :param template_index: index of template to return
         :type template_index: int
         :return: Returns a RuntimeTemplate object
-        :rtype: RuntimeTemplate
+        :rtype: GTMRuntimeTemplate
         """
         template = next(islice(self.templates, template_index, None))
 
         return template
 
 
-class RuntimeTemplate:
+class GTMRuntimeTemplate:
     def __init__(self, template: Template):
         # TODO maybe implement this as a generator too, to save memory and adapt other methods?
         self.contents = template
