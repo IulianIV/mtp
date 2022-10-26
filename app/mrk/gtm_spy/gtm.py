@@ -5,14 +5,14 @@ from collections import OrderedDict
 import json
 import re
 from copy import deepcopy
-from typing import Generator, Callable, Union, Any, NewType, List
+from typing import Generator, Union, Any
 from itertools import islice
 
 import requests
 
 from app.manager.helpers import extract_trigger_id
-from .index import evaluations_index, dlvBuiltins_index, macros_index, tags_index, \
-    triggers_index, runtime_index, BinaryOperator, runtime_function_regex, Statement
+from .index import BinaryOperator, Statement, GTMRootKeys, GTMResourceKeys, Template, evaluations_index, \
+    dlvBuiltins_index, macros_index, tags_index, triggers_index, runtime_index, runtime_function_regex
 from .utils import find_in_index, get_runtime_index, flatten_container
 
 # FIXME MAJOR! All create_container_name() functions need to be evaluated and commented. The goal, eventually,
@@ -32,35 +32,6 @@ from .utils import find_in_index, get_runtime_index, flatten_container
 
 # TODO Create a find_type(Union[section, container]) -> Union[builtin type, custom type]:
 #  function that handles type definitions across all containers and sections.
-
-GTM_URL_ROOT: str = 'https://www.googletagmanager.com/gtm.js?id='
-
-ROOT = {
-    'VERSION': 'version',
-    'MACROS': 'macros',
-    'TAGS': 'tags',
-    'PREDICATES': 'predicates',
-    'RULES': 'rules',
-    'RUNTIME': 'runtime',
-    'PERMISSIONS': 'permissions'
-}
-
-SECTIONS = [ROOT['VERSION'], ROOT['MACROS'],
-            ROOT['TAGS'], ROOT['PREDICATES'], ROOT['RULES'],
-            ROOT['RUNTIME'], ROOT['PERMISSIONS']]
-
-Template = NewType('RuntimeTemplate', List[Union[int, str, List]])
-
-
-# decorator to validate if a given section is indeed a valid section
-def check_for_container(method: Callable) -> Union[Callable, TypeError]:
-    def wrapper(self, section: SECTIONS):
-        if section in SECTIONS:
-            return method(self, section)
-        else:
-            raise IndexError(f'Not in sections list. Accepted sections are: {SECTIONS}')
-
-    return wrapper
 
 
 class GTMIntel(object):
