@@ -1,4 +1,23 @@
 from enum import Enum
+from typing import NewType, List, Union
+
+Template = NewType('RuntimeTemplate', List[Union[int, str, List]])
+
+
+class GTMRootKeys(Enum):
+    URL = 'https://www.googletagmanager.com/gtm.js?id='
+    RESOURCE = 'resource'
+    RUNTIME = 'runtime'
+    PERMISSIONS = 'permissions'
+    SANDBOXED_SCRIPTS = 'sandboxed_scripts'
+
+
+class GTMResourceKeys(Enum):
+    VERSION = 'version'
+    MACROS = 'macros'
+    TAGS = 'tags'
+    PREDICATES = 'predicates'
+    RULES = 'rules'
 
 
 class UnaryOperator(Enum):
