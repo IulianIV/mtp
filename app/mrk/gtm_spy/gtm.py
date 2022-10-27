@@ -24,12 +24,6 @@ from .utils import find_in_index, get_runtime_index, flatten_container
 # TODO research ways or libraries for faster JSON parsing.
 # TODO List storage in memory can be replaced with generators (?)
 
-# TODO refactor the code by using ABC or Protocol and Dataclasses.
-#   There should be a class GTM that holds the whole container, handles connection and other non-data related methods.
-#   All other container sections should inherit from the GTM class
-#       GTMMacros, GTMPredicates, GTMTags, GTMRules and so on, which themselves being so similar could inherit
-#       from another class. This way the main class is not so cluttered.
-
 # TODO Create a find_type(Union[section, container]) -> Union[builtin type, custom type]:
 #  function that handles type definitions across all containers and sections.
 
@@ -67,24 +61,6 @@ class GTMIntel(object):
 
         return container_json
 
-    @staticmethod
-    def saved_container_to_json(container_data) -> dict:
-        """
-        Function that is used to convert container data into JSON format. Primarily used in reading the data
-        from the database
-        
-        :param container_data: literal container data
-        :type container_data: dict
-        :return: container JSON
-        :rtype: JSON
-        """
-
-        container_data = container_data.decode('utf-8')
-
-        container_json = json.loads(container_data)
-
-        return container_json
-
     def find_container(self, website_url: str):
         """
         Function which will be using the 'seeker' module to attempt to automatically find
@@ -94,17 +70,6 @@ class GTMIntel(object):
         :return: Container ID
         """
         pass
-
-    @staticmethod
-    def count_items(container):
-        function_list = []
-        for item in container:
-            if 'function' in item:
-                function_list.append(item['function'])
-
-        count = len(function_list)
-
-        return count
 
     @property
     def id(self) -> str:
@@ -146,7 +111,7 @@ class GTMIntel(object):
         return self._original_container
 
     @property
-    def resource_section(self) -> GTMResource:
+    def _resource_section(self) -> GTMResource:
         """
         Returns the contents of the 'resources' section
         :return: 'resources' container section
@@ -161,52 +126,63 @@ class GTMIntel(object):
         :return: container version
         :rtype: str
         """
-        return self.resource_section.version
+        return self._resource_section.version
 
     @property
-    def macros(self) -> list:
+    def macros(self) -> Generator:
         """
         Returns the macros' section of the container
         :return: macros section
         :rtype: dict
         """
-        return self.resource_section.macros
+        return self._resource_section.macros
 
     @property
     def macro_names(self) -> Generator:
         return (macro['function'] for macro in self.macros)
 
     @property
-    def predicates(self) -> list:
+    def predicates(self) -> Generator:
         """
         Returns the predicates' section of the container
         :return:
         :rtype:
         """
-        return self.resource_section.predicates
+        return self._resource_section.predicates
 
     @property
-    def rules(self) -> list:
+    def rules(self) -> Generator:
         """
         Returns the rules' section of the container
         :return:
         :rtype:
         """
-        return self.resource_section.rules
+        return self._resource_section.rules
 
     @property
-    def tags(self) -> list:
+    def tags(self) -> Generator:
         """
         Returns the tags' section of the container
         :return:
         :rtype:
         """
-        return self.resource_section.tags
+        return self._resource_section.tags
 
     @property
     def tag_names(self) -> Generator:
         return (tag['function'] for tag in self.tags)
 
+    @property
+    def runtime(self) -> GTMRuntime:
+
+        if GTMRootKeys.RUNTIME.value in self._working_container.keys():
+            runtime = GTMRuntime(self._working_container[GTMRootKeys.RUNTIME.value])
+        else:
+            runtime = list()
+
+        return runtime
+
+    # TODO this needs to be updated to reflect new added classes
     def process_type(self, property_value):
 
         """
@@ -275,7 +251,7 @@ class GTMIntel(object):
         """
         if self.process_type(macro) == 'macro':
             try:
-                macro_literal = self.macros[macro[1]]
+                macro_literal = self.get_by_reference(self.macros, macro[1])
                 return macro_literal
             except IndexError:
                 return 'Provide a macro index that exists'
@@ -291,7 +267,7 @@ class GTMIntel(object):
         macro_index = escape[1][1]
 
         macros = self.macros
-        macro = macros[macro_index]
+        macro = self.get_by_reference(macros, macro_index)
 
         return macro
 
@@ -327,9 +303,9 @@ class GTMIntel(object):
         predicates = self.predicates
 
         try:
-            predicate_evaluator = predicates[predicate_index]['function']
-            predicate_evaluated = predicates[predicate_index]['arg0']
-            predicate_against = predicates[predicate_index]['arg1']
+            predicate_evaluator = self.get_by_reference(predicates, predicate_index)['function']
+            predicate_evaluated = self.get_by_reference(predicates, predicate_index)['arg0']
+            predicate_against = self.get_by_reference(predicates, predicate_index)['arg1']
 
             if not detailed:
                 return f'Predicate index {predicate_index} states that {predicate_evaluated} should evaluate as ' \
@@ -344,7 +320,7 @@ class GTMIntel(object):
                 try:
                     predicate_against = dlv_indexes[predicate_against]['title']
                 except KeyError:
-                    predicate_against = predicates[predicate_index]['arg1']
+                    predicate_against = self.get_by_reference(predicates, predicate_index)['arg1']
 
                 return f'Predicate index {predicate_index} states that \n{predicate_evaluated}\nshould evaluate as' \
                        f' {predicate_evaluator[0]} ({predicate_evaluator[1]}) against "{predicate_against}"'
@@ -362,8 +338,8 @@ class GTMIntel(object):
         :rtype:
         """
 
-        tags = self.tags
-        rules = self.rules
+        tags = [tag for tag in self.tags]
+        rules = [rule for rule in self.rules]
 
         # Needed for front-end processing.
         # In this case, eventually, the processing of the rules is better in a nested fashion
@@ -513,7 +489,7 @@ class GTMIntel(object):
         :rtype:
         """
         _sequence = {}
-        tags = self.tags
+        tags = [_tag for _tag in self.tags]
 
         for key in tag:
             if self.process_type(tag[key]) == 'sequence':
@@ -564,7 +540,7 @@ class GTMIntel(object):
         :rtype: dict
         """
 
-        tag_list = self.tags
+        tag_list = [tag for tag in self.tags]
         found_tag = []
 
         trigger_id = re.search(r'\(\^\$\|\(\(\^\|,\)([0-9_]+)\(\$\|,\)\)\)$', trigger_arg1).group(1)
@@ -591,8 +567,8 @@ class GTMIntel(object):
         :return: The container item where the pair was found
         :rtype: dict
         """
-        if type(container) is str:
-            container = self._resource_section[container]
+        if isinstance(container, str):
+            container = [item for item in self.__getattribute__(container)]
 
         found_item = []
 
@@ -612,7 +588,7 @@ class GTMIntel(object):
 
         macros = []
 
-        original_macros = self.macros
+        original_macros = [macro for macro in self.macros]
 
         for macro in original_macros:
             temp_dict = {}
@@ -675,7 +651,7 @@ class GTMIntel(object):
         """
         new_predicates = []
 
-        predicates = self.predicates
+        predicates = [predicate for predicate in self.predicates]
 
         for pred in predicates:
             temp_dict = {}
@@ -701,7 +677,7 @@ class GTMIntel(object):
         # This has to be done on a rule tagged container as well on a complete predicates container
         rule_tagged = self.process_rules()
         predicates = self.create_predicates_container()
-        rules = self.rules
+        rules = [rule for rule in self.rules]
         triggers = []
 
         # First processes the standard tags and ads trigger index information
@@ -791,7 +767,7 @@ class GTMIntel(object):
         :rtype: dict
         """
 
-        tags = self.tags
+        tags = [tag for tag in self.tags]
 
         # all trigger groups are "__tg" but only one has a  unique firing ID
         # all child tag have triggers themselves which conditions actually further along point to another existing
@@ -815,17 +791,49 @@ class GTMIntel(object):
 
         return trigger_group
 
-    @property
-    def runtime_section(self) -> GTMRuntime:
+    @staticmethod
+    def saved_container_to_json(container_data) -> dict:
+        """
+        Function that is used to convert container data into JSON format. Primarily used in reading the data
+        from the database
 
-        if GTMRootKeys.RUNTIME.value in self._working_container.keys():
-            runtime = GTMRuntime(self._working_container[GTMRootKeys.RUNTIME.value])
+        :param container_data: literal container data
+        :type container_data: dict
+        :return: container JSON
+        :rtype: JSON
+        """
+
+        container_data = container_data.decode('utf-8')
+
+        container_json = json.loads(container_data)
+
+        return container_json
+
+    @staticmethod
+    def count_items(container):
+        count = 0
+        if isinstance(container, Generator):
+            # gets length of the given container, if type is Generator
+            count = sum(1 for _ in container)
         else:
-            runtime = list()
+            count = len(container)
 
-        return runtime
+        return count
 
-# TODO
+    @staticmethod
+    def get_by_reference(container: Generator, resource_reference: Union[int, list]) -> Union[dict, list]:
+        reference_index = 0
+
+        if isinstance(resource_reference, int):
+            reference_index = resource_reference
+        elif isinstance(resource_reference, list) and resource_reference[0] == 'macro':
+            reference_index = resource_reference[1]
+
+        item = next(islice(container, reference_index, None))
+
+        return item
+
+
 class GTMResource:
 
     def __init__(self, resource_container: dict):
@@ -849,17 +857,69 @@ class GTMResource:
         return version
 
     @property
-    def macros(self):
+    def macros(self) -> Generator[GTMResourceMacro]:
         macros = self._resource_section_contents(GTMResourceKeys.MACROS.value)
-        return macros
+
+        macro_generator = (GTMResourceMacro(macro) for macro in macros)
+
+        return macro_generator
 
     @property
-    def predicates(self):
+    def predicates(self) -> Generator[GTMResourcePredicate]:
         predicates = self._resource_section_contents(GTMResourceKeys.PREDICATES.value)
-        return predicates
 
-    def __init__(self, container_id: str, first_load: bool = False, container_data: Any = None):
-        super().__init__(container_id=container_id, first_load=first_load, container_data=container_data)
+        predicates_gen = (GTMResourcePredicate(predicate) for predicate in predicates)
+
+        return predicates_gen
+
+    @property
+    def tags(self) -> Generator[GTMResourceTag]:
+        tags = self._resource_section_contents(GTMResourceKeys.TAGS.value)
+
+        tags_gen = (GTMResourceTag(tag) for tag in tags)
+
+        return tags_gen
+
+    @property
+    def rules(self) -> Generator[GTMResourceRule]:
+        rules = self._resource_section_contents(GTMResourceKeys.RULES.value)
+
+        rules_gen = (GTMResourceRule(rule) for rule in rules)
+
+        return rules_gen
+
+
+class GTMResourceMacro(dict):
+
+    def __init__(self, *args, **kwargs):
+        super(GTMResourceMacro, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
+
+class GTMResourceTag(dict):
+
+    def __init__(self, *args, **kwargs):
+        super(GTMResourceTag, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
+
+class GTMResourcePredicate(dict):
+
+    def __init__(self, *args, **kwargs):
+        super(GTMResourcePredicate, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
+
+class GTMResourceRule(list):
+
+    def __init__(self, *args, **kwargs):
+        super(GTMResourceRule, self).__init__(*args, **kwargs)
+
+
+class GTMRuntime:
+
+    def __init__(self, runtime_container: list):
+        self.runtime_container = runtime_container
 
     @property
     def templates(self) -> Generator:

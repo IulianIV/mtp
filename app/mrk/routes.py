@@ -261,7 +261,7 @@ def gtm_intel_runtime(template_type):
     container_id = spy.id
     container_version = spy.version
 
-    spy_runtime = spy.runtime_section
+    spy_runtime = spy.runtime
 
     if template_type == 'custom-tags':
         templates = (template if template.name in spy.tag_names else '' for template in spy_runtime.templates)
