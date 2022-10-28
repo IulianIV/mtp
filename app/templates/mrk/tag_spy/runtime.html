@@ -1,4 +1,4 @@
-{% extends 'gtm_base.html' %}
+{% extends 'tag_spy_base.html' %}
 {% set active_page = request.url.split('/')[-1] %}
 
 {% block gtm_content %}
@@ -33,7 +33,4 @@
         </div>
         <br/>
     </div>
-    {% block scripts %}
-        <script type="text/javascript" src="{{ url_for('static', filename='js/helpers.js') }}"></script>
-    {% endblock %}
 {% endblock %}

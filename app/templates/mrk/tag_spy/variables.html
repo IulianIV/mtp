@@ -1,4 +1,4 @@
-{% extends 'gtm_base.html' %}
+{% extends 'tag_spy_base.html' %}
 {% set active_page = "variables" %}
 
 {% block gtm_content %}
@@ -82,7 +82,7 @@
                                                         Custom Javascript
                                                     </button>
                                                 </div>
-                                            {% elif type_check(var[key]) == 'macro' %}
+                                            {% elif type_check(var[key]) == GTMResourceMacro %}
                                                 {% set macro_modal_index = find_index(get_macro(var[key])['function'], macros_index)['title'] | replace(' ', '') + var[key][1] | string %}
                                                 <div class="col-8 col-sm-6">
                                                     {{ key }}
@@ -180,7 +180,7 @@
                                                         {% set current_map_item = process_map[map_key] %}
                                                         {% set next_map_item = process_map[process_map_list[loop.index0 + 1]] %}
 
-                                                        {% if type_check(current_map_item) == 'macro' %}
+                                                        {% if type_check(current_map_item) == GTMResourceMacro %}
                                                             {% set macro_modal_index = find_index(get_macro(current_map_item)['function'], macros_index)['title'] | replace(' ', '') + current_map_item[1] | string %}
                                                             <div class="col-8 col-sm-6">
                                                                 <button type="button" data-dismiss="modal"
@@ -194,7 +194,7 @@
                                                                 {{ current_map_item }}
                                                             </div>
                                                         {% endif %}
-                                                        {% if type_check(next_map_item) == 'macro' %}
+                                                        {% if type_check(next_map_item) == GTMResourceMacro %}
                                                             {% set macro_modal_index = find_index(get_macro(next_map_item)['function'], macros_index)['title'] | replace(' ', '') + next_map_item[1] | string %}
                                                             <div class="col-4 col-sm-6">
                                                                 <button type="button" data-dismiss="modal"
@@ -249,11 +249,13 @@
                                 <div class="container-fluid">
                                     <div class="row">
                                         <div class="container">
-                                            <code>
+                                        <pre>
+                                            <code class="language-js">
                                                 {% if var[key] | length > 1 %}
-                                                    {{ var[key][1] | e | trim }}
+                                                    {{ js_prettify(var[key][1]) | e | trim | safe }}
                                                 {% endif %}
                                             </code>
+                                        </pre>
                                         </div>
                                     </div>
                                 </div>

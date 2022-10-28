@@ -13,11 +13,12 @@ from app.manager.db.db_interrogations import (
 from app.manager.permissions.utils import login_required, requires_permissions
 from app.mrk import bp
 from app.mrk.forms import ContainerLoad
-from app.mrk.gtm_spy.gtm import GTMIntel
-from app.mrk.gtm_spy.index import (skip_macro_keys, macros_index, skip_tag_keys,
+from app.mrk.tag_spy.gtm_intel import GTMIntel
+from app.mrk.tag_spy.index import (skip_macro_keys, macros_index, skip_tag_keys,
                                    code_snippet_properties, triggers_index, skip_trigger_keys, triggers_not_tags)
-from app.mrk.gtm_spy.utils import gtm_compare_get_version, find_in_index
-from app.manager.helpers import gtm_trigger_len, extract_nested_strings, form_validated_message, form_error_message
+from app.mrk.tag_spy.utils import gtm_compare_get_version, find_in_index
+from app.manager.helpers import gtm_trigger_len, extract_nested_strings, form_validated_message
+from app.mrk.tag_spy.gtm_resource import GTMResourceMacro
 
 # TODO should the final container contain data for color coding?
 # TODO add modal preview for lists and certain variables
@@ -73,7 +74,7 @@ def gtm_intel():
                 set_gtm_container_active(user_id, container_id)
                 return redirect(url_for(gtm_tags_url))
 
-    return render_template('gtm_base.html', container_id_form=container_id_form)
+    return render_template('tag_spy_base.html', container_id_form=container_id_form)
 
 
 @bp.route('/gtm-spy/summary', methods=('GET', 'POST'))
@@ -102,7 +103,7 @@ def gtm_intel_summary():
         'variables': spy.count_items(spy.macros)
     }
 
-    return render_template('mrk/gtm_spy/index.html', model_gtm_path=container_url, gtm_id=container_id,
+    return render_template('mrk/tag_spy/index.html', model_gtm_path=container_url, gtm_id=container_id,
                            container_id=container_id, container_id_form=container_id_form,
                            container_data=container_data, container_domain=container_domain, version=container_version)
 
@@ -145,14 +146,17 @@ def gtm_intel_tags():
     macro_index = macros_index
     except_triggers = triggers_not_tags
 
-    return render_template('mrk/gtm_spy/tags.html', model_gtm_path=container_url,
+    js_prettify = jsbeautifier.beautify
+
+    return render_template('mrk/tag_spy/tags.html', model_gtm_path=container_url,
                            gtm_id=container_id, version=container_version, tag_list=tags,
                            skip_tag_keys=skip_keys_tags, code_snippets=code_snippets, type_check=type_check,
                            find_index=find_index, get_macro=get_macro, macros_index=macro_index,
                            variables=variables, process_mapping=process_mapping, get_len=get_len,
                            predicates=predicates, triggers_index=triggers_index, string_list=string_list,
                            tag_from_predicate=tag_from_predicate, except_triggers=except_triggers,
-                           container_id_form=container_id_form, container_domain=container_domain)
+                           container_id_form=container_id_form, container_domain=container_domain,
+                           GTMResourceMacro=GTMResourceMacro, js_prettify=js_prettify)
 
 
 @bp.route('/gtm-spy/triggers', methods=('GET', 'POST'))
@@ -194,14 +198,17 @@ def gtm_intel_triggers():
     macro_index = macros_index
     get_len = gtm_trigger_len
 
-    return render_template('mrk/gtm_spy/triggers.html', model_gtm_path=container_url,
+    js_prettify = jsbeautifier.beautify
+
+    return render_template('mrk/tag_spy/triggers.html', model_gtm_path=container_url,
                            gtm_id=container_id, version=container_version, triggers=triggers,
                            skip_keys=skip_keys, trigger_groups=trigger_groups, find_index=find_index,
                            triggers_index=triggers_index, predicates=predicates, type_check=type_check,
                            get_macro=get_macro, process_mapping=process_mapping, macros_index=macro_index,
                            variables=variables, skip_tag_keys=skip_keys_tags, container_id_form=container_id_form,
-                           get_len=get_len, tag_from_predicate=tag_from_predicate,
-                           code_snippets=code_snippets, search_in_container=search_in_container)
+                           get_len=get_len, tag_from_predicate=tag_from_predicate, code_snippets=code_snippets,
+                           search_in_container=search_in_container,
+                           GTMResourceMacro=GTMResourceMacro, js_prettify=js_prettify)
 
 
 @bp.route('/gtm-spy/variables', methods=('GET', 'POST'))
@@ -235,11 +242,14 @@ def gtm_intel_variables():
     find_index = find_in_index
     macro_index = macros_index
 
-    return render_template('mrk/gtm_spy/variables.html', model_gtm_path=container_url,
+    js_prettify = jsbeautifier.beautify
+
+    return render_template('mrk/tag_spy/variables.html', model_gtm_path=container_url,
                            gtm_id=container_id, version=container_version, variables=variables,
                            skip_macro_keys=skip_keys, type_check=type_check, get_macro=get_macro,
                            macros_index=macro_index, find_index=find_index, process_mapping=process_mapping,
-                           container_id_form=container_id_form, code_snippets=code_snippets)
+                           container_id_form=container_id_form, code_snippets=code_snippets,
+                           GTMResourceMacro=GTMResourceMacro, js_prettify=js_prettify)
 
 
 @bp.route('/gtm-spy/runtime/<string:template_type>', methods=('GET', 'POST'))
@@ -271,6 +281,6 @@ def gtm_intel_runtime(template_type):
 
     js_prettify = jsbeautifier.beautify
 
-    return render_template('mrk/gtm_spy/runtime.html', model_gtm_path=container_url,
+    return render_template('mrk/tag_spy/runtime.html', model_gtm_path=container_url,
                            gtm_id=container_id, version=container_version, container_id_form=container_id_form,
                            templates=templates, js_prettify=js_prettify)
