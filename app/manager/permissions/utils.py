@@ -61,6 +61,9 @@ def requires_permissions(view):
     def permission_wall(**kwargs):
         user_id = current_user.get_id()
 
+        if user_id is None:
+            return redirect(url_for(app_endpoints['login']))
+
         user_role = get_user_role_rules(user_id)
         role_rules = [user_role[x].role_rule for x in range(0, len(user_role))]
 
