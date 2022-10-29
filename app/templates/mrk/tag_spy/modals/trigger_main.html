@@ -1,0 +1,53 @@
+{% macro triggers_modal_main_modals() %}
+    <div class="modal fade" id="{{ trigger_modal_id }}"
+             tabindex="-1" role="dialog"
+             aria-labelledby="{{ trigger_modal_id }}"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"
+                            id="{{ trigger_modal_id }}">{{ tag['title'] }}
+                            details</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <strong>Key list</strong>
+                                    <hr/>
+                                    <div class="row">
+                                        {% for key in tag.keys() %}
+                                            {% if key not in skip_tag_keys %}
+                                                {% set snippet_modal_id = key + loop.index0 | string %}
+                                                <div class="col-8 col-sm-6">
+                                                    {{ key }}
+                                                </div>
+                                                {#                                            <div class="col-4 col-sm-6">#}
+                                                {#                                                <button type="button" data-dismiss="modal"#}
+                                                {#                                                        class="btn btn-info btn-sm" data-toggle="modal"#}
+                                                {#                                                        data-target="#{{ snippet_modal_id }}">#}
+                                                {#                                                    {{ find_index(get_macro(tag[key])['function'], macros_index)['title'] }}#}
+                                                {#                                                </button>#}
+                                                {#                                            </div>#}
+                                                <div class="col-4 col-sm-6">
+                                                    <span class="badge badge-pill badge-info">{{ tag[key] }}</span>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endmacro %}

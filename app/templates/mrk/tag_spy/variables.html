@@ -13,7 +13,7 @@
             {% set var_modal_id = var['title'] | replace(' ', '') + variables.index(var) | string %}
             <tr>
                 <th scope="row">
-                {% from 'mrk/tag_spy/macros/variable_modal_base.html' import custom_variable_button %}
+                {% from 'mrk/tag_spy/modals/variable_base.html' import custom_variable_button %}
                     {% if 'pill' in var %}
                         {% if 'cvt' in var['function'] %}
                             {{ custom_variable_button(var_modal_id, var['pill'], var['title'], var['function']) }}
@@ -34,6 +34,6 @@
 
 {% endblock %}
 {% block gtm_modals %}
-    {% from 'mrk/tag_spy/macros/variable_modal_base.html' import variables_modal with context %}
+    {% from 'mrk/tag_spy/modals/variable_base.html' import variables_modal with context %}
     {{ variables_modal(variables) }}
 {% endblock %}

@@ -1,0 +1,23 @@
+{% macro tags_modal(tags) %}
+    {% for tag in tags %}
+        {% set modal_id = tag['title'] | replace(' ', '') + tag_list.index(tag) | string %}
+
+        {# Tag Modals Start #}
+        {% from 'mrk/tag_spy/modals/tag_trigger_group_main.html' import tag_trigger_group_main with context %}
+        {{ tag_trigger_group_main(tag, modal_id, 'tag') }}
+
+        {# Firing Conditions Start #}
+        {% from 'mrk/tag_spy/modals/tag_block_fire_conditions.html' import tag_modal_block_fire_conditions with context %}
+        {{ tag_modal_block_fire_conditions(loop, 'firing', 'conditional') }}
+
+        {# Blocking Conditions Start #}
+        {% from 'mrk/tag_spy/modals/tag_block_fire_conditions.html' import tag_modal_block_fire_conditions with context %}
+        {{ tag_modal_block_fire_conditions(loop, 'blocking', 'blocking') }}
+
+
+        {# Tag Code Block Modals Start #}
+        {% from 'mrk/tag_spy/modals/tag_code_block.html' import tags_modal_code_block with context %}
+        {{ tags_modal_code_block(tag.keys()) }}
+
+    {% endfor %}
+{% endmacro %}

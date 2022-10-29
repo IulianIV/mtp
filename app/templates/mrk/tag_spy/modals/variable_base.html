@@ -1,7 +1,7 @@
 {% macro variables_modal(variables) %}
     {% for var in variables %}
         {% set var_modal_id = var['title'] | replace(' ', '') + variables.index(var) | string %}
-        <!-- Macro Modals Start -->
+        {# Macro Modals Start #}
         <div class="modal fade" id="{{ var_modal_id }}"
              tabindex="1" role="dialog"
              aria-labelledby="{{ var_modal_id }}"
@@ -97,20 +97,18 @@
                 </div>
             </div>
         </div>
-        <!-- Macro Modals End -->
 
-        <!-- Macro Input Table and Code Section start-->
+        {# Macro Input Table and Code Section start #}
         {% for key in var.keys() %}
             {% if type_check(var[key]) == 'mapping' %}
-                {% from 'mrk/tag_spy/macros/variable_modal_input_table.html' import variables_modal_input_table with context %}
+                {% from 'mrk/tag_spy/modals/variable_input_table.html' import variables_modal_input_table with context %}
                 {{ variables_modal_input_table() }}
             {% elif key in code_snippets %}
                 {% set mapping_modal_id = key + loop.index0 | string %}
-                {% from 'mrk/tag_spy/macros/variable_modal_code_input.html' import variables_modal_code_input with context %}
+                {% from 'mrk/tag_spy/modals/variable_code_input.html' import variables_modal_code_input with context %}
                 {{ variables_modal_code_input() }}
             {% endif %}
         {% endfor %}
-        <!-- Input Table and Code Block Modals End -->
     {% endfor %}
 {% endmacro %}
 
