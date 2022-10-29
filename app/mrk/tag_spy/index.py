@@ -91,10 +91,10 @@ class Array(Enum):
     key_value_based = '{}'
 
 
-skip_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function', 'infoKey']
-skip_tag_keys = ['pill', 'property', 'nameProperty', 'title', 'function', 'infoKey', 'teardown_tags',
-                 'setup_tags', '_sequence', '_conditions', '_blocking', 'exportType']
-skip_trigger_keys = ['gtm.triggerGroup', '__tg']
+skippable_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function', 'infoKey']
+skippable_tag_keys = ['pill', 'property', 'nameProperty', 'title', 'function', 'infoKey', 'teardown_tags',
+                      'setup_tags', '_sequence', '_conditions', '_blocking', 'exportType']
+skippable_trigger_keys = ['gtm.triggerGroup', '__tg']
 triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl', '__evl']
 code_snippet_properties = ['vtp_html', 'vtp_javascript']
 untracked_macros = ['Environment name']
