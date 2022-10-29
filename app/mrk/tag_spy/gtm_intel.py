@@ -216,7 +216,7 @@ class GTMIntel(object):
                 return 'mapping'
 
             # determines if type is escape
-            if property_value[0] == 'escape' and isinstance(self.process_type(property_value[1]), GTMResourceMacro):
+            if property_value[0] == 'escape' and self.process_type(property_value[1]) is GTMResourceMacro:
                 return 'escape'
 
             # determines if type is gtm_firing_sequence
@@ -250,7 +250,7 @@ class GTMIntel(object):
                 macro_literal = self.get_by_reference(self.macros, macro[1])
                 return macro_literal
             except IndexError:
-                return 'Provide a macro index that exists'
+                return 'Given macro index parameter does not exist.'
 
     def process_escape(self, escape):
         """
@@ -443,22 +443,19 @@ class GTMIntel(object):
                 map_key = item.index(key) + 1
                 map_value = item.index(value) + 1
             except ValueError:
-                print('Seems like the list contains non-standard key-value naming.\n'
-                      'Attempting to find naming...')
                 if container_mapping[0] == 'list':
-                    print('Seems to be a valid map. Continuing...')
                     key = container_mapping[index + 1][1]
                     value = container_mapping[index + 1][3]
                 map_key = item.index(key) + 1
                 map_value = item.index(value) + 1
 
-            if process_macro and isinstance(self.process_type(item[map_key]), GTMResourceMacro):
+            if process_macro and self.process_type(item[map_key]) is GTMResourceMacro:
                 proc_macro = self.process_macro(item[map_key])
                 map_dict[f'{key}_{index}'] = proc_macro
             else:
                 map_dict[f'{key}_{index}'] = item[map_key]
 
-            if process_macro and isinstance(self.process_type(item[map_value]), GTMResourceMacro):
+            if process_macro and self.process_type(item[map_value]) is GTMResourceMacro:
                 proc_macro = self.process_macro(item[map_value])
                 map_dict[f'{value}_{index}'] = proc_macro
             else:
@@ -576,7 +573,7 @@ class GTMIntel(object):
 
     def create_macro_container(self):
         """
-        Processes and creates the variables container
+        Processes and creates the variables' container.
 
         :return: Dictionary with variable values
         :rtype: dict
@@ -593,6 +590,7 @@ class GTMIntel(object):
             # Custom Variable Templates have custom naming, this makes it possible to see the custom variable contents
             if macro_name not in macros_index and 'cvt' in macro_name:
                 index_details = macros_index['_custom_variable_template']
+                index_details['title'].replace('%%%%', macro_name)
             elif 'vtp_name' in macro and macro['vtp_name'] in dlvBuiltins_index:
                 index_details = dlvBuiltins_index[macro['vtp_name']]
             else:
@@ -678,16 +676,16 @@ class GTMIntel(object):
 
         # First processes the standard tags and ads trigger index information
         for tag in rule_tagged:
-            temp_dict = {}
+            _temp_dict = {}
 
             if tag['function'] in triggers_index:
                 trigger_index = find_in_index(tag['function'], triggers_index)
 
                 for key, value in tag.items():
-                    temp_dict[key] = value
-                    temp_dict = {**temp_dict, **trigger_index}
+                    _temp_dict[key] = value
+                    _temp_dict = {**_temp_dict, **trigger_index}
 
-                triggers.append(temp_dict)
+                triggers.append(_temp_dict)
 
         # Variables needed when processing predicates containing trigger names but the firing conditions point to other
         #   predicates that eventually point to the right trigger.
@@ -708,7 +706,7 @@ class GTMIntel(object):
                     for predicate_index in rls[1:]:
                         # Handles the assignment of the rule to the proper trigger that is referenced by its firing_id
                         #   in a regex variable
-                        if isinstance(self.process_type(predicates[predicate_index]['arg1']), re.Pattern):
+                        if self.process_type(predicates[predicate_index]['arg1']) is re.Pattern:
                             is_group_predicate = True
                             group_conditions['_group_trigger'].append(
                                 re.search(r'^\(\^\$\|\(\(\^\|,\)([0-9_]+)\(\$\|,\)\)\)$',
@@ -737,7 +735,7 @@ class GTMIntel(object):
                     triggers.append(new_trigger)
 
         # because the above algorith duplicates tags and associates rules only to '__tg'
-        # tags this si needed to overwrite the conditions
+        # tags this is needed to overwrite the conditions
         for trigger in triggers:
             if 'vtp_triggerIds' in trigger and trigger['vtp_uniqueTriggerId'] in group_conditions['_group_trigger']:
                 index = group_conditions['_group_trigger'].index(trigger['vtp_uniqueTriggerId'])
