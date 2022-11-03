@@ -1,52 +1,10 @@
-from __future__ import annotations
-
-from typing import Generator, Union
-from itertools import islice
-from collections import OrderedDict
-import json
 import itertools
+import json
+from typing import Union, OrderedDict, Generator
 import re
-
-from .index import Template, Statement, BinaryOperator, runtime_function_regex, runtime_index
 from .utils import get_runtime_index, flatten_container
-
-
-class GTMRuntime:
-
-    def __init__(self, runtime_container: list):
-        self.runtime_container = runtime_container
-
-    @property
-    def templates(self) -> Generator:
-        """
-        :return: Creates a generator containing all found templates within the runtime section
-        :rtype: Generator
-        """
-        templates_to_gen = (GTMRuntimeTemplate(template) for template in self.runtime_container)
-
-        return templates_to_gen
-
-    @property
-    def template_names(self) -> Generator:
-        return (template.name for template in self.templates)
-
-    @property
-    def length(self):
-        template_length = len(list(self.templates))
-
-        return template_length
-
-    def fetch_template(self, template_index: int) -> GTMRuntimeTemplate:
-        """
-        Fetches a template from the available templates by their index
-        :param template_index: index of template to return
-        :type template_index: int
-        :return: Returns a RuntimeTemplate object
-        :rtype: GTMRuntimeTemplate
-        """
-        template = next(islice(self.templates, template_index, None))
-
-        return template
+from .index import Template, runtime_index,\
+    RuntimeStatement, RuntimeBinaryOperator, runtime_function_regex
 
 
 class GTMRuntimeTemplate:
@@ -430,9 +388,9 @@ class GTMRuntimeTemplate:
         # better-me the regex matching is done to find instances of situations similar to "s.length -1" which
         #   should be literal but are otherwise quoted.
         if len(arguments) == 1:
-            if any(re.search(re.escape(f'.*{operator.value}.*'), arguments[0]) for operator in BinaryOperator):
+            if any(re.search(re.escape(f'.*{operator.value}.*'), arguments[0]) for operator in RuntimeBinaryOperator):
                 argument_string += f'{arguments[0]}'
-            elif any(re.search(f'.*{operator.value}.*', arguments[0]) for operator in Statement):
+            elif any(re.search(f'.*{operator.value}.*', arguments[0]) for operator in RuntimeStatement):
                 argument_string += f'{arguments[0]}'
             elif arguments[0] in (self.lets or self.vars or self.consts or self.functions):
                 argument_string += f'{arguments[0]}'
