@@ -1,7 +1,7 @@
 import json
 import re
 import requests
-from typing import Union
+from typing import Union, Any
 from .index import runtime_index
 
 
@@ -19,7 +19,7 @@ def gtm_compare_get_version(gtm_id) -> int:
 
 
 # better-me add fallback situations when there are no arguments given.
-def find_in_index(value: str, index: dict) -> dict:
+def find_in_index(value: Union[str, callable], index: dict) -> Any:
     """
     Attempts to find 'value' in 'index'.
     Considering that a container hold a lot of information, it is best to index items in dictionaries that
@@ -34,11 +34,9 @@ def find_in_index(value: str, index: dict) -> dict:
     :rtype: dictionary
     """
     try:
-        index[value]
-    except KeyError:
+        return index[value]
+    except (KeyError, TypeError):
         return {'title': ''}
-
-    return index[value]
 
 
 def get_runtime_index(index_value: Union[int, str], dict_key: str, full_index: bool = False):
