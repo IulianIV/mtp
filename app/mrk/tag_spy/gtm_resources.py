@@ -1,8 +1,12 @@
 from __future__ import annotations
-from typing import Any
+
+import re
+from typing import Any, Union
 from copy import deepcopy
 from abc import ABC, abstractmethod
-from .index import macros_index, tags_index, dlvBuiltins_index, evaluations_index, macro_data_keys
+from .index import macros_index, tags_index, dlvBuiltins_index, evaluations_index,\
+    macro_data_keys, resource_list_methods_index
+from .utils import find_in_index
 
 # TODO debate if it is necessary to create other classes for individual resource members (i.e. GTMResourceMacro)
 
@@ -25,7 +29,17 @@ class GTMResourceTemplate(ABC):
     def parsed(self, container: list):
         self._parsed = container
 
-    def get_by_index(self, index: int, original: bool = False):
+    def get_by_index(self, index: int, original: bool = False) -> Union[dict, list]:
+        """
+        Grabs the container section member found at the given `index`. By default, it looks into the `parsed` container.
+        If `original` is True then it parses the original container.
+        :param index: index value to grab
+        :type index: int
+        :param original: whether to parse the original container
+        :type original: bool
+        :return: container found at given index.
+        :rtype: dict, list
+        """
         container = self.parsed
 
         if original:
@@ -33,10 +47,11 @@ class GTMResourceTemplate(ABC):
 
         return container[index]
 
-    def get_by_key_value(self, value: Any, key: Any = None, original: bool = False):
+    def get_by_key_value(self, value: Any, key: Any = None, original: bool = False) -> dict:
         """
-        Searches the given container for items that contain the given key, value pair.
-        If only either of arguments is given, it will try to find the first value that contains the given arguments
+        Searches the given container for items that contain the given `key`, `value` pair.
+        If only either of arguments is given, it will try to find the first value that contains the given arguments.
+        Because of the `list` like structure of the `rules` container, it can not be used there.
 
         :param original: if passed acts upon the original container
         :type original: bool
@@ -63,38 +78,51 @@ class GTMResourceTemplate(ABC):
 
     @abstractmethod
     def add_index_data(self):
+        """
+        Adds supplementary information to each container. The information supplemented is curated from a specific index
+        :return: self
+        :rtype:
+        """
         pass
+
+    @abstractmethod
+    def parse(self):
+        pass
+
+    @staticmethod
+    def determine_type(resource_value: list):
+        # determines if type is macro
+        if resource_value[0] == 'macro' and isinstance(resource_value[1], int):
+            return 'macro'
+
+        if resource_value[0] == 'map':
+            return 'map'
+
+        if resource_value[0] == 'escape':
+            return 'escape'
+
+        if resource_value[0] == 'list':
+            if len(resource_value) == 1:
+                return 'mapping'
+            if isinstance(resource_value[1], list) and resource_value[1][0] == 'map':
+                return 'mapping'
+            if isinstance(resource_value[1], list) and resource_value[1][0] == 'tag':
+                return 'tag_que'
+
+        if resource_value[0] == 'template' and \
+                any(_ for _ in ['function', 'script', 'iframe'] if resource_value[1].find(_)):
+            return 'custom_code_template'
+        if resource_value[0] == 'template' and not \
+                any(_ for _ in ['function', 'script', 'iframe'] if resource_value[1].find(_)):
+            return 'generic_template'
+        if resource_value[0] == 'template' and re.error('regex_template', resource_value[1]) == 'regex_template':
+            return 'regex_template'
 
 
 class GTMResourceMacros(GTMResourceTemplate):
 
     def __init__(self, macro_container: list):
         super().__init__(macro_container)
-
-    # better-me Find a way to parse the given macro if not already parsed. Parsing it should also modify in self.parsed
-    #   if the macro is referenced in the original container DO NOT parse.
-    def get_by_reference(self, macro_reference: list, original: bool = False) -> dict:
-        """
-        Find a macro value by reference `["macro", 6]`. If the referenced macro is not parsed, parse it and directly
-        modify self.parsed.
-        Ff the macro is referenced in the original container DO NOT parse.
-        :param macro_reference: ["macro" 6]
-        :type macro_reference: list
-        :param original: If the original container should be read
-        :type original: bool
-        :return:
-        :rtype:
-        """
-        container = self.parsed
-
-        if original:
-            container = self.original
-
-        try:
-            macro_literal = container[macro_reference[1]]
-            return macro_literal
-        except IndexError:
-            return 'Given macro index parameter does not exist.'
 
     def add_index_data(self):
 
@@ -117,24 +145,163 @@ class GTMResourceMacros(GTMResourceTemplate):
 
         self.add_index_data()
 
-        for macro in self.parsed:
+        for idx, macro in enumerate(self.parsed):
             for key, value in macro.items():
-                if isinstance(value, list):
-                    value_type = self.determine_type(value)
+                if value == '__remm':
+                    self.parsed[idx] = self.process_general_resource(macro, '__remm')
+                if isinstance(value, list) and value != '__remm':
+                    macro[key] = self.process_general_resource(value)
+        return self.parsed
 
-                    if value_type == 'macro':
-                        macro[key] = self.get_data_key(macro)
-        return self
+    def process_general_resource(self, resource_list: Union[list, dict], special_function: str = None):
 
-    @staticmethod
-    def determine_type(resource_value: list):
-        # determines if type is macro
-        if resource_value[0] == 'macro' and isinstance(resource_value[1], int):
-            return 'macro'
+        def process(resource: Union[list, dict]):
+
+            if special_function == '__remm':
+                method_call = self.process_regex(resource)
+                return method_call
+
+            value_type = self.determine_type(resource)
+
+            if value_type == 'macro':
+                method_call = self.get_macro_data_key(self.parsed[resource[1]])
+                return method_call
+
+            resource_type_method = find_in_index(value_type, resource_list_methods_index)
+
+            method_call = getattr(self, resource_type_method)(resource)
+
+            return method_call
+        return process(resource_list)
+
+    def process_regex(self, macro_dict: dict):
+        new_macro = {}
+
+        for key, value in macro_dict.items():
+            if isinstance(value, list):
+                value_type = self.determine_type(value)
+
+                if value_type == 'mapping':
+                    value = self.process_regex_mapping(value)
+                else:
+                    value = self.process_general_resource(value)
+
+            new_macro[key] = value
+
+        return new_macro
+
+    def process_regex_mapping(self, regex_table: list):
+        useful_map = regex_table[1:]
+        regex_dict = {}
+        regex_list = []
+        match_to_list = []
+        output_list = []
+
+        for idx, item in enumerate(useful_map):
+
+            reg_ex = item[2][1]
+            regex_match_to = item[2][2]
+
+            if isinstance(reg_ex, list):
+                reg_ex = self.process_general_resource(reg_ex)
+
+            reg_ex_literal = reg_ex.encode('raw_unicode_escape').decode('unicode_escape')
+
+            if isinstance(regex_match_to, list):
+                regex_match_to = self.process_general_resource(regex_match_to)
+
+            regex_output = item[-1]
+
+            if isinstance(regex_output, list):
+                regex_output = self.process_general_resource(regex_output)
+
+            regex_list.append(reg_ex_literal)
+            match_to_list.append(regex_match_to)
+            output_list.append(regex_output)
+
+            regex_dict[f'regex'] = regex_list
+            regex_dict[f'match_to'] = match_to_list
+            regex_dict[f'output'] = output_list
+
+            regex_dict.update(regex_dict)
+
+        return regex_dict
+
+    def process_mapping(self, container_mapping: list):
+        """
+        Attempts to create a dictionary of "map" values of some properties
+        It tries to automatically assign dict keys and values according to the container mapping
+        If dict key and value are given it will attempt to find those keys in the mapping.
+
+        :param container_mapping: The property value which needs to be processed
+        :return: Dictionary containing a computer-friendly value mapping
+        """
+        if container_mapping[0] == 'list' and len(container_mapping) == 1:
+            return f'[]'
+
+        if container_mapping[0] == 'map':
+            return f'{{}}'
+
+        useful_map = container_mapping[1:]
+        map_dict = {}
+
+        for item in useful_map:
+
+            map_key = item[2]
+            map_value = item[-1]
+
+            if isinstance(map_key, list):
+                map_key = self.process_general_resource(map_key)
+
+            if isinstance(map_value, list):
+                map_value = self.process_general_resource(map_value)
+
+            map_dict[map_key] = map_value
+
+            map_dict.update(map_dict)
+
+        return map_dict
+
+    def process_template(self, template: list) -> str:
+        template_contents = template[1:]
+        template_string = ''
+        template_substring = ''
+
+        for item in template_contents:
+            if isinstance(item, list):
+                template_substring = self.process_general_resource(item)
+            elif isinstance(item, str):
+                template_substring = item
+            template_string += template_substring
+
+        return template_string
+
+    # TODO what do the numbers in the escape mean?
+    def process_escape(self, escape: list):
+        escape_contents = escape[1]
+        escape_string = f'{self.get_macro_data_key(self.parsed[escape_contents[1]])}'
+
+        return escape_string
+
+    # TODO Finish this processing functionality
+    def process_metadata(self, metadata: list):
+        """
+        Some tags, if configured so, have a filled metadata property:
+        ["map", "metadata_key", "metadata_value", "metadata_key_2", "metadata_value_2",
+        "key_for_tag_name", "Custom Image"]
+        If not filled it just shows as metadata: ["map"]
+
+        It behaves as follows: if "include tag name" is checked it prints both last 2 values for the list,
+            the penultimate item being mandatory if the conditions is checked. The last item is the tag name.
+        Every other data inbetween that and "map" is the literal table of key-value pairs to be added as tag metadata.
+
+        :return:
+        :rtype:
+        """
 
     # macros contain certain keys that are used as data referential (i.e. `vtp_name`)
     @staticmethod
-    def get_data_key(macro: dict):
+    def get_macro_data_key(macro: dict):
 
         for data in macro_data_keys:
             if data in macro:
@@ -143,10 +310,13 @@ class GTMResourceMacros(GTMResourceTemplate):
 
 class GTMResourceTags(GTMResourceTemplate):
 
-    def __init__(self, tag_container: list):
+    def __init__(self, tag_container: list, macro_container: GTMResourceMacros):
         super().__init__(tag_container)
+        self.parsed_macro_container = macro_container.parse()
 
     def add_index_data(self):
+
+        index_details = {}
 
         for tag in self.parsed:
             tag_name = tag['function']
@@ -158,6 +328,16 @@ class GTMResourceTags(GTMResourceTemplate):
 
             tag.update(**index_details)
 
+        return self
+
+    def parse(self):
+
+        self.add_index_data()
+
+        for idx, tag in enumerate(self.parsed):
+            for key, value in tag.items():
+                if isinstance(value, list):
+                    tag[key] = self.process_general_resource(value)
         return self
 
 
