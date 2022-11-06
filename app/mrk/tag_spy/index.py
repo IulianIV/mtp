@@ -2,6 +2,12 @@ from enum import Enum
 from typing import NewType, List, Union
 
 Template = NewType('RuntimeTemplate', List[Union[int, str, List]])
+GTMResourceCustomCodeTemplate = NewType('GTMResourceCustomCodeTemplate', List)
+GTMResourceGenericTemplate = NewType('GTMResourceGenericTemplate', List)
+GTMResourceEscape = NewType('GTMResourceEscape', List)
+GTMResourceArrayMapping = NewType('GTMResourceArrayMapping', List)
+GTMResourceGenericMapping = NewType('GTMResourceGenericMapping', List)
+GTMResourceTagSequence = NewType('GTMResourceTagSequence', List)
 
 
 class GTMRootKeys(Enum):
@@ -20,14 +26,14 @@ class GTMResourceKeys(Enum):
     RULES = 'rules'
 
 
-class UnaryOperator(Enum):
+class RuntimeUnaryOperator(Enum):
     logical_not = '!'
     negation = '-'
     bitwise_negation = '~'
     typeof = 'typeof'
 
 
-class BinaryOperator(Enum):
+class RuntimeBinaryOperator(Enum):
     addition = '+'
     logical_and = '&&'
     assignment = '='
@@ -51,11 +57,11 @@ class BinaryOperator(Enum):
     bitwise_xor = '^'
 
 
-class TernaryOperator(Enum):
+class RuntimeTernaryOperator(Enum):
     ternary_operator = '?'
 
 
-class Statement(Enum):
+class RuntimeStatement(Enum):
     return_statement = 'return'
     null = 'null'
     for_statement = 'for'
@@ -71,22 +77,22 @@ class Statement(Enum):
     control = 'control'
 
 
-class ValueStatement(Enum):
+class RuntimeValueStatement(Enum):
     var = 'var'
     let = 'let'
     const = 'const'
 
 
-class PropertyAccessor(Enum):
+class RuntimePropertyAccessor(Enum):
     brackets = '[]'
     dot = '.'
 
 
-class PropertySetter(Enum):
+class RuntimePropertySetter(Enum):
     brackets = '[]'
 
 
-class Array(Enum):
+class RuntimeArray(Enum):
     index_based = '[]'
     key_value_based = '{}'
 
@@ -95,10 +101,11 @@ skippable_macro_keys = ['title', 'isBuiltin', 'pill', 'nameProperty', 'function'
 skippable_tag_keys = ['pill', 'property', 'nameProperty', 'title', 'function', 'infoKey', 'teardown_tags',
                       'setup_tags', '_sequence', '_conditions', '_blocking', 'exportType']
 skippable_trigger_keys = ['gtm.triggerGroup', '__tg']
-triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl', '__evl']
+triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl', '__evl', '__sdl']
 code_snippet_properties = ['vtp_html', 'vtp_javascript']
 untracked_macros = ['Environment name']
 runtime_function_regex = [r'__cvt_\d+_\d+', r'__awec', r'__baut', r'__crto', r'__pntr']
+macro_data_keys = ['vtp_name', 'vtp_javascript', 'vtp_html', 'vtp_url', 'vtp_trackingId', 'vtp_value']
 
 tags_index = {
     '__paused': {
@@ -298,49 +305,55 @@ dlvBuiltins_index = {
     "gtm.visibleTime": {'title': "Element Visibility Time (On-Screen Duration)"}
 }
 
+escape_type = {
+    12: '',
+    18: '',
+    6: ''
+}
+
 runtime_index = {
     0: {'symbol': '+',
-        'type': BinaryOperator,
+        'type': RuntimeBinaryOperator,
         'name': 'addition',
         'method': 'parse_binary_operator'},  # DONE
     1: {'symbol': '&&',
-        'type': BinaryOperator,
+        'type': RuntimeBinaryOperator,
         'name': 'logical AND',
         'method': 'parse_binary_operator'},  # DONE
     2: {'symbol': '.',
-        'type': PropertyAccessor,
+        'type': RuntimePropertyAccessor,
         'name': 'method accessor', 'method': 'parse_method_accessor'},  # DONE
     3: {'symbol': '=',
-        'type': BinaryOperator,
+        'type': RuntimeBinaryOperator,
         'name': 'assignment', 'method': 'parse_binary_operator'},  # DONE
     4: {'symbol': 'break',
-        'type': Statement,
+        'type': RuntimeStatement,
         'name': 'break statement', 'method': 'parse_simple_statement'},  # DONE
     5: {'symbol': 'case',
-        'type': Statement,
+        'type': RuntimeStatement,
         'name': 'case (switch)', 'method': 'parse_switch_expressions'},  # DONE
     6: {'symbol': 'continue',
-        'type': Statement,
+        'type': RuntimeStatement,
         'name': 'continue statement',
         'method': 'parse_simple_statement'},  # DONE
     7: {'symbol': '[]',
-        'type': Array,
+        'type': RuntimeArray,
         'name': 'index based array', 'method': 'parse_array_literal'},  # DONE
     8: {'symbol': '{}',
-        'type': Array,
+        'type': RuntimeArray,
         'name': 'key-value based array', 'method': 'parse_key_value_object'},  # DONE
     9: {'symbol': 'default',
-        'type': Statement,
+        'type': RuntimeStatement,
         'name': 'default (switch)',
         'method': 'parse_switch_expressions'},  # DONE
     10: {'symbol': '/',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'division', 'method': 'parse_binary_operator'},  # DONE
     11: {'symbol': '[]',
          'type': '',
          'name': ''},  # EMPTY
     12: {'symbol': '==',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'equality', 'method': 'parse_binary_operator'},  # DONE
     13: {'symbol': '[]',
          'type': '',
@@ -352,125 +365,125 @@ runtime_index = {
          'type': '',
          'name': '', 'method': 'parse_value_reference'},  # DONE
     16: {'symbol': '[]',
-         'type': PropertyAccessor,
+         'type': RuntimePropertyAccessor,
          'name': 'property accessor',
          'method': 'parse_property_accessor'},  # DONE
     17: {'symbol': '.',
-         'type': PropertyAccessor,
+         'type': RuntimePropertyAccessor,
          'name': 'property accessor',
          'method': 'parse_binary_operator'},  # DONE
     18: {'symbol': '>',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'larger than', 'method': 'parse_binary_operator'},  # DONE
     19: {'symbol': '>=',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'larger than or equal to',
          'method': 'parse_binary_operator'},  # DONE
     20: {'symbol': '===',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'equality with type comparison',
          'method': 'parse_binary_operator'},  # DONE
     21: {'symbol': '!==',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'NOT equality with type comparison',
          'method': 'parse_binary_operator'},  # DONE
     22: {'symbol': 'if',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'if statement',
          'method': 'parse_if_statement'},  # DONE
     23: {'symbol': '<',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'less than', 'method': 'parse_binary_operator'},  # DONE
     24: {'symbol': '<=',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'less than or equal to',
          'method': 'parse_binary_operator'},  # DONE
     25: {'symbol': '%',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'division reminder',
          'method': 'parse_binary_operator'},  # DONE
     26: {'symbol': '*',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'multiplication', 'method': 'parse_binary_operator'},  # DONE
     27: {'symbol': '-',
-         'type': UnaryOperator,
+         'type': RuntimeUnaryOperator,
          'name': 'unary negation', 'method': 'parse_unary_operator'},  # DONE
     28: {'symbol': '!',
-         'type': UnaryOperator,
+         'type': RuntimeUnaryOperator,
          'name': 'logical NOT', 'method': 'parse_unary_operator'},  # DONE
     29: {'symbol': '!=',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'NOT equality', 'method': 'parse_binary_operator'},  # DONE
     30: {'symbol': '||',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'logical OR', 'method': 'parse_binary_operator'},  # DONE
     31: {'symbol': '[]',
          'type': '',
          'name': ''},  # EMPTY
     32: {'symbol': '--',
-         'type': UnaryOperator,
+         'type': RuntimeUnaryOperator,
          'name': 'decrement',
          'method': 'parse_unary_operator',
          'variation': 'postfix'},  # DONE
     33: {'symbol': '++',
-         'type': UnaryOperator,
+         'type': RuntimeUnaryOperator,
          'name': 'increment',
          'method': 'parse_unary_operator',
          'variation': 'postfix'},  # DONE
     34: {'symbol': '--',
-         'type': UnaryOperator,
+         'type': RuntimeUnaryOperator,
          'name': 'decrement',
          'method': 'parse_unary_operator',
          'variation': 'prefix'},  # DONE
     35: {'symbol': '++',
-         'type': UnaryOperator,
+         'type': RuntimeUnaryOperator,
          'name': 'increment',
          'method': 'parse_unary_operator',
          'variation': 'prefix'},  # DONE
     36: {'symbol': 'return',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'return statement', 'method': 'parse_return_statement'},  # DONE
     37: {'symbol': '-',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'substraction', 'method': 'parse_binary_operator'},  # DONE
     38: {'symbol': 'switch',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'switch statement', 'method': 'parse_switch_statement'},  # DONE
     39: {'symbol': '?',
-         'type': TernaryOperator,
+         'type': RuntimeTernaryOperator,
          'name': 'ternary operator',
          'method': 'parse_ternary_operator'},  # DONE
     40: {'symbol': 'typeof',
-         'type': UnaryOperator,
+         'type': RuntimeUnaryOperator,
          'name': 'Type return operator',
          'method': 'parse_unary_operator'},  # DONE
     41: {'symbol': 'var',
-         'type': ValueStatement,
+         'type': RuntimeValueStatement,
          'name': 'variable declaration var/let',
          'variations': {1: 'var list', 2: 'let list'}, 'method': 'parse_let_const'},  # DONE
     42: {'symbol': 'while',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'while and do...while statement',
          'variations': {1: 'while', 2: 'do...while'},
          'method': 'parse_while_var_for_statement'},  # DONE
     43: {'symbol': '[]',
-         'type': PropertySetter,
+         'type': RuntimePropertySetter,
          'name': 'Property setter',
          'method': 'parse_property_setter'},  # DONE
     44: {'symbol': 'undefined',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'undefined statement',
          'method': 'parse_simple_statement'},  # DONE
     45: {'symbol':
              'null',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name':
              'null type', 'method': 'parse_simple_statement'},  # DONE
     46: {'symbol': '[]',
          'type': '',
          'name': '', 'method': 'get_arguments'},  # DONE
     47: {'symbol': 'for',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'for statement',
          'variation': 'for (var a in b)',
          'method': 'parse_for_a_of_in_b'},  # DONE
@@ -478,24 +491,24 @@ runtime_index = {
          'type': '',
          'name': ''},  # EMPTY
     49: {'symbol': 'control',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'control statement',
          'method': 'parse_simple_statement'},  # DONE
     50: {'symbol': 'function',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'function',
          'variation': 'function definition', 'method': 'parse_defined_function'},  # WIP
     51: {'symbol': 'function',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'function',
          'variation': 'function assignment',
          'method': 'parse_assigned_function'},  # DONE
     52: {'symbol': 'const',
-         'type': ValueStatement,
+         'type': RuntimeValueStatement,
          'name': 'constant declaration',
          'method': 'parse_let_const'},  # DONE
     53: {'symbol': 'for',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'for statement',
          'variation': 'standard',
          'method': 'parse_standard_let_for_loop'},  # DONE - check parse_if_statement - 53 is not what is seems
@@ -503,40 +516,40 @@ runtime_index = {
          'type': '',
          'name': ''},  # EMPTY
     55: {'symbol': 'for',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'for statement',
          'variation': 'for (let a in b)',
          'method': 'parse_for_a_of_in_b'},  # DONE
     56: {'symbol': '&',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'Bitwise AND', 'method': 'parse_binary_operator'},  # DONE
     57: {'symbol': '<<',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'Bitwise Leftshift',
          'method': 'parse_binary_operator'},  # DONE
     58: {'symbol': '~',
-         'type': UnaryOperator,
+         'type': RuntimeUnaryOperator,
          'name': 'Bitwise negation', 'method': 'parse_unary_operator'},  # DONE
     59: {'symbol': '|',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'Bitwise OR', 'method': 'parse_binary_operator'},  # DONE
     60: {'symbol': '>>',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'Bitwise rightshift',
          'method': 'parse_binary_operator'},  # DONE
     61: {'symbol': '>>>',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'Unsigned Bitwise rightshift',
          'method': 'parse_binary_operator'},  # DONE
     62: {'symbol': '^',
-         'type': BinaryOperator,
+         'type': RuntimeBinaryOperator,
          'name': 'Bitwise XOR', 'method': 'parse_binary_operator'},  # DONE
     63: {'symbol': '[]',
          'type': '',
          'name': 'for_loop_body',
          'method': 'parse_for_loop_body'},  # DONE
     64: {'symbol': 'for',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'for statement',
          'variation': 'for (var a of b)',
          'method': 'parse_for_a_of_in_b'},  # DONE
@@ -544,7 +557,7 @@ runtime_index = {
          'type': '',
          'name': ''},  # EMPTY
     66: {'symbol': 'for',
-         'type': Statement,
+         'type': RuntimeStatement,
          'name': 'for statement',
          'variation': 'for (let a of b)',
          'method': 'parse_for_a_of_in_b'},  # DONE
@@ -552,3 +565,21 @@ runtime_index = {
                 'type': '',
                 'name': 'require function', 'method': 'parse_require_exception'}
 }
+
+resource_list_methods_index = {
+    'mapping': 'process_mapping',
+    'map': 'process_mapping',
+    'custom_code_template': 'process_template',
+    'generic_template': 'process_template',
+    'escape': 'process_escape',
+    'tag_que': 'process_tag_que'
+}
+
+from .gtm_resources import GTMResourceMacros, GTMResourceTags, GTMResourcePredicates, GTMResourceRules
+
+GTMResourceMember = NewType('GTMResourceMember',
+                            Union[GTMResourceMacros, GTMResourceTags, GTMResourcePredicates, GTMResourceRules])
+
+GTMResourceTypes = Union[GTMResourceMacros, GTMResourceCustomCodeTemplate,
+                         GTMResourceGenericTemplate, GTMResourceEscape, GTMResourceArrayMapping,
+                         GTMResourceGenericMapping, GTMResourceTagSequence]
