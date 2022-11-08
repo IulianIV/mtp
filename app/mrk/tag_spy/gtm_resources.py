@@ -8,8 +8,6 @@ from .index import macros_index, tags_index, dlvBuiltins_index, evaluations_inde
     macro_data_keys, resource_list_methods_index
 from .utils import find_in_index
 
-# TODO debate if it is necessary to create other classes for individual resource members (i.e. GTMResourceMacro)
-
 
 class GTMResourceTemplate(ABC):
 
@@ -92,6 +90,9 @@ class GTMResourceTemplate(ABC):
     @staticmethod
     def determine_type(resource_value: list):
         # determines if type is macro
+        if not resource_value:
+            return None
+
         if resource_value[0] == 'macro' and isinstance(resource_value[1], int):
             return 'macro'
 
@@ -151,28 +152,25 @@ class GTMResourceMacros(GTMResourceTemplate):
                     self.parsed[idx] = self.process_general_resource(macro, '__remm')
                 if isinstance(value, list) and value != '__remm':
                     macro[key] = self.process_general_resource(value)
-        return self.parsed
+        return self
 
     def process_general_resource(self, resource_list: Union[list, dict], special_function: str = None):
 
-        def process(resource: Union[list, dict]):
-
-            if special_function == '__remm':
-                method_call = self.process_regex(resource)
-                return method_call
-
-            value_type = self.determine_type(resource)
-
-            if value_type == 'macro':
-                method_call = self.get_macro_data_key(self.parsed[resource[1]])
-                return method_call
-
-            resource_type_method = find_in_index(value_type, resource_list_methods_index)
-
-            method_call = getattr(self, resource_type_method)(resource)
-
+        if special_function == '__remm':
+            method_call = self.process_regex(resource_list)
             return method_call
-        return process(resource_list)
+
+        value_type = self.determine_type(resource_list)
+
+        if value_type == 'macro':
+            method_call = self.get_macro_data_key(self.parsed[resource_list[1]])
+            return method_call
+
+        resource_type_method = find_in_index(value_type, resource_list_methods_index)
+
+        method_call = getattr(self, resource_type_method)(resource_list)
+
+        return method_call
 
     def process_regex(self, macro_dict: dict):
         new_macro = {}
@@ -310,9 +308,10 @@ class GTMResourceMacros(GTMResourceTemplate):
 
 class GTMResourceTags(GTMResourceTemplate):
 
-    def __init__(self, tag_container: list, macro_container: GTMResourceMacros):
+    def __init__(self, tag_container: list, macro_container: GTMResourceMacros, rules_container: GTMResourceRules):
         super().__init__(tag_container)
-        self.parsed_macro_container = macro_container.parse()
+        self.macros = macro_container.parse()
+        self.rules = rules_container
 
     def add_index_data(self):
 
@@ -333,25 +332,167 @@ class GTMResourceTags(GTMResourceTemplate):
     def parse(self):
 
         self.add_index_data()
+        self.add_tag_sequencing()
+        self.add_tag_rules()
 
         for idx, tag in enumerate(self.parsed):
             for key, value in tag.items():
                 if isinstance(value, list):
-                    tag[key] = self.process_general_resource(value)
+                    value_type = self.determine_type(value)
+
+                    if not value_type == 'tag_que' and value_type is not None:
+                        tag[key] = self.macros.process_general_resource(value)
+
+        return self
+
+    def add_tag_sequencing(self) -> GTMResourceTags:
+        tag_que = {}
+
+        for tag in self.parsed:
+
+            tag['_sequence'] = {}
+
+            if 'setup_tags' in tag:
+                tag_que.clear()
+                setup_literal = tag['setup_tags'][1]
+                tag_que['before'] = self.get_by_index(setup_literal[1])['function']
+                tag_que['before_index'] = setup_literal[1]
+
+                if setup_literal[2] == 0:
+                    tag_que['before_conditional'] = False
+                elif setup_literal[2] == 1:
+                    tag_que['before_conditional'] = True
+
+                tag['_sequence'].update(tag_que)
+
+            if 'teardown_tags' in tag:
+                tag_que.clear()
+                teardown_literal = tag['teardown_tags'][1]
+                tag_que['after'] = self.get_by_index(teardown_literal[1])['function']
+                tag_que['after_index'] = teardown_literal[1]
+
+                if teardown_literal[2] == 0:
+                    tag_que['after_conditional'] = False
+                elif teardown_literal[2] == 2:
+                    tag_que['after_conditional'] = True
+
+                tag['_sequence'].update(tag_que)
+
+            if 'setup_tags' not in tag and 'teardown_tags' not in tag:
+                tag['_sequence'] = {}
+
+        return self
+
+    # needed to not have the rule processing functions loop over the tags twice.
+    def tag_rules_preprocess(self):
+
+        for tag in self.parsed:
+            tag['_conditions'] = list()
+            tag['_blocking'] = list()
+
+        return self
+
+    def add_tag_rules(self) -> GTMResourceTags:
+
+        tags = self.tag_rules_preprocess().parsed
+        rules = self.rules.parsed
+
+        condition = []
+        block = []
+
+        trigger_conditions = re.compile('if|unless')
+
+        for idx, rule_set in enumerate(rules):
+
+            # allows for easy determining the type of the rule
+            rule_types = [rule[0] for rule in rule_set]
+
+            # All the checks below are necessary.
+            # Upon analysis, it was concluded that there are certain "types" of rules, defined by their members
+            # the "members" are described by the conditionals below
+
+            # Member 1 - if no "block" rule is found, it is automatically a "firing" tag
+            if 'block' not in rule_types:
+                for rules in rule_set:
+                    if re.search(trigger_conditions, rules[0]):
+                        condition.append(rules)
+                    elif re.search('add', rules[0]):
+                        for target in rules[1:]:
+                            tags[target]['_conditions'].append(list(condition))
+                condition.clear()
+
+            # Member 2 - if there is no "add" but there is "block" it means it is a "blocking" tag
+            if 'block' in rule_types and 'add' not in rule_types:
+                for rules in rule_set:
+                    if re.search(trigger_conditions, rules[0]):
+                        block.append(rules)
+                    elif re.search('block', rules[0]):
+                        for target in rules[1:]:
+                            tags[target]['_blocking'].append(list(block))
+                block.clear()
+
+            # Member 3 - If there is "add" and "block" it means the same rules are used as "firing" and "blocking"
+            #   conditions
+            if 'add' in rule_types and 'block' in rule_types:
+                for rules in rule_set:
+                    if re.search(trigger_conditions, rules[0]):
+                        block.append(rules)
+                        condition.append(rules)
+                    elif re.search('block', rules[0]):
+
+                        for target in rules[1:]:
+                            tags[target]['_blocking'].append(list(block))
+                    elif re.search('add', rules[0]):
+
+                        for target in rules[1:]:
+                            tags[target]['_conditions'].append(list(condition))
+                condition.clear()
+                block.clear()
+
         return self
 
 
 class GTMResourcePredicates(GTMResourceTemplate):
 
-    def __init__(self, predicate_container: list):
+    def __init__(self, predicate_container: list, macro_container: GTMResourceMacros):
         super().__init__(predicate_container)
+        self.macros = macro_container.parse()
 
     def add_index_data(self):
+        """
+        Predicates bring no advantage to having their indexes added.
+        :return:
+        :rtype:
+        """
+        pass
+
+    def parse(self):
 
         for predicate in self.parsed:
-            eval_name = predicate['function']
-            index_details = evaluations_index[eval_name]
-            predicate.update(**index_details)
+            predicate_evaluator = predicate['function']
+            predicate['_evaluator'] = [evaluations_index[predicate_evaluator]['title'],
+                                       evaluations_index[predicate_evaluator]['exportTitle']]
+
+            predicate_evaluated = predicate['arg0']
+
+            if isinstance(predicate_evaluated, list) and self.determine_type(predicate_evaluated) == 'macro':
+                evaluation_predicate = self.macros.process_general_resource(predicate_evaluated)
+
+                if evaluation_predicate is None:
+                    predicate_evaluated = macros_index[self.macros.get_by_index(predicate_evaluated[1])['function']]['title']
+                else:
+                    predicate_evaluated = self.macros.process_general_resource(predicate_evaluated)
+
+            predicate['_evaluated'] = predicate_evaluated
+
+            predicate_against = predicate['arg1']
+
+            try:
+                predicate_against = dlvBuiltins_index[predicate_against]['title']
+            except KeyError:
+                predicate_against = predicate['arg1']
+
+            predicate['_against'] = predicate_against
 
         return self
 
@@ -374,4 +515,16 @@ class GTMResourceRules(GTMResourceTemplate):
         :rtype:
         """
         pass
+
+    def parse(self):
+        """
+        All rule parsing is done to determine tag information.
+        This processing has to be done when tag parsing is done.
+        :return:
+        :rtype:
+        """
+        pass
+
+
+
 
