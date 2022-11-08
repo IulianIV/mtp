@@ -138,14 +138,14 @@ class GTMResource(GTMContainer):
     @property
     def predicates(self) -> GTMResourcePredicates:
 
-        predicates_gen = GTMResourcePredicates(self._predicate_list)
+        predicates_gen = GTMResourcePredicates(self._predicate_list, self.macros)
 
         return predicates_gen
 
     @property
     def tags(self) -> GTMResourceTags:
 
-        tags_gen = GTMResourceTags(self._tag_list)
+        tags_gen = GTMResourceTags(self._tag_list, self.macros, self.rules)
 
         return tags_gen
 
