@@ -145,7 +145,7 @@ class GTMResource(GTMContainer):
     @property
     def tags(self) -> GTMResourceTags:
 
-        tags_gen = GTMResourceTags(self._tag_list, self.macros, self.rules)
+        tags_gen = GTMResourceTags(self._tag_list, self.macros, self.rules, self.predicates)
 
         return tags_gen
 
