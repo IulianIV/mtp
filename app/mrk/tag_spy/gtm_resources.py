@@ -5,7 +5,7 @@ from typing import Any, Union
 from copy import deepcopy
 from abc import ABC, abstractmethod
 from .index import macros_index, tags_index, dlvBuiltins_index, evaluations_index,\
-    macro_data_keys, resource_list_methods_index
+    macro_data_keys, resource_list_methods_index, triggers_index
 from .utils import find_in_index
 
 
@@ -67,9 +67,8 @@ class GTMResourceTemplate(ABC):
 
         for item in container:
             if not key:
-                for (k, v) in item.items():
-                    if item[k] == value:
-                        return item
+                if value in item.items():
+                    return item
             else:
                 if key in item and item[key] == value:
                     return item
@@ -87,11 +86,14 @@ class GTMResourceTemplate(ABC):
     def parse(self):
         pass
 
-    @staticmethod
-    def determine_type(resource_value: list):
+    def determine_type(self, resource_value: Union[list, str]):
         # determines if type is macro
         if not resource_value:
             return None
+
+        # determines multiple string types
+        if resource_value is str and re.match(r'^\(\^\$\|\(\(\^\|,\)[0-9_]+\(\$\|,\)\)\)$', resource_value):
+            return re.Pattern
 
         if resource_value[0] == 'macro' and isinstance(resource_value[1], int):
             return 'macro'
@@ -103,20 +105,27 @@ class GTMResourceTemplate(ABC):
             return 'escape'
 
         if resource_value[0] == 'list':
-            if len(resource_value) == 1:
-                return 'mapping'
-            if isinstance(resource_value[1], list) and resource_value[1][0] == 'map':
-                return 'mapping'
-            if isinstance(resource_value[1], list) and resource_value[1][0] == 'tag':
-                return 'tag_que'
+            return self._determine_list_type(resource_value)
 
-        if resource_value[0] == 'template' and \
-                any(_ for _ in ['function', 'script', 'iframe'] if resource_value[1].find(_)):
+        if resource_value[0] == 'template':
+            return self._determine_template_type(resource_value)
+
+    @staticmethod
+    def _determine_list_type(resource: list):
+        if len(resource) == 1:
+            return 'mapping'
+        if isinstance(resource[1], list) and resource[1][0] == 'map':
+            return 'mapping'
+        if isinstance(resource[1], list) and resource[1][0] == 'tag':
+            return 'tag_que'
+
+    @staticmethod
+    def _determine_template_type(resource: list):
+        if any(_ for _ in ['function', 'script', 'iframe'] if resource[1].find(_)):
             return 'custom_code_template'
-        if resource_value[0] == 'template' and not \
-                any(_ for _ in ['function', 'script', 'iframe'] if resource_value[1].find(_)):
+        if not any(_ for _ in ['function', 'script', 'iframe'] if resource[1].find(_)):
             return 'generic_template'
-        if resource_value[0] == 'template' and re.error('regex_template', resource_value[1]) == 'regex_template':
+        if re.error('regex_template', resource[1]) == 'regex_template':
             return 'regex_template'
 
 
@@ -308,10 +317,16 @@ class GTMResourceMacros(GTMResourceTemplate):
 
 class GTMResourceTags(GTMResourceTemplate):
 
-    def __init__(self, tag_container: list, macro_container: GTMResourceMacros, rules_container: GTMResourceRules):
+    __trigger_conditions = re.compile('if|unless')
+
+    def __init__(self, tag_container: list,
+                 macro_container: GTMResourceMacros,
+                 rules_container: GTMResourceRules,
+                 predicates_container: GTMResourcePredicates):
         super().__init__(tag_container)
         self.macros = macro_container.parse()
         self.rules = rules_container
+        self.predicates = predicates_container.parse()
 
     def add_index_data(self):
 
@@ -324,6 +339,10 @@ class GTMResourceTags(GTMResourceTemplate):
             # This makes sure that if the tag is a Custom Template Tag, the contents are still visible
             elif tag_name not in tags_index and 'cvt' in tag_name:
                 index_details = tags_index['_custom_tag_template']
+
+            # adds empty lists that will be populated with triggering rules
+            tag['_conditions'] = list()
+            tag['_blocking'] = list()
 
             tag.update(**index_details)
 
@@ -358,9 +377,9 @@ class GTMResourceTags(GTMResourceTemplate):
                 tag_que['before'] = self.get_by_index(setup_literal[1])['function']
                 tag_que['before_index'] = setup_literal[1]
 
-                if setup_literal[2] == 0:
+                if setup_literal[-1] == 0:
                     tag_que['before_conditional'] = False
-                elif setup_literal[2] == 1:
+                elif setup_literal[-1] == 1:
                     tag_que['before_conditional'] = True
 
                 tag['_sequence'].update(tag_que)
@@ -371,9 +390,9 @@ class GTMResourceTags(GTMResourceTemplate):
                 tag_que['after'] = self.get_by_index(teardown_literal[1])['function']
                 tag_que['after_index'] = teardown_literal[1]
 
-                if teardown_literal[2] == 0:
+                if teardown_literal[-1] == 0:
                     tag_que['after_conditional'] = False
-                elif teardown_literal[2] == 2:
+                elif teardown_literal[-1] == 2:
                     tag_que['after_conditional'] = True
 
                 tag['_sequence'].update(tag_que)
@@ -383,24 +402,9 @@ class GTMResourceTags(GTMResourceTemplate):
 
         return self
 
-    # needed to not have the rule processing functions loop over the tags twice.
-    def tag_rules_preprocess(self):
-
-        for tag in self.parsed:
-            tag['_conditions'] = list()
-            tag['_blocking'] = list()
-
-        return self
-
     def add_tag_rules(self) -> GTMResourceTags:
 
-        tags = self.tag_rules_preprocess().parsed
         rules = self.rules.parsed
-
-        condition = []
-        block = []
-
-        trigger_conditions = re.compile('if|unless')
 
         for idx, rule_set in enumerate(rules):
 
@@ -413,43 +417,208 @@ class GTMResourceTags(GTMResourceTemplate):
 
             # Member 1 - if no "block" rule is found, it is automatically a "firing" tag
             if 'block' not in rule_types:
-                for rules in rule_set:
-                    if re.search(trigger_conditions, rules[0]):
-                        condition.append(rules)
-                    elif re.search('add', rules[0]):
-                        for target in rules[1:]:
-                            tags[target]['_conditions'].append(list(condition))
-                condition.clear()
+                self._add_firing_rules(rule_set, 'firing')
 
             # Member 2 - if there is no "add" but there is "block" it means it is a "blocking" tag
             if 'block' in rule_types and 'add' not in rule_types:
-                for rules in rule_set:
-                    if re.search(trigger_conditions, rules[0]):
-                        block.append(rules)
-                    elif re.search('block', rules[0]):
-                        for target in rules[1:]:
-                            tags[target]['_blocking'].append(list(block))
-                block.clear()
+                self._add_firing_rules(rule_set, 'blocking')
 
             # Member 3 - If there is "add" and "block" it means the same rules are used as "firing" and "blocking"
             #   conditions
             if 'add' in rule_types and 'block' in rule_types:
-                for rules in rule_set:
-                    if re.search(trigger_conditions, rules[0]):
-                        block.append(rules)
-                        condition.append(rules)
-                    elif re.search('block', rules[0]):
-
-                        for target in rules[1:]:
-                            tags[target]['_blocking'].append(list(block))
-                    elif re.search('add', rules[0]):
-
-                        for target in rules[1:]:
-                            tags[target]['_conditions'].append(list(condition))
-                condition.clear()
-                block.clear()
+                self._add_firing_blocking_rules(rule_set)
 
         return self
+
+    def _add_firing_rules(self, set_of_rules: list, rule_type: str):
+        rule_holder = []
+
+        if rule_type == 'firing':
+            rule_condition = 'add'
+            rule_condition_holder = '_conditions'
+        elif rule_type == 'blocking':
+            rule_condition = 'block'
+            rule_condition_holder = '_blocking'
+        else:
+            return f'rule_type {rule_type} is invalid. Please use "firing" or "blocking"'
+
+        for rules in set_of_rules:
+            if re.search(self.__trigger_conditions, rules[0]):
+                rule_holder.append(rules)
+            elif re.search(rule_condition, rules[0]):
+                for target in rules[1:]:
+                    self.parsed[target][rule_condition_holder].append(list(rule_holder))
+        rule_holder.clear()
+
+    def _add_firing_blocking_rules(self, set_of_rules: list):
+        firing_rules = []
+        blocking_rules = []
+
+        for rules in set_of_rules:
+            if re.search(self.__trigger_conditions, rules[0]):
+                blocking_rules.append(rules)
+                firing_rules.append(rules)
+            elif re.search('block', rules[0]):
+                for target in rules[1:]:
+                    self.parsed[target]['_blocking'].append(list(blocking_rules))
+            elif re.search('add', rules[0]):
+
+                for target in rules[1:]:
+                    self.parsed[target]['_conditions'].append(list(firing_rules))
+        firing_rules.clear()
+        blocking_rules.clear()
+
+    def create_triggers_index_list(self) -> list:
+        triggers = []
+
+        for tag in self.parsed:
+            tag_name = tag['function']
+
+            if tag_name in triggers_index:
+                index = triggers_index[tag_name]
+
+                tag.update(index)
+
+                triggers.append(tag)
+
+        return triggers
+
+    # TODO Analyze the logic and redo
+    def create_trigger_container(self) -> list:
+        predicates = self.predicates.parse().parsed
+        triggers = self.create_triggers_index_list()
+
+        # Variables needed when processing predicates containing trigger names but the firing conditions point to other
+        #   predicates that eventually point to the right trigger.
+        group_conditions = {'_group_trigger': list(), '_trigger': list()}
+        is_group_predicate = False
+
+        for idx, rule_set in enumerate(self.rules.parsed):
+            _temp_dict = {'_conditions': list()}
+            new_trigger = {'_conditions': list()}
+            _trigger_index = {}
+
+            for rule_idx, rule in enumerate(rule_set):
+                condition = []
+                if 'if' in rule:
+                    for predicate_index in rule[1:]:
+                        # Handles the assignment of the rule to the proper trigger that is referenced by its firing_id
+                        #   in a regex variable
+                        if self.determine_type(predicates[predicate_index]['arg1']) is re.Pattern:
+                            is_group_predicate = True
+                            group_conditions['_group_trigger'].append(
+                                re.search(r'^\(\^\$\|\(\(\^\|,\)([0-9_]+)\(\$\|,\)\)\)$',
+                                          predicates[predicate_index]['arg1']).group(1))
+                            nested_rls = [rule]
+                            group_conditions['_trigger'].append(nested_rls)
+
+                        # Handle triggers that are not in tags, but in predicates, which are valid triggers
+                        if predicates[predicate_index]['arg1'] in triggers_index:
+                            _trigger_index = find_in_index(predicates[predicate_index]['arg1'], triggers_index)
+                            condition.append(rule)
+
+                            _temp_dict['_conditions'].append(condition)
+                            _temp_dict['function'] = predicates[predicate_index]['arg1']
+                            new_trigger = {**_temp_dict, **_trigger_index}
+
+                            triggers.append(new_trigger)
+
+                # basically handles if the conditional is "unless" in the rule
+                elif 'block' not in rule and 'add' not in rule:
+                    if is_group_predicate:
+                        group_conditions['_trigger'][-1].append(rule)
+                        is_group_predicate = False
+                    nested = [rule]
+                    new_trigger['_conditions'].append(nested)
+                    triggers.append(new_trigger)
+
+        # because the above algorith duplicates tags and associates rules only to '__tg'
+        # tags this is needed to overwrite the conditions
+        for trigger in triggers:
+            if 'vtp_triggerIds' in trigger and trigger['vtp_uniqueTriggerId'] in group_conditions['_group_trigger']:
+                index = group_conditions['_group_trigger'].index(trigger['vtp_uniqueTriggerId'])
+                trigger['_conditions'].append(group_conditions['_trigger'][index])
+
+            if 'vtp_firingId' in trigger:
+                unique_firing_id = re.sub(r'([0-9]+)_[0-9]+_([0-9]+)', r'\1_\2', trigger['vtp_firingId'])
+
+                for trig in triggers:
+                    if 'vtp_uniqueTriggerId' in trig and trig['vtp_uniqueTriggerId'] == unique_firing_id:
+                        trig['_conditions'] = trigger['_conditions']
+
+                triggers.pop(triggers.index(trigger))
+
+        return triggers
+
+    # TODO Currently, has no usage. Before it had no usage also
+    def _process_predicate_trigger(self, trigger_arg1: str) -> dict:
+        """
+        Find a trigger in the tags` section by its 'vtp_uniqueTriggerId` given in a predicates 'arg1' key.
+
+        :param trigger_arg1: the ID of the trigger as defined in GTM (e.g. "(^$|((^|,)31742945_37($|,)))")
+        :type trigger_arg1: string
+        :return: matching tag dict
+        :rtype: dict
+        """
+
+        # TODO does it need to run on the processed container?
+        tag_list = self.parsed
+        found_tag = []
+
+        trigger_id = re.search(r'\(\^\$\|\(\(\^\|,\)([0-9_]+)\(\$\|,\)\)\)$', trigger_arg1).group(1)
+
+        for tag in tag_list:
+            for key in tag.keys():
+                if tag[key] == trigger_id:
+                    found_tag.append(tag)
+
+        return found_tag[0]
+
+    def process_trigger_groups(self) -> Union[dict, str]:
+        """
+        Creates a dictionary with data regarding the existing trigger group triggers.
+        It maps the triggers in a dictionary which is ordered and can be easily accessed
+
+        :return: Trigger Group Container
+        :rtype: dict
+        """
+
+        # all trigger groups are "__tg" but only one has a  unique firing ID
+        # all child tag have triggers themselves which conditions actually further along point to another existing
+        # trigger
+        trigger_group = {'_group': [], '_group_members': [], '_triggers': []}
+
+        for tag in self.parsed:
+
+            if tag['function'] == '__tg' and 'vtp_triggerIds' in tag:
+
+                if len(tag['vtp_triggerIds']) < 2:
+                    return 'Empty trigger group'
+
+                trigger_group['_group'].append(tag)
+                tag_members = tag['vtp_triggerIds'][1:]
+
+                for member in tag_members:
+                    trigger_group['_group_members'].append(self.get_by_key_value(member, 'vtp_firingId'))
+                    trigger_group['_triggers'].append(self.get_by_key_value(self._extract_trigger_id(member), 'vtp_uniqueTriggerId'))
+
+        return trigger_group
+
+    @staticmethod
+    def _extract_trigger_id(trigger_id: str) -> str:
+        """
+        Extracts the 'vtp_uniqueTriggerId' from a 'vtp_firingId' found in a trigger group list
+
+        :param trigger_id: any string like: '31742945_23_22'
+        :type trigger_id: str
+        :return: A unique trigger id like '31742945_22'
+        :rtype: str
+        """
+        vtp_firing_id = trigger_id
+
+        trigger_id = re.sub(r'([0-9]+)_[0-9]+_([0-9]+)', r'\1_\2', vtp_firing_id)
+
+        return trigger_id
 
 
 class GTMResourcePredicates(GTMResourceTemplate):
@@ -459,14 +628,21 @@ class GTMResourcePredicates(GTMResourceTemplate):
         self.macros = macro_container.parse()
 
     def add_index_data(self):
-        """
-        Predicates bring no advantage to having their indexes added.
-        :return:
-        :rtype:
-        """
-        pass
+
+        index_details = {}
+
+        for predicate in self.parsed:
+            predicate_name = predicate['function']
+            if predicate_name in evaluations_index:
+                index_details = evaluations_index[predicate_name]
+
+            predicate.update(**index_details)
+
+        return self
 
     def parse(self):
+
+        self.add_index_data()
 
         for predicate in self.parsed:
             predicate_evaluator = predicate['function']
