@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Union
+from typing import Any, Union, Generator
 from copy import deepcopy
 from abc import ABC, abstractmethod
 from .index import macros_index, tags_index, dlvBuiltins_index, evaluations_index,\
@@ -91,6 +91,9 @@ class GTMResourceTemplate(ABC):
         if not resource_value:
             return None
 
+        if isinstance(resource_value, int) or isinstance(resource_value, dict):
+            return None
+
         # determines multiple string types
         if resource_value is str and re.match(r'^\(\^\$\|\(\(\^\|,\)[0-9_]+\(\$\|,\)\)\)$', resource_value):
             return re.Pattern
@@ -127,6 +130,9 @@ class GTMResourceTemplate(ABC):
             return 'generic_template'
         if re.error('regex_template', resource[1]) == 'regex_template':
             return 'regex_template'
+
+    def get_names(self) -> Generator:
+        return (item['function'] for item in self.parsed)
 
 
 class GTMResourceMacros(GTMResourceTemplate):
@@ -313,6 +319,11 @@ class GTMResourceMacros(GTMResourceTemplate):
         for data in macro_data_keys:
             if data in macro:
                 return macro[data]
+
+    def get_macro_by_reference(self, macro_reference: list):
+
+        if self.determine_type(macro_reference) == 'macro':
+            return self.parsed[macro_reference[1]]
 
 
 class GTMResourceTags(GTMResourceTemplate):
@@ -550,8 +561,7 @@ class GTMResourceTags(GTMResourceTemplate):
 
         return triggers
 
-    # TODO Currently, has no usage. Before it had no usage also
-    def _process_predicate_trigger(self, trigger_arg1: str) -> dict:
+    def process_predicate_trigger(self, trigger_arg1: str) -> dict:
         """
         Find a trigger in the tags` section by its 'vtp_uniqueTriggerId` given in a predicates 'arg1' key.
 
@@ -568,9 +578,8 @@ class GTMResourceTags(GTMResourceTemplate):
         trigger_id = re.search(r'\(\^\$\|\(\(\^\|,\)([0-9_]+)\(\$\|,\)\)\)$', trigger_arg1).group(1)
 
         for tag in tag_list:
-            for key in tag.keys():
-                if tag[key] == trigger_id:
-                    found_tag.append(tag)
+            if trigger_id in tag.values():
+                found_tag.append(tag)
 
         return found_tag[0]
 

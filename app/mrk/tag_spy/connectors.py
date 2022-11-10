@@ -49,18 +49,18 @@ class GTMConnector(object):
         pass
 
     @staticmethod
-    def saved_container_to_json(container_data) -> dict:
+    def saved_container_to_json(container) -> dict:
         """
         Function that is used to convert container data into JSON format. Primarily used in reading the data
         from the database
 
-        :param container_data: literal container data
-        :type container_data: dict
+        :param container: literal container data
+        :type container: dict
         :return: container JSON
         :rtype: JSON
         """
 
-        container_data = container_data.decode('utf-8')
+        container_data = container.decode('utf-8')
 
         container_json = json.loads(container_data)
 

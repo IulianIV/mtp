@@ -65,7 +65,7 @@ class GTMContainer:
         :return: container version
         :rtype: str
         """
-        return self._working_container[GTMResourceKeys.VERSION.value]
+        return self._working_container[GTMRootKeys.RESOURCE.value][GTMResourceKeys.VERSION.value]
 
     @property
     def resource_section(self) -> GTMResource:

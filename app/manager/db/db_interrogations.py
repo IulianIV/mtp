@@ -427,9 +427,9 @@ def get_gtm_containers(user_id: int):
     return GTMContainers.query.filter_by(user_id=user_id).order_by(GTMContainers.container_id).all()
 
 
-
 def get_recurrent_payments(user_id: int):
     return BudgetRecurrent.query.filter_by(user_id=user_id).order_by(BudgetRecurrent.recurrent_name).all()
+
 
 def get_user_role_rules(user_id: int):
 

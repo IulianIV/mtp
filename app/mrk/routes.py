@@ -13,12 +13,12 @@ from app.manager.db.db_interrogations import (
 from app.manager.permissions.utils import login_required, requires_permissions
 from app.mrk import bp
 from app.mrk.forms import ContainerLoad
-from app.mrk.tag_spy.gtm_intel import GTMIntel
+from app.mrk.tag_spy.gtm_container import GTMResource, GTMRuntime
 from app.mrk.tag_spy.index import (skippable_macro_keys, macros_index, skippable_tag_keys,
                                    code_snippet_properties, triggers_index, skippable_trigger_keys, triggers_not_tags)
 from app.mrk.tag_spy.utils import gtm_compare_get_version, find_in_index
 from app.manager.helpers import gtm_trigger_len, extract_nested_strings, form_validated_message
-from app.mrk.tag_spy.gtm_resource import GTMResourceMacro
+from app.mrk.tag_spy.gtm_resources import GTMResourceMacros
 
 # TODO should the final container contain data for color coding?
 # TODO add modal preview for lists and certain variables
@@ -56,7 +56,7 @@ def gtm_intel():
             if container_id == 'Reload from Source':
                 current_container_id = get_active_gtm_container(user_id).container_id
 
-                container = GTMIntel(current_container_id, True)
+                container = GTMResource(current_container_id, True)
                 container_data = json.dumps(container.original_container).encode('utf-8')
 
                 update_gtm_container_data(user_id, current_container_id, container_data)
@@ -71,7 +71,7 @@ def gtm_intel():
                 set_gtm_container_active(user_id, container_id)
                 return redirect(url_for(gtm_tags_url))
             else:
-                container = GTMIntel(container_id, True)
+                container = GTMResource(container_id, True)
                 container_data = json.dumps(container.original_container).encode('utf-8')
                 insert_gtm_container(user_id, container_id, container_data)
                 db.session.commit()
@@ -94,13 +94,13 @@ def gtm_intel_variables():
 
     c_id = container.container_id
     c_content = container.container_data
-    spy = GTMIntel(c_id, False, c_content)
+    spy = GTMResource(c_id, False, c_content)
 
-    variables = spy.create_macro_container()
+    variables = spy.macros.parse().parsed
 
-    type_check = spy.process_type
-    get_macro = spy.process_macro
-    process_mapping = spy.process_mapping
+    type_check = spy.macros.determine_type
+    get_macro = spy.macros.get_macro_by_reference
+    process_mapping = spy.macros.process_mapping
 
     container_url = spy.url
     container_id = spy.id
@@ -119,7 +119,7 @@ def gtm_intel_variables():
                            skip_macro_keys=skip_keys, type_check=type_check, get_macro=get_macro,
                            macros_index=macro_index, find_index=find_index, process_mapping=process_mapping,
                            container_id_form=container_id_form, code_snippets=code_snippets,
-                           GTMResourceMacro=GTMResourceMacro, js_prettify=js_prettify)
+                           GTMResourceMacro=GTMResourceMacros, js_prettify=js_prettify)
 
 
 @bp.route('/gtm-spy/summary', methods=('GET', 'POST'))
@@ -137,15 +137,15 @@ def gtm_intel_summary():
     container_id = container.container_id
     container_domain = container.container_source
     container_content = container.container_data
-    spy = GTMIntel(container_id, False, container_content)
+    spy = GTMResource(container_id, False, container_content)
 
     container_url = spy.url
     container_version = spy.version
 
     container_data = {
-        'tags': spy.count_items(spy.create_tag_container()),
-        'triggers': spy.count_items(spy.create_trigger_container()),
-        'variables': spy.count_items(spy.macros)
+        'tags': len(spy.tags.parse().parsed),
+        'triggers': len(spy.tags.create_trigger_container()),
+        'variables': len(spy.macros.parsed)
     }
 
     return render_template('mrk/tag_spy/index.html', model_gtm_path=container_url, gtm_id=container_id,
@@ -167,16 +167,16 @@ def gtm_intel_tags():
 
     c_id = container.container_id
     c_content = container.container_data
-    spy = GTMIntel(c_id, False, c_content)
+    spy = GTMResource(c_id, False, c_content)
 
-    tags = spy.create_tag_container()
-    variables = spy.create_macro_container()
-    predicates = spy.create_predicates_container()
+    tags = spy.tags.parse().parsed
+    variables = spy.tags.macros.parse()
+    predicates = spy.predicates.parse().parsed
 
-    tag_from_predicate = spy.process_predicate_trigger
-    type_check = spy.process_type
-    get_macro = spy.process_macro
-    process_mapping = spy.process_mapping
+    tag_from_predicate = spy.tags.process_predicate_trigger
+    type_check = spy.tags.determine_type
+    get_macro = variables.get_macro_by_reference
+    process_mapping = variables.process_mapping
     string_list = extract_nested_strings
     code_snippets = code_snippet_properties
     get_len = gtm_trigger_len
@@ -197,11 +197,11 @@ def gtm_intel_tags():
                            gtm_id=container_id, version=container_version, tag_list=tags,
                            skip_tag_keys=skip_keys_tags, code_snippets=code_snippets, type_check=type_check,
                            find_index=find_index, get_macro=get_macro, macros_index=macro_index,
-                           variables=variables, process_mapping=process_mapping, get_len=get_len,
+                           variables=variables.parsed, process_mapping=process_mapping, get_len=get_len,
                            predicates=predicates, triggers_index=triggers_index, string_list=string_list,
                            tag_from_predicate=tag_from_predicate, except_triggers=except_triggers,
                            container_id_form=container_id_form, container_domain=container_domain,
-                           GTMResourceMacro=GTMResourceMacro, js_prettify=js_prettify)
+                           GTMResourceMacro=GTMResourceMacros, js_prettify=js_prettify)
 
 
 @bp.route('/gtm-spy/triggers', methods=('GET', 'POST'))
@@ -218,19 +218,19 @@ def gtm_intel_triggers():
 
     c_id = container.container_id
     c_content = container.container_data
-    spy = GTMIntel(c_id, False, c_content)
+    spy = GTMResource(c_id, False, c_content)
 
-    triggers = spy.create_trigger_container()
-    variables = spy.create_macro_container()
-    predicates = spy.create_predicates_container()
-    trigger_groups = spy.process_trigger_groups()
+    triggers = spy.tags.create_trigger_container()
+    variables = spy.macros.parse().parsed
+    predicates = spy.predicates.parse().parsed
+    trigger_groups = spy.tags.process_trigger_groups()
 
-    type_check = spy.process_type
-    get_macro = spy.process_macro
-    process_mapping = spy.process_mapping
-    tag_from_predicate = spy.process_predicate_trigger
+    type_check = spy.macros.determine_type
+    get_macro = spy.macros.get_macro_by_reference
+    process_mapping = spy.macros.process_mapping
+    tag_from_predicate = spy.tags.process_predicate_trigger
     code_snippets = code_snippet_properties
-    search_in_container = spy.search_in_container
+    search_in_container = spy.tags.get_by_key_value
 
     container_url = spy.url
     container_id = spy.id
@@ -253,7 +253,7 @@ def gtm_intel_triggers():
                            variables=variables, skip_tag_keys=skip_keys_tags, container_id_form=container_id_form,
                            get_len=get_len, tag_from_predicate=tag_from_predicate, code_snippets=code_snippets,
                            search_in_container=search_in_container,
-                           GTMResourceMacro=GTMResourceMacro, js_prettify=js_prettify)
+                           GTMResourceMacro=GTMResourceMacros, js_prettify=js_prettify)
 
 
 @bp.route('/gtm-spy/runtime/<string:template_type>', methods=('GET', 'POST'))
@@ -269,19 +269,19 @@ def gtm_intel_runtime(template_type):
 
     c_id = container.container_id
     c_content = container.container_data
-    spy = GTMIntel(c_id, False, c_content)
+    spy = GTMRuntime(c_id, False, c_content)
+
+    resource = GTMResource(c_id, False, c_content)
 
     container_url = spy.url
     container_id = spy.id
     container_version = spy.version
 
-    spy_runtime = spy.runtime
-
     if template_type == 'custom-tags':
-        templates = (template if template.name in spy.tag_names else '' for template in spy_runtime.templates)
+        templates = (template if template.name in resource.tags.get_names() else '' for template in spy.templates)
 
     if template_type == 'custom-variables':
-        templates = (template if template.name in spy.macro_names else '' for template in spy_runtime.templates)
+        templates = (template if template.name in resource.macros.get_names() else '' for template in spy.templates)
 
     js_prettify = jsbeautifier.beautify
 
