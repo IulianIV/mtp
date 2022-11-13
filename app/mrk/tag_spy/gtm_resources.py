@@ -122,8 +122,9 @@ class GTMResourceTemplate(ABC):
         if isinstance(resource[1], list) and resource[1][0] == 'tag':
             return 'tag_que'
 
-    @staticmethod
-    def _determine_template_type(resource: list):
+    def _determine_template_type(self, resource: list):
+        if self.determine_type(resource[1]) == 'macro':
+            return 'generic_template'
         if any(_ for _ in ['function', 'script', 'iframe'] if resource[1].find(_)):
             return 'custom_code_template'
         if not any(_ for _ in ['function', 'script', 'iframe'] if resource[1].find(_)):
@@ -370,7 +371,7 @@ class GTMResourceTags(GTMResourceTemplate):
                 if isinstance(value, list):
                     value_type = self.determine_type(value)
 
-                    if not value_type == 'tag_que' and value_type is not None:
+                    if value_type != 'tag_que' and value_type is not None:
                         tag[key] = self.macros.process_general_resource(value)
 
         return self
@@ -555,7 +556,13 @@ class GTMResourceTags(GTMResourceTemplate):
 
                 for trig in triggers:
                     if 'vtp_uniqueTriggerId' in trig and trig['vtp_uniqueTriggerId'] == unique_firing_id:
-                        trig['_conditions'] = trigger['_conditions']
+
+                        # fixme this silently ignores the case in which the trigger does not contain an '_conditions'
+                        #   key.
+                        if '_conditions' in trigger:
+                            trig['_conditions'] = trigger['_conditions']
+                        else:
+                            trig['_conditions'] = ''
 
                 triggers.pop(triggers.index(trigger))
 
@@ -664,7 +671,11 @@ class GTMResourcePredicates(GTMResourceTemplate):
                 evaluation_predicate = self.macros.process_general_resource(predicate_evaluated)
 
                 if evaluation_predicate is None:
-                    predicate_evaluated = macros_index[self.macros.get_by_index(predicate_evaluated[1])['function']]['title']
+                    macro_function_name = self.macros.get_by_index(predicate_evaluated[1])['function']
+                    if 'cvt' in macro_function_name:
+                        predicate_evaluated = macros_index['_custom_variable_template']['title']
+                    else:
+                        predicate_evaluated = macros_index[macro_function_name]['title']
                 else:
                     predicate_evaluated = self.macros.process_general_resource(predicate_evaluated)
 
