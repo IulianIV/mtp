@@ -1,0 +1,83 @@
+{% macro macros_modals(variables) %}
+    {% for var in variables %}
+        {% set var_modal_id = var['function'] + var['macro_idx'] | string %}
+        {% set variable_loop = loop.index0 %}
+        {# Macro Modals Start #}
+        <div class="modal fade" id="{{ var_modal_id }}"
+             tabindex="1" role="dialog"
+             aria-labelledby="{{ var_modal_id }}"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"
+                            id="{{ var_modal_id }}">Variable:
+                            {{ var['title'] }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="row">
+                                        <div class="col-8 col-sm-6">
+                                            <strong>Property</strong>
+                                        </div>
+                                        <div class="col-4 col-sm-6">
+                                            <strong>Value</strong>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div class="row">
+                                        {% from 'mrk/utils.html' import process_macro_key %}
+                                        {% for key, value in var.items() %}
+                                            {% if key in code_snippets %}
+                                                {% set snippet_modal_id = key + var['macro_idx'] | string %}
+                                                {{ process_macro_key(key, snippet_modal_id, 'Custom Javascript') }}
+                                            {% elif type_check(value) == 'macro' %}
+                                                {% set macro_modal_index = variables[value[1]]['function'] + variables[value[1]]['macro_idx'] | string %}
+                                                {% set child_modal_name = find_index(variables[value[1]]['function'], macros_index)['title'] %}
+                                                {{ process_macro_key(key, macro_modal_index, child_modal_name) }}
+                                            {% elif value is mapping %}
+                                                {% set modal_id = 'macro_' + var['macro_idx'] | string + '_mapping' %}
+                                                {{ process_macro_key(key, modal_id, 'Data Table') }}
+                                            {% else %}
+                                                {% if key not in skip_macro_keys %}
+                                                    <div class="col-8 col-sm-6">
+                                                        {{ key }}
+                                                    </div>
+                                                    {% if value is boolean %}
+                                                        {{ process_macro_key(child_modal_name=value, badge_type='success', modal_type='no-modal') }}
+                                                    {% elif value == '' %}
+                                                        {% set modal_name = value + " (intentional empty value)" %}
+                                                        {{ process_macro_key(child_modal_name=modal_name, badge_type='info', modal_type='no-modal') }}
+                                                    {% else %}
+                                                        {{ process_macro_key(child_modal_name=value, badge_type='info', modal_type='no-modal') }}
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Macro Input Table and Code Section start #}
+        {% for key, value in var.items() %}
+            {% if value is mapping %}
+                {% from 'mrk/tag_spy/modals/macro_input_table.html' import variables_modal_input_table with context %}
+                {{ variables_modal_input_table() }}
+            {% elif key in code_snippets %}
+                {% set mapping_modal_id = key + var['macro_idx'] | string %}
+                {% from 'mrk/tag_spy/modals/mcro_code_input.html' import variables_modal_code_input with context %}
+                {{ variables_modal_code_input() }}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endmacro %}

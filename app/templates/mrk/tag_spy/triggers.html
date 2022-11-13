@@ -169,8 +169,8 @@
     {{ triggers_modal(triggers) }}
 
     {# Variable Modals Start #}
-    {% from 'mrk/tag_spy/modals/variable_base.html' import variables_modal with context %}
-    {{ variables_modal(variables) }}
+    {% from 'mrk/tag_spy/modals/macro_modals_base.html' import macros_modals with context %}
+    {{ macros_modals(variables) }}
 
     {% from 'mrk/tag_spy/modals/trigger_group_base.html' import trigger_group_modals with context %}
     {{ trigger_group_modals(trigger_groups['_group']) }}

@@ -11,7 +11,7 @@
         {{ tag_modal_block_fire_conditions(loop, 'firing', 'conditional') }}
 
         {# Tag Code Block Modals Start #}
-        {% from 'mrk/tag_spy/modals/tag_code_block.html' import tags_modal_code_block with context %}
+        {% from 'mrk/tag_spy/modals/tag_code_input.html' import tags_modal_code_block with context %}
         {{ tags_modal_code_block(tag.keys()) }}
 
     {% endfor %}

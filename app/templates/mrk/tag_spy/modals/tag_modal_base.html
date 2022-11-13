@@ -1,9 +1,9 @@
 {% macro tags_modal(tags) %}
     {% for tag in tags %}
-        {% set modal_id = tag['title'] | replace(' ', '') + tag_list.index(tag) | string %}
+        {% set modal_id = tag['function'] + tag['tag_idx'] | string %}
 
         {# Tag Modals Start #}
-        {% from 'mrk/tag_spy/modals/tag_trigger_group_main.html' import tag_trigger_group_main with context %}
+        {% from 'mrk/tag_spy/modals/tag_main_modals.html' import tag_trigger_group_main with context %}
         {{ tag_trigger_group_main(tag, modal_id, 'tag') }}
 
         {# Firing Conditions Start #}
@@ -16,7 +16,7 @@
 
 
         {# Tag Code Block Modals Start #}
-        {% from 'mrk/tag_spy/modals/tag_code_block.html' import tags_modal_code_block with context %}
+        {% from 'mrk/tag_spy/modals/tag_code_input.html' import tags_modal_code_block with context %}
         {{ tags_modal_code_block(tag.keys()) }}
 
     {% endfor %}

@@ -1,0 +1,46 @@
+{% macro macro_button(modal_id, button_pill, button_title_primary, button_title_secondary) %}
+    {% if button_pill is none %}
+        {% set _button_pill = 'secondary' %}
+    {% else %}
+        {% set _button_pill = button_pill %}
+    {% endif %}
+
+    {% if button_title_secondary is not none %}
+        {% set _button_title = button_title_primary + ": " + button_title_secondary %}
+    {% else %}
+        {% set _button_title = button_title_primary %}
+    {% endif %}
+
+    <button type="button" class="btn btn-{{ _button_pill }}" data-toggle="modal"
+            data-target="#{{ modal_id }}">
+        {{ _button_title }}
+    </button>
+{% endmacro %}
+
+{% macro process_macro_key(macro_key='', child_modal_id='', child_modal_name='', badge_type=None, modal_type = '') %}
+    {% if not modal_type %}
+        <div class="col-8 col-sm-6">
+            {{ macro_key }}
+        </div>
+        <div class="col-4 col-sm-6">
+            <button type="button" data-dismiss="modal"
+                    class="btn btn-info btn-sm" data-toggle="modal"
+                    data-target="#{{ child_modal_id }}">
+                {{ child_modal_name }}
+            </button>
+        </div>
+    {% elif modal_type == 'no-modal' %}
+        <div class="col-4 col-sm-6">
+            <span class="badge badge-pill badge-{{ badge_type }}">{{ child_modal_name }}</span>
+        </div>
+    {% elif modal_type == 'custom-javascript' %}
+        <div class="col-4 col-sm-6">
+            <button type="button" data-dismiss="modal"
+                    class="btn btn-info btn-sm" data-toggle="modal"
+                    data-target="#{{ child_modal_id }}">
+                {{ child_modal_name }}
+            </button>
+        </div>
+    {% endif %}
+
+{% endmacro %}
