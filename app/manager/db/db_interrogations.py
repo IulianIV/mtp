@@ -121,6 +121,7 @@ def send_recurrent_pay(user, date: datetime, recurrent_name: str, value: str):
 
         return db.session.commit()
 
+
 def create_new_role(role_name: str, role_rules: list):
 
     db.session.add(PermissionRoles(role_name=role_name))
@@ -427,9 +428,9 @@ def get_gtm_containers(user_id: int):
     return GTMContainers.query.filter_by(user_id=user_id).order_by(GTMContainers.container_id).all()
 
 
-
 def get_recurrent_payments(user_id: int):
     return BudgetRecurrent.query.filter_by(user_id=user_id).order_by(BudgetRecurrent.recurrent_name).all()
+
 
 def get_user_role_rules(user_id: int):
 
@@ -541,6 +542,13 @@ def update_gtm_container_data(user_id: int, container_id: str, container_data):
     db.session.commit()
 
 
+def update_gtm_container_source(user_id: int, container_id: str, container_source: str):
+    container = GTMContainers.query.filter_by(user_id=user_id, container_id=container_id).first()
+
+    container.container_source = container_source
+
+    db.session.commit()
+
 
 def update_recurrent_name(recurrent_id: int, new_name: str):
 
@@ -556,11 +564,11 @@ def disable_recurrent_entry(recurrent_id: int):
     current_recurrent = BudgetRecurrent.query.filter_by(id=recurrent_id).first()
     current_recurrent.recurrent_status = 0
 
+
 def update_permissions_role(user_id: str, new_role: str):
     user = User.query.filter_by(id=user_id).first()
 
     user.user_role = new_role
-
 
     db.session.commit()
 
@@ -605,8 +613,8 @@ Database combo queries section
 """
 
 
-def insert_and_disable_recurrent(recurrent_id: int, user, new_name: int, new_value: int,
-                                    new_status: bool, new_date: datetime):
+def insert_and_disable_recurrent(recurrent_id: int, user, new_name: int, new_value: int, new_status: bool,
+                                 new_date: datetime):
 
     current_recurrent = BudgetRecurrent.query.filter_by(id=recurrent_id).first()
     current_recurrent.recurrent_status = 0
@@ -616,4 +624,3 @@ def insert_and_disable_recurrent(recurrent_id: int, user, new_name: int, new_val
                         recurrent_value=new_value, recurrent_date=new_date))
 
     return db.session.commit()
-

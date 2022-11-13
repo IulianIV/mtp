@@ -1,0 +1,259 @@
+{% extends 'tag_spy_base.html' %}
+{% set active_page = "tags" %}
+
+{% block gtm_content %}
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Tag name</th>
+            <th scope="col">Firing Triggers</th>
+            <th scope="col">Exception Triggers</th>
+            <th scope="col" colspan="2">Sequencing</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for tag in tag_list %}
+            {% if tag['function'] not in except_triggers %}
+                {% set tag_modal_id = tag['title'] | replace(' ', '') + tag_list.index(tag) | string %}
+                {% set tag_title = tag['title'] %}
+                <tr>
+                    {# Tag list start #}
+                    <th scope="row">
+                        {% if 'pill' in tag %}
+                            <button type="button" class="btn btn-{{ tag['pill'] }}" data-toggle="modal"
+                                    data-target="#{{ tag_modal_id }}">
+                                {{ tag_title }}
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                    data-target="#{{ tag_modal_id }}">
+                                {{ tag_title }}
+                            </button>
+                        {% endif %}
+                        {% if 'nameProperty' in tag %}
+                            <span class="badge badge-success">{{ tag[tag['nameProperty']] }}</span>
+                        {% endif %}
+                    </th>
+                    {# Tag Triggers start #}
+                    {# Firing Triggers start #}
+                    <th scope="row">
+                        <button type="button" class="btn btn-outline-success btn-sm" data-toggle="modal"
+                                data-target="#conditionalModal_tag{{ loop.index0 }}">
+                            {{ get_len(tag['_conditions']) }} conditions
+                        </button>
+                    </th>
+                    {# Firing Triggers end #}
+                    {# Blocking Triggers start #}
+                    <th scope="row">
+                        {% set conditions_len = get_len(tag['_blocking']) %}
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal"
+                                data-target="#blockingModal_tag{{ loop.index0 }}"
+                                {% if conditions_len == 0 %}
+                                disabled>
+                                {% else %}
+                                    >
+                                {% endif %}
+                        {{ get_len(tag['_blocking']) }} conditions
+                        </button>
+                    </th>
+                    {# Firing Triggers end #}
+                    {# Tag Triggers end #}
+                    {# Tag list end #}
+                    {# Sequence list start #}
+                    {# Sequence 'before' start #}
+                    <th scope="row" style="font-weight: normal">
+                        {% if '_sequence' in tag and tag['_sequence'] and 'before' in tag['_sequence'] %}
+                            <button class="btn btn-outline-info btn-sm" type="button"
+                                    data-toggle="collapse"
+                                    data-target="#before_{{ tag['_sequence']['before'] }}_{{ loop.index0 | string }}"
+                                    aria-expanded="false"
+                                    aria-controls="before_{{ tag['_sequence']['before'] }}_{{ loop.index0 | string }}">
+                                Setup Tag
+                            </button>
+                            <div class="collapse"
+                                 id="before_{{ tag['_sequence']['before'] }}_{{ loop.index0 | string }}">
+                                <div class="card card-body">
+                                    <p class="text-left">Tag
+                                        {% if 'pill' in tag %}
+                                            <button type="button"
+                                                    class="btn btn-{{ tag['pill'] }} btn-sm"
+                                                    data-toggle="modal"
+                                                    data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
+                                                {{ tag_list[tag['_sequence']['before_index']]['title'] }}
+                                            </button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-secondary btn-sm"
+                                                    data-toggle="modal"
+                                                    data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
+                                                {{ tag_list[tag['_sequence']['before_index']]['title'] }}
+                                            </button>
+                                        {% endif %} wil fire <strong>before</strong> current
+                                        <mark><strong>{{ tag['title'] }}</strong></mark>
+                                        has
+                                        fired.
+                                    </p>
+                                    {% if tag['_sequence']['before_conditional'] %}
+                                        <p class="text-center"><em>Don`t fire
+                                            <mark><strong>{{ tag['title'] }}</strong></mark>
+                                            if
+                                            {% if 'pill' in tag %}
+                                                <button type="button"
+                                                        class="btn btn-{{ tag['pill'] }} btn-sm"
+                                                        data-toggle="modal"
+                                                        data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
+                                                    {{ tag_list[tag['_sequence']['before_index']]['title'] }}
+                                                </button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-secondary btn-sm"
+                                                        data-toggle="modal"
+                                                        data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}">
+                                                    {{ tag_list[tag['_sequence']['before_index']]['title'] }}
+                                                </button>
+                                            {% endif %}
+                                            fails or is
+                                            paused.
+                                        </em>
+                                        </p>
+                                    {% else %}
+                                        <p class="text-center" style="tab-size: 6;">
+                                            <em><strong>Disabled</strong>:
+                                                <del>Don`t fire
+                                                    <mark><strong>{{ tag['title'] }}</strong></mark>
+                                                    if
+                                                    {% if 'pill' in tag %}
+                                                        <button type="button"
+                                                                class="btn btn-light btn-sm"
+                                                                data-toggle="modal"
+                                                                data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}"
+                                                                disabled>
+                                                            <del>{{ tag_list[tag['_sequence']['after_index']]['title'] }}</del>
+                                                        </button>
+                                                    {% else %}
+                                                        <button type="button"
+                                                                class="btn btn-outline-secondary btn-sm"
+                                                                data-toggle="modal"
+                                                                data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['before_index'] | string }}"
+                                                                disabled>
+                                                            <del>{{ tag_list[tag['_sequence']['before_index']]['title'] }}</del>
+                                                        </button>
+                                                    {% endif %}
+
+                                                    fails or is
+                                                    paused.
+                                                </del>
+                                            </em>
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    </th>
+                    {# Sequence 'before' end #}
+                    {# Sequence 'after' start #}
+                    <th scope="row" style="font-weight: normal">
+                        {% if '_sequence' in tag and tag['_sequence'] and 'after' in tag['_sequence'] %}
+                            <button class="btn btn-outline-info btn-sm" type="button"
+                                    data-toggle="collapse"
+                                    data-target="#after_{{ tag['_sequence']['after'] }}_{{ loop.index0 | string }}"
+                                    aria-expanded="false"
+                                    aria-controls="after_{{ tag['_sequence']['after'] }}_{{ loop.index0 | string }}">
+                                Cleanup Tag
+                            </button>
+                            <div class="collapse"
+                                 id="after_{{ tag['_sequence']['after'] }}_{{ loop.index0 | string }}">
+                                <div class="card card-body">
+                                    <p class="text-left">Tag
+                                        {% if 'pill' in tag %}
+                                            <button type="button"
+                                                    class="btn btn-{{ tag['pill'] }} btn-sm"
+                                                    data-toggle="modal"
+                                                    data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
+                                                {{ tag_list[tag['_sequence']['after_index']]['title'] }}
+                                            </button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-secondary btn-sm"
+                                                    data-toggle="modal"
+                                                    data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
+                                                {{ tag_list[tag['_sequence']['after_index']]['title'] }}
+                                            </button>
+                                        {% endif %} wil fire <strong>after</strong> current
+                                        <mark><strong>{{ tag['title'] }}</strong></mark>
+                                        has
+                                        fired.
+                                    </p>
+                                    {% if tag['_sequence']['after_conditional'] %}
+                                        <p class="text-center"><em>Don`t fire
+                                            {% if 'pill' in tag %}
+                                                <button type="button"
+                                                        class="btn btn-{{ tag['pill'] }} btn-sm"
+                                                        data-toggle="modal"
+                                                        data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
+                                                    {{ tag_list[tag['_sequence']['after_index']]['title'] }}
+                                                </button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-secondary btn-sm"
+                                                        data-toggle="modal"
+                                                        data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}">
+                                                    {{ tag_list[tag['_sequence']['after_index']]['title'] }}
+                                                </button>
+                                            {% endif %} if this
+                                            <mark><strong>{{ tag['title'] }}</strong></mark>
+                                            fails or is
+                                            paused.
+                                        </em>
+                                        </p>
+                                    {% else %}
+                                        <p class="text-center" style="tab-size: 6;">
+                                            <em><strong>Disabled</strong>:
+                                                <del>Don`t fire
+                                                    {% if 'pill' in tag %}
+                                                        <button type="button"
+                                                                class="btn btn-light btn-sm"
+                                                                data-toggle="modal"
+                                                                data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}"
+                                                                disabled>
+                                                            <del>{{ tag_list[tag['_sequence']['after_index']]['title'] }}</del>
+                                                        </button>
+                                                    {% else %}
+                                                        <button type="button"
+                                                                class="btn btn-outline-secondary btn-sm"
+                                                                data-toggle="modal"
+                                                                data-target="#{{ tag['title'] | replace(' ', '') + tag['_sequence']['after_index'] | string }}"
+                                                                disabled>
+                                                            <del>{{ tag_list[tag['_sequence']['after_index']]['title'] }}</del>
+                                                        </button>
+                                                    {% endif %} if this
+                                                    <mark><strong>{{ tag['title'] }}</strong></mark>
+                                                    fails or is
+                                                    paused.
+                                                </del>
+                                            </em>
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        {% endif %}
+                    </th>
+                    {# Sequence 'after' end #}
+                    {# Sequence list end #}
+                </tr>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+{% block gtm_modals %}
+    {# Tag Specific Modal Start #}
+    {% from 'mrk/tag_spy/modals/tag_base.html' import tags_modal with context %}
+    {{ tags_modal(tag_list) }}
+
+
+    {# Variable Modals Start #}
+    {% from 'mrk/tag_spy/modals/variable_base.html' import variables_modal with context %}
+    {{ variables_modal(variables) }}
+
+{% endblock %}

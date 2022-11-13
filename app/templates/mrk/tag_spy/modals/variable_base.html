@@ -1,0 +1,139 @@
+{% macro variables_modal(variables) %}
+    {% for var in variables %}
+        {% set var_modal_id = var['title'] | replace(' ', '') + variables.index(var) | string %}
+        {% set variable_loop = loop.index0 %}
+        {# Macro Modals Start #}
+        <div class="modal fade" id="{{ var_modal_id }}"
+             tabindex="1" role="dialog"
+             aria-labelledby="{{ var_modal_id }}"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"
+                            id="{{ var_modal_id }}">Variable:
+                            {{ var['title'] }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="row">
+                                        <div class="col-8 col-sm-6">
+                                            <strong>Property</strong>
+                                        </div>
+                                        <div class="col-4 col-sm-6">
+                                            <strong>Value</strong>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div class="row">
+                                        {% for key in var.keys() %}
+                                            {% if key in code_snippets %}
+                                                {% set snippet_modal_id = key + variable_loop | string %}
+                                                <div class="col-8 col-sm-6">
+                                                    {{ key }}
+                                                </div>
+                                                <div class="col-4 col-sm-6">
+                                                    <button type="button" data-dismiss="modal"
+                                                            class="btn btn-info btn-sm" data-toggle="modal"
+                                                            data-target="#{{ snippet_modal_id }}">
+                                                        Custom Javascript
+                                                    </button>
+                                                </div>
+                                            {% elif type_check(var[key]) == 'macro' %}
+                                                {% set macro_modal_index = find_index(get_macro(var[key])['function'], macros_index)['title'] | replace(' ', '') + var[key][1] | string %}
+                                                <div class="col-8 col-sm-6">
+                                                    {{ key }}
+                                                </div>
+                                                <div class="col-4 col-sm-6">
+                                                    <button type="button" data-dismiss="modal"
+                                                            class="btn btn-info btn-sm" data-toggle="modal"
+                                                            data-target="#{{ macro_modal_index }}">
+                                                        {{ find_index(get_macro(var[key])['function'], macros_index)['title'] }}
+                                                    </button>
+                                                </div>
+                                            {% elif type_check(var[key]) == 'map' %}
+                                                <div class="col-8 col-sm-6">
+                                                    {{ key }}
+                                                </div>
+                                                <div class="col-4 col-sm-6">
+                                                    <button type="button" data-dismiss="modal"
+                                                            class="btn btn-info btn-sm" data-toggle="modal"
+                                                            data-target="#macro_{{ variables.index(var) }}_mapping">
+                                                        Data Table
+                                                    </button>
+                                                </div>
+                                            {% else %}
+                                                {% if key not in skip_macro_keys %}
+                                                    <div class="col-8 col-sm-6">
+                                                        {{ key }}
+                                                    </div>
+                                                    {% if var[key] is boolean %}
+                                                        {{ key_bool_value(var[key]) }}
+                                                    {% elif var[key] == '' %}
+                                                        <div class="col-4 col-sm-6">
+                                                            <span class="badge badge-pill badge-info">"{{ var[key] }}" (intentional empty value)</span>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="col-4 col-sm-6">
+                                                            <span class="badge badge-pill badge-info">{{ var[key] }}</span>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Macro Input Table and Code Section start #}
+        {% for key in var.keys() %}
+            {% if type_check(var[key]) == 'mapping' %}
+                {% from 'mrk/tag_spy/modals/variable_input_table.html' import variables_modal_input_table with context %}
+                {{ variables_modal_input_table() }}
+            {% elif key in code_snippets %}
+                {% set mapping_modal_id = key + variable_loop | string %}
+                {% from 'mrk/tag_spy/modals/variable_code_input.html' import variables_modal_code_input with context %}
+                {{ variables_modal_code_input() }}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endmacro %}
+
+{% macro key_bool_value(key) %}
+    <div class="col-4 col-sm-6">
+        <span class="badge badge-pill badge-success">{{ key }}</span>
+    </div>
+{% endmacro %}
+
+{% macro macro_button(modal_id, button_pill, button_title_primary, button_title_secondary) %}
+    {% if button_pill is none %}
+        {% set _button_pill = 'secondary' %}
+    {% else %}
+        {% set _button_pill = button_pill %}
+    {% endif %}
+
+    {% if button_title_secondary is not none %}
+        {% set _button_title = button_title_primary + ": " + button_title_secondary %}
+    {% else %}
+        {% set _button_title = button_title_primary %}
+    {% endif %}
+
+    <button type="button" class="btn btn-{{ _button_pill }}" data-toggle="modal"
+            data-target="#{{ modal_id }}">
+        {{ _button_title }}
+    </button>
+{% endmacro %}

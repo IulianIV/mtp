@@ -1,7 +1,8 @@
 import json
 import re
-
 import requests
+from typing import Union, Any
+from .index import runtime_index
 
 
 def gtm_compare_get_version(gtm_id) -> int:
@@ -18,7 +19,7 @@ def gtm_compare_get_version(gtm_id) -> int:
 
 
 # better-me add fallback situations when there are no arguments given.
-def find_in_index(value: str, index: dict) -> dict:
+def find_in_index(value: Union[str, callable], index: dict) -> Any:
     """
     Attempts to find 'value' in 'index'.
     Considering that a container hold a lot of information, it is best to index items in dictionaries that
@@ -33,8 +34,31 @@ def find_in_index(value: str, index: dict) -> dict:
     :rtype: dictionary
     """
     try:
-        index[value]
-    except KeyError:
+        return index[value]
+    except (KeyError, TypeError):
         return {'title': ''}
 
-    return index[value]
+
+def get_runtime_index(index_value: Union[int, str], dict_key: str, full_index: bool = False):
+    if full_index:
+        return runtime_index[index_value]
+
+    requested_value = runtime_index[index_value][dict_key]
+
+    return requested_value
+
+
+def flatten_container(container):
+    """
+    Flattens a nested list or tuple creating a generator object
+    :param container: nested list
+    :type container: list
+    :return: flattened list generator
+    :rtype: generator
+    """
+    for i in container:
+        if isinstance(i, (list, tuple)):
+            for j in flatten_container(i):
+                yield j
+        else:
+            yield i

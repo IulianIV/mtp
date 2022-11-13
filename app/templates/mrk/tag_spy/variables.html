@@ -1,0 +1,39 @@
+{% extends 'tag_spy_base.html' %}
+{% set active_page = "variables" %}
+
+{% block gtm_content %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Variable name</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for var in variables %}
+            {% set var_modal_id = var['title'] | replace(' ', '') + variables.index(var) | string %}
+            <tr>
+                <th scope="row">
+                {% from 'mrk/tag_spy/modals/variable_base.html' import macro_button %}
+                    {% if 'pill' in var %}
+                        {% if 'cvt' in var['function'] %}
+                            {{ macro_button(var_modal_id, var['pill'], var['title'], var['function']) }}
+                        {% else %}
+                            {{ macro_button(var_modal_id, var['pill'], var['title'], None) }}
+                        {% endif %}
+                    {% else %}
+                        {{ macro_button(var_modal_id, None, var['title'], None) }}
+                    {% endif %}
+                    {% if 'nameProperty' in var %}
+                        <span class="badge badge-success">{{ var[var['nameProperty']] }}</span>
+                    {% endif %}
+                </th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+{% block gtm_modals %}
+    {% from 'mrk/tag_spy/modals/variable_base.html' import variables_modal with context %}
+    {{ variables_modal(variables) }}
+{% endblock %}

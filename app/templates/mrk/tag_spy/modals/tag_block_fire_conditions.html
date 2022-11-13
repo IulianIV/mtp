@@ -1,0 +1,203 @@
+{% macro tag_modal_block_fire_conditions(base_loop, modal_type, id_type) %}
+    <div class="modal fade" id="{{ id_type }}Modal_tag{{ base_loop.index0 }}"
+         tabindex="-1" role="dialog"
+         aria-labelledby="{{ id_type }}Modal_tag{{ base_loop.index0 }}"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        id="{{ id_type }}Modal_tag{{ base_loop.index0 }}">
+                        {{ tag['title'] }}
+                        {% if modal_type == 'firing' %}
+                            firing
+                        {% elif modal_type == 'blocking' %}
+                            blocking
+                        {% endif %}
+                        conditions</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="container">
+                                {% if modal_type == 'firing' %}
+                                    {% set conditions = tag['_conditions'] %}
+                                {% elif modal_type == 'blocking' %}
+                                    {% set conditions = tag['_blocking'] %}
+                                {% endif %}
+                                {% for rule_set in conditions %}
+                                    {% set rule_set_loop = loop %}
+                                    {% for rule in rule_set %}
+                                        {# IF section start #}
+                                        {% if rule[0] == 'if' %}
+                                            <div class="card gtm-card">
+                                                {% for cond in rule[1:] %}
+                                                    {% set predicate_index = cond %}
+                                                    {% set against = predicates[predicate_index]['arg1'] %}
+                                                    {% if against in triggers_index %}
+                                                        <div class="card-header">
+                                                            {% if modal_type == 'firing' %}
+                                                                Fires on
+                                                            {% elif modal_type == 'blocking' %}
+                                                                Blocks on
+                                                            {% endif %}
+                                                            <button type="button"
+                                                                    class="btn btn-{{ triggers_index[against]['pill'] }} btn-sm">
+                                                                {{ triggers_index[against]['title'] }}
+                                                            </button>
+                                                        </div>
+                                                    {% elif type_check(against) == 'RegEx' %}
+                                                        {% set found_tag = tag_from_predicate(against) %}
+                                                        {% set tag_index = triggers_index[found_tag['function']] %}
+                                                        <div class="card-header">
+                                                            Fires on
+                                                            <button type="button"
+                                                                    class="btn btn-{{ tag_index['pill'] }} btn-sm">
+                                                                {{ tag_index['title'] }}
+                                                            </button>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% for cond in rule[1:] %}
+                                                    {% set predicate_index = cond %}
+                                                    {% set evaluate = predicates[predicate_index]['arg0'] %}
+                                                    {% set evaluator = predicates[predicate_index]['title'] %}
+                                                    {% set against = predicates[predicate_index]['arg1'] %}
+                                                    {% set condition_modal_id_if = find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string %}
+                                                    <div class="row justify-content-center align-items-center gtm-row">
+                                                        <div class="col gtm-col">
+                                                            {% if type_check(predicates[predicate_index]['arg0']) == GTMResourceMacro %}
+                                                                <button type="button" data-dismiss="modal"
+                                                                        class="btn btn-primary btn-sm"
+                                                                        data-toggle="modal"
+                                                                        data-target="#{{ condition_modal_id_if }}">
+                                                                    {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                                </button>
+                                                            {% else %}
+                                                                <button type="button" data-dismiss="modal"
+                                                                        class="btn btn-primary btn-sm"
+                                                                        data-toggle=""
+                                                                        data-target="#">
+                                                                    {{ evaluate }}
+                                                                </button>
+                                                            {% endif %}
+                                                            <span class="text-center">
+                                                                    {{ evaluator }}
+                                                                </span>
+                                                            <span class="badge badge-pill badge-info align-middle">
+                                                                    {{ against }}</span>
+                                                        </div>
+                                                    </div>
+                                                    {% if not loop.last %}
+                                                        <div class="row justify-content-center align-items-center">
+                                                            <div class="col-4">
+                                                                <h2 class="gtmspy-hr">
+                                                                    <span>AND</span>
+                                                                </h2>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            {# IF section end #}
+                                            {# UNLESS section start #}
+                                        {% elif rule[0] == 'unless' %}
+                                            <div class="row justify-content-center align-items-center">
+                                                <div class="col-4">
+                                                    <h2 class="gtmspy-hr">
+                                                        <span>OR</span>
+                                                    </h2>
+                                                </div>
+                                            </div>
+                                            <div class="card gtm-card">
+                                                {% for cond in rule[1:] %}
+                                                    {% set predicate_index = cond %}
+                                                    {% set against = predicates[predicate_index]['arg1'] %}
+                                                    {% if against in triggers_index %}
+                                                        <div class="card-header">
+                                                            {% if modal_type == 'firing' %}
+                                                                Fires on
+                                                            {% elif modal_type == 'blocking' %}
+                                                                Blocks on
+                                                            {% endif %}
+                                                            <button type="button"
+                                                                    class="btn btn-{{ triggers_index[against]['pill'] }} btn-sm">
+                                                                {{ triggers_index[against]['title'] }}
+                                                            </button>
+                                                        </div>
+                                                    {% elif type_check(against) == 'RegEx' %}
+                                                        {% set found_tag = tag_from_predicate(against) %}
+                                                        {% set tag_index = triggers_index[found_tag['function']] %}
+                                                        <div class="card-header">
+                                                            {% if modal_type == 'firing' %}
+                                                                Fires on
+                                                            {% elif modal_type == 'blocking' %}
+                                                                Blocks on
+                                                            {% endif %}
+                                                            <button type="button"
+                                                                    class="btn btn-{{ tag_index['pill'] }} btn-sm">
+                                                                {{ tag_index['title'] }}
+                                                            </button>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% for cond in rule[1:] %}
+                                                    {% set predicate_index = cond %}
+                                                    {% set evaluate = predicates[predicate_index]['arg0'] %}
+                                                    {% set evaluator = predicates[predicate_index]['title'] %}
+                                                    {% set against = predicates[predicate_index]['arg1'] %}
+                                                    {% set conditional_modal_id_unless = find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string %}
+                                                    <div class="row justify-content-center align-items-center gtm-row">
+                                                        <div class="col gtm-col">
+                                                            {% if type_check(predicates[predicate_index]['arg0']) == GTMResourceMacro %}
+                                                                <button type="button" data-dismiss="modal"
+                                                                        class="btn btn-primary btn-sm"
+                                                                        data-toggle="modal"
+                                                                        data-target="#{{ conditional_modal_id_unless }}">
+                                                                    {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                                </button>
+                                                            {% else %}
+                                                                <button type="button" data-dismiss="modal"
+                                                                        class="btn btn-primary btn-sm"
+                                                                        data-toggle=""
+                                                                        data-target="#">
+                                                                    {{ evaluate }}
+                                                                </button>
+                                                            {% endif %}
+                                                            <span class="text-center">
+                                                                    not {{ evaluator }}
+                                                                </span>
+                                                            <span class="badge badge-pill badge-info align-middle">
+                                                                    {{ against }}</span>
+                                                        </div>
+                                                    </div>
+                                                    {% if not rule_set_loop.last %}
+                                                        <div class="row justify-content-center align-items-center">
+                                                            <div class="col-4">
+                                                                <h2 class="gtmspy-hr">
+                                                                    <span>AND</span>
+                                                                </h2>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        {# UNLESS section end #}
+                                    {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}

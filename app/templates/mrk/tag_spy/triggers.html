@@ -1,0 +1,177 @@
+{% extends 'tag_spy_base.html' %}
+{% set active_page = "triggers" %}
+
+{% block gtm_content %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Trigger name</th>
+            <th scope="col">Conditions</th>
+            <th scope="col">Blocking</th>
+            <th scope="col">Grouping</th>
+            <th scope="col">Added in</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for trigger in triggers %}
+            {% if trigger['function'] not in skip_keys %}
+                {% set trigger_modal_id = trigger['title'] | replace(' ', '') + triggers.index(trigger) | string %}
+                {% set trigger_title = trigger['title'] %}
+                <tr>
+                    {# Trigger list start #}
+                    <th scope="row">
+                        {% if 'pill' in trigger %}
+                            <button type="button" class="btn btn-{{ trigger['pill'] }}"
+                                    data-toggle="modal"
+                                    data-target="#{{ trigger_modal_id }}">
+                                {{ trigger_title }}
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                    data-target="#{{ trigger_modal_id }}">
+                                {{ trigger_title }}
+                            </button>
+                        {% endif %}
+                    </th>
+                    {# Trigger list end #}
+                    {# Firing Triggers start #}
+                    <th scope="row">
+                        <button type="button" class="btn btn-outline-success btn-sm" data-toggle="modal"
+                                data-target="#conditionalModal_tag{{ loop.index0 }}">
+                            {{ get_len(trigger['_conditions']) }} conditions
+                        </button>
+                    </th>
+                    {# Firing Triggers end #}
+                    <th scope="row">
+                    </th>
+                    <th scope="row">
+                    </th>
+                    <th scope="row">
+                    </th>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        {% for group in trigger_groups['_group'] %}
+            {% set index = find_index(group['function'], triggers_index) %}
+            {% set group_modal_id = 'triggerGroup' + trigger_groups['_group'].index(group) | string %}
+            <tr>
+                {# Trigger Group list start #}
+                <th scope="row">
+                    {% if 'pill' in index %}
+                        <button type="button" class="btn btn-{{ index['pill'] }}"
+                                data-toggle="modal"
+                                data-target="#{{ group_modal_id }}">
+                            {{ index['title'] }}
+                        </button>
+                    {% else %}
+                        <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                data-target="#{{ group_modal_id }}">
+                            {{ index['title'] }}
+                        </button>
+                    {% endif %}
+                </th>
+                {# Trigger Group list end #}
+                {# Firing Trigger Group start #}
+                <th scope="row">
+                    <button type="button" class="btn btn-outline-success btn-sm" data-toggle="modal"
+                            data-target="#conditionalModal_tag{{ loop.index0 }}">
+                        {{ get_len(group['_conditions']) }} conditions
+                    </button>
+                </th>
+                {# Firing Trigger Group end #}
+                <th scope="row">
+                </th>
+                {# Grouping start  #}
+                <th scope="row" style="font-weight: normal">
+                    <button class="btn btn-outline-info btn-sm" type="button"
+                            data-toggle="collapse"
+                            data-target="#tagGrouping"
+                            aria-expanded="false"
+                            aria-controls="tagGrouping">
+                        Group Members
+                    </button>
+                    <div class="collapse"
+                         id="tagGrouping">
+                        <div class="card card-body">
+                            <p class="text-left">
+                                {% for trigger in trigger_groups['_triggers'] %}
+                                    {% if trigger %}
+                                        {% set group_loop = loop %}
+                                        {% set found_trigger = find_index(trigger['function'], triggers_index) %}
+                                        {% set found_trigger_title = found_trigger['title'] | replace(' ', '') %}
+                                        {% set trigger_index = 0 %}
+                                        {% for trig in triggers %}
+                                            {% if trig['tag_id'] == trigger['tag_id'] %}
+                                                {% set trigger_index = loop.index0 %}
+                                                {% set found_trigger_modal = found_trigger_title + trigger_index | string %}
+                                                <button type="button"
+                                                        class="btn btn-primary btn-sm"
+                                                        data-toggle="modal"
+                                                        data-target="#{{ found_trigger_modal }}">
+                                                    {{ found_trigger['title'] }}
+                                                </button>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for member in trigger_groups['_group_members'] %}
+                                    {% if member['_conditions'] %}
+                                        {% for rule_set in member[0]['_conditions'] %}
+                                            {% for rules in rule_set %}
+                                                {% for predicate_index in rules[1:] %}
+                                                    {% if predicates[predicate_index]['arg1'] in triggers_index %}
+                                                        {% set found_trigger = find_index(predicates[predicate_index]['arg1'], triggers_index) %}
+                                                        {% for trigger in triggers %}
+                                                            {% if trigger['function'] == predicates[predicate_index]['arg1'] %}
+                                                                {% set found_trigger_id = triggers.index(trigger) %}
+                                                                {% set trigger_by_tag_id = search_in_container('tags', 'tag_id', found_trigger_id) %}
+                                                                {% set found_trigger_title = found_trigger['title'] | replace(' ', '') %}
+                                                                {% set found_trigger_modal = found_trigger_title + found_trigger_id | string %}
+                                                                <button type="button"
+                                                                        class="btn btn-primary btn-sm"
+                                                                        data-toggle="modal"
+                                                                        data-target="#{{ found_trigger_modal }}">
+                                                                    {{ found_trigger['title'] }}
+                                                                </button>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <button type="button"
+                                                class="btn btn-primary btn-sm"
+                                                data-toggle="modal"
+                                                data-target="#">
+                                            {{ member['function'] }}
+                                        </button>
+                                    {% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                </th>
+
+                {# Grouping end #}
+                <th scope="row">
+                </th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block gtm_modals %}
+
+    {# Trigger Specific Modal Start #}
+    {% from 'mrk/tag_spy/modals/trigger_base.html' import triggers_modal with context %}
+    {{ triggers_modal(triggers) }}
+
+    {# Variable Modals Start #}
+    {% from 'mrk/tag_spy/modals/variable_base.html' import variables_modal with context %}
+    {{ variables_modal(variables) }}
+
+    {% from 'mrk/tag_spy/modals/trigger_group_base.html' import trigger_group_modals with context %}
+    {{ trigger_group_modals(trigger_groups['_group']) }}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% macro triggers_modal(tags) %}
+    {% for tag in tags %}
+        {% set trigger_modal_id = tag['title'] | replace(' ', '') + tags.index(tag) | string %}
+
+        {# Triggers Modals Start #}
+        {% from 'mrk/tag_spy/modals/trigger_main.html' import triggers_modal_main_modals with context %}
+        {{ triggers_modal_main_modals() }}
+
+        {# Firing Conditions Start #}
+        {% from 'mrk/tag_spy/modals/tag_block_fire_conditions.html' import tag_modal_block_fire_conditions with context %}
+        {{ tag_modal_block_fire_conditions(loop, 'firing', 'conditional') }}
+
+        {# Tag Code Block Modals Start #}
+        {% from 'mrk/tag_spy/modals/tag_code_block.html' import tags_modal_code_block with context %}
+        {{ tags_modal_code_block(tag.keys()) }}
+
+    {% endfor %}
+{% endmacro %}

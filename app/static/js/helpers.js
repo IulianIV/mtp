@@ -63,11 +63,8 @@ function hidePermissions(module_id) {
 
 }
 
-$(document.getElementsByClassName('btn btn-success')).click(function(){
+$(document.getElementsByClassName('btn btn-success')).click(function () {
     let id = $(this).attr('id');
-
-    console.log(id)
-    console.log(document.getElementById("user_role_select_" + id).value)
 
     $.ajax({
         serverSide: false,
@@ -83,3 +80,9 @@ $(document.getElementsByClassName('btn btn-success')).click(function(){
 
 });
 
+// enable syntax highlighting
+document.addEventListener('DOMContentLoaded', (event) => {
+    document.querySelectorAll('pre code').forEach((el) => {
+        hljs.highlightElement(el);
+    });
+});
