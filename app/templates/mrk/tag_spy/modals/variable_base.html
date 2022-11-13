@@ -44,7 +44,7 @@
                                                         Custom Javascript
                                                     </button>
                                                 </div>
-                                            {% elif type_check(var[key]) == GTMResourceMacro %}
+                                            {% elif type_check(var[key]) == 'macro' %}
                                                 {% set macro_modal_index = find_index(get_macro(var[key])['function'], macros_index)['title'] | replace(' ', '') + var[key][1] | string %}
                                                 <div class="col-8 col-sm-6">
                                                     {{ key }}
@@ -56,7 +56,7 @@
                                                         {{ find_index(get_macro(var[key])['function'], macros_index)['title'] }}
                                                     </button>
                                                 </div>
-                                            {% elif type_check(var[key]) == 'mapping' %}
+                                            {% elif type_check(var[key]) == 'map' %}
                                                 <div class="col-8 col-sm-6">
                                                     {{ key }}
                                                 </div>

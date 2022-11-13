@@ -164,9 +164,11 @@ class GTMResourceMacros(GTMResourceTemplate):
 
         for idx, macro in enumerate(self.parsed):
             for key, value in macro.items():
-                if value == '__remm':
+                if self.determine_type(value) == 'macro':
+                    macro[key] = value
+                elif value == '__remm':
                     self.parsed[idx] = self.process_general_resource(macro, '__remm')
-                if isinstance(value, list) and value != '__remm':
+                elif isinstance(value, list):
                     macro[key] = self.process_general_resource(value)
         return self
 
