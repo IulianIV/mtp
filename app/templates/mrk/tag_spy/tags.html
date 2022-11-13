@@ -15,7 +15,7 @@
         <tbody>
         {% for tag in tag_list %}
             {% if tag['function'] not in except_triggers %}
-                {% set tag_modal_id = tag['title'] | replace(' ', '') + tag_list.index(tag) | string %}
+                {% set tag_modal_id = tag['function'] + tag['tag_idx'] | string %}
                 {% set tag_title = tag['title'] %}
                 <tr>
                     {# Tag list start #}
@@ -245,15 +245,13 @@
         </tbody>
     </table>
 
-{% endblock %}
-{% block gtm_modals %}
-    {# Tag Specific Modal Start #}
-    {% from 'mrk/tag_spy/modals/tag_base.html' import tags_modal with context %}
+        {# Tag Specific Modal Start #}
+    {% from 'mrk/tag_spy/modals/tag_modal_base.html' import tags_modal with context %}
     {{ tags_modal(tag_list) }}
 
 
     {# Variable Modals Start #}
-    {% from 'mrk/tag_spy/modals/variable_base.html' import variables_modal with context %}
-    {{ variables_modal(variables) }}
+    {% from 'mrk/tag_spy/modals/macro_modals_base.html' import macros_modals with context %}
+    {{ macros_modals(variables) }}
 
 {% endblock %}

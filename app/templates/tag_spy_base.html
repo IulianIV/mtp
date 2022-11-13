@@ -27,7 +27,7 @@
 {% block content %}
     <div class="row min-vh-100 flex-column flex-md-row">
         <aside class="col-12 col-md-4 bg-light flex-shrink-1">
-            <nav class="navbar navbar-expand navbar-light bg-light flex-md-column flex-row align-items-start py-2">
+            <nav class="navbar navbar-expand navbar-light bg-light flex-sm-column flex-row align-items-start py-2">
                 <ul class="flex-md-column flex-row navbar-nav w-100 justify-content-between">
                     <li class="nav-item">
                         <span class="navbar-brand pl-0 text-nowrap" href="#">
@@ -40,7 +40,6 @@
                                           id="container-id">{{ gtm_id }}</span>
                                 </a>
                                 <span><strong>v{{ version }}</strong></span>
-                                <br/>
                             {% endif %}
                             {% if recent_version != version %}
                                 <button type="button" class="btn btn-danger" style="vertical-align: top;"
@@ -153,8 +152,6 @@
             </div>
         </main>
     </div>
-    {% block gtm_modals %}
-    {% endblock %}
     <script>
         $(".dropdown-menu").on('click', '.dropdown-item', function () {
             let input = $('#container_id');
