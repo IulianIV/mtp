@@ -8,7 +8,7 @@ from app import db
 from app.manager.db.db_interrogations import (
     gtm_container_exists, get_active_gtm_container, insert_gtm_container,
     set_gtm_container_active, inactivate_all_gtm_containers,
-    get_gtm_containers, update_gtm_container_data
+    get_gtm_containers, update_gtm_container_data, update_gtm_container_source
 )
 from app.manager.permissions.utils import login_required, requires_permissions
 from app.mrk import bp
@@ -81,6 +81,17 @@ def gtm_intel():
     return render_template('tag_spy_base.html', container_id_form=container_id_form)
 
 
+@bp.route('/gtm-spy/add-domain', methods=('GET', 'POST'))
+@login_required
+def add_container_domain():
+    user_id = current_user.get_id()
+    container_id = request.args.get('container_id')
+    container_domain = request.args.get('container_domain')
+
+    update_gtm_container_source(user_id, container_id, container_domain)
+
+    return redirect(url_for(request.url))
+
 @bp.route('/gtm-spy/variables', methods=('GET', 'POST'))
 @login_required
 def gtm_intel_variables():
@@ -104,6 +115,7 @@ def gtm_intel_variables():
 
     container_url = spy.url
     container_id = spy.id
+    container_domain = container.container_source
     container_version = spy.version
 
     skip_keys = skippable_macro_keys
@@ -119,7 +131,8 @@ def gtm_intel_variables():
                            skip_macro_keys=skip_keys, type_check=type_check, get_macro=get_macro,
                            macros_index=macro_index, find_index=find_index, process_mapping=process_mapping,
                            container_id_form=container_id_form, code_snippets=code_snippets,
-                           GTMResourceMacro=GTMResourceMacros, js_prettify=js_prettify)
+                           GTMResourceMacro=GTMResourceMacros,js_prettify=js_prettify,
+                           container_domain=container_domain)
 
 
 @bp.route('/gtm-spy/summary', methods=('GET', 'POST'))
@@ -217,6 +230,7 @@ def gtm_intel_triggers():
     container = get_active_gtm_container(user_id)
 
     c_id = container.container_id
+    container_domain = container.container_source
     c_content = container.container_data
     spy = GTMResource(c_id, False, c_content)
 
@@ -252,8 +266,8 @@ def gtm_intel_triggers():
                            get_macro=get_macro, process_mapping=process_mapping, macros_index=macro_index,
                            variables=variables, skip_tag_keys=skip_keys_tags, container_id_form=container_id_form,
                            get_len=get_len, tag_from_predicate=tag_from_predicate, code_snippets=code_snippets,
-                           search_in_container=search_in_container,
-                           GTMResourceMacro=GTMResourceMacros, js_prettify=js_prettify)
+                           search_in_container=search_in_container, GTMResourceMacro=GTMResourceMacros,
+                           js_prettify=js_prettify, container_domain=container_domain)
 
 
 @bp.route('/gtm-spy/runtime/<string:template_type>', methods=('GET', 'POST'))
@@ -275,6 +289,7 @@ def gtm_intel_runtime(template_type):
 
     container_url = spy.url
     container_id = spy.id
+    container_domain = container.container_source
     container_version = spy.version
 
     if template_type == 'custom-tags':
@@ -287,4 +302,4 @@ def gtm_intel_runtime(template_type):
 
     return render_template('mrk/tag_spy/runtime.html', model_gtm_path=container_url,
                            gtm_id=container_id, version=container_version, container_id_form=container_id_form,
-                           templates=templates, js_prettify=js_prettify)
+                           templates=templates, js_prettify=js_prettify, container_domain=container_domain)
