@@ -143,7 +143,7 @@ class GTMResourceMacros(GTMResourceTemplate):
 
     def add_index_data(self):
 
-        for macro in self.parsed:
+        for macro_idx, macro in enumerate(self.parsed):
             macro_name = macro['function']
             # Custom Variable Templates have custom naming, this makes it possible to see the custom variable contents
             if macro_name not in macros_index and 'cvt' in macro_name:
@@ -153,6 +153,8 @@ class GTMResourceMacros(GTMResourceTemplate):
                 index_details = dlvBuiltins_index[macro['vtp_name']]
             else:
                 index_details = macros_index[macro_name]
+
+            index_details['macro_idx'] = macro_idx
 
             macro.update(**index_details)
 
@@ -199,7 +201,7 @@ class GTMResourceMacros(GTMResourceTemplate):
 
                 if value_type == 'mapping':
                     value = self.process_regex_mapping(value)
-                else:
+                elif value_type != 'macro':
                     value = self.process_general_resource(value)
 
             new_macro[key] = value
@@ -268,9 +270,6 @@ class GTMResourceMacros(GTMResourceTemplate):
 
             if isinstance(map_key, list):
                 map_key = self.process_general_resource(map_key)
-
-            if isinstance(map_value, list):
-                map_value = self.process_general_resource(map_value)
 
             map_dict[map_key] = map_value
 
@@ -346,7 +345,7 @@ class GTMResourceTags(GTMResourceTemplate):
 
         index_details = {}
 
-        for tag in self.parsed:
+        for tag_idx, tag in enumerate(self.parsed):
             tag_name = tag['function']
             if tag_name in tags_index:
                 index_details = tags_index[tag_name]
@@ -357,6 +356,8 @@ class GTMResourceTags(GTMResourceTemplate):
             # adds empty lists that will be populated with triggering rules
             tag['_conditions'] = list()
             tag['_blocking'] = list()
+
+            index_details['tag_idx'] = tag_idx
 
             tag.update(**index_details)
 
