@@ -97,11 +97,11 @@
                                 {% for trigger in trigger_groups['_triggers'] %}
                                     {% if trigger %}
                                         {% set group_loop = loop %}
-                                        {% set found_trigger = find_index(trigger[0]['function'], triggers_index) %}
+                                        {% set found_trigger = find_index(trigger['function'], triggers_index) %}
                                         {% set found_trigger_title = found_trigger['title'] | replace(' ', '') %}
                                         {% set trigger_index = 0 %}
                                         {% for trig in triggers %}
-                                            {% if trig['tag_id'] == trigger[0]['tag_id'] %}
+                                            {% if trig['tag_id'] == trigger['tag_id'] %}
                                                 {% set trigger_index = loop.index0 %}
                                                 {% set found_trigger_modal = found_trigger_title + trigger_index | string %}
                                                 <button type="button"
@@ -115,7 +115,7 @@
                                     {% endif %}
                                 {% endfor %}
                                 {% for member in trigger_groups['_group_members'] %}
-                                    {% if member[0]['_conditions'] %}
+                                    {% if member['_conditions'] %}
                                         {% for rule_set in member[0]['_conditions'] %}
                                             {% for rules in rule_set %}
                                                 {% for predicate_index in rules[1:] %}
@@ -144,7 +144,7 @@
                                                 class="btn btn-primary btn-sm"
                                                 data-toggle="modal"
                                                 data-target="#">
-                                            {{ member[0]['function'] }}
+                                            {{ member['function'] }}
                                         </button>
                                     {% endif %}
                                 {% endfor %}

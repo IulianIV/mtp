@@ -13,15 +13,15 @@
             {% set var_modal_id = var['title'] | replace(' ', '') + variables.index(var) | string %}
             <tr>
                 <th scope="row">
-                {% from 'mrk/tag_spy/modals/variable_base.html' import custom_variable_button %}
+                {% from 'mrk/tag_spy/modals/variable_base.html' import macro_button %}
                     {% if 'pill' in var %}
                         {% if 'cvt' in var['function'] %}
-                            {{ custom_variable_button(var_modal_id, var['pill'], var['title'], var['function']) }}
+                            {{ macro_button(var_modal_id, var['pill'], var['title'], var['function']) }}
                         {% else %}
-                            {{ custom_variable_button(var_modal_id, var['pill'], var['title'], None) }}
+                            {{ macro_button(var_modal_id, var['pill'], var['title'], None) }}
                         {% endif %}
                     {% else %}
-                        {{ custom_variable_button(var_modal_id, None, var['title'], None) }}
+                        {{ macro_button(var_modal_id, None, var['title'], None) }}
                     {% endif %}
                     {% if 'nameProperty' in var %}
                         <span class="badge badge-success">{{ var[var['nameProperty']] }}</span>
