@@ -616,7 +616,7 @@ pre code {
 
 .pre-scrollable {
     max-height: 340px;
-    overflow-y: scroll;
+    overflow-y: auto; /* Custom change: was "scroll" */
 }
 
 .container,
@@ -6181,6 +6181,7 @@ a.close.disabled {
     position: relative;
     flex: 1 1 auto;
     padding: 1rem;
+    overflow-y: auto; !important; /* Custom addition */
 }
 
 .modal-footer {
