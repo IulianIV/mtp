@@ -105,7 +105,7 @@ triggers_not_tags = ['__tl', '__tg', '__cl', '__lcl', '__evl', '__sdl']
 code_snippet_properties = ['vtp_html', 'vtp_javascript']
 untracked_macros = ['Environment name']
 runtime_function_regex = [r'__cvt_\d+_\d+', r'__awec', r'__baut', r'__crto', r'__pntr']
-macro_data_keys = ['vtp_name', 'vtp_javascript', 'vtp_html', 'vtp_url', 'vtp_trackingId', 'vtp_value']
+macro_data_keys = ['vtp_name', 'vtp_javascript', 'vtp_html', 'vtp_url', 'vtp_trackingId', 'vtp_value', 'vtp_component']
 
 tags_index = {
     '__paused': {
