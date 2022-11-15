@@ -4321,12 +4321,17 @@ a.gtmspy-link { /* Custom Addition */
 }
 
 h2.gtmspy-hr { /* Custom Addition */
-    width: 100%;
-    text-align: center;
-    border-bottom: 1px solid #c9c9c9;
-    line-height: 0.1em;
-    /* margin: 10px 0 10px; */
+   width: 100%;
+   text-align: center;
+   border-bottom: 1px solid #c9c9c9;
+   line-height: 0.1em;
+   margin: 10px 0 20px;
     font-size: medium;
+}
+
+h2.gtmspy-hr span { /* Custom Addition */
+    background:#fff;
+    padding:0 10px;
 }
 
 div.gtm-card { /* Custom Addition */

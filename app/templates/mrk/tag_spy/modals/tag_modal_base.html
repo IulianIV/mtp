@@ -1,23 +1,122 @@
 {% macro tags_modal(tags) %}
     {% for tag in tags %}
-        {% set modal_id = tag['function'] + tag['tag_idx'] | string %}
+        {% set tag_modal_id = tag['function'] + tag['tag_idx'] | string %}
 
-        {# Tag Modals Start #}
-        {% from 'mrk/tag_spy/modals/tag_main_modals.html' import tag_trigger_group_main with context %}
-        {{ tag_trigger_group_main(tag, modal_id, 'tag') }}
+        <div class="modal fade" id="{{ tag_modal_id }}"
+             tabindex="-1" role="dialog"
+             aria-labelledby="{{ tag_modal_id }}"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"
+                            id="{{ tag_modal_id }}">
+                            {#                            {% if modal_type == 'trigger_group' %}#}
+                            {#                                Trigger Group#}
+                            {#                                details#}
+                            {#                            {% elif modal_type == 'tag' %}#}
+                            {#                                #}
+                            {#                            {% endif %}#}
+
+                            {{ tag['title'] }}
+                            details
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <strong>Key list</strong>
+                                    <hr/>
+                                    {#                                    {% if modal_type == 'trigger_group' %}#}
+                                    {#                                        <div class="row">#}
+                                    {#                                            {% for key, var in tag.items() %}#}
+                                    {#                                                {% if key not in skip_tag_keys %}#}
+                                    {#                                                    {% set snippet_modal_id = key + loop.index0 | string %}#}
+                                    {#                                                    <div class="col-8 col-sm-6">#}
+                                    {#                                                        {{ key }}#}
+                                    {#                                                    </div>#}
+                                    {#                                            <div class="col-4 col-sm-6">#}
+                                    {#                                                <button type="button" data-dismiss="modal"#}
+                                    {#                                                        class="btn btn-info btn-sm" data-toggle="modal"#}
+                                    {#                                                        data-target="#{{ snippet_modal_id }}">#}
+                                    {#                                                    {{ find_index(get_macro(tag[key])['function'], macros_index)['title'] }}#}
+                                    {#                                                </button>#}
+                                    {#                                            </div>#}
+                                    {#                                                    <div class="col-4 col-sm-6">#}
+                                    {#                                                        <span class="badge badge-pill badge-info">{{ group[key] }}</span>#}
+                                    {#                                                    </div>#}
+                                    {#                                                {% endif %}#}
+                                    {#                                            {% endfor %}#}
+                                    {#                                        </div>#}
+                                    <div class="row">
+                                        {% from 'mrk/utils.html' import process_macro_key %}
+                                        {% for key, value in tag.items() %}
+                                            {% if key not in skip_tag_keys %}
+                                                {% if key in code_snippets %}
+                                                    {% set snippet_modal_id = key + tag['tag_idx'] | string %}
+                                                    {{ process_macro_key(key, snippet_modal_id, 'Custom HTML') }}
+                                                {% elif tag['function'] == '__img' and key == 'vtp_url' %}
+                                                    {% set snippet_modal_id = 'cutom_image_' + tag['tag_idx'] | string %}
+                                                    {{ process_macro_key(key, snippet_modal_id, 'Image Tag Target URL') }}
+                                                {% elif type_check(value) == 'macro' %}
+                                                    {% set macro_modal_id = variables[value[1]]['function'] + variables[value[1]]['macro_idx'] | string %}
+                                                    {% set child_modal_name = find_index(variables[value[1]]['function'], macros_index)['title'] %}
+                                                    {{ process_macro_key(key, macro_modal_id, child_modal_name) }}
+                                                {% elif value is mapping %}
+                                                    {% set mapping_modal_id = key + tag['tag_idx'] | string + '_mapping' %}
+                                                    {{ process_macro_key(key, mapping_modal_id, 'Data Table') }}
+                                                {% else %}
+                                                    <div class="col-8 col-sm-6">
+                                                        {{ key }}
+                                                    </div>
+                                                    {% if value is true %}
+                                                        {{ process_macro_key(child_modal_name=value, badge_type='success', modal_type='no-modal') }}
+                                                    {% elif value is false %}
+                                                        {{ process_macro_key(child_modal_name=value, badge_type='dark', modal_type='no-modal') }}
+                                                    {% else %}
+                                                        {{ process_macro_key(child_modal_name=value, badge_type='info', modal_type='no-modal') }}
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Macro Input Table and Code Section start #}
+        {% for key, value in tag.items() %}
+            {% if value is mapping %}
+                {% from 'mrk/tag_spy/modals/tag_input_table.html' import tag_input_table with context %}
+                {{ tag_input_table() }}
+            {% elif key in code_snippets %}
+                {# Tag Code Block Modals Start #}
+                {% set code_input_id = key + tag['tag_idx'] | string %}
+                {% from 'mrk/tag_spy/modals/tag_code_input.html' import tags_modal_code_block with context %}
+                {{ tags_modal_code_block() }}
+            {% elif tag['function'] == '__img' and key == 'vtp_url' %}
+                {% set code_input_id = 'cutom_image_' + tag['tag_idx'] | string %}
+                {% from 'mrk/tag_spy/modals/tag_code_input.html' import tags_modal_code_block with context %}
+                {{ tags_modal_code_block() }}
+            {% endif %}
+        {% endfor %}
 
         {# Firing Conditions Start #}
-        {% from 'mrk/tag_spy/modals/tag_block_fire_conditions.html' import tag_modal_block_fire_conditions with context %}
-        {{ tag_modal_block_fire_conditions(loop, 'firing', 'conditional') }}
+        {% from 'mrk/tag_spy/modals/tag_firing_conditions.html' import tag_block_fire_conditions with context %}
+        {{ tag_block_fire_conditions(loop, 'firing', 'conditional') }}
 
         {# Blocking Conditions Start #}
-        {% from 'mrk/tag_spy/modals/tag_block_fire_conditions.html' import tag_modal_block_fire_conditions with context %}
-        {{ tag_modal_block_fire_conditions(loop, 'blocking', 'blocking') }}
+        {% from 'mrk/tag_spy/modals/tag_firing_conditions.html' import tag_block_fire_conditions with context %}
+        {{ tag_block_fire_conditions(loop, 'blocking', 'blocking') }}
 
-
-        {# Tag Code Block Modals Start #}
-        {% from 'mrk/tag_spy/modals/tag_code_input.html' import tags_modal_code_block with context %}
-        {{ tags_modal_code_block(tag.keys()) }}
 
     {% endfor %}
 {% endmacro %}

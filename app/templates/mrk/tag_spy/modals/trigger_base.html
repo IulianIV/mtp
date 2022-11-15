@@ -7,8 +7,8 @@
         {{ triggers_modal_main_modals() }}
 
         {# Firing Conditions Start #}
-        {% from 'mrk/tag_spy/modals/tag_block_fire_conditions.html' import tag_modal_block_fire_conditions with context %}
-        {{ tag_modal_block_fire_conditions(loop, 'firing', 'conditional') }}
+        {% from 'mrk/tag_spy/modals/tag_firing_conditions.html' import tag_block_fire_conditions with context %}
+        {{ tag_block_fire_conditions(loop, 'firing', 'conditional') }}
 
         {# Tag Code Block Modals Start #}
         {% from 'mrk/tag_spy/modals/tag_code_input.html' import tags_modal_code_block with context %}

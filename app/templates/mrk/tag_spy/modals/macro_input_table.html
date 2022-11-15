@@ -1,4 +1,4 @@
-{% macro variables_modal_input_table() %}
+{% macro macro_input_table() %}
     {% set modal_id = 'macro_' + var['macro_idx'] | string + '_mapping' %}
     <div class="modal fade" id={{ modal_id }} tabindex="-1" role="dialog"
          aria-labelledby="{{ modal_id }}"

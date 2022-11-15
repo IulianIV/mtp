@@ -1,13 +1,13 @@
-{% macro variables_modal_code_input() %}
-    <div class="modal fade" id="{{ mapping_modal_id }}"
+{% macro macro_code_input() %}
+    <div class="modal fade" id="{{ code_input_id }}"
          tabindex="1" role="dialog"
-         aria-labelledby="{{ mapping_modal_id }}"
+         aria-labelledby="{{ code_input_id }}"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"
-                        id="{{ mapping_modal_id }}">JS for {{ var['tag_id'] }}:
+                        id="{{ code_input_id }}">JS for {{ var['tag_id'] }}:
                         {{ var['title'] }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>

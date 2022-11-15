@@ -1,41 +1,43 @@
-{% macro tags_modal_code_block(tag_keys) %}
-    {% for key in tag_keys %}
-        {% if key in code_snippets %}
-            {% set mapping_modal_id = key + loop.index0 | string %}
-            <div class="modal fade" id="{{ mapping_modal_id }}"
-                 tabindex="1" role="dialog"
-                 aria-labelledby="{{ mapping_modal_id }}"
-                 aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title"
-                                id="{{ mapping_modal_id }}">Custom HTML for tag ID {{ tag['tag_id'] }}:
-                                {{ tag['title'] }}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="container">
+{% macro tags_modal_code_block() %}
+    <div class="modal fade" id="{{ code_input_id }}"
+         tabindex="1" role="dialog"
+         aria-labelledby="{{ code_input_id }}"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        id="{{ code_input_id }}">
+                        {% if tag['function'] == '__img' %}
+                            Custom Image Tag Target URL:
+                        {% else %}
+                            Custom HTML for tag ID {{ tag['tag_id'] }}:
+                            {{ tag['title'] }}
+                        {% endif %}
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="container">
                                             <pre class="pre-scrollable">
                                             <code class="language-js">
-                                                {{ js_prettify(tag[key]) | e | trim | safe }}
+                                                {% if tag['function'] == '__img' %}
+                                                    {{ js_prettify(tag['vtp_url']) | e | trim | safe }}
+                                                {% else %}
+                                                    {{ js_prettify(tag[key]) | e | trim | safe }}
+                                                {% endif %}
                                             </code>
                                             </pre>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
-                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        {% endif %}
-    {% endfor %}
+        </div>
+    </div>
+
 {% endmacro %}
