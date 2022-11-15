@@ -199,6 +199,7 @@ def gtm_intel_tags():
     container_domain = container.container_source
     container_version = spy.version
     skip_keys_tags = skippable_tag_keys
+    skip_macro_keys = skippable_macro_keys
 
     find_index = find_in_index
     macro_index = macros_index
@@ -214,7 +215,7 @@ def gtm_intel_tags():
                            predicates=predicates, triggers_index=triggers_index, string_list=string_list,
                            tag_from_predicate=tag_from_predicate, except_triggers=except_triggers,
                            container_id_form=container_id_form, container_domain=container_domain,
-                           GTMResourceMacro=GTMResourceMacros, js_prettify=js_prettify)
+                           GTMResourceMacro=GTMResourceMacros, js_prettify=js_prettify, skip_macro_keys=skip_macro_keys)
 
 
 @bp.route('/gtm-spy/triggers', methods=('GET', 'POST'))
