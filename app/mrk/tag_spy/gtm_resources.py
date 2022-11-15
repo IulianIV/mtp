@@ -373,8 +373,9 @@ class GTMResourceTags(GTMResourceTemplate):
             for key, value in tag.items():
                 if isinstance(value, list):
                     value_type = self.determine_type(value)
-
-                    if value_type != 'tag_que' and value_type is not None:
+                    if self.determine_type(value) == 'macro':
+                        tag[key] = value
+                    elif value_type != 'tag_que' and value_type is not None:
                         tag[key] = self.macros.process_general_resource(value)
 
         return self
