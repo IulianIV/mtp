@@ -24,7 +24,18 @@
                         {{ macro_button(var_modal_id, None, var['title'], None) }}
                     {% endif %}
                     {% if 'nameProperty' in var %}
-                        <span class="badge badge-success">{{ var[var['nameProperty']] }}</span>
+                        {% set name_propery = var[var['nameProperty']] %}
+                        {% if type_check(name_propery) == 'macro' %}
+                            {% set macro_reference = variables[name_propery[1]] %}
+                            {% set referenced_name_property = var['nameProperty'] %}
+                            {% if referenced_name_property in macro_reference %}
+                                <span class="badge badge-success">{{ macro_reference[referenced_name_property] }}</span>
+                            {% else %}
+                                <span class="badge badge-success">{{ macro_reference['title'] + ' (' + macro_reference['function'] + ')' }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge badge-success">{{ var[var['nameProperty']] }}</span>
+                        {% endif %}
                     {% endif %}
                 </th>
             </tr>

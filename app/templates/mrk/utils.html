@@ -29,6 +29,14 @@
                 {{ child_modal_name }}
             </button>
         </div>
+    {% elif modal_type == 'macro-modal' %}
+        <div class="col-4 col-sm-6">
+            <button type="button" data-dismiss="modal"
+                    class="btn btn-info btn-sm" data-toggle="modal"
+                    data-target="#{{ child_modal_id }}">
+                {{ child_modal_name }}
+            </button>
+        </div>
     {% elif modal_type == 'no-modal' %}
         <div class="col-4 col-sm-6">
             <span class="badge badge-pill badge-{{ badge_type }}">{{ child_modal_name }}</span>

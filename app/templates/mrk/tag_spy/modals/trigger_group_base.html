@@ -3,8 +3,8 @@
         {% set group_modal_id = 'triggerGroup' + trigger_groups['_group'].index(group) | string %}
 
         {# Trigger Group Modals Start #}
-        {% from 'mrk/tag_spy/modals/tag_main_modals.html' import tag_trigger_group_main with context %}
-        {{ tag_trigger_group_main(group, group_modal_id, 'trigger_group') }}
+{#        {% from 'mrk/tag_spy/modals/tag_main_modals.html' import tag_and_trigger_group_main_modals with context %}#}
+{#        {{ tag_and_trigger_group_main_modals(group, group_modal_id, 'trigger_group') }}#}
 
     {% endfor %}
 {% endmacro %}

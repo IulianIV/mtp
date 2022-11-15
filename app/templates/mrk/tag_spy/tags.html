@@ -39,7 +39,7 @@
                     {# Firing Triggers start #}
                     <th scope="row">
                         <button type="button" class="btn btn-outline-success btn-sm" data-toggle="modal"
-                                data-target="#conditionalModal_tag{{ loop.index0 }}">
+                                data-target="#conditionalModal_tag{{ tag['tag_idx'] }}">
                             {{ get_len(tag['_conditions']) }} conditions
                         </button>
                     </th>
@@ -245,13 +245,13 @@
         </tbody>
     </table>
 
-        {# Tag Specific Modal Start #}
+    {# Variable Modals Start#}
+    {% from 'mrk/tag_spy/modals/macro_modals_base.html' import macros_modals with context %}
+    {{ macros_modals(variables) }}
+
+    {# Tag Specific Modal Start #}
     {% from 'mrk/tag_spy/modals/tag_modal_base.html' import tags_modal with context %}
     {{ tags_modal(tag_list) }}
 
-
-    {# Variable Modals Start #}
-    {% from 'mrk/tag_spy/modals/macro_modals_base.html' import macros_modals with context %}
-    {{ macros_modals(variables) }}
 
 {% endblock %}

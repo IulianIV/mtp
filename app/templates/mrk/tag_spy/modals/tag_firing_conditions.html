@@ -1,13 +1,14 @@
-{% macro tag_modal_block_fire_conditions(base_loop, modal_type, id_type) %}
-    <div class="modal fade" id="{{ id_type }}Modal_tag{{ base_loop.index0 }}"
+{% macro tag_block_fire_conditions(base_loop, modal_type, id_type) %}
+    {% set modal_id = id_type + 'Modal_tag' + tag['tag_idx'] | string %}
+    <div class="modal fade" id="{{ modal_id }}"
          tabindex="-1" role="dialog"
-         aria-labelledby="{{ id_type }}Modal_tag{{ base_loop.index0 }}"
+         aria-labelledby="{{ modal_id }}"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"
-                        id="{{ id_type }}Modal_tag{{ base_loop.index0 }}">
+                        id="{{ modal_id }}">
                         {{ tag['title'] }}
                         {% if modal_type == 'firing' %}
                             firing
@@ -66,15 +67,15 @@
                                                     {% set evaluate = predicates[predicate_index]['arg0'] %}
                                                     {% set evaluator = predicates[predicate_index]['title'] %}
                                                     {% set against = predicates[predicate_index]['arg1'] %}
-                                                    {% set condition_modal_id_if = find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string %}
+                                                    {% set condition_modal_id_if = variables[evaluate[1]]['function'] + variables[evaluate[1]]['macro_idx'] | string %}
                                                     <div class="row justify-content-center align-items-center gtm-row">
                                                         <div class="col gtm-col">
-                                                            {% if type_check(predicates[predicate_index]['arg0']) == GTMResourceMacro %}
+                                                            {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
                                                                 <button type="button" data-dismiss="modal"
                                                                         class="btn btn-primary btn-sm"
                                                                         data-toggle="modal"
                                                                         data-target="#{{ condition_modal_id_if }}">
-                                                                    {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                                    {{ macros_index[variables[evaluate[1]]['function']]['title'] }}
                                                                 </button>
                                                             {% else %}
                                                                 <button type="button" data-dismiss="modal"
@@ -149,15 +150,15 @@
                                                     {% set evaluate = predicates[predicate_index]['arg0'] %}
                                                     {% set evaluator = predicates[predicate_index]['title'] %}
                                                     {% set against = predicates[predicate_index]['arg1'] %}
-                                                    {% set conditional_modal_id_unless = find_index(get_macro(evaluate)['function'], macros_index)['title'] | replace(' ', '') + evaluate[1] | string %}
+                                                    {% set conditional_modal_id_unless = variables[evaluate[1]]['function'] + variables[evaluate[1]]['macro_idx'] | string %}
                                                     <div class="row justify-content-center align-items-center gtm-row">
                                                         <div class="col gtm-col">
-                                                            {% if type_check(predicates[predicate_index]['arg0']) == GTMResourceMacro %}
+                                                            {% if type_check(predicates[predicate_index]['arg0']) == 'macro' %}
                                                                 <button type="button" data-dismiss="modal"
                                                                         class="btn btn-primary btn-sm"
                                                                         data-toggle="modal"
                                                                         data-target="#{{ conditional_modal_id_unless }}">
-                                                                    {{ find_index(get_macro(evaluate)['function'], macros_index)['title'] }}
+                                                                    {{ macros_index[variables[evaluate[1]]['function']]['title'] }}
                                                                 </button>
                                                             {% else %}
                                                                 <button type="button" data-dismiss="modal"
